@@ -27,7 +27,7 @@ export function FlagshipTemplate({
               {entry.readingTimeMin} min read
             </p>
           </header>
-          <div className="prose prose-lg max-w-[var(--measure-body)]">{children}</div>
+          <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)]">{children}</div>
         </div>
         <aside aria-label="Sidebar" className="hidden md:block" />
       </div>

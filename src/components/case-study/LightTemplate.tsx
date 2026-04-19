@@ -19,7 +19,7 @@ export function LightTemplate({
           {entry.frontmatter.title}
         </h1>
       </header>
-      <div className="prose prose-lg max-w-none">{children}</div>
+      <div className="prose prose-lg dark:prose-invert max-w-none">{children}</div>
     </article>
   );
 }

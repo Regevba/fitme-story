@@ -16,7 +16,7 @@ export default function FrameworkPage() {
         </p>
       </header>
       <BlueprintOverlay interactive />
-      <div className="prose prose-lg max-w-[var(--measure-body)] mt-16">
+      <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-16">
         <h2>How the floors cooperate</h2>
         <p>
           The framework is organized as six floors stacked on a shared slab. Floor 1 holds the source-of-truth state. Floor 2 is the hub-and-spoke of skills and their cache tiers. Floors 3–5 add successive SoC-inspired primitives — skill-on-demand loading, batch dispatch, dispatch intelligence. Floor 6 observes everything else via the v6.0 measurement overlay.

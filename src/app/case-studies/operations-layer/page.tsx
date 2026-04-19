@@ -17,7 +17,7 @@ export default function OperationsLayerPage() {
           Three short studies of how the framework&apos;s operations layer handled maintenance, cleanup, and IA drift.
         </p>
       </header>
-      <div className="prose prose-lg max-w-[var(--measure-body)]">
+      <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)]">
         <h2>Audit remediation</h2>
         <p>
           A systematic remediation of 170 audit findings across 6 domains, with serial sprints replacing an aborted
