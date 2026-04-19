@@ -36,7 +36,6 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        aria-label={`${skill.displayName} — ${isOpen ? 'close' : 'open'} details`}
         className="w-full text-left rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-white dark:bg-[var(--color-neutral-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-indigo)]"
         style={{
           borderLeft: `6px solid ${skill.accent}`,
@@ -77,7 +76,10 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
           }}
         >
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-serif text-base" style={{ color: skill.accent }}>
+            <span
+              className="font-serif text-base text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] border-b-2 pb-0.5"
+              style={{ borderColor: skill.accent }}
+            >
               {skill.displayName}
             </span>
             <span className="text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
@@ -148,8 +150,8 @@ function SkillChip({ slug, onPick }: { slug: SkillSlug; onPick: (s: SkillSlug) =
         e.stopPropagation();
         onPick(slug);
       }}
-      className="text-[10px] px-1.5 py-0.5 rounded font-sans hover:underline"
-      style={{ backgroundColor: `${s.accent}22`, color: s.accent }}
+      className="text-[11px] px-2 py-1 min-h-[24px] inline-flex items-center rounded font-sans hover:underline text-[var(--color-neutral-800)] dark:text-[var(--color-neutral-100)]"
+      style={{ backgroundColor: `${s.accent}33` }}
     >
       {s.displayName}
     </button>

@@ -9,6 +9,7 @@ function SkillDot({ slug }: { slug: SkillSlug }) {
       className="inline-block w-3 h-3 rounded-full"
       style={{ backgroundColor: s.accent }}
       title={s.displayName}
+      role="img"
       aria-label={s.displayName}
     />
   );
