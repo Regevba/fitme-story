@@ -7,6 +7,7 @@ import { FindingsTable } from '@/components/mdx/FindingsTable';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
 import { ChipAffinityMap } from '@/components/bespoke/ChipAffinityMap';
 import { PhaseTimingChart } from '@/components/bespoke/PhaseTimingChart';
+import { DispatchReplay } from '@/components/bespoke/DispatchReplay';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -19,5 +20,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     BlueprintOverlay,
     ChipAffinityMap,
     PhaseTimingChart,
+    DispatchReplay,
   };
 }

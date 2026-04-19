@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
 
 export const metadata: Metadata = {
@@ -26,6 +28,24 @@ export default function FrameworkPage() {
           <a href="/case-studies/soc-on-software">SoC-v5.0 case study</a>.
         </p>
       </div>
+      <section className="mt-16">
+        <Link
+          href="/framework/dispatch"
+          className="group block rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6 hover:border-[var(--color-brand-indigo)] hover:shadow-lg transition-all"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
+                See the framework in motion →
+              </h2>
+              <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                Two real feature traces walked through the six floors — scroll-driven, with floor-by-floor firing order.
+              </p>
+            </div>
+            <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
+          </div>
+        </Link>
+      </section>
     </article>
   );
 }
