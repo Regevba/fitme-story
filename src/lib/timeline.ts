@@ -61,3 +61,12 @@ export async function buildTimeline(mode: TimelineMode): Promise<TimelineNode[]>
   // features mode: placeholder — populated in a later phase
   return [];
 }
+
+export async function buildAllTimelines(): Promise<Record<TimelineMode, TimelineNode[]>> {
+  const [versions, cases, features] = await Promise.all([
+    buildTimeline('versions'),
+    buildTimeline('cases'),
+    buildTimeline('features'),
+  ]);
+  return { versions, cases, features };
+}
