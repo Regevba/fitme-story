@@ -57,8 +57,25 @@ export function LifecycleLoop() {
           const angle = phaseAngle(phase.order);
           const { x, y } = polar(CENTER, CENTER, INNER_RING_RADIUS, angle);
           const skill = getSkill(phase.primarySkillSlug as SkillSlug);
-          const labelR = INNER_RING_RADIUS + 34;
-          const labelPos = polar(CENTER, CENTER, labelR, angle);
+
+          // Label placement: for phases on the left/right sides of the
+          // circle, textAnchor='middle' causes the text to overlap the dot
+          // (half the label extends back toward center). Anchor the text on
+          // the side AWAY from the dot based on cos(angle); pad horizontally
+          // so there's a consistent gap.
+          const c = Math.cos(angle);
+          const s = Math.sin(angle);
+          const labelR = INNER_RING_RADIUS + 28;
+          let labelX = CENTER + labelR * c;
+          let labelY = CENTER + labelR * s;
+          let textAnchor: 'start' | 'middle' | 'end' = 'middle';
+          if (c > 0.3) {
+            textAnchor = 'start';
+            labelX += 6;
+          } else if (c < -0.3) {
+            textAnchor = 'end';
+            labelX -= 6;
+          }
 
           return (
             <g
@@ -75,9 +92,9 @@ export function LifecycleLoop() {
             >
               <circle cx={x} cy={y} r={12} fill={skill.accent} />
               <text
-                x={labelPos.x}
-                y={labelPos.y}
-                textAnchor="middle"
+                x={labelX}
+                y={labelY}
+                textAnchor={textAnchor}
                 dominantBaseline="middle"
                 className="fill-[var(--color-neutral-700)] dark:fill-[var(--color-neutral-300)] font-sans"
                 fontSize="12"
