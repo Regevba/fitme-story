@@ -32,7 +32,7 @@ export function ChipAffinityMap() {
                   onMouseLeave={() => setHover(null)}
                   onFocus={() => setHover({ chip: i, sig: j })}
                   onBlur={() => setHover(null)}
-                  className={`rounded p-2 text-center transition-transform ${isHover ? 'scale-110 ring-2 ring-[var(--color-brand-indigo)]' : ''}`}
+                  className={`rounded p-2 text-center motion-safe:transition-transform motion-safe:duration-150 ${isHover ? 'scale-110 ring-2 ring-[var(--color-brand-indigo)]' : ''}`}
                   style={{ backgroundColor: heatColor(score), color: score > 0.7 ? 'white' : 'black' }}
                   aria-label={`${CHIPS[i]} × ${CLOUD_SIGNATURES[j]}: affinity ${score}`}
                 >

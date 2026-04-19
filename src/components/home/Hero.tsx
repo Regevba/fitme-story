@@ -16,7 +16,7 @@ export function Hero() {
       </div>
       <div className="mt-16 flex flex-col items-center gap-2 text-sm text-[var(--color-neutral-500)] font-sans">
         <span>The story starts here</span>
-        <ChevronDown aria-hidden className="animate-bounce" size={20} />
+        <ChevronDown aria-hidden className="motion-safe:animate-bounce" size={20} />
       </div>
     </section>
   );
