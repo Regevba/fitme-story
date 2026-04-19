@@ -12,7 +12,9 @@ export default function AboutPage() {
       <h1 className="font-serif text-[length:var(--text-display-lg)]">About</h1>
       <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-8">
         <p>
-          FitMe started as a school project — an iOS app that unifies training, nutrition, recovery, and body composition.
+          FitMe is a personal project — an iOS app I built to track my own fitness and wellbeing the way I wanted: fast,
+          privacy-first, and entirely owned by the person using it. Data stays on-device by default, analysis happens
+          locally when possible, and no health signal gets silently shipped to a cloud AI.
           The interesting part isn&apos;t the app. It&apos;s what happened while building it.
         </p>
         <p>

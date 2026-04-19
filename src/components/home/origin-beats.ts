@@ -6,14 +6,19 @@ export interface OriginBeat {
 
 export const ORIGIN_BEATS: OriginBeat[] = [
   {
-    title: 'This started as a school project.',
-    body: "A fitness app, meant to ship in a semester. What actually shipped was something else.",
+    title: 'This started as a personal project.',
+    body: "I wanted a faster, simpler way to track my own fitness and wellbeing — and to keep that data private, on-device, and mine. What grew out of it was bigger than the app.",
     visual: { kind: 'emoji', value: '📱' },
   },
   {
     title: 'Building the app kept surfacing the same planning mistakes.',
     body: "Missed edge cases. Skipped research. Ship-first-measure-later. I was fast and wrong, a lot.",
     visual: { kind: 'emoji', value: '🔁' },
+  },
+  {
+    title: 'Privacy-first, on-device, owned by the user.',
+    body: "Every byte of health data stays local unless the user explicitly shares it. No cloud AI round-trips. Analysis happens on-device when possible, by design.",
+    visual: { kind: 'emoji', value: '🔒' },
   },
   {
     title: 'So I built /pm-workflow — one command, nine phases.',
