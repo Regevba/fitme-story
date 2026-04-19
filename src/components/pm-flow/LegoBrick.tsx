@@ -26,28 +26,35 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
 
   return (
     <motion.div
-      layoutId={`brick-${skill.slug}`}
       layout
-      transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-      className={`relative ${isOpen ? 'col-span-full z-10' : ''}`}
+      transition={{ type: 'spring', stiffness: 260, damping: 32 }}
+      className={`relative overflow-hidden rounded-md ${
+        isOpen ? 'col-span-full z-10' : ''
+      }`}
+      style={{ transformOrigin: 'top left' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <motion.button
+      {/* Accent stripe lives OUTSIDE the scaling content so it doesn't smear
+          across the box during close. It's a positioned element pinned to
+          the left edge of the outer (layout-animated) wrapper. */}
+      <span
+        aria-hidden
+        className="absolute left-0 top-0 bottom-0 w-1.5 pointer-events-none"
+        style={{ backgroundColor: skill.accent }}
+      />
+      <button
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        className={`w-full text-left rounded-md border bg-white dark:bg-[var(--color-neutral-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-indigo)] overflow-hidden transition-shadow ${
+        className={`w-full text-left rounded-md border bg-white dark:bg-[var(--color-neutral-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-indigo)] overflow-hidden transition-shadow pl-1.5 ${
           isOpen
             ? 'border-transparent shadow-xl'
             : 'border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]'
         }`}
-        style={{
-          borderLeft: `6px solid ${skill.accent}`,
-          ...hoverTintStyle,
-        }}
+        style={hoverTintStyle}
       >
-        <motion.div layout="position" className={isOpen ? 'p-6 md:p-8' : 'p-4'}>
+        <div className={isOpen ? 'p-6 md:p-8' : 'p-4'}>
           <div className="flex items-center gap-2 font-sans text-xs">
             <span
               className="inline-block w-2.5 h-2.5 rounded-full"
@@ -91,12 +98,23 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
             {isOpen && (
               <motion.div
                 key="details"
-                initial={reduced ? false : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
-                transition={{
-                  duration: reduced ? 0 : 0.35,
-                  delay: reduced ? 0 : 0.15,
+                initial={
+                  reduced
+                    ? false
+                    : { opacity: 0, y: 8, transition: { duration: 0.35, delay: 0.15 } }
+                }
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: reduced ? 0 : 0.35, delay: reduced ? 0 : 0.15 },
+                }}
+                // Fast exit with no delay — details vanish before the
+                // container shrinks so the grid reflow doesn't drag a
+                // scaled-down copy of the content across the row.
+                exit={{
+                  opacity: 0,
+                  y: 0,
+                  transition: { duration: reduced ? 0 : 0.12 },
                 }}
                 className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 text-sm"
               >
@@ -159,8 +177,8 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
-      </motion.button>
+        </div>
+      </button>
     </motion.div>
   );
 }
