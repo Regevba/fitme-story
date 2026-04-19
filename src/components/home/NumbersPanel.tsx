@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { useCurrentPersona } from '@/lib/persona-context';
+import { Term } from '@/components/mdx/Term';
 
 type PersonaKey = 'default' | 'hr' | 'pm' | 'dev' | 'academic';
 
@@ -93,7 +94,13 @@ export function NumbersPanel() {
           ))}
         </div>
         <p className="mt-10 text-center text-sm font-sans text-[var(--color-neutral-500)]">
-          <span className="text-[var(--color-brand-coral)]">{FOOTER_LINE[key]}</span>
+          <span className="text-[var(--color-brand-coral)]">
+            {key === 'default' ? (
+              <>Cross-feature velocity normalized by <Term slug="complexity-units">CU formula</Term> (R²=0.82).</>
+            ) : (
+              FOOTER_LINE[key]
+            )}
+          </span>
         </p>
       </div>
     </section>

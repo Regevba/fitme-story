@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { DispatchReplay } from '@/components/bespoke/DispatchReplay';
+import { Term } from '@/components/mdx/Term';
 
 export const metadata: Metadata = {
   title: 'The framework in motion — fitme-story',
@@ -28,6 +29,9 @@ export default function DispatchDemoPage() {
           </p>
           <p>
             The traces are pinned to the static methodology docs — click through for the full story.
+          </p>
+          <p>
+            A <Term slug="pm-workflow">/pm-workflow</Term> dispatch travels through <Term slug="cache-tiers">cache tiers</Term> and <Term slug="systolic-chain">systolic chains</Term> on its way to commit — the trace above names each one as it fires. Hover any underlined term here or in case studies for a plain-language definition.
           </p>
         </div>
       </section>
