@@ -1,0 +1,43 @@
+export interface OriginBeat {
+  title: string;
+  body: string;
+  visual: { kind: 'metric'; value: string; label: string } | { kind: 'emoji'; value: string };
+}
+
+export const ORIGIN_BEATS: OriginBeat[] = [
+  {
+    title: 'This started as a school project.',
+    body: "A fitness app, meant to ship in a semester. What actually shipped was something else.",
+    visual: { kind: 'emoji', value: '📱' },
+  },
+  {
+    title: 'Building the app kept surfacing the same planning mistakes.',
+    body: "Missed edge cases. Skipped research. Ship-first-measure-later. I was fast and wrong, a lot.",
+    visual: { kind: 'emoji', value: '🔁' },
+  },
+  {
+    title: 'So I built /pm-workflow — one command, nine phases.',
+    body: "Research → PRD → Tasks → UX → Implement → Test → Review → Merge → Docs. The workflow enforced what I wouldn't.",
+    visual: { kind: 'metric', value: '9', label: 'phases' },
+  },
+  {
+    title: 'Then the workflow itself started evolving.',
+    body: "Each feature ran through it. Each run exposed gaps. The framework grew to close them: caches, evals, dispatch intelligence, measurement.",
+    visual: { kind: 'metric', value: '7', label: 'framework versions' },
+  },
+  {
+    title: 'By v6.1 it was measuring itself and routing to hardware-aware models.',
+    body: "Phase timing instrumented. Cache hit rates tracked. Chip-affinity maps for model selection. The tool had learned to profile its own work.",
+    visual: { kind: 'metric', value: '17', label: 'chip profiles' },
+  },
+  {
+    title: '16 features shipped. All documented. All honest — even the failures.',
+    body: "185 audit findings, 12 critical, published in a public showcase repo. No triumphant narrative without the regressions.",
+    visual: { kind: 'metric', value: '185', label: 'audit findings' },
+  },
+  {
+    title: 'This site is the guided tour. The timeline is below.',
+    body: '↓',
+    visual: { kind: 'emoji', value: '🧭' },
+  },
+];
