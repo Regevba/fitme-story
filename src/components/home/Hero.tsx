@@ -1,5 +1,7 @@
 import { ChevronDown } from 'lucide-react';
 import { PersonaBar } from '@/components/PersonaBar';
+import { HeroSubtitle } from '@/components/home/HeroSubtitle';
+import { PersonaIndicator } from '@/components/PersonaIndicator';
 
 export function Hero() {
   return (
@@ -7,12 +9,12 @@ export function Hero() {
       <h1 className="text-[length:var(--text-display-xl)] leading-[1.05] font-serif">
         How an AI-orchestrated PM framework grew up alongside a fitness app.
       </h1>
-      <p className="mt-6 text-lg max-w-[var(--measure-narrow)] mx-auto text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-        A worked example of building software differently — 16 features shipped through
-        a framework that taught itself to measure its own work.
-      </p>
+      <HeroSubtitle />
       <div className="mt-10">
         <PersonaBar />
+        <div className="flex justify-center">
+          <PersonaIndicator />
+        </div>
       </div>
       <div className="mt-16 flex flex-col items-center gap-2 text-sm text-[var(--color-neutral-500)] font-sans">
         <span>The story starts here</span>
