@@ -1,7 +1,7 @@
 ---
 title: What Breaks When You Run 4 Features at Once — And How to Fix It
 slug: dispatch-intelligence
-tier: standard
+tier: flagship
 timeline_position:
   version: '5.2'
   order: 9
@@ -15,6 +15,8 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 # What Breaks When You Run 4 Features at Once — And How to Fix It
 
 > A stress test revealed two bottlenecks in parallel execution. The fix cut tool usage by 48% and variance by 84%.
+
+<HeroMetric value="48%" label="tool-use reduction with dispatch intelligence" accentVar="var(--skill-qa)" />
 
 ## Context
 
@@ -71,6 +73,15 @@ The stress test generated 5 research ideas that decomposed into 3 sub-projects:
 Task arrives → [1] Score complexity → [2] Probe capability → [3] Dispatch with budget
 ```
 
+<FlowDiagram
+  nodesJson={JSON.stringify([
+    { label: "Score complexity", sublabel: "static scoring + accuracy gate", colorVar: "var(--skill-research)" },
+    { label: "Probe capability", sublabel: "table lookup + micro-probe", colorVar: "var(--skill-dev)" },
+    { label: "Dispatch with budget", sublabel: "tier × budget × timeout", colorVar: "var(--skill-qa)" }
+  ])}
+  caption="The 3-stage dispatch pipeline. Each stage runs pre-flight before any tool call."
+/>
+
 **Stage 1 — Static complexity scoring.** Tasks get a complexity rating (lightweight / standard / heavyweight) at creation time. A validation flag tracks prediction accuracy — if it drops below 60% after 20+ dispatches, the system recommends switching to dynamic scoring.
 
 **Stage 2 — Hybrid capability probe.** Table lookup (instant) for known paths, micro-probe (fast) only for ambiguous paths. The critical discovery: framework state paths must always route to the controller, never to subagents.
@@ -96,6 +107,28 @@ Task arrives → [1] Score complexity → [2] Probe capability → [3] Dispatch 
 | Build failures | 0/5 | 0/1 | Same |
 | Permission-blocked dispatches | 16/31 (52%) | 0 | **Eliminated** |
 
+<BeforeAfter
+  beforeLabel="v5.1 avg tool uses"
+  beforeValue="22"
+  beforeSubtitle="no dispatch intelligence"
+  afterLabel="v5.2 avg tool uses"
+  afterValue="11.4"
+  afterSubtitle="with dispatch intelligence"
+  afterAccentVar="var(--skill-qa)"
+  delta="48% reduction"
+/>
+
+<BeforeAfter
+  beforeLabel="v5.1 tool-use variance"
+  beforeValue="23×"
+  beforeSubtitle="3 → 68 tool spread"
+  afterLabel="v5.2 tool-use variance"
+  afterValue="3.7×"
+  afterSubtitle="5 → 19 tool spread"
+  afterAccentVar="var(--skill-qa)"
+  delta="84% reduction"
+/>
+
 ### Bonus: The Review Gate Validated
 
 A review agent dispatched against Push Notifications (5 Swift files, 525 lines) found 2 critical bugs:
@@ -114,6 +147,17 @@ Both compiled. Both passed tests. The review phase caught functional gaps that b
 | v5.1 serial | ~22 | 5.6x |
 | v5.1 parallel (4 features) | 48.8 | **12.4x** |
 | v5.2 parallel (with dispatch intelligence) | ~55 | **~14x** |
+
+<RankedBars
+  title="CU/hour progression across framework versions"
+  itemsJson={JSON.stringify([
+    { label: "v5.2 parallel (dispatch intel)", value: 55, colorVar: "var(--skill-qa)", valueSuffix: " CU/hr" },
+    { label: "v5.1 parallel (4 features)", value: 48.8, colorVar: "var(--skill-dev)", valueSuffix: " CU/hr" },
+    { label: "v5.1 serial", value: 22, colorVar: "var(--skill-analytics)", valueSuffix: " CU/hr" },
+    { label: "v2.0 serial (baseline)", value: 3.95, colorVar: "var(--color-neutral-500)", valueSuffix: " CU/hr" }
+  ])}
+  caption="14× vs baseline with dispatch intelligence + parallel execution."
+/>
 
 ---
 
