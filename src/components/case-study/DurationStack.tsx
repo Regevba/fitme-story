@@ -38,13 +38,13 @@ export function DurationStack({ segments: segmentsProp, segmentsJson, caption, s
               whileInView={{ width: `${pct}%` }}
               viewport={{ once: true }}
               transition={{ duration: reduced ? 0 : 0.6, delay: reduced ? 0 : i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
-              className="flex items-center justify-center text-white text-xs font-medium"
+              className="flex items-center justify-center text-white text-xs font-medium overflow-hidden whitespace-nowrap"
               style={{ backgroundColor: seg.colorVar }}
               role="img"
               aria-label={`${seg.label}: ${seg.minutes} minutes, ${pct.toFixed(1)} percent`}
               title={`${seg.label}: ${seg.minutes}m`}
             >
-              {pct > 7 && seg.label}
+              {pct > 15 && seg.label}
             </motion.div>
           );
         })}
