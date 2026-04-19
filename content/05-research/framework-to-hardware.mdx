@@ -1,5 +1,5 @@
 ---
-title: "How Software Framework Evolution Recapitulates CPU Architecture History"
+title: How Software Framework Evolution Recapitulates CPU Architecture History
 slug: framework-to-hardware
 tier: unassigned
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
@@ -18,9 +18,9 @@ This document maps the complete genealogy.
 |---|---|---|---|
 | 1980s | Single-core, in-order processor | v1.0 - v4.4 | Serial PM workflow. One agent, one task, strict phase ordering. Process improvements only -- like optimizing microcode on a fixed architecture. |
 | 2000s | Configurable cores + memory compression | v5.0 | Skill-on-demand loading (configurable function units) + cache compression (hardware scratchpad with decompression). First architectural leap: 54K tokens reclaimed, overhead dropped 63%. |
-| 2010s | Heterogeneous multi-core + speculation | v5.1 | Batch dispatch (systolic array scheduling), result forwarding (UMA zero-copy), model tiering (big.LITTLE heterogeneous cores), speculative preloading (branch prediction). Eight SoC-inspired optimizations shipped in a single release. |
-| 2020s | Intelligent scheduling + coherence | v5.2 | Dispatch intelligence (CPU decode/scheduler with scoring) + parallel write safety (MESI-inspired coherence protocol). The framework became self-aware about task complexity and agent coordination. |
-| Research frontier | Self-aware adaptive hardware | v6.1 (HADF) | Hardware-aware dispatch: the framework detects and adapts to the actual hardware at both ends (device + cloud). Like a chip that reconfigures itself based on workload characteristics. |
+| 2010s | Heterogeneous multi-core + speculation | v5.1 | Batch dispatch (<Term slug="systolic-chain">systolic array</Term> scheduling), result forwarding (UMA zero-copy), model tiering (<Term slug="big-little">big.LITTLE</Term> heterogeneous cores), speculative preloading (branch prediction). Eight <Term slug="soc">SoC</Term>-inspired optimizations shipped in a single release. |
+| 2020s | Intelligent scheduling + coherence | v5.2 | <Term slug="dispatch-intelligence">Dispatch intelligence</Term> (CPU decode/scheduler with scoring) + <Term slug="parallel-write-safety">parallel write safety</Term> (MESI-inspired coherence protocol). The framework became self-aware about task complexity and agent coordination. |
+| Research frontier | Self-aware adaptive hardware | v6.1 (<Term slug="hadf">HADF</Term>) | Hardware-aware dispatch: the framework detects and adapts to the actual hardware at both ends (device + cloud). Like a chip that reconfigures itself based on workload characteristics. |
 
 ## The Component-Level Mapping
 
@@ -28,12 +28,12 @@ Each framework component maps to a specific hardware principle, chip unit, and o
 
 | Framework Component | Hardware Principle | Chip Equivalent | Open-Source Block |
 |---|---|---|---|
-| Skill-on-demand loading | LoRA hot-swap | Configurable Function Unit | CFU Playground (Google) |
-| Cache compression | 3.7-bit palettization | HW compression scratchpad | Custom LZ4 decompressor |
-| Batch dispatch | TPU weight-stationary dataflow | Systolic array + scheduler | Gemmini (Berkeley) |
+| Skill-on-demand loading | <Term slug="lora-hot-swap">LoRA hot-swap</Term> | Configurable Function Unit | CFU Playground (Google) |
+| Cache compression | 3.7-bit <Term slug="palettization">palettization</Term> | HW compression scratchpad | Custom LZ4 decompressor |
+| Batch dispatch | <Term slug="tpu">TPU</Term> weight-stationary dataflow | Systolic array + scheduler | Gemmini (Berkeley) |
 | Result forwarding | UMA zero-copy | Shared scratchpad interconnect | Snitch cluster shared L1 |
 | Model tiering (haiku/sonnet/opus) | ANE mixed-precision | Heterogeneous cores (big.LITTLE) | Rocket + Snitch |
-| Speculative preload | Branch prediction | Prefetch unit + prediction table | Custom BTB-style |
+| <Term slug="speculative-preload">Speculative preload</Term> | Branch prediction | Prefetch unit + prediction table | Custom BTB-style |
 | Systolic chain protocol | TPU systolic array | Pipelined execution stages | Gemmini dataflow |
 | Dispatch intelligence | CPU scheduler/decode | Dispatch/decode unit with scoring | Custom 3-stage pipeline |
 | Parallel write safety | Cache coherence (MESI) | Coherence protocol unit | MESI controller |

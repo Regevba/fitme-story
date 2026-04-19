@@ -1,9 +1,9 @@
 ---
-title: "Can You Test AI Output Quality the Same Way You Test Code?"
+title: Can You Test AI Output Quality the Same Way You Test Code?
 slug: eval-driven-development
 tier: standard
 timeline_position:
-  version: "4.4"
+  version: '4.4'
   order: 3
 persona_emphasis:
   hr: outcomes
@@ -14,7 +14,7 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
 # Can You Test AI Output Quality the Same Way You Test Code?
 
-> What happens when you add a formal eval layer — golden I/O tests and heuristic quality checks — to an AI-assisted PM framework?
+> What happens when you add a formal <Term slug="eval-layer">eval layer</Term> — golden I/O tests and heuristic quality checks — to an AI-assisted PM framework?
 
 ## Context
 
@@ -47,7 +47,7 @@ Before v4.4, AI quality verification was binary: "build passes, tests pass." But
 | Wall time | ~55 min (including follow-on eval file) |
 | Eval cases | 29 across 4 files |
 | Eval pass rate | 100% (29/29 green on first run) |
-| Complexity Units | 12.6 |
+| <Term slug="complexity-units">Complexity Units</Term> | 12.6 |
 | Velocity | 4.37 min/CU (+71% vs baseline) |
 | Framework lifecycle change | 5-phase → 6-phase (added Eval) |
 | Coverage gaps identified | 3 subsystems with zero eval coverage |

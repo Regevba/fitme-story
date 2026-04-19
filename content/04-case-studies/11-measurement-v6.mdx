@@ -1,9 +1,9 @@
 ---
-title: "When We Stopped Estimating and Started Measuring"
+title: When We Stopped Estimating and Started Measuring
 slug: measurement-v6
 tier: standard
 timeline_position:
-  version: "6.0"
+  version: '6.0'
   order: 11
 persona_emphasis:
   hr: outcomes
@@ -40,7 +40,7 @@ The Readiness v2 regression (-18% vs baseline) had an error band of -6% to -29%.
 
 ## What v6.0 Built
 
-**Phase timing instrumentation.** Per-phase start/end timestamps in the state schema, with pause detection and multi-session support. A verification target validates that timing fields are present and well-formed.
+**<Term slug="phase-timing">Phase timing</Term> instrumentation.** Per-phase start/end timestamps in the state schema, with pause detection and multi-session support. A verification target validates that timing fields are present and well-formed.
 
 **Deterministic cache tracking.** L1/L2/L3 counters with hit/miss detail logs, hit type taxonomy (exact, adapted, partial), and velocity annotations. A shared aggregate file tracks rolling hit rates by skill and level.
 
@@ -78,7 +78,7 @@ This feature is its own proof of concept. The phase timing data recorded during 
 |--------|-------|
 | Wall time | 90 min (measured -- first feature with instrumented timing) |
 | Tasks | 20 (20 completed, 0 rework) |
-| Complexity Units | 28.0 (CU v2: cross-feature +0.2, architectural novelty +0.2) |
+| <Term slug="complexity-units">Complexity Units</Term> | 28.0 (CU v2: cross-feature +0.2, architectural novelty +0.2) |
 | Velocity | 3.21 min/CU |
 | Rank | 3rd best of 14 features |
 | vs Baseline | 79% faster than v2.0 |

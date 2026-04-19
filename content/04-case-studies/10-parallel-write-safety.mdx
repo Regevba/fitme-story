@@ -1,9 +1,9 @@
 ---
-title: "From \"Zero Conflicts by Luck\" to \"Zero Conflicts by Design\""
+title: From "Zero Conflicts by Luck" to "Zero Conflicts by Design"
 slug: parallel-write-safety
 tier: light
 timeline_position:
-  version: "5.2"
+  version: '5.2'
   order: 10
 persona_emphasis:
   hr: outcomes
@@ -20,7 +20,7 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 During the v5.1 parallel stress test, 3 agents edited the same files simultaneously — analytics providers, service files, and the project build file — 15 times total. The result: zero conflicts. But that outcome was probabilistic, not deterministic. The agents happened to edit non-overlapping sections. With different features or different file structures, the result could have been catastrophic — silent overwrites, lost work, or corrupted build files.
 
-Parallel Write Safety (v5.2, Sub-Project B) was designed to make the zero-conflict guarantee structural rather than lucky.
+<Term slug="parallel-write-safety">Parallel Write Safety</Term> (v5.2, Sub-Project B) was designed to make the zero-conflict guarantee structural rather than lucky.
 
 ---
 
@@ -72,7 +72,7 @@ The entire safety system is a framework protocol enforced by the dispatch contro
 
 ---
 
-## How It Complements Dispatch Intelligence
+## How It Complements <Term slug="dispatch-intelligence">Dispatch Intelligence</Term>
 
 Sub-Project A (Dispatch Intelligence) decides *who* works on *what*: complexity scoring routes tasks to the right agent tier.
 

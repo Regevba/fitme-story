@@ -1,5 +1,5 @@
 ---
-title: "Orchid — Designing a RISC-V Accelerator for AI Agent Orchestration"
+title: Orchid — Designing a RISC-V Accelerator for AI Agent Orchestration
 slug: orchid-accelerator
 tier: unassigned
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
@@ -63,9 +63,9 @@ This is a research vehicle, not a product. The design is simulated on cloud infr
 
 **U5 -- Speculative Prefetcher.** Prediction table (like a branch target buffer). When a skill begins execution, prefetches the next likely skill's cache entry based on historical phase transitions. Misprediction cost: flush one cache line.
 
-**U6 -- Coherence Unit.** MESI-like protocol FSM. Coordinates when multiple units write to the same cache line. Maps directly to the parallel write safety system -- snapshot/rollback becomes hardware-enforced atomic transactions.
+**U6 -- Coherence Unit.** MESI-like protocol FSM. Coordinates when multiple units write to the same cache line. Maps directly to the <Term slug="parallel-write-safety">parallel write safety</Term> system -- snapshot/rollback becomes hardware-enforced atomic transactions.
 
-**U7 -- Systolic Array.** Uses Gemmini (an open-source systolic array generator from Berkeley) with custom parameterization. Handles inference workloads that the orchestration layer dispatches to. 8x8 or 16x16 configurable processing element array with weight-stationary dataflow.
+**U7 -- <Term slug="systolic-chain">Systolic Array</Term>.** Uses Gemmini (an open-source systolic array generator from Berkeley) with custom parameterization. Handles inference workloads that the orchestration layer dispatches to. 8x8 or 16x16 configurable processing element array with weight-stationary dataflow.
 
 **TileLink Interconnect.** Standard bus protocol. Serves as the result forwarding bus -- U1's output routes directly to U2, U2 to U3, and so on, without serialization overhead. Maps to the UMA zero-copy result forwarding optimization from the software framework.
 
@@ -106,7 +106,7 @@ Cache controller, batch scheduler, and speculative prefetcher in synthesizable R
 
 MESI FSM in RTL. All units wired together via TileLink. Full orchestration pipeline validated end-to-end: pipeline throughput must meet or exceed the Layer A baseline.
 
-### Phase 5 -- SoC Integration (Layer C)
+### Phase 5 -- <Term slug="soc">SoC</Term> Integration (Layer C)
 
 Rocket core + Orchid accelerator complex + Gemmini, composed in Chipyard. Deployed to cloud FPGAs via FireSim for near-real-time full system simulation. Real framework traces replayed through the complete SoC.
 
@@ -203,7 +203,7 @@ ORCHID  software->chip: close the loop
 
 **The insight that makes Orchid non-obvious:** Most AI accelerators start from the workload (matrix multiply, attention) and design hardware to speed it up. Orchid starts from the orchestration layer -- the decision-making that determines which workload runs where, when, and how. No one has built hardware for this because, until multi-agent AI frameworks matured, the orchestration layer was trivial. Our framework proved it is not trivial: it has its own complexity scoring, speculative execution, cache hierarchy, and coherence protocol. Those are hardware concepts running in software. Orchid gives them back to hardware.
 
-## Relationship to HADF
+## Relationship to <Term slug="hadf">HADF</Term>
 
 Orchid and the Hardware-Aware Dispatch Framework are complementary research threads. HADF asks "how should the framework adapt to whatever hardware it runs on?" Orchid asks "what if we designed hardware specifically for the framework?" If both succeed, the convergence point is an Orchid chip that is HADF-aware -- hardware that adapts its own parameters based on runtime telemetry. That is a v2 ambition, not a v1 goal.
 

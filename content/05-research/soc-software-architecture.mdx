@@ -1,5 +1,5 @@
 ---
-title: "What Chip Design Taught Us About Software Architecture"
+title: What Chip Design Taught Us About Software Architecture
 slug: soc-software-architecture
 tier: unassigned
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
@@ -28,19 +28,19 @@ Every agent invocation loaded everything, whether it needed it or not. The overh
 
 ## 7 Hardware Principles, 8 Software Optimizations
 
-### 1. LoRA Adapter Hot-Swap --> Skill-on-Demand Loading
+### 1. <Term slug="lora-hot-swap">LoRA</Term> Adapter Hot-Swap --> Skill-on-Demand Loading
 
 Apple loads ~10MB LoRA adapters dynamically per task over a single base model. Our equivalent: load only the 1-2 relevant skill files per invocation instead of all 11.
 
 **Saved ~30K tokens per session.** The routing table already knew which skills each phase needed -- we just had to use it.
 
-### 2. 3.7-bit Palettization --> Cache Compression
+### 2. 3.7-bit <Term slug="palettization">Palettization</Term> --> Cache Compression
 
 Apple compresses 3B parameters to 3.7 bits per weight via K-means palettization. Our equivalent: add a compressed view (~200 words) to each cache entry. Load compressed views by default; expand only when deeper investigation is needed.
 
 **Saved ~24K tokens per session.** Most cache reads only need the summary, not the full entry.
 
-### 3. TPU Weight-Stationary Dataflow --> Batch Audits
+### 3. <Term slug="tpu">TPU</Term> Weight-Stationary Dataflow --> Batch Audits
 
 TPUs load weights once and stream unlimited data through them. Our equivalent: load an audit template once, then process N screens as a data stream. One pattern set, many targets.
 
@@ -58,19 +58,19 @@ Apple's Neural Engine uses FP16 for bulk computation and FP32 for accuracy-criti
 
 **Reduced cost and latency on mechanical work** while preserving quality where it matters.
 
-### 6. Branch Prediction --> Speculative Cache Pre-loading
+### 6. Branch Prediction --> <Term slug="speculative-preload">Speculative Cache Pre-loading</Term>
 
 CPUs predict which branch will execute next and pre-fetch instructions. Our equivalent: when a UX skill runs, pre-load the design skill's cache because design always follows UX. Validated by academic research on speculative actions in LLM agents.
 
 **30-40% latency reduction on skill chains.** Misprediction cost: ~3K tokens (1.5% of budget) -- a worthwhile trade.
 
-### 7. TPU Systolic Array --> Skill Chain Pipeline Protocol
+### 7. TPU <Term slug="systolic-chain">Systolic Array</Term> --> Skill Chain Pipeline Protocol
 
 In a systolic array, each processing element receives only its upstream neighbor's output. Our equivalent: each skill receives only the previous skill's output plus its own L1 cache. No global reads mid-execution.
 
 **Eliminated Amdahl's Law bottleneck** on sequential skill chains.
 
-### 8. ARM big.LITTLE --> Hybrid Task Dispatch
+### 8. ARM <Term slug="big-little">big.LITTLE</Term> --> Hybrid Task Dispatch
 
 ARM's heterogeneous architecture routes heavy threads to performance cores and light threads to efficiency cores. Our equivalent: classify each task by complexity before dispatch. Lightweight tasks go to a parallel lane; heavyweight tasks get dedicated sequential attention.
 

@@ -1,5 +1,5 @@
 ---
-title: "Cache Coherence for AI Agents — Applying MESI to Parallel Code Writes"
+title: Cache Coherence for AI Agents — Applying MESI to Parallel Code Writes
 slug: parallel-write-safety
 tier: unassigned
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
@@ -43,7 +43,7 @@ Controller (on agent error/timeout):
 
 Cost is negligible: a few KB per Swift file, ~100ms for snapshot and hash. Benefit: 100% safe rollback on any failure mode.
 
-## Solution 2: Code Region Isolation (Mirror Pattern)
+## Solution 2: Code Region Isolation (<Term slug="parallel-write-safety">Mirror Pattern</Term>)
 
 Instead of agents writing directly to shared files, the controller extracts the specific code region each agent needs and gives them an isolated mirror. When the agent finishes, the controller merges the result back.
 
@@ -109,7 +109,7 @@ This gives:
 
 ## Connection to Hardware Architecture
 
-The mirror pattern maps directly to concepts from the SoC-on-Software research:
+The mirror pattern maps directly to concepts from the <Term slug="soc">SoC</Term>-on-Software research:
 
 | Hardware Principle | Application Here |
 |---|---|

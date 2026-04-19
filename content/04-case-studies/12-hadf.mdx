@@ -1,9 +1,9 @@
 ---
-title: "Hardware-Aware Dispatch — Teaching the Framework to Detect Chip Architecture"
+title: Hardware-Aware Dispatch — Teaching the Framework to Detect Chip Architecture
 slug: hadf
 tier: flagship
 timeline_position:
-  version: "6.1"
+  version: '6.1'
   order: 12
 persona_emphasis:
   hr: outcomes
@@ -13,9 +13,9 @@ persona_emphasis:
 hero_component: ChipAffinityMap
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
-# Hardware-Aware Dispatch — Teaching the Framework to Detect Chip Architecture
+# <Term slug="hadf">Hardware-Aware Dispatch</Term> — Teaching the Framework to Detect Chip Architecture
 
-> Can a software framework passively detect whether it is running on an M4 Pro, a Snapdragon 8 Gen 3, or a cloud TPU -- and does knowing that change how it allocates work?
+> Can a software framework passively detect whether it is running on an M4 Pro, a Snapdragon 8 Gen 3, or a cloud <Term slug="tpu">TPU</Term> -- and does knowing that change how it allocates work?
 
 <ChipAffinityMap />
 
@@ -56,7 +56,7 @@ Each dispatch decision uses a composite hardware score weighted by context type:
 
 ---
 
-## Cloud Fingerprinting via Mahalanobis Distance
+## Cloud Fingerprinting via <Term slug="mahalanobis-distance">Mahalanobis</Term> Distance
 
 The key technical insight: cloud providers leave measurable fingerprints in their response latency and throughput patterns, even without an API. By measuring time-to-first-token (TTFT) and tokens-per-second (TPS) across sessions, the framework classifies the backend infrastructure using Mahalanobis distance over the (TTFT, TPS) feature space.
 

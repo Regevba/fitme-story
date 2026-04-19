@@ -1,14 +1,16 @@
 ---
-title: "From Serial Pipeline to Hardware-Aware Dispatch — Framework Evolution v1.0 to v6.1"
+title: >-
+  From Serial Pipeline to Hardware-Aware Dispatch — Framework Evolution v1.0 to
+  v6.1
 slug: framework-evolution
 tier: unassigned
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
-# From Serial Pipeline to Hardware-Aware Dispatch -- Framework Evolution v1.0 to v6.1
+# From Serial Pipeline to <Term slug="hadf">Hardware-Aware Dispatch</Term> -- Framework Evolution v1.0 to v6.1
 
 ## Context
 
-This document traces the evolution of an AI-orchestrated product management framework through 12 major versions in two weeks. What started as a single script running a 9-phase pipeline became an 11-agent hub-and-spoke architecture with learning caches, self-healing integrity checks, and optimizations borrowed from Apple silicon chip design. Every version was tested on real feature work -- the case study evidence is cited alongside each version.
+This document traces the evolution of an AI-orchestrated product management framework through 12 major versions in two weeks. What started as a single script running a 9-phase pipeline became an 11-agent <Term slug="hub-and-spoke">hub-and-spoke</Term> architecture with learning caches, self-healing integrity checks, and optimizations borrowed from Apple silicon chip design. Every version was tested on real feature work -- the case study evidence is cited alongside each version.
 
 ---
 
@@ -25,9 +27,9 @@ This document traces the evolution of an AI-orchestrated product management fram
 | v4.2 | Apr 10 | Self-healing hub, Phase 0 health checks | Readiness v2, AI Engine v2 |
 | v4.3 | Apr 11 | Control room, case-study monitoring | Dashboard, cleanup program |
 | v4.4 | Apr 13 | Eval-driven development | Profile settings (9 evals) |
-| **v5.0** | **Apr 14** | **SoC: on-demand loading + cache compression = 54K tokens saved** | Framework itself |
+| **v5.0** | **Apr 14** | **<Term slug="soc">SoC</Term>: on-demand loading + cache compression = 54K tokens saved** | Framework itself |
 | **v5.1** | **Apr 14** | **8 SoC items: batch, tiering, forwarding, preload, systolic, complexity gate** | AI Engine Architecture (13 tasks) |
-| v5.2 | Apr 16 | Dispatch Intelligence + Parallel Write Safety | 4-feature stress test |
+| v5.2 | Apr 16 | <Term slug="dispatch-intelligence">Dispatch Intelligence</Term> + <Term slug="parallel-write-safety">Parallel Write Safety</Term> | 4-feature stress test |
 | **v6.0** | **Apr 16** | **Framework Measurement: deterministic timing, cache tracking, eval gates** | Full measurement pass |
 | v6.1 | Apr 16 | Hardware-Aware Dispatch: 17 chip profiles, cloud fingerprinting | Research validation |
 
@@ -164,14 +166,14 @@ By v4.3, the framework consumed ~96K tokens per session (~48% of the 200K contex
 
 | # | Optimization | Chip Inspiration | Impact |
 |---|-------------|-----------------|--------|
-| 1 | On-demand agent loading | Apple LoRA hot-swap | ~30K tokens saved |
-| 2 | Cache compression | Apple 3.7-bit palettization | ~24K tokens saved |
-| 3 | Batch dispatch | TPU weight-stationary | 5x fewer dispatches |
+| 1 | On-demand agent loading | Apple <Term slug="lora-hot-swap">LoRA hot-swap</Term> | ~30K tokens saved |
+| 2 | Cache compression | Apple 3.7-bit <Term slug="palettization">palettization</Term> | ~24K tokens saved |
+| 3 | Batch dispatch | <Term slug="tpu">TPU</Term> weight-stationary | 5x fewer dispatches |
 | 4 | Result forwarding | UMA zero-copy | Eliminate write-read cycles |
 | 5 | Model tiering | ANE mixed-precision | Fast model for mechanical, deep for judgment |
-| 6 | Speculative preload | Branch prediction | 30-40% latency reduction |
-| 7 | Systolic chains | TPU systolic array | Eliminate global reads mid-chain |
-| 8 | Task complexity gate | ARM big.LITTLE | Parallel lightweight + serial heavyweight |
+| 6 | <Term slug="speculative-preload">Speculative preload</Term> | Branch prediction | 30-40% latency reduction |
+| 7 | Systolic chains | TPU <Term slug="systolic-chain">systolic array</Term> | Eliminate global reads mid-chain |
+| 8 | Task complexity gate | ARM <Term slug="big-little">big.LITTLE</Term> | Parallel lightweight + serial heavyweight |
 
 **Combined impact:** ~63% framework overhead reduction (121K --> 45K tokens per phase).
 

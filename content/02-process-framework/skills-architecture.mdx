@@ -1,10 +1,10 @@
 ---
-title: "11-Skill Hub-and-Spoke Architecture — How AI Agents Coordinate"
+title: 11-Skill Hub-and-Spoke Architecture — How AI Agents Coordinate
 slug: skills-architecture
 tier: unassigned
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
-# 11-Skill Hub-and-Spoke Architecture -- How AI Agents Coordinate
+# 11-Skill <Term slug="hub-and-spoke">Hub-and-Spoke</Term> Architecture -- How AI Agents Coordinate
 
 ## Context
 
@@ -327,13 +327,13 @@ Phase 9 is what makes the pipeline **circular** instead of linear. After a featu
 
 ---
 
-## 9. SoC-on-Software Optimizations (v5.0/v5.1)
+## 9. <Term slug="soc">SoC</Term>-on-Software Optimizations (v5.0/v5.1)
 
 By v4.3, the framework loaded all 11 agent definitions (~30K tokens) and all cache entries (~24K tokens) at session start, regardless of which phase was active. This consumed ~54K tokens (27% of a 200K context window) before any work began.
 
 The solution borrowed from chip architecture:
 
-### On-Demand Loading (inspired by Apple LoRA Hot-Swap)
+### On-Demand Loading (inspired by Apple <Term slug="lora-hot-swap">LoRA</Term> Hot-Swap)
 
 Instead of loading all agent definitions, the hub loads only the 1-2 agents relevant to the current phase:
 
@@ -350,7 +350,7 @@ phase_skills mapping:
   learn             --> [cx, analytics, ops]
 ```
 
-### Cache Compression (inspired by Apple 3.7-bit Palettization)
+### Cache Compression (inspired by Apple 3.7-bit <Term slug="palettization">Palettization</Term>)
 
 Each cache entry has a compressed view (~200 words) loaded by default. Full expansion only on demand.
 
@@ -358,18 +358,18 @@ Each cache entry has a compressed view (~200 words) loaded by default. Full expa
 
 | # | Optimization | Chip Inspiration | What It Does |
 |---|-------------|-----------------|-------------|
-| 3 | Batch Dispatch | TPU weight-stationary | Load template once, iterate N targets. 5x fewer dispatches. |
+| 3 | Batch Dispatch | <Term slug="tpu">TPU</Term> weight-stationary | Load template once, iterate N targets. 5x fewer dispatches. |
 | 4 | Result Forwarding | UMA zero-copy | Pass output inline to next agent instead of write-to-disk-read-back. |
 | 5 | Model Tiering | ANE mixed-precision | Fast model for mechanical tasks, deep model for judgment tasks. |
-| 6 | Speculative Preload | Branch prediction | Pre-load likely-next-agent cache. 85% hit rate target. |
-| 7 | Systolic Chains | TPU systolic array | Each agent in a chain receives ONLY upstream output + own cache. |
-| 8 | Task Complexity Gate | ARM big.LITTLE | Classify tasks as lightweight (parallel) or heavyweight (serial). |
+| 6 | <Term slug="speculative-preload">Speculative Preload</Term> | Branch prediction | Pre-load likely-next-agent cache. 85% hit rate target. |
+| 7 | Systolic Chains | TPU <Term slug="systolic-chain">systolic array</Term> | Each agent in a chain receives ONLY upstream output + own cache. |
+| 8 | Task Complexity Gate | ARM <Term slug="big-little">big.LITTLE</Term> | Classify tasks as lightweight (parallel) or heavyweight (serial). |
 
 **Combined impact:** ~63% framework overhead reduction (121K --> 45K tokens per phase).
 
 ---
 
-## 10. Dispatch Intelligence (v5.2)
+## 10. <Term slug="dispatch-intelligence">Dispatch Intelligence</Term> (v5.2)
 
 A 3-stage pipeline that makes parallel agent coordination deterministic rather than luck-dependent:
 
@@ -379,7 +379,7 @@ A 3-stage pipeline that makes parallel agent coordination deterministic rather t
 
 **Results:** 48% reduction in average tool usage, 84% reduction in variance (from 23x spread to 3.7x).
 
-### Parallel Write Safety
+### <Term slug="parallel-write-safety">Parallel Write Safety</Term>
 
 2-layer system: snapshot/rollback + code region mirror pattern with progressive marker learning.
 

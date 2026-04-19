@@ -1,5 +1,5 @@
 ---
-title: "How We Normalized Complexity Across 16 Different Features"
+title: How We Normalized Complexity Across 16 Different Features
 slug: normalization-model
 tier: appendix
 persona_emphasis:
@@ -15,7 +15,7 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 ## Context
 
-Across 17 case-studied features, the project produced a rare longitudinal dataset: identical workflow template, sequential execution, and progressively newer framework versions. But comparing "6.5 hours for onboarding" to "1.5 hours for AI engine" is misleading without accounting for the fact that onboarding had 22 tasks with UI work while the AI engine enhancement had 13 tasks with cross-cutting architectural scope. The Complexity Unit (CU) model exists to make these comparisons honest.
+Across 17 case-studied features, the project produced a rare longitudinal dataset: identical workflow template, sequential execution, and progressively newer framework versions. But comparing "6.5 hours for onboarding" to "1.5 hours for AI engine" is misleading without accounting for the fact that onboarding had 22 tasks with UI work while the AI engine enhancement had 13 tasks with cross-cutting architectural scope. The <Term slug="complexity-units">Complexity Unit</Term> (CU) model exists to make these comparisons honest.
 
 ---
 
@@ -76,7 +76,7 @@ Lower is better. This is the single metric that enables cross-version comparison
 | 11 | AI Engine Arch | v5.1 | enhancement | 1.5h | 13 | 17.7 | 5.1 | +66% |
 | 12 | Onboarding Auth | v5.1 | feature | ~1.7h | 18 | 47.7 | 2.1 | +86% |
 | 13 | Parallel Stress Test | v5.1 | 4x feature | 54 min | 30 | 43.9 | 1.23 | +92% |
-| 14 | Parallel Write Safety | v5.2 | feature | 20 min | 6 | 2.16 | 9.26 | +39% |
+| 14 | <Term slug="parallel-write-safety">Parallel Write Safety</Term> | v5.2 | feature | 20 min | 6 | 2.16 | 9.26 | +39% |
 | 15 | Framework Measurement | v6.0 | feature | 1.5h | 20 | 28.0 | 3.21 | +79% |
 
 *Home v2 excluded from trend analysis -- outlier that invented the v2 convention, spawned 3 sub-features, and integrated external tools for the first time.
@@ -94,7 +94,7 @@ Lower is better. This is the single metric that enables cross-version comparison
 | v4.1 | 3 | 7.9 | +48% | Cache acceleration kicks in (40-70% hit rates) |
 | v4.2 | 3 | 10.4 | +32% | Mixed -- includes Readiness (new model type learning tax) |
 | v4.4 | 1 | 7.1 | +53% | Eval-driven development |
-| v5.1 | 2 | 3.6 | +76% | SoC optimizations + deep pattern reuse |
+| v5.1 | 2 | 3.6 | +76% | <Term slug="soc">SoC</Term> optimizations + deep pattern reuse |
 
 ### Power Law Fit
 

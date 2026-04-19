@@ -1,10 +1,10 @@
 ---
-title: "Hardware-Aware Dispatch — Designing a 5-Layer Detection System"
+title: Hardware-Aware Dispatch — Designing a 5-Layer Detection System
 slug: hadf-design
 tier: unassigned
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
-# Hardware-Aware Dispatch -- Designing a 5-Layer Detection System
+# <Term slug="hadf">Hardware-Aware Dispatch</Term> -- Designing a 5-Layer Detection System
 
 ## Context
 
@@ -12,7 +12,7 @@ This is the design specification for the Hardware-Aware Dispatch Framework (HADF
 
 ## The Problem
 
-Modern devices ship significant on-device compute that goes unused. An A17 Pro delivers 35 TOPS through its Neural Engine. A Tensor G4 exceeds 30 TOPS. Meanwhile, cloud inference hardware varies -- an H100 serves requests differently than a TPU v5 -- but the framework treats all cloud endpoints identically. Conditions change mid-session (thermal throttling, cloud load spikes, network degradation) but dispatch strategy remains static.
+Modern devices ship significant on-device compute that goes unused. An A17 Pro delivers 35 TOPS through its Neural Engine. A Tensor G4 exceeds 30 TOPS. Meanwhile, cloud inference hardware varies -- an H100 serves requests differently than a <Term slug="tpu">TPU</Term> v5 -- but the framework treats all cloud endpoints identically. Conditions change mid-session (thermal throttling, cloud load spikes, network degradation) but dispatch strategy remains static.
 
 HADF addresses three gaps:
 - On-device compute is free but unused
@@ -142,7 +142,7 @@ When you call a cloud inference API, the response does not include a hardware ma
 
 **Stage 1: Collect (calls 1-5).** Raw signal recording. Every API call automatically records TTFT, TPS, input/output counts, timestamp. Zero overhead -- these timestamps already exist.
 
-**Stage 2: Classify (calls 5-15).** Statistical classifier using Mahalanobis distance against a Hardware Signature Table:
+**Stage 2: Classify (calls 5-15).** Statistical classifier using <Term slug="mahalanobis-distance">Mahalanobis distance</Term> against a Hardware Signature Table:
 
 ```
 Hardware Class      TTFT/1K tokens   TPS (median)   TPS Variance   Batch Scaling

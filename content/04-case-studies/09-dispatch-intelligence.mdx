@@ -1,9 +1,9 @@
 ---
-title: "What Breaks When You Run 4 Features at Once — And How to Fix It"
+title: What Breaks When You Run 4 Features at Once — And How to Fix It
 slug: dispatch-intelligence
 tier: standard
 timeline_position:
-  version: "5.2"
+  version: '5.2'
   order: 9
 persona_emphasis:
   hr: outcomes
@@ -18,9 +18,9 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 ## Context
 
-Framework v5.1 had doubled the available context window through SoC-inspired optimizations. The natural next question: what happens when you push 4 features through the full PM lifecycle simultaneously? The stress test was designed to find the breaking points — and then fix them.
+Framework v5.1 had doubled the available context window through <Term slug="soc">SoC</Term>-inspired optimizations. The natural next question: what happens when you push 4 features through the full PM lifecycle simultaneously? The stress test was designed to find the breaking points — and then fix them.
 
-This case study covers both halves: the v5.1 stress test that exposed the problems, and the v5.2 Dispatch Intelligence system that solved them.
+This case study covers both halves: the v5.1 stress test that exposed the problems, and the v5.2 <Term slug="dispatch-intelligence">Dispatch Intelligence</Term> system that solved them.
 
 ---
 
@@ -62,7 +62,7 @@ The parallel execution itself was sound. The framework handled 4 features simult
 The stress test generated 5 research ideas that decomposed into 3 sub-projects:
 
 - **Sub-Project A (Dispatch Intelligence):** Complexity scoring + capability probing + tool budgets
-- **Sub-Project B (Parallel Write Safety):** Snapshot/rollback + region-based file isolation
+- **Sub-Project B (<Term slug="parallel-write-safety">Parallel Write Safety</Term>):** Snapshot/rollback + region-based file isolation
 - **Sub-Project C (Permission fix):** Hard-route framework paths to controller
 
 ### The 3-Stage Pipeline
