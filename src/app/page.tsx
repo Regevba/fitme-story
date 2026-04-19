@@ -1,9 +1,11 @@
-import { PersonaBar } from '@/components/PersonaBar';
+import { Hero } from '@/components/home/Hero';
+import { OriginNarrative } from '@/components/home/OriginNarrative';
 
 export default function HomePage() {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-16">
-      <PersonaBar />
-    </div>
+    <>
+      <Hero />
+      <OriginNarrative />
+    </>
   );
 }
