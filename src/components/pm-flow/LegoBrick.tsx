@@ -26,12 +26,15 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
 
   return (
     <motion.div
-      layout
-      transition={{ type: 'spring', stiffness: 260, damping: 32 }}
+      // layout="position" animates ONLY translate (for sibling reflow),
+      // never scale — so the active brick's size change is an instant CSS
+      // grid snap and content inside is never horizontally/vertically
+      // stretched. Other bricks slide into their new positions smoothly.
+      layout="position"
+      transition={{ type: 'spring', stiffness: 300, damping: 34 }}
       className={`relative overflow-hidden rounded-md ${
         isOpen ? 'col-span-full z-10' : ''
       }`}
-      style={{ transformOrigin: 'top left' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
