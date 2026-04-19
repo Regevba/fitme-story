@@ -38,19 +38,13 @@ export default function TrustPage() {
         </ul>
 
         <h2>Which models audit the site</h2>
-        <p className="text-[var(--color-brand-coral)] font-sans text-sm not-prose mt-2">
-          {'{{ TODO: USER_TO_FILL — which external AI models (e.g. Gemini 2.5 Pro, GPT-o3, etc.) run the audits, and optionally a short note on why each was chosen. Known: Gemini inspection pack ran over 221 project files (see project memory). }}'}
-        </p>
+        <p>Will be updated soon.</p>
 
         <h2>Audit cadence</h2>
-        <p className="text-[var(--color-brand-coral)] font-sans text-sm not-prose mt-2">
-          {'{{ TODO: USER_TO_FILL — how often audits run (e.g. after every major sprint, monthly, on each new case study publish); when the next one is scheduled. }}'}
-        </p>
+        <p>Will be updated soon.</p>
 
         <h2>Latest audit results</h2>
-        <p className="text-[var(--color-brand-coral)] font-sans text-sm not-prose mt-2">
-          {'{{ TODO: LINK_TO_LATEST_AUDIT_REPORT — point to an audit report page or markdown file once the first full cycle completes. }}'}
-        </p>
+        <p>Will be updated soon.</p>
 
         <hr />
 
