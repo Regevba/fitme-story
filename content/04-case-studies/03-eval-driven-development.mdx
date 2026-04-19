@@ -1,7 +1,7 @@
 ---
 title: Can You Test AI Output Quality the Same Way You Test Code?
 slug: eval-driven-development
-tier: standard
+tier: flagship
 timeline_position:
   version: '4.4'
   order: 3
@@ -15,6 +15,8 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 # Can You Test AI Output Quality the Same Way You Test Code?
 
 > What happens when you add a formal <Term slug="eval-layer">eval layer</Term> — golden I/O tests and heuristic quality checks — to an AI-assisted PM framework?
+
+<HeroMetric value="29 / 29" label="eval cases green on first run (4 AI subsystems)" accentVar="var(--skill-qa)" />
 
 ## Context
 
@@ -35,6 +37,18 @@ Before v4.4, AI quality verification was binary: "build passes, tests pass." But
 - **Layer 2 (monitoring schema):** A structured `ai_quality_metrics` schema that captures eval results per feature, making quality trends visible across the project's lifetime.
 
 **6-phase skill lifecycle:** The framework's skill lifecycle expanded from 5 phases to 6, inserting an Eval phase between Implementation and Review. Eval definitions happen at task planning, execution at testing, analysis at the learn phase — creating a closed loop.
+
+<FlowDiagram
+  nodesJson={JSON.stringify([
+    { label: "Plan", sublabel: "define eval criteria", colorVar: "var(--skill-pm-workflow)" },
+    { label: "Implement", sublabel: "build the feature", colorVar: "var(--skill-dev)" },
+    { label: "Eval (new)", sublabel: "golden I/O + heuristics", colorVar: "var(--skill-qa)" },
+    { label: "Review", sublabel: "spec compliance", colorVar: "var(--skill-design)" },
+    { label: "Merge", sublabel: "ship it", colorVar: "var(--skill-release)" },
+    { label: "Learn", sublabel: "eval trends in monitoring", colorVar: "var(--skill-cx)" }
+  ])}
+  caption="The new 6-phase lifecycle. Eval slots between Implementation and Review — criteria defined at Plan, run at Eval, analyzed at Learn."
+/>
 
 **Implementation:** 45 minutes total. 15 minutes for the spec, 25 minutes for 3 eval files (20 cases), 5 minutes for framework docs. A 4th eval file (9 more cases) was added 10 minutes later during the next feature.
 
@@ -64,6 +78,17 @@ Before v4.4, AI quality verification was binary: "build passes, tests pass." But
 | ProfileEvals | 9 | Golden I/O + heuristic | Minimal/full profile handling, goal mutation, enum completeness, analytics prefix compliance |
 
 The confidence gate boundary test — `0.39 fails, 0.41 passes, exact 0.4 passes` — is the kind of edge case that escapes unit tests but breaks real user experiences.
+
+<RankedBars
+  title="Eval cases per AI subsystem"
+  itemsJson={JSON.stringify([
+    { label: "ProfileEvals", value: 9, colorVar: "var(--skill-ux)", valueSuffix: " cases" },
+    { label: "ReadinessFormulaEvals", value: 7, colorVar: "var(--skill-research)", valueSuffix: " cases" },
+    { label: "AIOutputQualityEvals", value: 7, colorVar: "var(--skill-analytics)", valueSuffix: " cases" },
+    { label: "AITierBehaviorEvals", value: 6, colorVar: "var(--skill-dev)", valueSuffix: " cases" }
+  ])}
+  caption="29 assertions across 4 AI subsystems — the first systematic map of AI behaviors worth locking down."
+/>
 
 ---
 
