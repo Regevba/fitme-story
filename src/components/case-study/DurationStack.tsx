@@ -15,10 +15,13 @@ interface Props {
   segmentsJson?: string;
   caption?: string;       // "v2.0 pilot — 9 phases, 5h total"
   showLegend?: boolean;   // default true
+  // When true, suppress inline text inside each segment; readers rely on the
+  // legend below. Use for dense bars where in-segment text compresses badly.
+  hideSegmentLabels?: boolean;
   className?: string;
 }
 
-export function DurationStack({ segments: segmentsProp, segmentsJson, caption, showLegend = true, className = '' }: Props) {
+export function DurationStack({ segments: segmentsProp, segmentsJson, caption, showLegend = true, hideSegmentLabels = false, className = '' }: Props) {
   const reduced = useReducedMotion();
   const segments: Segment[] = segmentsProp ?? (segmentsJson ? JSON.parse(segmentsJson) : []);
   const total = segments.reduce((sum, s) => sum + s.minutes, 0);
@@ -44,7 +47,7 @@ export function DurationStack({ segments: segmentsProp, segmentsJson, caption, s
               aria-label={`${seg.label}: ${seg.minutes} minutes, ${pct.toFixed(1)} percent`}
               title={`${seg.label}: ${seg.minutes}m`}
             >
-              {pct > 15 && seg.label}
+              {!hideSegmentLabels && pct > 15 && seg.label}
             </motion.div>
           );
         })}
