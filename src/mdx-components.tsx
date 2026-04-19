@@ -14,6 +14,7 @@ import { BeforeAfter } from '@/components/case-study/BeforeAfter';
 import { DurationStack } from '@/components/case-study/DurationStack';
 import { RankedBars } from '@/components/case-study/RankedBars';
 import { FlowDiagram } from '@/components/case-study/FlowDiagram';
+import { ParallelGantt } from '@/components/case-study/ParallelGantt';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -33,5 +34,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     DurationStack,
     RankedBars,
     FlowDiagram,
+    ParallelGantt,
   };
 }
