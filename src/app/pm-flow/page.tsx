@@ -6,6 +6,7 @@ import { LegoWall } from '@/components/pm-flow/LegoWall';
 import { EvolutionStrip } from '@/components/pm-flow/EvolutionStrip';
 import { SharedDataTiles } from '@/components/pm-flow/SharedDataTiles';
 import { CacheTiers } from '@/components/pm-flow/CacheTiers';
+import { Term } from '@/components/mdx/Term';
 
 export const metadata: Metadata = {
   title: 'The PM-flow ecosystem — fitme-story',
@@ -28,7 +29,7 @@ export default function PmFlowPage() {
       <section id="wall" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">Every skill stands alone. All skills fit together.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          Each skill is a Lego brick — it works on its own AND it snaps into the 10-phase lifecycle. Toggle <em>Scattered</em> to see them standalone; toggle <em>Assembled</em> to see them fit into phase columns. Click any brick to flip it and read the details.
+          Each skill is a Lego brick — it works on its own AND it snaps into the 10-phase lifecycle (the <Term slug="hub-and-spoke">hub-and-spoke topology</Term>). Toggle <em>Scattered</em> to see them standalone; toggle <em>Assembled</em> to see them fit into phase columns. Click any brick to flip it and read the details.
         </p>
         <LegoWall />
       </section>
@@ -36,7 +37,7 @@ export default function PmFlowPage() {
       <section id="evolution" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">How the ecosystem grew</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          From a single monolithic skill in v1.0 to a hub-and-spoke topology by v4.3, then SoC-on-software optimizations, dispatch intelligence, and hardware-aware dispatch. Six milestones that matter most.
+          From a single monolithic skill in v1.0 to a hub-and-spoke topology by v4.3, then <Term slug="soc">SoC-on-software</Term> optimizations, dispatch intelligence, and hardware-aware dispatch. Six milestones that matter most.
         </p>
         <EvolutionStrip />
       </section>
@@ -52,7 +53,7 @@ export default function PmFlowPage() {
       <section id="cache" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">Three cache tiers, just like a CPU.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          The framework borrows the L1/L2/L3 cache hierarchy directly from CPU architecture. L1 is per-skill (fastest), L2 is shared across skills, L3 is project-wide lore. When a skill needs context, it checks L1 first — if it misses, it tries L2, then L3.
+          The framework borrows the <Term slug="cache-tiers">L1/L2/L3 cache hierarchy</Term> directly from CPU architecture. L1 is per-skill (fastest), L2 is shared across skills, L3 is project-wide lore. When a skill needs context, it checks L1 first — if it misses, it tries L2, then L3.
         </p>
         <CacheTiers />
       </section>
