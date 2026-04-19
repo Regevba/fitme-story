@@ -2,9 +2,16 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useCurrentPersona } from '@/lib/persona-context';
 import type { TimelineNode as Node } from '@/lib/timeline';
 
 export function TimelineNode({ node }: { node: Node }) {
+  const persona = useCurrentPersona();
+  const resolvedLabel =
+    persona && node.metricLabelByPersona?.[persona]
+      ? node.metricLabelByPersona[persona]
+      : node.metric.label;
+
   return (
     <motion.div
       layoutId={`timeline-node-${node.id}`}
@@ -24,7 +31,7 @@ export function TimelineNode({ node }: { node: Node }) {
         </div>
         <div className="mt-4 flex items-baseline gap-1">
           <span className="text-2xl font-semibold text-[var(--color-brand-indigo)]">{node.metric.value}</span>
-          <span className="text-xs text-[var(--color-neutral-500)] font-sans">{node.metric.label}</span>
+          <span className="text-xs text-[var(--color-neutral-500)] font-sans">{resolvedLabel}</span>
         </div>
       </Link>
     </motion.div>

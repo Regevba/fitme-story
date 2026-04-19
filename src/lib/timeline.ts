@@ -18,6 +18,41 @@ export const FRAMEWORK_VERSIONS: FrameworkVersion[] = [
   { version: '6.1', date: '2026-04-16', headline: 'Hardware-aware dispatch (HADF)', keyMetric: { value: '17', label: 'chip profiles' } },
 ];
 
+const PERSONA_METRIC_LABELS: Record<string, Record<string, string>> = {
+  '2.0': {
+    default: 'pilot', hr: 'first shipped feature', pm: 'first PM-managed feature',
+    dev: 'first orchestrated run', academic: 'baseline run',
+  },
+  '4.3': {
+    default: 'speedup', hr: 'faster shipping', pm: '6 refactors managed',
+    dev: 'hub-and-spoke topology', academic: 'power law R²=0.82',
+  },
+  '4.4': {
+    default: 'coverage', hr: 'quality enforced', pm: 'every feature tracked',
+    dev: 'eval layer added', academic: 'eval coverage gate',
+  },
+  '5.0': {
+    default: 'tokens reclaimed', hr: 'less wasted work', pm: '27% more context',
+    dev: 'skill-on-demand + compression', academic: 'reclaim measured',
+  },
+  '5.1': {
+    default: 'parallel throughput', hr: '4 features at once', pm: 'parallel phases',
+    dev: 'batch dispatch + tiering', academic: '12.4× throughput',
+  },
+  '5.2': {
+    default: 'tool-budget reduction', hr: 'less overhead', pm: '3-stage dispatch',
+    dev: 'complexity + write-safety', academic: '48% reduction',
+  },
+  '6.0': {
+    default: 'DVs deterministic', hr: 'measurable results', pm: 'phase timing live',
+    dev: 'instrumentation overlay', academic: '7/9 DVs deterministic',
+  },
+  '6.1': {
+    default: 'chip profiles', hr: 'hardware-aware', pm: 'adaptive dispatch',
+    dev: 'HADF routing', academic: 'Mahalanobis fingerprinting',
+  },
+};
+
 export type TimelineMode = 'versions' | 'cases' | 'features';
 
 export interface TimelineNode {
@@ -28,6 +63,7 @@ export interface TimelineNode {
   version: string;
   date: string;
   metric: { value: string; label: string };
+  metricLabelByPersona?: Record<string, string>;
 }
 
 export async function buildTimeline(mode: TimelineMode): Promise<TimelineNode[]> {
@@ -40,6 +76,7 @@ export async function buildTimeline(mode: TimelineMode): Promise<TimelineNode[]>
       version: v.version,
       date: v.date,
       metric: v.keyMetric,
+      metricLabelByPersona: PERSONA_METRIC_LABELS[v.version],
     }));
   }
   if (mode === 'cases') {
