@@ -1,0 +1,140 @@
+---
+title: "The Lego Metaphor — Designing the PM-Flow Ecosystem Page"
+slug: lego-pmflow
+tier: appendix
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+upstream_sha: 1326bcf
+---
+
+
+> ⚙️ **Developer deep-dive.** React · Framer Motion `LayoutGroup` · SVG concentric rings · 11-color skill palette · WCAG AA in dark mode. PM/HR readers: this is how `/pm-flow` was designed to make an 11-skill ecosystem legible to four different audiences at once — skip unless you care about the metaphor reasoning and the animation plumbing.
+
+> How do you render an 11-skill, 10-phase, 15-data-file framework on a single page without it looking like an org chart? The answer was a Lego wall, a concentric lifecycle loop, and a discipline about colors.
+
+## Context
+
+The PM-flow page had to do something the rest of the site didn't: explain the framework's *structure* — not the story of its evolution, not the case studies that prove it works, but the actual skills, phases, and shared files that make it a framework rather than a pile of prompts.
+
+The audiences have incompatible priorities. HR readers need "one glance, I get it." PMs need "show me the lifecycle and where things plug in." Devs need "give me the file structure and cache tiers." Academics need "how are the components formally related." A single diagram can't serve all four — but a *metaphor* can, if it's concrete enough to read without a legend and structured enough to decompose into details on demand.
+
+Three metaphors were on the table during brainstorming: building blocks, puzzle pieces, and tiles. Lego bricks won on two counts: they're universally recognized across ages and cultures (the HR-glance test), and "scattered → snap into place" is a movement anyone has seen, which let the page lead with an animation that *demonstrates* assembly rather than describing it.
+
+## What the page composes
+
+Seven sections, each a different lens on the same 11-skill ecosystem:
+
+1. **Hero + Lego Wall.** The bricks start scattered. On first view they snap together into a structured wall. Each brick is a skill.
+2. **Lifecycle Loop.** Concentric SVG — inner ring of 10 phase pips, outer ring of skill arcs, feedback arrow back to research.
+3. **Evolution Strip.** Six framework versions (v1 → v7) as horizontal cards with the shift that defines each.
+4. **Shared Data Tiles.** Grid of 15 JSON files (`state.json`, `skill-routing.json`, `cache-index.json`, etc.) with skill dots showing who reads and who writes.
+5. **Cache Tiers.** L1 (per-skill) / L2 (`_shared/`) / L3 (`_project/`) as three stacked layers.
+6. **Chip Affinity Map.** 17 chip profiles × 7 skill columns as a heat grid (cross-references /framework HADF).
+7. **Phase Timing Chart.** Stacked bar of average time per phase across 10 recent features.
+
+Each section is a standalone component. The page is their composition; none of them share state. This is deliberate — it meant each section could be developed, tested, and swapped independently.
+
+## The Lego Wall — scattered-to-assembled
+
+The component I want to talk about most: `<LegoWall>`. It renders 11 skills as bricks that start at randomized rotations and positions ("scattered") and animate into a grid ("assembled") on mount.
+
+**Why the animation matters.** A static grid of 11 colored tiles would tell you "here's 11 things." The scatter-to-snap animation tells you "these 11 things form a system" — the assembly IS the message. On-view, the reader watches the framework literally compose itself. It's the one animation that earns its cost because it's showing you the framework's central claim.
+
+**How it's wired.** Framer Motion's `LayoutGroup` + `layout` prop on each brick. Each brick has a `layoutId` so Framer animates its position change. The scatter positions are derived from the brick's stable index (not random per render — that would cause hydration mismatch), fed through a hash function so "scattered" looks disorderly without actually being nondeterministic.
+
+```tsx
+<LayoutGroup id="lego-wall">
+  {SKILLS.map((skill, i) => (
+    <motion.div
+      key={skill.slug}
+      layoutId={`brick-${skill.slug}`}
+      layout
+      initial={scatteredState(i)}
+      animate={assembled ? assembledState(i) : scatteredState(i)}
+      transition={{ type: "spring", stiffness: 120, damping: 20, delay: i * 0.04 }}
+    >
+      <LegoBrick skill={skill} />
+    </motion.div>
+  ))}
+</LayoutGroup>
+```
+
+**Reduced motion.** `useReducedMotion()` flips the component to render assembled on first paint, no animation. No flash of scattered state, no stagger. The visual argument for assembly survives even when the motion doesn't.
+
+## The color system — 11 skills, 11 distinct hues
+
+A page that groups skills visually needs the skills to be visually distinct. Two colors covers 2 skills. Five distinct-ish colors gets you 5. Eleven distinct colors requires deliberate color theory — or you end up with three reds that nobody can tell apart under an overhead light, and "dispatch" and "release" become indistinguishable in a screenshot shared over Slack.
+
+The approach: pick Tailwind's -500 family as a base, then shift hue around the wheel in ~33° increments. Every skill got a slot:
+
+| Skill | Hex | What it represents |
+|---|---|---|
+| pm-workflow | `#4F46E5` indigo-600 | Lifecycle orchestration |
+| research | `#6366F1` indigo-500 | Research and discovery |
+| dev | `#3B82F6` blue-500 | Implementation |
+| qa | `#14B8A6` teal-500 | Testing and validation |
+| design | `#A855F7` purple-500 | Design system work |
+| ux | `#EC4899` pink-500 | UX foundations |
+| analytics | `#06B6D4` cyan-500 | Measurement and taxonomy |
+| cx | `#F97316` orange-500 | Customer experience |
+| marketing | `#F59E0B` amber-500 | Positioning and copy |
+| ops | `#8B5CF6` violet-500 | Operations and ops digest |
+| release | `#10B981` emerald-500 | Release coordination |
+
+Colors are defined once as CSS variables (`--skill-pm-workflow`, etc.) and consumed everywhere — bricks, lifecycle loop arcs, shared-data tile dots, chip affinity heat cells, case-study chart components. The palette is the project's palette. Adding a 12th skill means adding a 12th variable and checking contrast in dark mode; the consumers don't change.
+
+**Dark mode contrast.** Several -500 colors fail WCAG AA against the dark-mode surface (`neutral-900`). Two fixes: (1) `html.dark` overrides shift the borderline colors a stop or two lighter — `--skill-pm-workflow` becomes `indigo-400` in dark. (2) For decorative dots (like skill pills on shared-data tiles), a thin ring makes them pop without requiring a contrast-compliant fill. Text sitting on the colored fills uses `color-mix(in srgb, var(--skill-*) 30%, neutral-900 70%)` backgrounds so the text can be `white` while the color remains identifiable.
+
+## The Lifecycle Loop — concentric rings
+
+`<LifecycleLoop>` is a 640×640 SVG with two rings:
+
+- **Inner ring:** 10 phase pips arranged clockwise (P0 Plan → P9 Docs), each a labeled circle. Clicking a pip scrolls to that phase's section on the page.
+- **Outer ring:** Arc segments, one per skill, colored by the skill's palette slot. An arc covers the phases that skill fires in (e.g., `qa` arcs over P5 + P7; `pm-workflow` arcs over all 10 because it's always-on).
+- **Feedback arc:** A coral arrow from P9 (Docs) back to P0 (Plan) sitting *outside* both rings, labeled "learn & cycle back." Explicitly drawn — the one thing that makes the framework a loop rather than a pipeline.
+
+**Why an arc per skill instead of a tile per phase.** The earliest sketch was a phase-column layout: 10 columns for phases, skills listed under the columns they fire in. Two problems: always-on skills (pm-workflow, ops) appeared in every column, and the reader lost the sense that skills are *things* that *span* the lifecycle. An arc gives the skill an identity that crosses phases; a column gives the phase an identity at the cost of the skill's.
+
+**Phase labels anchor radially.** Each phase pip's label sits just inside the pip, rotated so its baseline faces the center. On mobile, the labels disappear below 600px viewport width — the pip becomes tap-target with a tooltip on hover. The SVG `<title>` tag was removed during a11y fixes (Lighthouse flagged a tooltip overlay vs. the new contextual label approach).
+
+## The Shared Data Tiles — who reads, who writes
+
+Fifteen JSON files in `.claude/shared/` form the framework's communication substrate. The component renders each as a tile: filename in monospace, a row of skill-colored dots underneath, a small label "reads" or "writes" next to each dot cluster.
+
+This is the most information-dense section on the page. It has to be, because the point it makes isn't obvious from any other section: skills coordinate through files, not through runtime messaging. A reader who skims the rest of the page but lands here for 30 seconds gets the architectural claim that `skill-routing.json` is read by 6 skills and written by 2, which is why re-routing can happen without any skill knowing which others will consume its output.
+
+**Accessibility pattern for the dots.** 50+ colored dots ran afoul of Lighthouse: spans with color-only meaning failed the `aria-prohibited-attr` rule when we initially put `aria-label` on them. Fix: `role="img"` + `aria-label="qa skill"` on each dot turns them into valid labelled images. The list of dots gets wrapped in a `<ul>` with an `aria-label` summarizing the tile's relationships.
+
+## What the flip metaphor does
+
+Each Lego brick opens on click into a **detail back face**. The brick rotates 180° on the Y axis (Framer `rotateY`) and the back face shows the skill's responsibilities, files it owns, and a link to the per-skill doc. Front and back faces are both rendered — `backfaceVisibility: hidden` keeps only the facing side visible.
+
+Why a flip instead of a modal or accordion? Three reasons:
+
+- **The brick metaphor owns its own detail surface.** A brick has two sides; flipping reveals the second. A modal would break the metaphor ("this brick opens a dialog") and an accordion would reflow the wall (violating the "it's assembled" animation argument).
+- **No layout shift.** The flipped brick occupies the exact cell the assembled brick occupies. The wall stays stable; only the brick rotates. A reader can open three bricks and still see their relative positions.
+- **Keyboard affordance is identical.** The brick is a single `<button>` regardless of which face is showing. Spacebar / Enter flips it. Escape flips it back. One input pattern, two faces.
+
+**What broke first.** Initial implementation used a vertical flex wrapper that sized to the front face, then the back-face children overflowed. Fix: `minHeight: 26rem` on the brick container plus uniform padding on both faces. Every brick is now the same size regardless of back-face content length.
+
+## What was left out
+
+- **Live filtering.** Clicking a phase pip could filter the wall to skills that fire in that phase. Designed, prototyped, cut — the scattered→assembled animation is the page's one essential animation, and a second filter-animation would compete for attention. The lifecycle loop already visually answers "who fires when" via the outer-ring arcs.
+- **Per-brick sparkline.** Each brick could show a sparkline of that skill's activity over the last 10 features. Would need live data wired to the static page. Cut for complexity; the numbers live in the measurement case study already.
+- **A metric-tile version for PMs.** An alternate layout that leads with lifecycle phases instead of skills, aimed at PM readers. Kept as a backlog item — the current page serves PMs adequately via the lifecycle loop; a dedicated version is a nice-to-have if analytics shows PM traffic to `/pm-flow` underperforming.
+
+## Bottom line
+
+Eleven skills is too many for a static diagram. The Lego wall solved the legibility problem by giving each skill a physical identity that animates into a structure; the lifecycle loop solved the coordination problem by showing which skill fires when without reducing skills to phases; the shared-data tiles solved the communication problem by making the file-based substrate visible.
+
+The test that matters: a reader who spends 30 seconds on the page should be able to describe the framework in one sentence afterward. "Eleven skills coordinate through shared JSON files across a ten-phase loop, with hardware-aware dispatch selecting which skills to wake up for a given task." That's the page working.
+
+## Artifacts
+
+- Page: `src/app/pm-flow/page.tsx`
+- Components: `src/components/pm-flow/LegoWall.tsx`, `LegoBrick.tsx`, `LifecycleLoop.tsx`, `SharedDataTiles.tsx`, `EvolutionStrip.tsx`, `CacheTiers.tsx`, `PmFlowHero.tsx`
+- Data: `src/lib/skill-ecosystem.ts` (11 skills), `src/lib/lifecycle-phases.ts` (10 phases), `src/lib/shared-data-layer.ts` (15 JSONs)
+- Live: [/pm-flow](/pm-flow)
