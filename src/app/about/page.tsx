@@ -40,7 +40,11 @@ export default function AboutPage() {
           </li>
         </ul>
         <h2>Contact</h2>
-        <p>regvash21@gmail.com</p>
+        <ul>
+          <li>Email: <a href="mailto:Regev.ba@gmail.com">Regev.ba@gmail.com</a></li>
+          <li>LinkedIn: <a href="https://www.linkedin.com/in/regev-barak/" target="_blank" rel="noopener noreferrer">linkedin.com/in/regev-barak</a></li>
+          <li>Resume: <a href="/resume.pdf" download>Download PDF</a></li>
+        </ul>
       </div>
     </article>
   );
