@@ -29,3 +29,8 @@ test('mergeFrontmatter fills defaults when site-specific is empty', () => {
   assert.equal(merged.tier, 'unassigned');
   assert.equal(merged.upstream_sha, 'sha');
 });
+
+test('mergeFrontmatter: upstream fields win over site-local fields they share', () => {
+  const merged = mergeFrontmatter({ title: 'Upstream' }, { title: 'Local stale' }, 'sha');
+  assert.equal(merged.title, 'Upstream');
+});
