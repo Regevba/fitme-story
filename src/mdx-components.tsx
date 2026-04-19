@@ -9,6 +9,11 @@ import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
 import { ChipAffinityMap } from '@/components/bespoke/ChipAffinityMap';
 import { PhaseTimingChart } from '@/components/bespoke/PhaseTimingChart';
 import { DispatchReplay } from '@/components/bespoke/DispatchReplay';
+import { HeroMetric } from '@/components/case-study/HeroMetric';
+import { BeforeAfter } from '@/components/case-study/BeforeAfter';
+import { DurationStack } from '@/components/case-study/DurationStack';
+import { RankedBars } from '@/components/case-study/RankedBars';
+import { FlowDiagram } from '@/components/case-study/FlowDiagram';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -23,5 +28,10 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ChipAffinityMap,
     PhaseTimingChart,
     DispatchReplay,
+    HeroMetric,
+    BeforeAfter,
+    DurationStack,
+    RankedBars,
+    FlowDiagram,
   };
 }
