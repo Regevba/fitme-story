@@ -27,7 +27,7 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
       layoutId={`brick-${skill.slug}`}
       layout
       transition={{ type: 'spring', stiffness: 260, damping: 28 }}
-      className="relative"
+      className={`relative ${isOpen ? 'z-20 min-h-[26rem]' : ''}`}
       style={{ perspective: '1000px' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -68,7 +68,7 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
 
         {/* Back face (revealed on flip) */}
         <div
-          className="absolute inset-0 p-4 overflow-y-auto"
+          className="absolute inset-0 p-6 overflow-y-auto text-sm"
           style={{
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
@@ -77,20 +77,20 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
         >
           <div className="flex items-baseline justify-between gap-2">
             <span
-              className="font-serif text-base text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] border-b-2 pb-0.5"
+              className="font-serif text-lg text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] border-b-2 pb-0.5"
               style={{ borderColor: skill.accent }}
             >
               {skill.displayName}
             </span>
-            <span className="text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
+            <span className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
               ↺ close
             </span>
           </div>
-          <p className="mt-2 text-xs text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+          <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
             {skill.purpose}
           </p>
           <div className="mt-3">
-            <span className="text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
+            <span className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
               sub-commands
             </span>
             <div className="mt-1 flex flex-wrap gap-1">
@@ -103,7 +103,7 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
           </div>
           {skill.invokes.length > 0 && (
             <div className="mt-3">
-              <span className="text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
+              <span className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
                 invokes
               </span>
               <div className="mt-1 flex flex-wrap gap-1">
@@ -115,7 +115,7 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
           )}
           {skill.invokedBy.length > 0 && (
             <div className="mt-3">
-              <span className="text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
+              <span className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-sans">
                 invoked by
               </span>
               <div className="mt-1 flex flex-wrap gap-1">
