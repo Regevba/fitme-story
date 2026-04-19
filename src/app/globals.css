@@ -14,6 +14,19 @@
   --color-brand-coral: #F97066;
   --color-brand-coral-hover: #F15048;
 
+  /* PM-flow skill palette — one color per skill (Tailwind -500 family for a11y) */
+  --skill-pm-workflow: #4F46E5; /* indigo — hub (reuses brand-indigo) */
+  --skill-research: #F59E0B;    /* amber */
+  --skill-ux: #D946EF;           /* fuchsia */
+  --skill-design: #EC4899;       /* pink */
+  --skill-dev: #0EA5E9;          /* sky */
+  --skill-qa: #84CC16;           /* lime */
+  --skill-analytics: #06B6D4;    /* cyan */
+  --skill-cx: #F43F5E;           /* rose (outer ring) */
+  --skill-marketing: #F97316;    /* orange (outer ring) */
+  --skill-ops: #64748B;          /* slate (outer ring) */
+  --skill-release: #10B981;      /* emerald */
+
   /* Editorial neutrals (warm grays) */
   --color-neutral-50: #FAFAF9;
   --color-neutral-100: #F5F5F4;
