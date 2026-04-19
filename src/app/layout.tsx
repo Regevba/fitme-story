@@ -1,5 +1,9 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { serif, sans } from './fonts';
+import { SiteHeader } from '@/components/SiteHeader';
+import { SiteFooter } from '@/components/SiteFooter';
+import { PersonaProvider } from '@/lib/persona-context';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -10,7 +14,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
-      <body className="font-serif antialiased">{children}</body>
+      <body className="font-serif antialiased min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-1">
+          <Suspense fallback={null}>
+            <PersonaProvider>{children}</PersonaProvider>
+          </Suspense>
+        </main>
+        <SiteFooter />
+      </body>
     </html>
   );
 }
