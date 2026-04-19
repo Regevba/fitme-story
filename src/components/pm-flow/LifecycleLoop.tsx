@@ -29,18 +29,15 @@ export function LifecycleLoop() {
 
   return (
     <div className="my-8 max-w-[720px] mx-auto" aria-label="Product-development lifecycle loop — 10 phases + 3 feedback-layer skills">
+      <span className="sr-only">
+        Product-development lifecycle loop. Ten phases arranged in a clockwise circle — Research, PRD, Tasks, UX/Design, Implement, Test, Review, Merge, Docs, Learn — with a feedback arc closing the loop from Learn back to Research. Outer ring shows three feedback-layer skills that continuously feed information into the cycle: cx, ops, and marketing.
+      </span>
       <svg
         role="img"
-        aria-labelledby="loop-title loop-desc"
+        aria-label="Product-development lifecycle loop — 10 phases with a feedback arc and 3 outer-ring feedback-layer skills"
         viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
         className="w-full h-auto"
       >
-        <title id="loop-title">Product-development lifecycle loop</title>
-        <desc id="loop-desc">
-          Ten phases arranged in a clockwise circle — Research, PRD, Tasks, UX/Design, Implement, Test, Review, Merge, Docs, Learn —
-          with a feedback arc closing the loop from Learn back to Research. Outer ring shows three feedback-layer skills that
-          continuously feed information into the cycle: cx, ops, and marketing.
-        </desc>
 
         {/* Inner ring dashed guide circle */}
         <circle
