@@ -1,7 +1,7 @@
 ---
 title: "How 6 Screen Refactors Proved a 6.5x Speedup"
 slug: framework-evolution
-tier: standard
+tier: flagship
 timeline_position:
   version: "4.3"
   order: 2
@@ -15,6 +15,8 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 # How 6 Screen Refactors Proved a 6.5x Speedup
 
 > Six identical-scope tasks. Four framework versions. A controlled natural experiment that isolated framework improvement from practitioner learning.
+
+<HeroMetric value="6.5×" label="speedup across 6 identical-scope refactors" accentVar="var(--color-brand-indigo)" />
 
 ## Context
 
@@ -32,6 +34,19 @@ Between April 5 and April 10, 2026, FitMe iOS underwent a UX alignment pass acro
 | Nutrition | 487 | 4th | v4.1 | ~2h | #75 |
 | Stats | 312 | 5th | v4.1 | ~1.5h | #76 |
 | Settings | 289 | 6th | v4.1 | ~1h | #77 |
+
+<RankedBars
+  title="Wall time per refactor — sorted (note Home as documented outlier)"
+  itemsJson={JSON.stringify([
+    { label: "Home (v3.0, outlier)", value: 36, colorVar: "var(--color-neutral-500)", valueSuffix: "h" },
+    { label: "Onboarding (v2.0)", value: 6.5, colorVar: "var(--color-neutral-500)", valueSuffix: "h" },
+    { label: "Training (v4.0)", value: 5, colorVar: "var(--skill-dev)", valueSuffix: "h" },
+    { label: "Nutrition (v4.1)", value: 2, colorVar: "var(--color-brand-indigo)", valueSuffix: "h" },
+    { label: "Stats (v4.1)", value: 1.5, colorVar: "var(--color-brand-indigo)", valueSuffix: "h" },
+    { label: "Settings (v4.1)", value: 1, colorVar: "var(--color-brand-indigo)", valueSuffix: "h" }
+  ])}
+  caption="Home's 36h includes establishing the v2 convention + 3 sub-features. Its refactoring-only time was ~4-5h."
+/>
 
 *Home was an outlier -- it established the v2 file convention, spawned 3 sub-features, and integrated external tools for the first time. Its refactoring-only time was ~4-5h, consistent with the trend. All analysis excludes Home from curve fitting while retaining it as a labeled data point.
 
@@ -61,6 +76,15 @@ How skills communicate determines how much context is lost at each handoff. The 
 
 **v4.0+ -- Shared files plus a multi-level learning cache.** Cache entries were pushed to receiving skills before they began execution. The receiving skill arrived with a hypothesis already formed, not blank. This eliminated the "cold start" cost that each skill paid even when shared files existed.
 
+<FlowDiagram
+  nodesJson={JSON.stringify([
+    { label: "v2.0 conversation context", sublabel: "per-session only, no persistence", colorVar: "var(--color-neutral-500)" },
+    { label: "v3.0 shared durable files", sublabel: "audit reports + UX specs + state", colorVar: "var(--skill-research)" },
+    { label: "v4.0+ shared files + cache", sublabel: "pre-loaded patterns, warm handoffs", colorVar: "var(--color-brand-indigo)" }
+  ])}
+  caption="The communication substrate that connects skills — three generations, each eliminating the cold start of the last."
+/>
+
 The handoff improvement is most visible in the /ux-to-/design-to-/dev chain:
 
 - **v2.0 (Onboarding):** Informal finding list, no severity tiers, no token gap analysis. Result: 20 patches, 3 pbxproj fix commits, 5 latent bugs found later.
@@ -76,6 +100,17 @@ The handoff improvement is most visible in the /ux-to-/design-to-/dev chain:
 | Phase compression | 1.4 phases/h | 6.0 phases/h | 4.3x |
 | Rework cycles | 3 (pbxproj bugs) | 0 | Eliminated |
 | Defect escape rate | 5 latent bugs | 0 | Eliminated |
+
+<BeforeAfter
+  beforeLabel="v2.0 (Onboarding)"
+  beforeValue="6.5h"
+  beforeSubtitle="3 rework cycles · 5 latent bugs"
+  afterLabel="v4.1 avg (3 screens)"
+  afterValue="1.5h"
+  afterSubtitle="0 rework · 0 bugs"
+  afterAccentVar="var(--color-brand-indigo)"
+  delta="4.3× faster, defects eliminated"
+/>
 
 ---
 
