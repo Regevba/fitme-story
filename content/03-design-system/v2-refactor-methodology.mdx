@@ -1,0 +1,177 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# The V2 Refactor Methodology -- Rebuilding Screens from Foundations Up
+
+## Context
+
+When a mobile app grows organically, its earliest screens accumulate technical debt: hardcoded colors, inconsistent spacing, missing accessibility labels, ad-hoc animations. The standard fix is to "clean up" the old code in place -- patching values, swapping constants, hoping nothing breaks.
+
+FitMe rejected that approach. Instead, every screen that needed alignment with the design system went through a **V2 refactor**: a full rebuild from the design system foundations up, guided by a 60+ item checklist across 10 verification sections. The original screen (V1) stays in the repository as a readable historical reference. The rebuilt screen (V2) uses the same type name so parent views swap seamlessly with zero call-site changes.
+
+This methodology was applied to all six production screens and achieved 100% token compliance on every one.
+
+---
+
+## What "V2" Means
+
+A V2 refactor is not a patch. It's a deliberate, bottom-up rebuild:
+
+- **V1** = the original screen, built before the design system matured. Read-only during the refactor. Stays in the repo as a historical reference for diffing.
+- **V2** = the rebuilt screen, constructed entirely from design system tokens and components. Same type name as V1, different file location.
+- **The swap is invisible to parent views.** Because V2 declares the same type (e.g., `MainScreenView`), the parent view that instantiates it doesn't change. The build system simply compiles V2 instead of V1.
+
+There is no V3. If a V2 screen needs further work, it's patched in place. The V1-to-V2 split captures the first deliberate foundations-aligned rewrite. A V3 would indicate the methodology itself failed.
+
+---
+
+## The Checklist: 10 Sections
+
+### Section A -- Audit and Spec
+
+Before any code is written, the existing screen is audited against the 13 UX principles. Every violation is logged with a severity rating (P0/P1/P2) and a tractability tag:
+
+- **Auto-applicable** -- no decision needed, the fix is mechanical
+- **Needs decision** -- requires a product call (e.g., "should this card be tappable?")
+- **Needs new token** -- the design system must grow to support this pattern
+- **Needs new component** -- a reusable primitive must be created
+
+The audit produces three deliverables:
+1. An audit report with numbered findings
+2. A UX research doc mapping principles to the specific surface
+3. A UX spec covering screens, components, tokens, accessibility, motion, and state coverage
+
+The design system compliance gateway then validates every token, component, motion, accessibility, and pattern check. Failures are explicitly resolved: fix, evolve the system, or override with justification.
+
+### Section B -- File Convention
+
+The V2 file follows strict placement rules:
+
+- Lives in a `v2/` subdirectory next to the V1 file
+- Uses the same type name as V1 (enabling zero-cost parent-view swap)
+- Imports only from the design system layer and existing component library
+- Contains zero raw literals -- every visual value resolves to a semantic token
+- V1 gets a header comment marking it as historical, pointing to V2 and the audit report
+
+### Section C -- Token Compliance
+
+Every visual value in the V2 file must resolve to a semantic token:
+
+| Category | Rule |
+|----------|------|
+| **Colors** | All from semantic color tokens (Brand, Status, Surface, Text, Border, etc.). No raw color constructors or named system colors. |
+| **Typography** | All from typography tokens. Exceptions documented inline with rationale. |
+| **Spacing** | All from spacing tokens. No hardcoded padding or spacer values. |
+| **Radii** | All from radius tokens. No inline corner radius values. |
+| **Shadows** | All from shadow tokens. |
+
+Any new token added during the refactor is documented in the feature memory log with the V2 entry.
+
+### Section D -- Component Reuse
+
+- Every reusable UI element maps to an existing shared component
+- New components are justified in the audit report and live in the shared design system directory -- not as private types inside the V2 file
+- No copy-pasted patterns from V1. If V2 needs the same layout, that pattern becomes a shared component.
+
+### Section E -- UX Principles
+
+For each of the 13 principles that applies to the surface, the checklist verifies compliance:
+
+| # | Principle | Verification |
+|---|-----------|-------------|
+| 1 | **Fitts's Law** | Primary CTAs are at least 44pt with minimum 8pt spacing. Full-row tappable where the row is the action. |
+| 2 | **Hick's Law** | Maximum 5-7 actionable items per view. Multi-choice controls grouped, not flat. |
+| 3 | **Jakob's Law** | Navigation, gestures, and modals match platform conventions. |
+| 4 | **Progressive Disclosure** | Leads with the headline; detail is one tap away. |
+| 5 | **Recognition over Recall** | Critical state visible via badges, progress bars, indicators. |
+| 6 | **Consistency** | Uses shared components; no restyled patterns. |
+| 7 | **Feedback** | Every action gets immediate response within 100ms. |
+| 8 | **Error Prevention** | Destructive actions reversible or confirmed. Validation inline. |
+| 9 | **Readiness-First** | "How am I doing?" before "What should I do?" on today-facing surfaces. |
+| 10 | **Zero-Friction Logging** | Every data entry completable in under 10 seconds. |
+| 11 | **Privacy by Default** | No raw health values in analytics. Encryption implicit. |
+| 12 | **Progressive Profiling** | No upfront profiling forms. Behavior teaches the system. |
+| 13 | **Celebration Not Guilt** | Missed days are silent. Rest is "Recovery Day." PRs get celebration. |
+
+Principles that don't apply to a given surface are explicitly skipped -- no silent omissions.
+
+### Section F -- State Coverage
+
+Every screen must define and render all five states:
+
+1. **Default** -- primary content rendering
+2. **Loading** -- skeleton, branded loader, or inline spinner (threshold: no loading indicator for operations under 200ms)
+3. **Empty** -- guides the user toward first action. Copy formula: what's missing, what to do next, optional benefit
+4. **Error** -- reassures the user, explains what happened, provides recovery path. Never raw technical errors.
+5. **Success** -- transient toast for routine saves, celebration for achievements, persistent for state changes
+
+### Section G -- Accessibility
+
+9 verification items covering:
+
+- Accessibility labels on every interactive element
+- Accessibility hints on every non-trivial action
+- Text summaries for charts and data visualizations
+- Custom accessibility actions for non-standard components (rotating cards, custom controls)
+- Minimum 44x44pt tap targets with hit-area expansion for smaller visual elements
+- Minimum 8pt spacing between adjacent touch targets
+- Dynamic Type support tested at the largest accessibility size
+- WCAG AA contrast ratios (4.5:1 body text, 3:1 large text and UI components)
+- Color never used as the sole indicator -- always paired with shape, label, or position
+
+### Section H -- Motion
+
+6 verification items covering:
+
+- Every animation maps to a purpose: state change, spatial transition, feedback, attention, or celebration
+- Durations and springs use semantic motion tokens
+- Reduce Motion system setting is respected -- animations degrade gracefully
+- Haptic feedback uses the correct generator type for the interaction category
+- No animation is the sole feedback path -- VoiceOver users get equivalent signals
+
+### Section I -- Analytics
+
+5 verification items (when applicable):
+
+- Every measurable interaction has a corresponding analytics event
+- Event naming follows platform conventions (snake_case, length limits, no reserved prefixes)
+- No personally identifiable information in any parameter -- categorical bands only
+- Screen tracking wired on the V2 view's root
+- Consent gating verified -- denied consent means no events fire
+
+### Section J -- Build and Test
+
+The final gate before a V2 screen ships:
+
+- Clean build on simulator
+- Full test suite green, including new tests
+- Token compliance check passes in CI
+- Manual verification of all five states on the baseline device
+- Manual verification at the largest accessibility text size
+- Manual verification with Reduce Motion enabled
+- Manual verification with screen reader -- every interactive element navigable and labeled
+- V1 file still parses (readable historical reference, even though it's no longer compiled)
+
+---
+
+## How the Sections Map to the Development Lifecycle
+
+| Phase | Sections | Gate |
+|-------|----------|------|
+| **UX / Spec** | A (Audit and Spec) | Compliance gateway passes |
+| **Implementation** | B, C, D, E, F, G, H, I | All applicable boxes ticked |
+| **Testing** | J (Build and Test) | All verification items pass |
+| **Documentation** | PRD updated, feature memory logged, changelog entry | Lifecycle complete |
+
+No phase advances with unticked applicable boxes. If a box is intentionally skipped, the skip is documented with a reason. No silent omissions.
+
+---
+
+## Key Takeaways
+
+- **Rebuild, don't patch.** The V2 methodology produces screens built entirely from design system foundations, not screens with legacy code partially updated. The quality difference compounds across every subsequent change.
+- **The audit drives the work.** Starting with a principle-by-principle audit means nothing is missed by accident. Every violation is logged, prioritized, and explicitly resolved.
+- **60+ items sounds heavy, but it prevents rework.** Teams that skip accessibility, state coverage, or motion verification pay for it in bug reports and retrofits. The checklist front-loads the cost.
+- **V1 stays for accountability.** Keeping the original screen as a historical reference enables meaningful before/after comparison and ensures the refactor's value is visible in the diff.
+- **The methodology scaled to six screens with consistent results.** Every refactor followed the same process and achieved 100% token compliance -- evidence that the approach is repeatable, not heroic.

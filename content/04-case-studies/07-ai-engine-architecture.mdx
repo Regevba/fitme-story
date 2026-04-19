@@ -1,0 +1,120 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# First Feature Under the New Architecture — AI Engine Adaptation
+
+> What happens when the patterns you built for your development process turn out to be the same patterns your product needs?
+
+## Context
+
+The AI engine in FitMe uses a three-tier architecture: local inference, cloud API, and on-device foundation models. But the adapter layer feeding data into the engine had grown organically -- no formal protocol, no validation gate, no goal-aware intelligence. This enhancement restructured the AI engine using patterns borrowed directly from the PM framework itself: typed adapters, confidence-gated validation, and a learning feedback loop. It was the first feature where "how we build" and "what we build" used the same architectural principles.
+
+---
+
+## The Pattern Transfer
+
+The PM framework had already solved several problems that the AI engine now needed:
+
+| PM Framework Pattern | AI Engine Application | Cache Hit? |
+|---------------------|----------------------|------------|
+| Integration adapter protocol | AI input adapter protocol with typed contracts | Yes (L2) |
+| Validation gate (green/orange/red) | Recommendation confidence scoring with thresholds | Yes (L2) |
+| Analytics event naming convention | AI event taxonomy with screen prefixes | Yes (L1) |
+| Goal-aware component weights | Nutrition goal mode with metric prioritization | Yes (L1) |
+| Insight card UI structure | Confidence badge and feedback buttons | Yes (L1) |
+
+The research phase completed in 15 minutes -- not because the problem was simple, but because every architectural layer had a proven analog in the framework. The 45% cache hit rate reflects this direct pattern reuse.
+
+---
+
+## Single-Session Execution
+
+| Phase | Duration | Notes |
+|-------|----------|-------|
+| Research | 15 min | Expanded thin research into 5-layer architecture proposal with code sketches |
+| PRD | 15 min | 10 requirements, metrics, kill criteria. Goal-aware intelligence added mid-session by user. |
+| Tasks | 10 min | 13 tasks with dependency graph, parallel opportunities identified |
+| Implementation | 35 min | All 13 tasks, 17 files, 986 insertions. 3 build errors caught and fixed. |
+| Testing | 10 min | 197 tests pass, 1 test needed parameter fix |
+| Review + Merge | 5 min | Shipped as PR #79 |
+| **Total** | **~90 min** | Research through merge |
+
+**Mid-session scope expansion:** The user proposed goal-aware metric prioritization during the PRD review. This was added as two new requirements and a new data model within the same session -- no rework needed, no phase restart. The framework absorbed scope changes gracefully because the adapter pattern was flexible enough to accommodate new input dimensions.
+
+---
+
+## What Was Built
+
+**5 typed input adapters** replacing unstructured data passing: Profile, HealthKit, Training, Nutrition, and a snapshot builder that combines them into a validated input package.
+
+**Confidence-gated recommendations** with three tiers: high confidence (direct application), medium (presented with caveats), low (flagged for user review). The same green/orange/red gate pattern used in the PM framework's validation system.
+
+**Goal-aware intelligence** that shifts metric weights based on the user's current goal. A fat loss goal prioritizes caloric deficit metrics; a muscle gain goal prioritizes training volume and protein intake.
+
+**Recommendation memory** with encrypted persistence, enabling the feedback loop to learn from user responses across sessions.
+
+**Confidence badge UI** showing users how certain the AI is about each recommendation, with feedback buttons for thumbs up/down.
+
+---
+
+## Build Errors and Recovery
+
+Three build errors occurred during implementation:
+
+1. **Type naming mismatch.** Used `NutritionPlan` when the actual type was `NutritionGoalPlan`. Fixed in under 2 minutes.
+2. **Access control.** The orchestrator was public but the recommendation type was internal. Common Swift module boundary issue. Fixed in under 2 minutes.
+3. **Duplicate analytics parameter.** A `source` parameter already existed. Fixed in under 1 minute.
+
+All three were caught on the first build attempt and fixed immediately. Zero test regressions across 197 existing tests.
+
+---
+
+## Normalized Velocity
+
+| Metric | Value |
+|--------|-------|
+| Tasks | 13 |
+| Work type | Enhancement (0.8) |
+| Complexity factors | UI (+0.3) + New Model (+0.2) + Cross-Feature (+0.2) = +0.7 |
+| **Complexity Units** | **17.7** |
+| Wall time | 90 min |
+| **min/CU** | **5.1** |
+| **vs Baseline** | **+66% faster** |
+| Cache hit rate | ~45% |
+
+### What the Cache Provided
+
+| Cache Entry | Level | Time Saved (est.) |
+|-------------|-------|-------------------|
+| Adapter protocol pattern | L2 | ~10 min |
+| Validation gate model | L2 | ~8 min |
+| Analytics naming convention | L1 | ~5 min |
+| Goal-aware weights pattern | L1 | ~5 min |
+| Insight card UI structure | L1 | ~3 min |
+| Design system badge pattern | L1 | ~2 min |
+
+---
+
+## The Blurring Line Between Process and Product
+
+This is the first case where framework patterns were applied to the product's own AI system, not just to the development process. The adapter protocol that structures how PM skills communicate is the same protocol that now structures how the AI engine receives data. The validation gate that decides whether a PM workflow phase can proceed is the same gate pattern that decides whether an AI recommendation is confident enough to show.
+
+The implication: investing in framework architecture has compounding returns beyond development velocity. The patterns become a reusable vocabulary that accelerates product architecture decisions. A team that has built and refined a validation gate pattern for their development workflow does not need to design a confidence gate for their AI engine from scratch -- they already have one.
+
+---
+
+## What Was Missed
+
+**No new unit tests were written.** The feature relied on the existing 197-test suite for regression verification. The goal profile, validated recommendation, and recommendation memory types all deserve dedicated tests. This was deferred as technical debt.
+
+**Adapters were coded from memory, not from reading existing types.** The NutritionPlan naming error came from assuming a type name that did not match the actual codebase. The adapter extraction should have started by reading the existing type definitions.
+
+---
+
+## Key Takeaways
+
+- **PM framework pattern reuse is the dominant accelerator for architectural work.** The AI engine was designed in 15 minutes because every layer had a proven analog. The framework is not just a development workflow -- it is a pattern library that compounds across features.
+- **45% cache hit rate on an architectural enhancement** shows the cache works beyond screen refactors. Cross-domain pattern reuse (PM framework to AI engine) validates the L2 shared cache design.
+- **Scope expansion during PRD review was absorbed without rework.** The adapter pattern was flexible enough to accommodate goal-aware intelligence as a mid-session addition. Good architecture absorbs requirement changes.
+- **The line between "how we build" and "what we build" blurred.** The same architectural principles that make the PM framework self-improving now make the AI engine self-improving. This convergence was not planned -- it emerged from pattern reuse.

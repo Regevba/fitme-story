@@ -1,0 +1,145 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Designing the AI Recommendation Experience
+
+## Context
+
+FitMe's AI engine generates personalized recommendations across training, nutrition, recovery, and stats --- but without a user-facing surface, that intelligence is invisible. This document describes the design thinking behind surfacing AI insights through an animated brand avatar, balancing information density with approachability, and making confidence levels transparent to users.
+
+---
+
+## The Problem
+
+The AI pipeline is architecturally complete: cloud cohort engine, local fallback, on-device Foundation Model stub, four recommendation segments. But the output has no home. The intelligence layer exists in the backend with zero visibility in the UI. This PRD creates the surface that makes AI recommendations visible and actionable.
+
+---
+
+## Design Philosophy: Brand Icon as AI Avatar
+
+Rather than introducing a chatbot or text-only recommendation panel, FitMe uses the brand icon as a living, communicative AI persona. The icon (four intertwined circles in pink, yellow, blue, and teal) animates through states that communicate what the AI is doing:
+
+| Animation State | AI Meaning | Visual Description |
+|---|---|---|
+| **Breathe** | Idle, ambient awareness | Slow scale oscillation. AI is present, listening. |
+| **Rotate** | Syncing data | 360-degree rotation. HealthKit pull, cloud sync. |
+| **Pulse** | New insight ready | Scale burst. AI has something to share. |
+| **Shimmer** | Computing / thinking | Opacity oscillation. Readiness calculation, pattern analysis. |
+
+The AI never speaks as text-only. Every AI surface includes the animated brand icon as the "speaker" --- creating a conversational presence without the complexity of a chat interface.
+
+---
+
+## Three Surfaces
+
+### 1. AI Insight Card (Home Screen --- Inline)
+
+A compact card below the readiness card on the home screen. Shows the brand icon (animated) alongside the single most important current insight.
+
+```
++-------------------------------------------+
+|  [Brand Icon, breathing]                  |
+|  "Your sleep quality drove today's        |
+|   readiness to 82. Full intensity         |
+|   recommended --- your training load is   |
+|   in the sweet spot."                     |
+|                                           |
+|  [Training]  [Recovery]  [More]           |
++-------------------------------------------+
+```
+
+- Shows one insight at a time
+- Segment chips filter by domain
+- "More" opens the full AI screen
+
+### 2. AI Intelligence Sheet (Full Screen)
+
+A dedicated surface for browsing all recommendations. The brand icon is the hero element, animating based on current state.
+
+Each recommendation card includes:
+- The recommendation text in natural language
+- **Confidence level** (Low / Medium / High) --- so users know how much data backs the insight
+- **Source tier** (Local, Cloud, Foundation Model) --- transparency about where the insight came from
+- **Readiness component breakdown** showing which factors (HRV, sleep, training load, RHR, body composition) drove the recommendation
+
+The sheet also includes a readiness breakdown section with mini progress bars for each component, and a feedback mechanism (thumbs up / thumbs down) for each recommendation.
+
+### 3. Enhanced Readiness Card
+
+The existing readiness card on the home screen gets the brand icon avatar and component mini-bars:
+
+- Brand icon animates (shimmer while computing, breathe when ready)
+- Five mini progress bars below the score (HRV, Sleep, Training, RHR, Body)
+- Confidence badge
+- Tapping any mini-bar opens the AI Intelligence Sheet filtered to that component
+
+---
+
+## Navigation Design
+
+AI surfaces are integrated into existing navigation rather than creating a new tab:
+
+- Home tab contains the inline insight card
+- Tapping the insight card pushes to the full AI sheet
+- Tapping a readiness component opens the AI sheet filtered to that component
+- No new tab bar item --- the brand icon is the entry point
+
+This avoids the "empty tab" problem that plagues AI features in their early days. The AI is present on the home screen from the first session, building familiarity before the user ever navigates to the full surface.
+
+---
+
+## Transparency by Design
+
+Every recommendation surfaces three pieces of metadata that most AI products hide:
+
+1. **Confidence level** --- "How sure is the AI?" Low confidence means limited data; the system says so explicitly rather than presenting uncertain recommendations with false authority.
+2. **Source tier** --- "Where did this come from?" Users can see whether an insight came from local rules, population patterns, or the on-device model.
+3. **Component breakdown** --- "What drove this?" The readiness factors behind each recommendation are visible, so users understand the reasoning, not just the conclusion.
+
+---
+
+## Success Metrics and Kill Criteria
+
+| Metric | Target |
+|---|---|
+| AI insight card impressions per session | >70% of home loads |
+| AI sheet open rate | >25% of sessions |
+| Feedback submission rate | >15% of viewed recommendations |
+| Positive feedback rate | >60% of submitted feedback |
+| Avatar animation frame rate | 60fps consistently |
+
+**Kill criteria:**
+- Positive feedback rate < 40% after 2 weeks
+- AI sheet open rate < 5% after 2 weeks
+- Avatar animations cause frame drops below 55fps
+- Home screen load time increases by more than 100ms
+
+---
+
+## Accessibility
+
+| Principle | Application |
+|---|---|
+| Tap targets | All insight cards and interactive elements >= 44pt |
+| Motion safety | Brand icon animations respect the system Reduce Motion setting |
+| VoiceOver | Every AI state has descriptive labels |
+| Tone | Encouraging, never judgmental. "Your sleep was short" not "You failed to sleep enough." |
+
+---
+
+## What This Is Not
+
+- **Not a chatbot.** This is a card-based recommendation surface, not a conversational interface.
+- **Not a separate tab.** AI lives within existing navigation, surfacing where decisions happen.
+- **Not an archive.** Historical recommendations ("insights this week") are future work.
+- **Not a push notification trigger.** AI insights surface in-app only; notification integration is a separate feature.
+
+---
+
+## Key Takeaways
+
+1. **The brand icon as AI avatar avoids the chatbot trap.** Animation states communicate AI activity without requiring a text input box or conversational paradigm. The AI "speaks" through cards, not chat bubbles.
+2. **Confidence transparency builds trust.** Most AI products present every recommendation with equal authority. Showing confidence levels and source tiers lets users calibrate their trust appropriately.
+3. **Embedded over isolated.** Putting AI insights on the home screen (where users already are) rather than behind a separate tab means the feature gets exposure from day one without requiring users to discover it.
+4. **Kill criteria prevent AI theater.** If users ignore the recommendations or rate them poorly, the feature gets pruned rather than maintained as a hollow differentiator.

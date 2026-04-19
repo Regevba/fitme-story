@@ -1,0 +1,176 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Building a Privacy-First Fitness Platform --- Product Requirements
+
+## Context
+
+This is the master product requirements document for FitMe, an iPhone-first fitness app that replaces separate training, nutrition, and recovery apps with a single privacy-first experience. The document covers product strategy, competitive positioning, and a full feature inventory across 11 product areas. It is a living document that has evolved through three major versions as the product shipped.
+
+---
+
+## Part 1: Product Strategy
+
+### Problem Statement
+
+Serious fitness enthusiasts use 3-5 separate apps to track their training, nutrition, recovery, and body composition. This fragmentation creates:
+
+- **Data silos** --- workout data in one app, nutrition in another, sleep in a third. No unified picture of readiness or progress.
+- **Decision fatigue** --- users check multiple dashboards to answer a simple question: "What should I do today?"
+- **Privacy erosion** --- each app collects health data independently, often uploading raw biometrics to separate cloud services with varying security practices.
+- **Inconsistent UX** --- switching between apps with different design languages, interaction patterns, and data entry flows wastes time and breaks flow.
+
+**Who is affected:** Health-conscious individuals who train consistently (3-6 days/week), track macros, and want to understand how their body responds over time. These users are underserved by generic fitness apps that treat training, nutrition, and recovery as unrelated activities.
+
+**Why now:** Apple's ecosystem (HealthKit, Foundation Models, Secure Enclave) enables a privacy-first approach where sensitive health data never leaves the device unencrypted. No competitor combines federated AI intelligence with zero-knowledge encryption in a single native app.
+
+### Vision and Elevator Pitch
+
+**Vision:** FitMe is the iPhone-first fitness command center that unifies training, nutrition, recovery, and body composition into a single privacy-first experience --- powered by federated AI that learns from population patterns while keeping your data encrypted on your device.
+
+**Elevator pitch:** "FitMe replaces your training log, meal tracker, and recovery dashboard with one app that knows what you should do today --- without ever seeing your private health data."
+
+**North star metric:** Weekly Active Users who complete at least one training session AND log at least one meal (cross-feature engagement).
+
+### Target Personas
+
+#### Primary: The Consistent Lifter
+- 25-40 years old, trains 4-6 days/week, 1-5 years of structured training experience
+- Wants to build muscle, track progressive overload, optimize nutrition for body composition
+- Pain points: logging is tedious, can't see how nutrition affects recovery, uses 3+ apps
+
+#### Secondary: The Health-Conscious Professional
+- 30-50 years old, trains 3-4 days/week, values efficiency and simplicity
+- Wants to maintain fitness, manage weight, improve sleep and recovery
+- Pain points: too many screens, too much data entry, wants actionable guidance not raw numbers
+
+#### Tertiary: The Data-Driven Optimizer
+- 25-45, deep interest in biomarkers, body composition, and performance trends
+- Wants to optimize every variable --- sleep, HRV, nutrition timing, training periodization
+- Pain points: existing apps don't cross-reference enough data
+
+### Value Proposition
+
+| FitMe | Competitors |
+|-------|-------------|
+| One app for training + nutrition + recovery + stats | Separate apps for each |
+| Privacy-first: AES-256 encryption, zero-knowledge sync | Cloud storage of raw health data |
+| Federated AI: population insights without exposing PII | No AI or cloud-dependent AI |
+| Apple-first design: native SwiftUI, SF Symbols, HealthKit | Cross-platform compromises |
+| On-device intelligence (Foundation Models) | Server-side processing only |
+| Semantic design system with 90+ tokens | Inconsistent UI |
+
+**Unique positioning:** "Privacy-first fitness intelligence" --- the only app combining federated cohort AI with zero-knowledge encryption, giving users population-level insights without ever exposing personal health data to any server.
+
+### Competitive Landscape
+
+| App | Training | Nutrition | Recovery | AI | Privacy | Price |
+|-----|----------|-----------|----------|-----|---------|-------|
+| **FitMe** | Full (87 exercises, RPE, PRs) | Full (meals, macros, supplements) | Full (HRV, RHR, sleep, readiness) | Federated cohort + on-device | Zero-knowledge encryption | Freemium |
+| **Fitbod** | AI-generated workouts | No | No | Cloud AI (workout only) | Standard cloud | $12.99/mo |
+| **Strong** | Excellent logging | No | No | No | Standard cloud | $4.99/mo |
+| **MyFitnessPal** | Basic | Excellent (food database) | No | No | Data sold to third parties | $19.99/mo |
+| **Hevy** | Good logging, social | No | No | No | Standard cloud | $8.99/mo |
+| **MacroFactor** | No | Excellent (adaptive) | No | Adaptive algorithm | Standard cloud | $11.99/mo |
+
+**Where FitMe wins:**
+1. Only app combining training + nutrition + recovery + AI in one native experience
+2. Only app with zero-knowledge encryption for health data
+3. Only app with federated AI (population insights, private data stays on device)
+4. Only app with on-device Foundation Model integration
+
+### Go-to-Market Strategy
+
+**Phase 1 --- Beta (TestFlight):** Invite-only beta with 100-500 users. Focus on core training + nutrition loop validation. Collect NPS and feature requests.
+
+**Phase 2 --- App Store Launch:** App Store Optimization, landing page, social proof from beta users, Reddit/fitness community presence.
+
+**Phase 3 --- Growth:** Influencer partnerships, content marketing, referral program, Android launch to expand TAM.
+
+### Success Metrics
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| **North Star:** Cross-feature WAU | 40% of installs | Custom analytics event |
+| D1 Retention | >60% | Firebase |
+| D7 Retention | >30% | Firebase |
+| D30 Retention | >20% | Firebase |
+| NPS | >50 | In-app survey |
+| App Store Rating | >4.5 | App Store Connect |
+| Premium Conversion | >5% | Revenue analytics |
+| Crash-free Rate | >99.5% | Crash reporting |
+
+### Platform Strategy
+
+| Platform | Priority | Timeline |
+|----------|----------|----------|
+| iPhone (iOS 17+) | P0 | Shipped |
+| Android (Pixel-first) | P1 | Post-Apple closure (8-12 week estimate) |
+| Apple Watch | P2 | Post-Android |
+| iPad / macOS | P3 | Future |
+| Web Dashboard | P4 | Future |
+
+---
+
+## Part 2: Feature Inventory
+
+FitMe ships 11 product areas. Rather than reproducing every requirement, the table below summarizes what is built, what is planned, and the key differentiator per area.
+
+| Feature Area | Status | Key Capabilities | Differentiator |
+|---|---|---|---|
+| **Training Tracking** | Shipped | 87 exercises, RPE logging, PR detection, rest timer, progressive overload, cardio with HR zones | Session-by-session comparison with ghost rows |
+| **Nutrition Logging** | Shipped | Macro tracking, smart label parsing, meal templates, supplement streaks, dynamic calorie targets | Phase-based adaptive targets tied to body composition goals |
+| **Recovery and Biometrics** | Shipped | HealthKit auto-import, manual entry, HRV/RHR/sleep tracking, readiness scoring | Multi-source readiness formula (see [readiness-score-formula.md](readiness-score-formula.md)) |
+| **Home / Today Screen** | Shipped | Animated info strip, progress orb, 5-page readiness card, status dots | Single-glance daily command center answering "What should I do today?" |
+| **Stats / Progress Hub** | Shipped | 18 metrics, 5 time periods, multi-chart types, data source attribution | Coverage summary with source badges (Watch, Scale, Manual, HealthKit) |
+| **Authentication** | Shipped | Apple Sign In, passkeys/WebAuthn, email/password, biometric lock | Post-login biometric lock with Secure Enclave key protection |
+| **Settings** | Shipped | 5 category groups, unit system, appearance, sync status, customizable thresholds | Readiness threshold and Zone 2 HR range configuration |
+| **Data and Sync** | Shipped | AES-256-GCM encryption, CloudKit + Supabase sync, zero-knowledge architecture | Servers store only `.ftenc` ciphertext --- never see raw health data |
+| **AI / Cohort Intelligence** | Shipped | 3-tier pipeline, 4 recommendation segments, privacy-preserving bands, k-anonymity | Federated AI with k=50 minimum cohort size (see [ai-engine.md](ai-engine.md)) |
+| **Design System** | Shipped | 90+ semantic tokens, 13 reusable components, token pipeline with CI gate | Three-tier architecture: primitives, semantic tokens, component consumption |
+| **Onboarding** | Shipped | Welcome, goal setup, profile capture, consent framing, HealthKit permission, skip option | Permission requests with context, not blind system prompts |
+
+---
+
+## Part 3: Non-Functional Requirements
+
+### Security and Privacy
+
+| Requirement | Status |
+|-------------|--------|
+| Encryption at rest (AES-256-GCM) | Shipped |
+| Zero-knowledge sync (servers store only ciphertext) | Shipped |
+| Biometric-gated keys (Secure Enclave P-256) | Shipped |
+| GDPR Article 5 compliance (data minimization) | Shipped |
+| GDPR Article 17 (right to erasure) | Shipped |
+| GDPR Article 20 (data portability) | Shipped |
+| Memory-only session tokens | Shipped |
+
+### Performance Targets
+
+| Metric | Target |
+|--------|--------|
+| Cold start | <2s |
+| Screen transition | <300ms |
+| Sync latency (incremental) | <5s |
+| Encryption overhead | <50ms per record |
+
+### Accessibility
+
+| Requirement | Status |
+|-------------|--------|
+| WCAG AA contrast (4.6:1+ on all text) | Shipped |
+| Reduce Motion support | Shipped |
+| Minimum 44pt tap targets | Shipped |
+| Dynamic Type | Partial |
+| VoiceOver labels | Partial |
+
+---
+
+## Key Takeaways
+
+1. **Privacy as product strategy, not compliance checkbox.** Zero-knowledge encryption and federated AI are architectural decisions that shape every feature, not bolted-on privacy policies.
+2. **Data-driven kill criteria.** Every feature defines not just success metrics but explicit conditions for abandonment. This prevents feature bloat and ensures the team kills what isn't working.
+3. **Cross-feature engagement as the north star.** Rather than optimizing a single feature (workouts logged, meals tracked), the north star requires users to engage across domains --- training AND nutrition --- which validates the unification thesis.
+4. **Progressive platform expansion.** iPhone-first with a clear priority stack (Android, Watch, iPad, Web) rather than trying to ship everywhere simultaneously.

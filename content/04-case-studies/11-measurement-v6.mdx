@@ -1,0 +1,107 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# When We Stopped Estimating and Started Measuring
+
+> The case study where the measurement infrastructure measured itself being built -- and why self-referential bootstrapping is both the hardest and most honest test of an instrumentation system.
+
+## Context
+
+Through 16 features, every velocity claim in this project rested on estimated wall times (plus or minus 15-30 minutes), narrative-inferred cache hit rates ("~45%"), and binary complexity factors that treated a 1-view feature the same as a 5-view feature. The numbers were directionally correct but not reproducible. Framework v6.0 was built to fix this: deterministic timing, deterministic cache tracking, and continuous complexity factors. The twist -- this feature was the first to use the infrastructure it was building.
+
+---
+
+## The Problem
+
+Seven measurement gaps had accumulated across the project:
+
+1. **Wall time:** Estimated from commit timestamps and narrative, not instrumented. Cumulative uncertainty across 16 features: plus or minus 5.25 hours.
+2. **Cache hit rates:** Inferred from task narratives ("some tasks reused onboarding patterns"). Possibly biased -- we reported higher cache percentages for faster features because we assumed the cache helped.
+3. **Token overhead:** Word-count proxy with ~15% error.
+4. **Eval coverage:** Optional, manual. 3 of 17 features had formal evaluations.
+5. **Monitoring sync:** Manual updates that drifted out of date.
+6. **Complexity factors:** Binary (any UI = +0.3, regardless of whether it was 1 view or 5).
+7. **Baselines:** Single historical anchor point. No rolling or same-type comparisons.
+
+The Readiness v2 regression (-18% vs baseline) had an error band of -6% to -29%. We could not distinguish a genuine learning tax from a measurement artifact.
+
+---
+
+## What v6.0 Built
+
+**Phase timing instrumentation.** Per-phase start/end timestamps in the state schema, with pause detection and multi-session support. A verification target validates that timing fields are present and well-formed.
+
+**Deterministic cache tracking.** L1/L2/L3 counters with hit/miss detail logs, hit type taxonomy (exact, adapted, partial), and velocity annotations. A shared aggregate file tracks rolling hit rates by skill and level.
+
+**Eval coverage gate.** Mandatory for AI-touching features. Blocks review if identified AI behaviors have no corresponding evaluations. Non-AI features auto-pass. The gate was deployed but not stress-tested by this feature (which is framework infrastructure, not AI).
+
+**Monitoring auto-sync.** Phase-transition triggers that update monitoring state automatically, eliminating manual sync overhead.
+
+**Token counting.** A script that measures actual token counts across 4 framework layers using a tokenizer, with word-count fallback. First measurement: 79,138 tokens (7.91% of context budget).
+
+**CU v2 continuous factors.** View count tiers instead of binary "has UI." Type count tiers instead of binary "new model." Design iteration scope tiers (text, layout, interaction, full redesign) instead of flat +0.15 per round. Architectural novelty factor for first-of-kind work.
+
+---
+
+## The Self-Referential Test
+
+This feature is its own proof of concept. The phase timing data recorded during the build is the primary evidence that timing instrumentation works. The cache hit log (0 hits, 20 misses -- cold cache, first-of-kind work) is the first deterministic cache measurement in the project.
+
+| Measurement | v5.2 (Before) | v6.0 (This Feature) | Status |
+|------------|--------------|---------------------|--------|
+| Wall-time error band | plus/minus 15-30 min | plus/minus 0 min (instrumented) | Deterministic |
+| Cache hit measurement | Inferred from narratives | L1/L2/L3 counters | Deterministic |
+| Token overhead | Word-count proxy (~15% error) | Tokenizer measurement: 79,138 tokens | Deterministic |
+| Eval coverage | Spotty, manual | Gated protocol with auto-sync | Deterministic |
+| Monitoring freshness | Manual updates | Phase-transition auto-sync | Deterministic |
+| CU reproducibility | Binary factors (subjective) | Continuous factors (objective) | Deterministic |
+| Planning velocity | Derived from estimated phase times | Derived from measured phase times | Deterministic |
+
+**7 of 9 dependent variables now have deterministic instrumentation.** Target was 8/9. Kill criteria was 5/9.
+
+---
+
+## Performance
+
+| Metric | Value |
+|--------|-------|
+| Wall time | 90 min (measured -- first feature with instrumented timing) |
+| Tasks | 20 (20 completed, 0 rework) |
+| Complexity Units | 28.0 (CU v2: cross-feature +0.2, architectural novelty +0.2) |
+| Velocity | 3.21 min/CU |
+| Rank | 3rd best of 14 features |
+| vs Baseline | 79% faster than v2.0 |
+| Cache hit rate | 0.0% (expected -- first-of-kind, no prior patterns) |
+| Commits | 16 (all via fresh subagents) |
+
+The 3.21 min/CU result despite cold cache shows that even first-of-kind framework work benefits strongly from accumulated workflow maturity.
+
+---
+
+## What CU v2 Revealed About Past Data
+
+Recalculating all features with continuous factors:
+
+- **Readiness v2 regression explained.** Under v1 binary factors: -18% vs baseline. Under v2 continuous factors: -7%. Half the apparent regression was an artifact of binary CU factors failing to capture the feature's true complexity (first model/service type, architectural novelty, 2 views vs the binary "has UI" flag).
+- **Power law fit improved.** R-squared went from 0.82 (v1 factors) to 0.87 (v2 factors). The exponent dropped from -0.68 to -0.61 -- slightly less steep but more consistent, with fewer features deviating from the trend.
+- **Training v2 regression shrinks.** Recognized as more complex than binary factors suggested (4+ views, not just "has UI").
+
+---
+
+## What Went Wrong
+
+**Token overhead above target.** 7.91% measured vs 5.0% guardrail. The 5% target predated any measurement -- it was set before infrastructure existed to check it. Treat 7.91% as a first data point, not a violation.
+
+**Eval gate not stress-tested.** Deployed via a non-AI feature, so the gate auto-passed without exercising the blocking logic. The first AI feature post-v6.0 will be the real test.
+
+**Cold cache inflated time.** 0% hit rate vs ~40% typical for non-first-of-kind features. Estimated impact: 10-20 minutes of additional work.
+
+---
+
+## Key Takeaways
+
+- **Measurement infrastructure pays for itself in attribution clarity.** The Readiness regression, debated for weeks as "learning tax vs real problem," was explained in minutes with continuous CU factors. Half the regression was a measurement artifact.
+- **Self-referential bootstrapping is the hardest test.** This feature had no prior cache entries, no prior patterns, and its own output was its validation data. The 0% cache hit rate and 3.21 min/CU together establish the cold-cache baseline for infrastructure work.
+- **7 of 9 metrics moved from estimated to deterministic.** The remaining 2 (defect escape rate and test density) still require manual counting. But every velocity claim going forward carries instrumented timestamps, not commit-inferred estimates.
+- **The single most valuable output is not a number but a correction.** CU v2 retroactively explained a regression that binary factors could not. Good measurement does not just track the present -- it reinterprets the past.

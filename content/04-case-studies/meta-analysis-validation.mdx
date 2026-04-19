@@ -1,0 +1,131 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# External Validation — Did Our Numbers Hold Up?
+
+> An independent review of the normalization model, velocity claims, and measurement methodology -- confirming what is solid, flagging what is weak, and recommending what to fix.
+
+## Context
+
+After building 17 case studies with a custom complexity model and velocity claims ranging from 15.2 min/CU (baseline) to 1.23 min/CU (parallel stress test), we submitted the entire dataset to an independent analysis. The goal: verify the arithmetic, stress-test the normalization model, identify measurement gaps, and produce actionable recommendations for more precise future measurement. This document reports the findings.
+
+---
+
+## Normalization Model: Verified
+
+### Arithmetic Consistency
+
+Across all case studies, CU and min/CU computations are internally consistent. Recomputing all values from raw tables reproduces the reported numbers with no arithmetic errors.
+
+Sample verification:
+
+| Feature | Wall Time | CU | min/CU | Formula Check |
+|---------|-----------|-----|--------|--------------|
+| Onboarding v2 (baseline) | 390 min | 25.7 | 15.2 | 22 x 0.9 x 1.3 = 25.74 |
+| Parallel Stress Test | 54 min | 43.9 | 1.23 | Verified from stress test raw data |
+| Parallel Write Safety | 20 min | 2.16 | 9.26 | Verified from case study |
+
+### Structural Soundness
+
+The model correctly differentiates work types, adds cost for UI/auth/runtime/cross-feature complexity, and enables cross-feature comparison despite different scopes.
+
+**Limitations identified:**
+- Screen surface area and interaction density are not captured -- a 2,135-line training screen and a 289-line settings screen get the same UI factor
+- Design iteration difficulty is subjective -- three icon polish rounds and three layout rewrites both appear as the same weight per iteration
+- All v1 complexity factors are binary or integer counts with no continuous measure of architectural novelty (addressed by CU v2)
+
+---
+
+## Velocity Patterns: Confirmed
+
+### Framework-Era Averages
+
+| FW Version | Avg min/CU | Features | Interpretation |
+|-----------|-----------|----------|----------------|
+| v2.0 | 15.2 | 1 | Baseline |
+| v4.1 | 7.87 | 3 | First strong inflection (cache acceleration) |
+| v4.4 | 5.73 | 2 | Eval-driven development with zero overhead |
+| v5.1 | 2.81 | 3 | SoC + pattern reuse + parallelism |
+| v5.2 | 9.26 | 1 | Novelty-heavy infrastructure (expected regression) |
+
+The power law fit (R-squared = 0.82, improving to 0.87 with CU v2) is numerically consistent with case study data but must be interpreted cautiously given N=12 and a single practitioner.
+
+### Regressions Documented Honestly
+
+Two non-outlier regressions were confirmed:
+- Training v2 (v4.0): -5% vs baseline -- cache-system learning overhead
+- Readiness v2 (v4.2): -18% vs baseline -- first-of-kind model/service work
+
+**Pattern confirmed:** New structural capabilities impose a measurable learning tax on the next feature before gains appear. The CU model captures this qualitatively but probably underweights architectural novelty (addressed in v2).
+
+### Parallelism vs Serial: Decomposition Needed
+
+The 12.4x throughput claim from the parallel stress test is accurate as a combined statement but conflates two effects:
+
+| Effect | Approximate Gain |
+|--------|-----------------|
+| Serial framework improvement (v5.1 vs v2.0) | ~5.6x |
+| Parallelism gain (4 features vs 1) | ~3.4x |
+
+Future reporting should separate these metrics for clarity.
+
+---
+
+## Measurement Gaps Identified
+
+| Gap | Impact | Recommendation |
+|-----|--------|---------------|
+| **Wall time estimated** | Plus/minus 15-30 min on multi-hour features | Add per-phase timing hooks to the workflow |
+| **Cache hit rates observational** | Under-represents micro-hits/misses | Instrument cache accesses with L1/L2/L3 counters |
+| **Token overhead uses word-count proxy** | "63% reduction" claims could be off by 10-15 percentage points | Add actual token-count tooling |
+| **Some AI features lack tests** | Eval coverage strong for some features, zero for others | Encode minimum test coverage in the PRD |
+| **Monitoring sync manual** | At least one case study noted monitoring stayed at zeros | Tie monitoring updates to CI outcomes |
+| **Subjective complexity factors** | Design iteration cost is flat regardless of type | Back factors with objective signals (commit counts, frame changes) |
+| **Single practitioner** | Cannot statistically separate personal learning from systemic improvements | Capture via cache hit rate as proxy |
+
+---
+
+## Recommendations Adopted
+
+Several recommendations from this validation were implemented in framework v6.0:
+
+| Recommendation | Status |
+|---------------|--------|
+| Per-phase timing instrumentation | Implemented in v6.0 |
+| Cache hit L1/L2/L3 counters | Implemented in v6.0 |
+| Token counting with tokenizer | Implemented in v6.0 |
+| Continuous CU factors | Implemented in v6.0 as CU v2 |
+| Rolling baseline (not single anchor) | Implemented in v6.0 (historical + rolling + same-type) |
+| Separate serial and parallel metrics | Implemented in v6.0 velocity decomposition |
+| Eval coverage gate | Implemented in v6.0 |
+| Auto-monitoring sync | Implemented in v6.0 |
+
+---
+
+## What the Validation Confirmed
+
+The current case study dataset forms a rare, high-quality longitudinal dataset:
+
+1. **The normalization model is internally consistent** and explains major trends
+2. **The framework's evolution is clearly visible** in min/CU improvements and qualitative capability gains
+3. **Failures and regressions are documented honestly,** not hidden -- both regressions are analyzed with attribution
+4. **The power law fit is directionally correct** but requires larger sample size for robust prediction
+
+---
+
+## What the Validation Challenged
+
+1. **The 12.4x headline conflates serial and parallel gains.** Decomposing into ~5.6x serial and ~3.4x parallel is more honest and more useful.
+2. **Cache hit rates based on narratives may carry confirmation bias.** We may have reported higher cache percentages for faster features because we assumed the cache helped. Deterministic counters (now implemented) eliminate this.
+3. **The CU model underweights surface area complexity.** A 2,135-line screen and a 289-line screen both get "has UI: +0.3" under v1. CU v2 partially addresses this with view count tiers.
+4. **N=12 (excluding outlier) is too small for confidence intervals.** All claims should be treated as directional signals. Bootstrap confidence intervals with small-sample correction should be used for any published benchmarks.
+
+---
+
+## Key Takeaways
+
+- **The numbers hold up.** Arithmetic is correct, the normalization model is structurally sound, and the improvement trend is real -- not an artifact of selective reporting or measurement error.
+- **The main opportunity is measurement discipline,** not methodology redesign. Instrumentation for time, cache, tokens, and tests -- most of which was implemented in v6.0 based on these recommendations.
+- **Documenting regressions and limitations is what makes the rest of the data trustworthy.** A dataset that only shows improvement is suspicious. This one shows two clear regressions with attribution, an acknowledged outlier with detailed composition analysis, and explicit error bands on estimated measurements.
+- **The transition from "compelling narrative" to "auditable engineering evidence" requires exactly the instrumentation that v6.0 built.** The validation confirmed the direction was correct and the remaining gaps were addressable.

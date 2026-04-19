@@ -1,0 +1,93 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# The Pilot — Running the Full PM Lifecycle on Onboarding
+
+> What happens when you take a "finished" feature and run it through a rigorous product management workflow for the first time?
+
+## Context
+
+FitMe's onboarding flow was the first screen users saw, and it had shipped without a formal UX review. The design system existed, but the onboarding code predated it -- raw color literals, missing accessibility labels, hardcoded spacing, and no analytics instrumentation. We chose onboarding as the pilot for a structured PM workflow: a full 9-phase lifecycle (Research through Documentation) applied retroactively to a feature that was already "done."
+
+The goal was not just to fix onboarding. It was to prove that the workflow itself could catch real problems, produce measurable improvements, and scale to the remaining five screens.
+
+---
+
+## The Problem
+
+Onboarding had been built quickly and never audited against the design system. When we rolled the feature back to the PRD phase and ran a structured audit, the results were sobering:
+
+- **24 findings** across analytics gaps, token compliance, UX behavior, and copy quality
+- **6 P0 (critical)** issues including analytics events that never fired and missing navigation controls
+- **5 latent compile bugs** that had been hiding for days -- files not added to the build target, missing type overloads, privacy-level mismatches
+
+The latent bugs were the unexpected discovery. The feature had never actually built successfully in CI. The audit surfaced every one of them.
+
+---
+
+## The Approach
+
+**Phase 0 (Research):** Retained from the original work -- competitive analysis and onboarding pattern research were still valid.
+
+**Phase 1 (PRD v2):** Appended a UX alignment section to the existing PRD. Same document, versioned -- not a separate file. This preserved the full history of requirements evolution.
+
+**Phase 2 (Tasks):** 12 new tasks derived directly from audit findings. Each task mapped 1:1 to a specific finding with severity level, so prioritization was automatic.
+
+**Phase 3 (UX Audit):** This was the phase that had been skipped originally -- the root cause of every problem. A structured audit against 13 UX foundations principles produced the 24 findings. Findings were categorized into 4 batches (analytics, tokens, UX behaviors, copy). The reviewer approved all 4 batches in a single round because the categorization made the scope clear.
+
+**Phase 4 (Implementation):** 20 patches applied to the existing code. Plus 4 follow-up commits resolving the latent build bugs.
+
+**Phase 5 (Testing):** Build green, token compliance green, all tests passing. Most of this phase was consumed by debugging Xcode target membership issues -- files existed on disk but were not in the build target.
+
+**Phase 6-8 (Review, Merge, Docs):** Shipped as PR #59. Design system feature memory updated. Backlog item marked complete.
+
+---
+
+## What We Found (Phase 3 Audit)
+
+| Category | Count | Examples |
+|----------|-------|---------|
+| Analytics gaps | 4 | Permission result event never fired, skip event never fired, screen tracking used string literals |
+| Token compliance | 7 | Raw shadow values, hardcoded frame heights, raw white color, raw animation durations |
+| UX behavior | 5 | No back navigation, no haptic feedback, no Dynamic Type scroll wrappers, silent HealthKit denial |
+| Copy and content | 4 | Wrong terminology ("Apple Health"), weak CTA copy, missing transparency footers |
+| Deferred | 4 | Component consolidation, additional accessibility hints, contrast adjustments |
+
+**Overall verdict:** Patch, not rebuild. The v1 structure was sound -- only mechanical alignment was needed.
+
+---
+
+## Key Metrics
+
+| Metric | Value |
+|--------|-------|
+| Wall time | ~6.5 hours |
+| Complexity Units (CU) | 25.7 |
+| Velocity | 15.2 min/CU (became the project baseline) |
+| Findings | 24 (P0: 6, P1: 11, P2: 7) |
+| Latent bugs discovered | 5 (compile-blocking, hidden for days) |
+| Design system tokens added | 0 (existing tokens were sufficient) |
+| Tests added | 6 |
+
+---
+
+## What This Proved About the Workflow
+
+1. **Skipped phases have compounding costs.** The UX phase was skipped during the original build "because the UX was defined inline in the PRD." That shortcut produced 24 findings and 5 compile bugs that went undetected for days.
+
+2. **Audit-driven implementation eliminates scope creep.** Every Phase 4 patch traced directly to a Phase 3 finding. No ad hoc changes, no "while we're here" additions.
+
+3. **Latent bug discovery is a bonus of structured audits.** Running a compliance audit on "complete" code surfaced 5 compile-blocking bugs that manual review had missed. The audit wasn't looking for build bugs -- it found them because it systematically touched every file.
+
+4. **Manual approval gates can be batched.** The reviewer approved all 24 findings in one round because they were well-categorized. Save micro-gates for genuinely contested decisions, not mechanical fixes.
+
+5. **15.2 min/CU became the baseline.** Every subsequent feature would be measured against this number. By the sixth refactor, the framework would deliver the same scope of work at 1 hour instead of 6.5 -- a trajectory documented in the [evolution case study](02-framework-evolution.md).
+
+---
+
+## Key Takeaways
+
+- A "finished" feature is not finished until it has been audited against the design system. Onboarding had been shipping for days with 5 compile-blocking bugs.
+- Structured audits find more than they are looking for. The UX audit was scoped to design compliance -- it surfaced build failures as a side effect.
+- The 15.2 min/CU baseline established here became the denominator for measuring every framework improvement that followed. Without this honest starting point, the 6.5x improvement claim in later case studies would have no anchor.

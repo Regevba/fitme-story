@@ -1,0 +1,96 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# What Chip Design Taught Us About Software Architecture
+
+## Context
+
+We built a multi-agent PM framework that orchestrates AI agents across a 10-phase product development lifecycle. By version 4.2, the framework consumed ~96K tokens just to load -- nearly half the usable context window. Process refinement had hit diminishing returns. The next performance leap required architectural innovation, not workflow tweaks.
+
+We found it in an unlikely place: chip design literature.
+
+## The Problem
+
+The framework's context budget broke down like this:
+
+| Layer | Tokens | % of Total |
+|---|---|---|
+| 11 skill definition files | 38,537 | 40% |
+| Cache (L1/L2/L3) | 32,010 | 33% |
+| Integration adapters | 16,999 | 18% |
+| Shared data layer | 8,649 | 9% |
+| **Total** | **96,195** | **~48% of 200K** |
+
+Every agent invocation loaded everything, whether it needed it or not. The overhead was structural, not incidental.
+
+## 7 Hardware Principles, 8 Software Optimizations
+
+### 1. LoRA Adapter Hot-Swap --> Skill-on-Demand Loading
+
+Apple loads ~10MB LoRA adapters dynamically per task over a single base model. Our equivalent: load only the 1-2 relevant skill files per invocation instead of all 11.
+
+**Saved ~30K tokens per session.** The routing table already knew which skills each phase needed -- we just had to use it.
+
+### 2. 3.7-bit Palettization --> Cache Compression
+
+Apple compresses 3B parameters to 3.7 bits per weight via K-means palettization. Our equivalent: add a compressed view (~200 words) to each cache entry. Load compressed views by default; expand only when deeper investigation is needed.
+
+**Saved ~24K tokens per session.** Most cache reads only need the summary, not the full entry.
+
+### 3. TPU Weight-Stationary Dataflow --> Batch Audits
+
+TPUs load weights once and stream unlimited data through them. Our equivalent: load an audit template once, then process N screens as a data stream. One pattern set, many targets.
+
+**5x fewer agent dispatches for batch operations.**
+
+### 4. Unified Memory Zero-Copy --> Result Forwarding
+
+Apple's UMA eliminates CPU/GPU memory copying. Our equivalent: pass one agent's output directly to the next agent in context, instead of writing to JSON and reading it back.
+
+**Eliminated serialization overhead entirely.** The shared data layer became a write-back target only, like a register file.
+
+### 5. ANE Mixed Precision --> Model Tiering
+
+Apple's Neural Engine uses FP16 for bulk computation and FP32 for accuracy-critical operations. Our equivalent: route mechanical tasks (file generation, token checks) to faster/cheaper models, and judgment tasks (architecture decisions, code review) to the most capable model.
+
+**Reduced cost and latency on mechanical work** while preserving quality where it matters.
+
+### 6. Branch Prediction --> Speculative Cache Pre-loading
+
+CPUs predict which branch will execute next and pre-fetch instructions. Our equivalent: when a UX skill runs, pre-load the design skill's cache because design always follows UX. Validated by academic research on speculative actions in LLM agents.
+
+**30-40% latency reduction on skill chains.** Misprediction cost: ~3K tokens (1.5% of budget) -- a worthwhile trade.
+
+### 7. TPU Systolic Array --> Skill Chain Pipeline Protocol
+
+In a systolic array, each processing element receives only its upstream neighbor's output. Our equivalent: each skill receives only the previous skill's output plus its own L1 cache. No global reads mid-execution.
+
+**Eliminated Amdahl's Law bottleneck** on sequential skill chains.
+
+### 8. ARM big.LITTLE --> Hybrid Task Dispatch
+
+ARM's heterogeneous architecture routes heavy threads to performance cores and light threads to efficiency cores. Our equivalent: classify each task by complexity before dispatch. Lightweight tasks go to a parallel lane; heavyweight tasks get dedicated sequential attention.
+
+**Parallel execution of lightweight tasks clears the backlog faster** while heavyweight tasks get full resources.
+
+## Results
+
+| Metric | Before (v4.2) | After (v5.1) | Change |
+|---|---|---|---|
+| Framework overhead | 121K tokens/phase | 45K tokens/phase | -63% |
+| Free context window | 78K tokens | 155K tokens | +99% |
+| Dispatch count (batch) | N dispatches | N/5 dispatches | -80% |
+| Serialization overhead | Per-skill JSON cycle | Zero-copy forwarding | Eliminated |
+
+All 8 optimizations shipped across two releases (v5.0 and v5.1). Items 1-2 reclaimed ~54K tokens. Items 3-8 added dispatch reduction, cost optimization, latency reduction, and pipeline throughput improvements.
+
+## Key Takeaways
+
+1. **Software architecture and chip architecture solve the same fundamental problems.** Resource contention, scheduling, caching, and data coherence are universal -- the medium (transistors vs. tokens) does not change the math.
+
+2. **The biggest gains came from the simplest changes.** Skill-on-demand loading and cache compression (items 1-2) were low-effort, high-impact. They reclaimed more context than the five more complex optimizations combined.
+
+3. **Measurement validates analogy.** It is easy to over-index on clever parallels. Each optimization was measured against a concrete baseline. The chip analogy was useful because it produced measurable results, not because it sounded elegant.
+
+4. **Academic literature transfers across domains.** The speculative pre-loading optimization was validated by a 2025 paper on speculative actions for LLM agents. Cross-pollination between hardware architecture research and AI agent design is underexplored.

@@ -1,0 +1,222 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# The 10-Phase Product Lifecycle -- From Research to Learning
+
+## Context
+
+Most product development workflows are linear: plan, build, ship, done. FitMe uses a 10-phase lifecycle (Phase 0 through Phase 9) that closes the loop -- shipped features are continuously monitored, and post-launch feedback automatically dispatches corrective work back into the system. The lifecycle is enforced by an AI orchestrator that tracks state, gates phase transitions on explicit approval, and dispatches specialized agents at each stage.
+
+---
+
+## Philosophy
+
+Five principles govern every feature:
+
+1. **Research before building.** Understand what exists, why this approach, and what alternatives were rejected.
+2. **Measure everything.** No feature ships without defined success metrics, baselines, targets, and kill criteria.
+3. **Gate every meaningful phase.** Feature work goes through the full lifecycle; lighter work types reduce planning overhead without skipping quality gates.
+4. **Isolate risk.** Large features get their own branch. Both branches must pass CI before merge.
+5. **Close the loop.** Post-launch metrics review is mandatory. Features that don't deliver value get iterated or killed.
+
+---
+
+## Lifecycle Overview
+
+```
+0. Research --> 1. PRD --> 2. Tasks --> 3. UX/Integration --> 4. Implement
+            --> 5. Test --> 6. Review --> 7. Merge --> 8. Docs --> 9. Learn
+```
+
+### Work Types
+
+Not everything needs the full 10-phase funnel:
+
+| Type | Lifecycle Shape | When to Use |
+|------|-----------------|-------------|
+| **Feature** | All 10 phases (0-9) | New capabilities, new screens, new services |
+| **Enhancement** | Tasks --> Implement --> Test --> Review --> Merge | Improvements to shipped features with existing PRDs |
+| **Fix** | Implement --> Test --> Review --> Merge | Bug fixes, security patches |
+| **Chore** | Implement --> Review --> Merge | Docs, config, refactoring |
+
+**Key rule:** ALL code-changing work types require Test + Review before merge. Fast-tracking reduces _planning_ overhead, not _quality_ gates.
+
+---
+
+## Phase Details
+
+### Phase 0: Research and Discovery
+
+Before writing a single line of code or a PRD, we research.
+
+| Section | Purpose |
+|---------|---------|
+| What is this solution? | Plain-language description anyone can understand |
+| Why this approach? | Problem it solves, pain points addressed |
+| Why this over alternatives? | Comparison table of 2-3 approaches with pros/cons |
+| External sources | Articles, docs, APIs, libraries with links |
+| Market examples | How competitors solve this, what they do well/poorly |
+| Design inspiration (if UI) | Screenshots, tested solutions, visual mood |
+| Data and demand signals | Analytics, user feedback, market research justifying the build |
+| Technical feasibility | Dependencies, risks, platform constraints |
+| Proposed metrics | Draft primary + secondary success metrics |
+| Decision | Final recommendation with rationale |
+
+### Phase 1: PRD
+
+The success metrics section is non-negotiable. Every PRD must define:
+
+| Metric Type | Description |
+|-------------|-------------|
+| **Primary metric** | The one number that defines success |
+| **Secondary metrics** | 2-3 supporting signals |
+| **Guardrail metrics** | Things that must NOT degrade |
+| **Leading indicators** | Early signals (within 1 week) |
+| **Lagging indicators** | Long-term impact (30/60/90 days) |
+| **Baseline** | Current value before the feature ships |
+| **Target** | Success threshold |
+| **Kill criteria** | When to revert or fundamentally rethink |
+
+### Phase 2-3: Task Breakdown and Design
+
+Tasks are broken down by type (UI, backend, data, test, docs, infra) with effort estimates and dependency ordering.
+
+For UI features, Phase 3 has three steps:
+
+**Step 1: UX Research** -- Before designing, research relevant UX principles (Fitts's Law, Hick's Law, progressive disclosure, etc.), check iOS Human Interface Guidelines, and find external research on best practices. Documented in a research artifact.
+
+**Step 2: Design Definition** -- Screen list, component inventory, design tokens, interaction flows, accessibility. Every design decision references which UX principle informed it.
+
+**Step 3: Design System Compliance Gateway** -- Automated check:
+
+| Check | What's validated |
+|-------|-----------------|
+| Token compliance | Every color/font/spacing maps to semantic tokens |
+| Component reuse | Uses existing components or justifies new ones |
+| Pattern consistency | Matches existing screen patterns |
+| Accessibility | 44pt tap targets, WCAG AA contrast, Dynamic Type, VoiceOver |
+| Motion | Uses preset animations, reduce-motion support |
+
+**If violations are found**, three options:
+
+1. **Fix** -- Update the design to comply with the current system
+2. **Evolve** -- Update the design system as part of this feature (new tokens/components on the feature branch)
+3. **Override** -- Proceed with documented justification
+
+This reflects a core philosophy: **the design system is a living, evolving framework -- not a static constraint.**
+
+### Phases 4-5: Implementation and Testing
+
+- Code on isolated feature branch
+- Incremental commits with descriptive messages
+- Unit tests for all new functionality
+- Full CI suite must pass (token check + build + test)
+- Metric instrumentation verified before merge
+- Baseline values recorded
+
+### Phase 6: Code Review
+
+Parallel review of feature branch vs main. High-risk files (data models, encryption, sync services, auth, AI pipeline) require extra scrutiny.
+
+**CI requirement:** Both the feature branch AND main must be green before merge is approved.
+
+### Phases 7-8: Merge and Documentation
+
+Squash merge to main, delete feature branch, update all documentation, archive feature state.
+
+### Phase 9: Learn
+
+This is what transforms a "ship it and forget it" pipeline into a **learning organization**. After shipping:
+
+- Post-deployment monitoring tracks success metrics against targets
+- Customer feedback is classified by root cause (messaging, UX, functionality, expectation mismatch)
+- Each root cause dispatches corrective work to the responsible agent
+- The loop continues until assessment = "solved" or kill criteria triggered
+
+---
+
+## Branching Strategy
+
+```
+main ----------------------------------------------------->
+       \                                    /
+        \-- feature/dark-mode -------------/
+              (isolated, CI-green)     (squash merge)
+```
+
+| Rule | Description |
+|------|-------------|
+| Large features (>5 files or new models) | Must use feature branch |
+| Small fixes (<5 files, no new models) | Can use direct task branch |
+| Before merge | CI must pass on BOTH feature branch and main |
+| Merge method | Squash merge (clean history) |
+| After merge | Delete feature branch |
+
+---
+
+## System-Wide Guardrails
+
+These metrics are tracked across ALL features and must not degrade:
+
+| Metric | Threshold |
+|--------|-----------|
+| Crash-free rate | > 99.5% |
+| Cold start time | < 2s |
+| Sync success rate | > 99% |
+| CI pass rate | > 95% |
+| Cross-feature WAU | Trending up or flat |
+
+---
+
+## Dashboard Sync and Manual Override
+
+Phase transitions are automatically synced to the development dashboard:
+
+```
+User approves phase
+        |
+        v
+  1. State file updates      <-- current phase advances
+  2. GitHub Issue label swaps <-- phase:prd --> phase:tasks
+  3. Transition log entry     <-- audit trail with timestamp
+        |
+        v
+  Dashboard auto-refreshes
+```
+
+### Manual Override
+
+The user has full control to move features forward or backward at any time:
+
+| Action | What Happens |
+|--------|-------------|
+| **Skip forward** | Skipped phases marked with reason in audit trail |
+| **Roll back** | Future phases reset. Work product (research, PRD) preserved. |
+| **Conflict** | When state file and GitHub disagree, system asks the user to choose |
+
+---
+
+## Example: Feature Walkthrough
+
+Here's how the lifecycle plays out for a hypothetical "Push Notifications" feature:
+
+1. **Research:** Investigate APNs vs Firebase Cloud Messaging, review how competitors handle notifications, find 12 App Store reviews requesting reminders, draft metrics.
+2. **PRD:** Define notification types (training reminder, readiness alert, streak), primary metric: "D7 retention +5%", kill criteria: "no retention improvement in 30 days".
+3. **Tasks:** 8 subtasks -- APNs registration, notification service, permission request UI, 4 notification types, tests.
+4. **UX:** Permission request screen design, notification center UI, quiet hours settings.
+5. **Implement:** Feature branch, 12 commits across 8 files.
+6. **Test:** 6 new tests, CI green, analytics events instrumented.
+7. **Review:** No high-risk file changes, CI green on both branches.
+8. **Merge:** Squash-merged to main.
+9. **Docs:** CHANGELOG updated, backlog item moved to Done, baseline recorded.
+10. **Learn:** Week 1 review shows 35% opt-in rate. Week 4 review shows D7 retention +3% (below 5% target). Decision: iterate on notification timing algorithm.
+
+---
+
+## Key Takeaways
+
+- **The lifecycle is circular, not linear.** Phase 9 (Learn) feeds back into Phase 0 (Research), creating a continuous improvement loop for every shipped feature.
+- **Work types scale the process to match the work.** A bug fix doesn't need a PRD. A major feature does. But both require testing and review before merge.
+- **Kill criteria are defined upfront.** Every feature has a number that triggers "stop and rethink" -- preventing the sunk cost fallacy from keeping underperforming features alive.
+- **The design system evolves with features.** Instead of fighting constraints, features can propose design system changes that merge alongside the code.

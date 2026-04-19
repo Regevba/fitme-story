@@ -1,0 +1,138 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Smart Reminders --- Context-Aware Notification Intelligence
+
+## Context
+
+Most fitness apps either never notify you (and get forgotten) or bombard you with generic reminders (and get muted). FitMe's Smart Reminders system takes a third path: state-aware, frequency-capped notifications that fire only when the app has something genuinely useful to say. This document covers the notification architecture, the five reminder types, and the kill criteria that prevent the system from becoming noise.
+
+---
+
+## The Problem
+
+FitMe is passive. It only provides value when opened. This creates three failure modes:
+
+- **Nutrition gaps:** Users miss afternoon protein windows. Without a prompt, they finish the day below target and never know.
+- **Training consistency:** Users skip planned training days because there's no external trigger to close the intention-action gap.
+- **Guest non-conversion:** Users who skipped account creation during onboarding have no reason to return and no incentive to convert.
+
+Competitor analysis confirms the right model: WHOOP and Oura succeed because their reminders are **state-aware, not schedule-based**. MyFitnessPal over-notifies (3-4/day) and drives high disable rates. FitMe follows the WHOOP/Oura pattern --- low volume, high relevance, data-driven triggers.
+
+---
+
+## Design Principles
+
+1. **State-driven, not schedule-driven.** Every notification fires because a measurable condition was met, not because a timer went off.
+2. **Hard frequency caps.** Maximum 3 reminders per day across all types. Per-type caps on top of that.
+3. **Permanent stop flags.** One-time reminder types (HealthKit connect, account registration) stop permanently after 3 attempts --- even across app reinstalls.
+4. **No PII in notification content.** Body copy uses display values ("You're at 67g / 140g protein") but never names, emails, or raw biometric values.
+5. **All computation is local.** Trigger evaluation and scheduling happen entirely on-device. No data leaves the phone.
+
+---
+
+## The Five Reminder Types
+
+### Type 1: HealthKit Connect
+- **Trigger:** HealthKit not authorized, 2+ days since onboarding
+- **Schedule:** Day 2, Day 5, Day 10 post-onboarding
+- **Cap:** 3 total, then permanent stop
+- **Self-canceling:** If user authorizes HealthKit at any point, all pending reminders are cancelled immediately
+
+### Type 2: Account Registration
+- **Trigger:** No stored session, 3+ days since onboarding
+- **Schedule:** Day 3, Day 7, Day 14 post-onboarding
+- **Cap:** 3 total, then permanent stop
+- **Self-canceling:** Account creation cancels all pending registration reminders
+
+### Type 3: Goal-Gap Nutrition
+- **Trigger:** Current protein < 50% of daily target AND it's 4 PM or later
+- **Schedule:** Evaluated daily at 4 PM
+- **Cap:** 1/day, 5/week
+- **Example:** "You're at 67g / 140g protein today. A quick meal could close the gap."
+- **Safety:** Suppressed if nutrition data is unavailable or stale
+
+### Type 4: Training / Rest Day
+- **Trigger (training):** It's a training day, no workout logged, 10 AM or later
+- **Trigger (rest):** It's a rest day and readiness score < 40
+- **Cap:** 1/day (training and rest share the slot)
+- **Confidence gate:** Rest day alerts suppressed if readiness score is older than 12 hours
+- **Example (training):** "Today's plan: Upper Push. 12 exercises, ~55m."
+- **Example (rest):** "Your readiness is 35. Take it easy --- rest is part of progress."
+
+### Type 5: Engagement (Re-activation)
+- **Trigger:** 3+ days since last app open
+- **Schedule:** Day 3, Day 5, Day 7 of inactivity
+- **Cap:** 3 per lapse period; counter resets on any app open
+- **Escalating copy:**
+  - Day 3: "Haven't seen you in a bit. Your streak is waiting."
+  - Day 5: "Your body composition goals need consistency. Quick check-in?"
+  - Day 7: "It's been a week. Even 2 minutes of logging keeps your trends accurate."
+
+---
+
+## Frequency Cap Enforcement
+
+Before any notification is scheduled, four checks must pass in order:
+
+1. Per-type cap (e.g., Type 3: max 1/day, 5/week)
+2. Permanent stop flag (Types 1 and 2 exhaust after 3 attempts)
+3. Global daily cap (max 3 across all types)
+4. If any check fails, the reminder is suppressed and a suppression event is logged with the reason
+
+---
+
+## Locked Feature Overlays
+
+When a guest user (no account) taps a feature that requires authentication --- AI coaching, cross-device sync, data export --- an in-app overlay appears instead of a notification:
+
+- Feature icon and name
+- One-sentence benefit description
+- "Create Account" primary call-to-action
+- "Maybe later" dismissal option
+
+This converts notification-style nudges into contextual, in-flow prompts that appear exactly when the user encounters the value gate.
+
+---
+
+## Success Metrics and Kill Criteria
+
+| Metric | Target | Kill Trigger |
+|---|---|---|
+| Reminder engagement rate (tap-through) | >= 25% | < 5% after 30 days: reduce to 1 type only |
+| Nutrition gap reduction | 15% more protein logged on reminder days | < 5% lift after 60 days |
+| Guest conversion rate | 10% create account within 7 days | < 2% after 45 days |
+| Notification disable rate | <= 10%/month | > 25%/month: immediate review + type pruning |
+| DAU lift | +6% WAU | No measurable lift at 60 days |
+
+Post-launch review cadence: 2 weeks after first data, then monthly for 3 months.
+
+---
+
+## Privacy Considerations
+
+- All trigger evaluation and scheduling is fully local --- no data leaves the device
+- Notification body copy never contains raw PII
+- Analytics events are consent-gated
+- Frequency logs stored on-device only
+- Permanent stop flags persist through reinstalls to prevent re-harassment
+
+---
+
+## Phased Rollout
+
+| Phase | What Ships | Why First |
+|---|---|---|
+| **Phase 1** | Nutrition gap + Training/Rest (Types 3-4) | Highest immediate user value; all required data already available |
+| **Phase 2** | HealthKit + Registration (Types 1-2) + Locked overlays + Settings UI | Requires onboarding state and auth session tracking |
+| **Phase 3** | Engagement re-activation (Type 5) + Behavioral learning foundation | Needs usage data to calibrate; data collection starts in Phase 3 |
+
+---
+
+## Key Takeaways
+
+1. **State-aware beats schedule-based.** Every reminder fires because a real condition was detected, not because of a fixed timer. This is the difference between "useful nudge" and "annoying notification."
+2. **Hard caps prevent notification fatigue.** The 3/day global cap is non-negotiable. Combined with per-type caps and permanent stop flags, the system is architecturally constrained from over-notifying.
+3. **Kill criteria are defined before launch.** Each metric has an explicit failure threshold that triggers type pruning or full feature removal. This prevents the common pattern of shipping notifications and never revisiting whether they work.
+4. **Self-canceling reminders respect user actions.** If a user authorizes HealthKit or creates an account, all related pending reminders are immediately cancelled. The system notices that its job is done.

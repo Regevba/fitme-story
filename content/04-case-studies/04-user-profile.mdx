@@ -1,0 +1,93 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# The Most Complex Feature Completed at Refactor Speed
+
+> A new feature with 2x the file count of any prior refactor — shipped in the same 2 hours. How?
+
+## Context
+
+The User Profile was FitMe's 5th tab — a unified control center for identity, body composition, goals, and settings access. Unlike the six v2 refactors that preceded it (which rebuilt existing screens against the design system), this was a greenfield feature: new data model enums, new views, new navigation structure, onboarding integration, and the project's first formal accessibility pass. It was also the first feature built under framework v4.4, which mandated eval definitions and case study tracking for every feature.
+
+The question wasn't whether it would ship — it was whether the framework could handle genuinely new work as efficiently as it handled repetitive refactors.
+
+---
+
+## The Problem
+
+Prior case studies had shown impressive speedups, but they were all refactors of the same type: take an existing screen, audit it against the design system, rebuild it. The framework's cache was optimized for that pattern. A new feature — with new enums, new form editors, a new tab in the navigation, and integration with onboarding data — would stress-test whether the velocity gains were real or just pattern memorization.
+
+---
+
+## The Approach
+
+**Research (15 min):** Competitive analysis of 5 apps plus a code audit of existing user data, settings, and navigation patterns.
+
+**PRD (15 min):** Full PRD with 6 analytics events, 9 eval definitions, success metrics, kill criteria, and 15 acceptance criteria. The eval definitions were a v4.4 mandate — this was the first feature required to define what "good AI output" looks like before writing any code.
+
+**Task breakdown (10 min):** 13 tasks across 4 dependency layers. Layer 1 (data model + analytics + hero section + body comp card) could run in parallel. Layer 2 depended on Layer 1 outputs. This structure meant 4 tasks started simultaneously.
+
+**Implementation (60 min):** 6 new Swift files created, 6 existing files modified. One name collision (a new `BodyCompositionCard` conflicted with an existing one in a different directory) caught and resolved in 5 minutes. One subagent hallucinated a non-existent preview API — removed in 2 minutes.
+
+**Testing (15 min):** 16 tests (7 analytics + 9 evals), all green. The 9 eval tests passed on first run, validating that the views were built correctly from the start.
+
+**Accessibility (5 min):** VoiceOver labels, hidden decorative elements, and proper hints across all 4 views. First feature to include accessibility as a tracked task rather than an afterthought.
+
+---
+
+## Key Metrics
+
+| Metric | Value |
+|--------|-------|
+| Wall time | ~2 hours (research through Figma screen) |
+| Files created | 6 new Swift views |
+| Files modified | 6 existing files |
+| Tasks | 13 across 4 dependency layers |
+| Tests | 16 (7 analytics + 9 evals) |
+| Analytics events | 6 (profile_-prefixed) |
+| Eval pass rate | 100% (9/9) |
+| Cache hit rate | 45% (analytics naming, design system, task architecture) |
+| Defect escapes | 0 |
+| Velocity | 6.0 files/hour — highest ever recorded |
+
+---
+
+## The Complexity Comparison
+
+| Dimension | User Profile (v4.4) | Avg v2 Refactor (v4.0-v4.1) |
+|-----------|---------------------|------------------------------|
+| Work type | New feature (full lifecycle) | Enhancement (v2 swap) |
+| Files created | 6 new views | 1-2 new files |
+| Data model changes | 2 new enums + 4 struct fields | 0-1 new tokens |
+| Navigation change | New tab in root view | No nav change |
+| Eval requirements | 9 evals (v4.4 mandate) | 0 evals |
+| Onboarding integration | 3 persisted fields | None |
+
+**Complexity multiplier: ~1.5-2x** vs a typical refactor. Despite this, wall time matched the simplest v4.1 refactors.
+
+---
+
+## What Worked
+
+1. **4-layer parallel dispatch eliminated bottlenecks.** Layer 1 (4 tasks in parallel) unblocked Layer 2 immediately. Critical path prediction was accurate — no rework.
+
+2. **Eval definitions added zero overhead.** 9 evals written as a Layer 4 task, running in parallel with analytics tests. The v4.4 mandate was free.
+
+3. **Cache accelerated non-novel work.** Analytics naming convention, design system token decisions, and task layer architecture all came from cache — saving roughly 20 minutes of re-derivation on patterns already solved.
+
+4. **Pragmatic scoping saved an hour.** Settings access was originally planned as an embedded navigation view. The implementation discovered a NavigationStack nesting conflict and pragmatically switched to a sheet presentation — shipping a working feature instead of fighting a framework limitation.
+
+## What Broke
+
+1. **Filename collision.** A new `BodyCompositionCard.swift` conflicted with an existing file in a different directory. Lesson: check for existing filenames before creating new ones.
+
+2. **Subagent hallucination.** A subagent generated preview code referencing a non-existent convenience initializer. Removed in 2 minutes, but it highlights that AI-generated previews need validation.
+
+---
+
+## Key Takeaways
+
+- Framework v4.4's primary contribution wasn't raw speed (which plateaued at v4.1 for simple refactors) — it was **capability expansion without cost increase**. Eval definitions, mandatory case study tracking, and accessibility passes all shipped at zero overhead because they parallelized with implementation tasks.
+- The 6.0 files/hour velocity on a genuinely new feature (not a pattern-repeat refactor) validated that the framework's gains are structural, not just cache-driven.
+- The framework is getting more rigorous without getting slower. That's the trajectory that matters.

@@ -1,0 +1,108 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Hardware-Aware Dispatch — Teaching the Framework to Detect Chip Architecture
+
+> Can a software framework passively detect whether it is running on an M4 Pro, a Snapdragon 8 Gen 3, or a cloud TPU -- and does knowing that change how it allocates work?
+
+## Context
+
+The PM framework dispatches tasks to different AI models based on complexity (lightweight tasks to smaller models, heavyweight reasoning to larger ones). But it treated all hardware as identical -- an M4 Pro with massive unified memory got the same dispatch profile as a mobile chip with aggressive thermal throttling. This feature asked whether injecting hardware awareness into the dispatch layer would improve routing quality, and whether the infrastructure could ship without regressing existing behavior.
+
+---
+
+## Three Approaches, Two Rejected
+
+**Option A -- Static Lookup (rejected: too simple).** Map device model to a tier (high/mid/low). Simple, zero overhead. Rejected because it collapses continuous hardware capability into three buckets, discarding information that matters. A "high tier" flag cannot distinguish between a chip that sustains 80W indefinitely and one that throttles aggressively after 90 seconds.
+
+**Option B -- Active Negotiation (rejected: requires provider adoption).** Query cloud providers for their hardware configuration via a structured API. Precise, real-time, extensible. Rejected because no major inference provider publishes a hardware capability API today. Building toward an API that does not exist creates a blocking dependency.
+
+**Option C -- Adaptive Fingerprinting (selected).** Passive inference from observable signals: static chip profiles from published specs, behavioral fingerprinting of cloud endpoints via latency and throughput measurement, dynamic adaptation from session-level performance, and evolutionary learning across sessions. No provider cooperation required. Ships entirely from the client side.
+
+---
+
+## The 5-Layer Architecture
+
+```
+Layer 0: Device Detection      -- Read device model, map to chip profile
+Layer 1: Static Chip Profiles  -- 17 profiles with capability vectors and thermal envelopes
+Layer 2: Cloud Fingerprinting  -- Latency/throughput signatures classified via Mahalanobis distance
+Layer 3: Dynamic Adaptation    -- Thermal state, session performance, context-window pressure
+Layer 4: Evolutionary Learning -- Exponential moving average updates to a chip affinity map
+```
+
+Each dispatch decision uses a composite hardware score weighted by context type:
+
+| Context | Compute Weight | Memory Weight | Thermal Weight | Latency Weight |
+|---------|---------------|---------------|----------------|----------------|
+| User-facing | 0.30 | 0.25 | 0.20 | 0.25 |
+| Background | 0.35 | 0.30 | 0.25 | 0.10 |
+| Critical reasoning | 0.40 | 0.35 | 0.15 | 0.10 |
+| High frequency | 0.20 | 0.20 | 0.30 | 0.30 |
+
+---
+
+## Cloud Fingerprinting via Mahalanobis Distance
+
+The key technical insight: cloud providers leave measurable fingerprints in their response latency and throughput patterns, even without an API. By measuring time-to-first-token (TTFT) and tokens-per-second (TPS) across sessions, the framework classifies the backend infrastructure using Mahalanobis distance over the (TTFT, TPS) feature space.
+
+7 provider signatures were built from published benchmarks:
+
+| Provider Category | TTFT Range (ms) | TPS Range |
+|------------------|-----------------|-----------|
+| GPU cluster (high-end) | 95-180 | 75-110 |
+| GPU cluster (standard) | 180-320 | 45-65 |
+| TPU (next-gen) | 140-250 | 55-80 |
+| TPU (current-gen) | 220-380 | 35-55 |
+| Custom silicon | 160-280 | 50-70 |
+| Custom accelerator | 200-350 | 40-60 |
+| Generic GPU | 250-450 | 30-50 |
+
+Nearest-centroid assignment with a minimum-distance threshold gates unknown hardware to a fallback. The confidence gate ensures this is safe: below 0.4 confidence, HADF is ignored entirely. Between 0.4 and 0.7, suggestions are advisory. Above 0.7, hardware scores influence routing weights.
+
+---
+
+## Zero-Regression Shipping
+
+The infrastructure shipped with `enabled: false` as the default. The confidence gate means the cost of being wrong about initial accuracy is zero. With HADF disabled, existing dispatch behavior is bit-for-bit identical to the prior version.
+
+**Validation results:**
+- 17 of 17 targeted chip profiles present, each with capability vector, thermal envelope, and recommended context window
+- All 7 JSON config files passed schema validation
+- Token overhead: 733 tokens (0.9% of framework budget, under the 1.0% ceiling with 7 tokens of headroom)
+- Disk footprint: 24.2 KB total
+
+Shipped as PR #82.
+
+---
+
+## Performance
+
+| Metric | Value |
+|--------|-------|
+| Wall time | ~120 min |
+| Commits | 8 (clean linear history) |
+| Files created | 7 |
+| Files modified | 4 |
+| CU | 1.4 (first-of-kind +0.2, architectural novelty +0.2) |
+| Parallel task dispatch savings | ~40% implementation time compression |
+
+Parallel dispatch on independent task clusters (chip profiles, affinity maps, and signature tables could be created simultaneously) was the difference between ~45 min and ~30 min for the implementation phase.
+
+---
+
+## Open Questions
+
+1. **Cloud fingerprinting accuracy in production.** Published benchmark ranges are sufficient for v1, but real production variance (load balancing, geographic routing) may widen distributions enough to degrade classification below the 70% confidence threshold.
+2. **Evolutionary learning convergence.** The EMA decay schedule (fast to stable to locked) was chosen from general theory, not calibrated against dispatch-specific session variance.
+3. **Unknown hardware degradation.** New devices that don't match any profile fall back to confidence 0.0 (HADF disabled). Safe but means zero value until a profile is added.
+
+---
+
+## Key Takeaways
+
+- **Passive inference from observable signals can solve problems that seem to require active APIs.** No provider cooperation was needed. Published benchmarks and behavioral measurement were sufficient for v1 cloud fingerprinting.
+- **Novel infrastructure should always ship with a kill switch that requires no code change to activate.** The confidence gate means HADF can be fully disabled, advisory-only, or fully active based on a single threshold value.
+- **Brainstorming three named approaches with explicit rejection reasons produces better designs.** Each rejection articulated a specific failure mode that the next approach had to solve. "Too simple" and "requires provider adoption" are falsifiable criteria, not preferences.
+- **The tightest constraint was not technical but budgetary.** 733 tokens with a 1% ceiling leaves 7 tokens of headroom. Any expansion pushes the framework over budget.

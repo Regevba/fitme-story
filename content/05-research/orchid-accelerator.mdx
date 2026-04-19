@@ -1,0 +1,218 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Orchid -- Designing a RISC-V Accelerator for AI Agent Orchestration
+
+## Context
+
+Most AI accelerators target inference -- matrix multiplication, attention, convolution. Orchid targets the layer above inference: the orchestration decisions that determine which model runs where, when, and how. It is the first open-source chip design for AI agent dispatch, and it exists because a software PM framework accidentally proved that orchestration has its own complexity scoring, speculative execution, cache hierarchy, and coherence protocol -- all hardware concepts running in software. Orchid gives them back to hardware.
+
+This is a research vehicle, not a product. The design is simulated on cloud infrastructure, never fabricated into physical silicon.
+
+## What Orchid Is (and Is Not)
+
+| Orchid IS | Orchid IS NOT |
+|---|---|
+| An orchestration accelerator -- speeds up dispatch decisions | A general-purpose AI chip -- does not replace GPUs for training |
+| A research vehicle -- validates framework-to-hardware mapping | A product -- no intention to fabricate or sell |
+| Cloud-emulated -- runs on standard infrastructure | Physical silicon -- no tapeout, no foundry |
+| RISC-V + fully open source -- reproducible by anyone | Proprietary -- no locked IP, no NDAs |
+| Parameterizable -- explores design space via configuration | Fixed -- every parameter is a knob to turn |
+
+## Architecture: 7 Functional Units
+
+```
++-------------------------------------------------------------+
+|                      ORCHID SoC                              |
+|                                                              |
+|  +----------+    +--------------------------------------+    |
+|  | RISC-V   |    |  Orchestration Accelerator Complex   |    |
+|  | Core     |    |                                      |    |
+|  | (Rocket) +----+  U1: Dispatch Scorer (combinational) |    |
+|  |          |RoCC|  U2: Skill Router (LUT + decoder)    |    |
+|  |          +----+  U3: Cache Controller (scratchpad)   |    |
+|  |          |    |  U4: Batch Scheduler (FIFO+arbiter)  |    |
+|  +----+-----+    |  U5: Speculative Prefetcher          |    |
+|       |          |  U6: Coherence Unit (MESI-like)      |    |
+|       |          +----------------+---------------------+    |
+|       |                           |                          |
+|  +----+---------------------------+---------------------+    |
+|  |              TileLink Interconnect                   |    |
+|  |         (result forwarding bus)                      |    |
+|  +----+-------------------------------+--------------+  |    |
+|       |                               |              |  |    |
+|  +----+---------+            +--------+----------+   |  |    |
+|  | U7: Systolic |            |  Memory Subsystem |   |  |    |
+|  | Array        |            |  L1 Scratchpad    |   |  |    |
+|  | (Gemmini)    |            |  L2 Compressed    |   |  |    |
+|  |              |            |  DRAM Controller   |   |  |    |
+|  +--------------+            +-------------------+   |  |    |
++-------------------------------------------------------------+
+```
+
+**U1 -- Dispatch Scorer.** Pure combinational logic. Input: task descriptor (type, file count, model count, dependency flags). Output: complexity score (0-100) + recommended model tier. Executes in a single clock cycle. No state, no memory.
+
+**U2 -- Skill Router.** ROM-based lookup table + priority decoder. Input: complexity score + current phase. Output: skill IDs to load + tool budget. Stateless. 1-2 cycles.
+
+**U3 -- Cache Controller.** Scratchpad SRAM with compression engine. Stores compressed cache entries and decompresses on demand. Manages 15 cache entries with LRU eviction. The scratchpad is calibrated from real framework measurements: 48KB main + 16KB prefetch staging area.
+
+**U4 -- Batch Scheduler.** FIFO queue + round-robin arbiter. Groups tasks by model tier and dispatches in waves. Manages up to 8 concurrent task slots. This unit exists because measurement showed serial dispatch velocity plateaus at a fixed rate -- parallelism is the only path to further improvement.
+
+**U5 -- Speculative Prefetcher.** Prediction table (like a branch target buffer). When a skill begins execution, prefetches the next likely skill's cache entry based on historical phase transitions. Misprediction cost: flush one cache line.
+
+**U6 -- Coherence Unit.** MESI-like protocol FSM. Coordinates when multiple units write to the same cache line. Maps directly to the parallel write safety system -- snapshot/rollback becomes hardware-enforced atomic transactions.
+
+**U7 -- Systolic Array.** Uses Gemmini (an open-source systolic array generator from Berkeley) with custom parameterization. Handles inference workloads that the orchestration layer dispatches to. 8x8 or 16x16 configurable processing element array with weight-stationary dataflow.
+
+**TileLink Interconnect.** Standard bus protocol. Serves as the result forwarding bus -- U1's output routes directly to U2, U2 to U3, and so on, without serialization overhead. Maps to the UMA zero-copy result forwarding optimization from the software framework.
+
+## Progressive Build Approach
+
+Each unit follows the same promotion lifecycle across three layers:
+
+```
+Layer A (Python)  -->  Layer B (Chisel RTL)  -->  Layer C (Chipyard SoC)
+    behavioral           cycle-accurate             full system
+    models               synthesizable              on cloud FPGAs
+```
+
+Units graduate independently. At any point, some units may be at Layer B while others are still at Layer A.
+
+### Phase 1 -- Foundation (Layer A, all units)
+
+Python behavioral models for every unit. The trace replayer feeds real framework dispatch traces and synthetic stress benchmarks through U1-U6. This establishes the composite score baseline.
+
+| Unit | Deliverable | What It Validates |
+|---|---|---|
+| U1: Dispatch Scorer | `score(task) -> (score, tier)` | Scoring rules match real framework config |
+| U2: Skill Router | `route(score, phase) -> skills[]` | Routing matches real skill assignments |
+| U3: Cache Controller | get/put/compress/expand | Hit rates match real framework traces |
+| U4: Batch Scheduler | Queue simulator | Grouping + wave dispatch timing |
+| U5: Prefetcher | Prediction table | Prediction accuracy vs. real traces |
+| U6: Coherence Unit | MESI state machine | Conflict resolution correctness |
+
+### Phase 2 -- First RTL (Layer B, stateless units U1-U2)
+
+Chisel modules with Verilator testbenches. A co-simulation harness (cocotb) feeds the same traces to both the Python model and the RTL, comparing outputs. Layer B must be behaviorally identical to Layer A before a unit graduates.
+
+### Phase 3 -- Stateful Units (Layer B, units U3-U5)
+
+Cache controller, batch scheduler, and speculative prefetcher in synthesizable RTL. Validated against Layer A for hit rates, throughput under load, and prediction accuracy.
+
+### Phase 4 -- Complex Units + Interconnect (Layer B, U6 + TileLink)
+
+MESI FSM in RTL. All units wired together via TileLink. Full orchestration pipeline validated end-to-end: pipeline throughput must meet or exceed the Layer A baseline.
+
+### Phase 5 -- SoC Integration (Layer C)
+
+Rocket core + Orchid accelerator complex + Gemmini, composed in Chipyard. Deployed to cloud FPGAs via FireSim for near-real-time full system simulation. Real framework traces replayed through the complete SoC.
+
+## Trace Infrastructure
+
+### Real traces from live framework runs
+
+Each dispatch decision is captured as a JSON Lines event containing the task descriptor, scoring decision, skills loaded, tool budget, cache hits, and latency.
+
+### Synthetic traces for stress testing
+
+| Scenario | Purpose |
+|---|---|
+| 100 lightweight tasks in burst | Batch scheduler saturation |
+| 50 heavyweight tasks on same file | Coherence unit contention |
+| Alternating UX->Design->Implement chains | Speculative prefetcher accuracy |
+| Random uniform distribution | Baseline throughput |
+| Cache cold start to warm steady state | Cache controller warming curve |
+
+### Composite score formula
+
+```
+Orchid Score = 0.4 * (1/latency) + 0.35 * throughput + 0.25 * (1/energy)
+```
+
+Latency-biased because dispatch speed is the primary bottleneck. Baseline: same traces running through software framework on host CPU. Orchid's score is compared as a speedup ratio.
+
+## Validation Strategy
+
+### Level 1 -- Unit Correctness (Layer A vs. Layer B)
+
+| Unit | Pass Criteria |
+|---|---|
+| U1: Dispatch Scorer | 100% output match on 1000 task descriptors (scoring is deterministic) |
+| U2: Skill Router | 100% match on all (score, phase) pairs (routing is a lookup) |
+| U3: Cache Controller | Hit rate within 1% of Python model on real access patterns |
+| U4: Batch Scheduler | Identical grouping (wave order may differ -- valid reordering) |
+| U5: Prefetcher | >= 70% prediction accuracy (framework measures ~75-80% phase predictability) |
+| U6: Coherence | Zero data corruption across 10,000 random conflict scenarios |
+
+### Level 2 -- Pipeline Integration (Layer B)
+
+- U1->U2 forwarding: total latency = sum of individual latencies (no serialization overhead)
+- Full dispatch chain (U1->U2->U3->U4): composite latency < sum of individuals (pipelining works)
+- Prefetch + cache: hit rate increase >= 15% over no-prefetch baseline
+- Coherence under contention: pipeline throughput degrades <= 20% at maximum contention
+
+### Level 3 -- System Validation (Layer C)
+
+- Real trace replay through full SoC: composite score > 1.0x baseline (any speedup = success)
+- Synthetic burst: 100 tasks dispatched within 10 microseconds
+- Cold-to-warm transition: steady-state score >= 5x cold start score
+- End-to-end with Gemmini: dispatch + inference latency < inference-only + software dispatch
+
+**The ultimate question:** Given 100 dispatch decisions that took the software framework ~2 minutes, how fast does Orchid produce the same 100 decisions? The target is not "faster than software" (trivially true for hardware logic) -- it is "fast enough that orchestration overhead becomes negligible compared to the actual AI work."
+
+## Open-Source Building Blocks
+
+| Component | Project | Role in Orchid |
+|---|---|---|
+| Host core | Rocket Chip (Apache 2.0) | RISC-V core running framework software |
+| Accelerator interface | RoCC (Apache 2.0) | Attaches U1-U6 to Rocket pipeline |
+| Systolic array (U7) | Gemmini (Apache 2.0) | ML inference engine |
+| SoC framework | Chipyard (Apache 2.0) | Composes all units into single chip |
+| Cloud FPGA simulation | FireSim (BSD 3-Clause) | Layer C near-real-time validation |
+| RTL simulation | Verilator (LGPL) | Layer B cycle-accurate simulation |
+| Co-simulation bridge | cocotb (BSD 2-Clause) | Python-to-RTL test bridge |
+| Bus protocol | TileLink (Apache 2.0) | On-chip interconnect |
+
+## The Origin Story
+
+The framework evolved through versions that, in retrospect, recapitulated CPU architecture history:
+
+```
+v1.0  Serial PM workflow              = single-issue in-order CPU
+  |
+v2.0  Hub-and-spoke, 11 skills        = pipelined processor
+  |
+v3.0  Parallel dispatch               = superscalar execution
+  |
+v4.x  Reactive mesh, adapters, eval   = out-of-order + branch prediction
+  |
+v5.0  SoC-on-Software (7 chip->SW)    = configurable multi-core
+  |
+v5.1  All 8 optimizations shipped     = heterogeneous multi-core
+  |
+v5.2  Dispatch intelligence + safety  = hardware scheduler + coherence
+  |
+HADF  Hardware-aware dispatch          = self-aware adaptive hardware
+  |
+  v
+ORCHID  software->chip: close the loop
+```
+
+**The insight that makes Orchid non-obvious:** Most AI accelerators start from the workload (matrix multiply, attention) and design hardware to speed it up. Orchid starts from the orchestration layer -- the decision-making that determines which workload runs where, when, and how. No one has built hardware for this because, until multi-agent AI frameworks matured, the orchestration layer was trivial. Our framework proved it is not trivial: it has its own complexity scoring, speculative execution, cache hierarchy, and coherence protocol. Those are hardware concepts running in software. Orchid gives them back to hardware.
+
+## Relationship to HADF
+
+Orchid and the Hardware-Aware Dispatch Framework are complementary research threads. HADF asks "how should the framework adapt to whatever hardware it runs on?" Orchid asks "what if we designed hardware specifically for the framework?" If both succeed, the convergence point is an Orchid chip that is HADF-aware -- hardware that adapts its own parameters based on runtime telemetry. That is a v2 ambition, not a v1 goal.
+
+## Key Takeaways
+
+1. **Orchestration is a distinct workload class.** It is not inference. It is not general-purpose computation. It has its own performance characteristics (latency-sensitive dispatch decisions, speculative prefetch, coherence under contention) that benefit from dedicated hardware.
+
+2. **Progressive verification (A->B->C) eliminates integration surprises.** Every unit is validated in Python before a single line of RTL is written. The co-simulation contract guarantees behavioral equivalence at each promotion.
+
+3. **The design is a generator, not a fixed chip.** Want to know if doubling the cache scratchpad improves hit rates more than doubling the prediction table? Change two numbers, re-run traces, compare scores. Architecture research at the speed of configuration.
+
+4. **The software framework produces its own hardware validation data.** The instrumentation system generates exactly the trace data Orchid needs. No separate logging infrastructure required -- every framework run is automatically an Orchid benchmark.
+
+5. **Closing the loop matters.** Software learned from hardware (SoC-on-Software). Hardware learned from software (Orchid). The boundary between software architecture and hardware architecture is not as firm as either discipline assumes.

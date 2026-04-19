@@ -1,0 +1,76 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Can You Test AI Output Quality the Same Way You Test Code?
+
+> What happens when you add a formal eval layer — golden I/O tests and heuristic quality checks — to an AI-assisted PM framework?
+
+## Context
+
+By framework v4.3, the PM workflow had proven it could ship features fast. But "fast" is meaningless if the AI outputs are wrong. Unit tests verified that code compiled and functions returned expected values — but nobody was testing whether the AI's readiness scores fell in sane ranges, whether recommendation copy matched the user's context, or whether confidence gates fired at the right thresholds. The eval layer was an attempt to close that gap: treat AI output quality as a testable property, not an assumption.
+
+---
+
+## The Problem
+
+Before v4.4, AI quality verification was binary: "build passes, tests pass." But those tests checked code correctness, not output quality. A readiness score that returned 0.99 for a sleep-deprived user with elevated resting heart rate would pass every unit test — the function returned a float in range. The eval layer needed to assert behavioral contracts: given this input profile, the score should fall in *this* range, the copy should use *this* tone, the confidence badge should show *this* level.
+
+---
+
+## The Approach
+
+**2-layer design:**
+- **Layer 1 (XCTest evals):** Golden I/O tests (exact input → expected output range) and heuristic quality checks (output properties that should always hold). 29 eval cases across 4 files covering readiness scoring, AI output quality, tier behavior, and user profile integrity.
+- **Layer 2 (monitoring schema):** A structured `ai_quality_metrics` schema that captures eval results per feature, making quality trends visible across the project's lifetime.
+
+**6-phase skill lifecycle:** The framework's skill lifecycle expanded from 5 phases to 6, inserting an Eval phase between Implementation and Review. Eval definitions happen at task planning, execution at testing, analysis at the learn phase — creating a closed loop.
+
+**Implementation:** 45 minutes total. 15 minutes for the spec, 25 minutes for 3 eval files (20 cases), 5 minutes for framework docs. A 4th eval file (9 more cases) was added 10 minutes later during the next feature.
+
+---
+
+## Key Metrics
+
+| Metric | Value |
+|--------|-------|
+| Wall time | ~55 min (including follow-on eval file) |
+| Eval cases | 29 across 4 files |
+| Eval pass rate | 100% (29/29 green on first run) |
+| Complexity Units | 12.6 |
+| Velocity | 4.37 min/CU (+71% vs baseline) |
+| Framework lifecycle change | 5-phase → 6-phase (added Eval) |
+| Coverage gaps identified | 3 subsystems with zero eval coverage |
+
+---
+
+## What the Eval Layer Caught
+
+| File | Tests | Category | What It Asserts |
+|------|-------|----------|-----------------|
+| ReadinessFormulaEvals | 7 | Golden I/O | Score ranges, band assignments, goal-aware shifts, cold start behavior, contradictory signal handling |
+| AIOutputQualityEvals | 7 | Heuristic | Signal coverage, no raw keys in UI strings, copy length bounds, tone matching, confidence badge accuracy |
+| AITierBehaviorEvals | 6 | Tier behavior | Local fallback works, confidence gate fires at 0.4 boundary, empty/stale snapshot handling |
+| ProfileEvals | 9 | Golden I/O + heuristic | Minimal/full profile handling, goal mutation, enum completeness, analytics prefix compliance |
+
+The confidence gate boundary test — `0.39 fails, 0.41 passes, exact 0.4 passes` — is the kind of edge case that escapes unit tests but breaks real user experiences.
+
+---
+
+## What This Proved About the Framework
+
+1. **Eval patterns are reusable across features.** The 4th eval file was written in 10 minutes by following the `testEval_` convention from the first 3. The pattern scales without additional design work.
+
+2. **Quality infrastructure can be free.** The eval phase added zero measurable overhead to feature delivery. Eval tests compile and run in under 1 second. The framework got more rigorous without getting slower.
+
+3. **Coverage gaps become visible.** Once you formalize what's tested, the gaps are obvious: nutrition recommendations, training plan suggestions, and cohort intelligence had zero eval coverage. The eval layer didn't just test — it created a map of what's untested.
+
+4. **The closed loop works.** Define quality criteria at planning → build → verify against criteria → learn from results. This cycle prevents the "ship fast, discover quality problems later" pattern.
+
+---
+
+## Key Takeaways
+
+- AI output quality is testable. Golden I/O tests and heuristic checks work the same way for AI outputs as they do for traditional code — you just need to define what "correct" means for probabilistic outputs.
+- Adding a quality phase to the lifecycle cost nothing in delivery speed because eval tests parallelize with other test work.
+- The 4.37 min/CU velocity at v4.4 showed that framework improvements compound: each version adds capability without adding cost, because the new capabilities are designed to run in parallel with existing work.

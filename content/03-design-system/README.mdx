@@ -1,0 +1,30 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Act 3: The Design System
+
+> The design system isn't just a style guide -- it's a living framework that gates every feature through compliance checks.
+
+## Why This Matters
+
+Most mobile apps treat their design system as a PDF that designers reference and engineers ignore. The result is predictable: visual inconsistency creeps in screen by screen, accessibility gets "addressed later" (meaning never), and every new developer reinvents spacing values from memory.
+
+FitMe took a different approach. The design system is **enforced infrastructure** -- a pipeline of semantic tokens, reusable components, and automated compliance gates that every feature must pass before it ships. New tokens are proposed on feature branches, validated by CI, and merged alongside the feature code. The system evolves with the product instead of falling behind it.
+
+This approach paid off across six major screen rebuilds. Each refactor followed the same V2 methodology: audit the existing screen against 13 UX principles, identify every violation, rebuild from the design system foundations up, and verify compliance through a 60+ item checklist. The result was 100% token compliance across all production screens -- zero hardcoded colors, zero raw spacing values, zero ad-hoc typography.
+
+## What's in This Section
+
+| Document | What It Covers |
+|----------|---------------|
+| [13 UX Principles That Govern Every Screen](ux-foundations.md) | The 13 principles (8 universal + 5 domain-specific) that ground every UI decision, from Fitts's Law to "Celebration Not Guilt" |
+| [Design System Governance](governance.md) | Token naming rules, contribution flow, deprecation policy, and review standards that keep the system coherent as it evolves |
+| [The V2 Refactor Methodology](v2-refactor-methodology.md) | The systematic checklist for rebuilding screens against the design system -- 10 sections, 60+ verification items, phased from audit through documentation |
+
+## Key Concepts
+
+- **Semantic tokens over raw values.** Every color, font, spacing value, radius, and shadow resolves to a named token. `Surface.elevated` communicates intent; `Color(red: 0.98, green: 0.56, blue: 0.25)` does not.
+- **Components reflect purpose, not pages.** A card component is `AppCard`, not `HomeActionCard`. Reusability is enforced by naming convention.
+- **CI gates prevent drift.** A token-check step in CI catches any raw literal that bypasses the design system. If it drifts, the build fails.
+- **The system evolves through features.** When a feature needs something the design system doesn't have, the system grows -- on a branch, reviewed, documented, and merged with the feature.

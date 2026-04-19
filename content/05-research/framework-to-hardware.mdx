@@ -1,0 +1,83 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# How Software Framework Evolution Recapitulates CPU Architecture History
+
+## Context
+
+Over fourteen weeks, a PM framework for orchestrating AI agents evolved from a serial script to a multi-agent system with speculative execution, cache hierarchies, coherence protocols, and hardware-aware dispatch. Only in retrospect did the pattern become obvious: each major framework version mapped 1:1 to a specific era in CPU architecture history. The framework independently re-derived solutions that chip architects discovered over 40 years -- not because we were copying them, but because the underlying problems (scheduling, caching, parallelism, coherence) are universal.
+
+This document maps the complete genealogy.
+
+## The Generational Mapping
+
+| Era | CPU Architecture | Framework Version | What Changed |
+|---|---|---|---|
+| 1980s | Single-core, in-order processor | v1.0 - v4.4 | Serial PM workflow. One agent, one task, strict phase ordering. Process improvements only -- like optimizing microcode on a fixed architecture. |
+| 2000s | Configurable cores + memory compression | v5.0 | Skill-on-demand loading (configurable function units) + cache compression (hardware scratchpad with decompression). First architectural leap: 54K tokens reclaimed, overhead dropped 63%. |
+| 2010s | Heterogeneous multi-core + speculation | v5.1 | Batch dispatch (systolic array scheduling), result forwarding (UMA zero-copy), model tiering (big.LITTLE heterogeneous cores), speculative preloading (branch prediction). Eight SoC-inspired optimizations shipped in a single release. |
+| 2020s | Intelligent scheduling + coherence | v5.2 | Dispatch intelligence (CPU decode/scheduler with scoring) + parallel write safety (MESI-inspired coherence protocol). The framework became self-aware about task complexity and agent coordination. |
+| Research frontier | Self-aware adaptive hardware | v6.1 (HADF) | Hardware-aware dispatch: the framework detects and adapts to the actual hardware at both ends (device + cloud). Like a chip that reconfigures itself based on workload characteristics. |
+
+## The Component-Level Mapping
+
+Each framework component maps to a specific hardware principle, chip unit, and open-source building block:
+
+| Framework Component | Hardware Principle | Chip Equivalent | Open-Source Block |
+|---|---|---|---|
+| Skill-on-demand loading | LoRA hot-swap | Configurable Function Unit | CFU Playground (Google) |
+| Cache compression | 3.7-bit palettization | HW compression scratchpad | Custom LZ4 decompressor |
+| Batch dispatch | TPU weight-stationary dataflow | Systolic array + scheduler | Gemmini (Berkeley) |
+| Result forwarding | UMA zero-copy | Shared scratchpad interconnect | Snitch cluster shared L1 |
+| Model tiering (haiku/sonnet/opus) | ANE mixed-precision | Heterogeneous cores (big.LITTLE) | Rocket + Snitch |
+| Speculative preload | Branch prediction | Prefetch unit + prediction table | Custom BTB-style |
+| Systolic chain protocol | TPU systolic array | Pipelined execution stages | Gemmini dataflow |
+| Dispatch intelligence | CPU scheduler/decode | Dispatch/decode unit with scoring | Custom 3-stage pipeline |
+| Parallel write safety | Cache coherence (MESI) | Coherence protocol unit | MESI controller |
+
+## Why This Mapping Is Not Coincidental
+
+The convergence runs deeper than analogy. Consider the constraints:
+
+**Shared resources under contention.** A CPU has limited execution units, cache lines, and memory bandwidth. Our framework has limited context window, agent slots, and API calls. Both must decide: which work gets which resource, when, and in what order? The optimal solutions (priority scheduling, tiered caching, speculative prefetch) are dictated by the constraint structure, not the medium.
+
+**Parallel execution with shared state.** Multi-core CPUs need coherence protocols because cores share memory. Multi-agent frameworks need coherence protocols because agents share files. The MESI state machine (Modified/Exclusive/Shared/Invalid) maps directly to agent write permissions. This is not a metaphor -- it is the same finite state machine solving the same problem.
+
+**Latency hiding through speculation.** CPUs predict branches to avoid pipeline stalls. Our framework predicts which skill will execute next to pre-load its cache. Both accept the same trade-off: misprediction wastes resources (flushed pipeline / wasted tokens), but correct prediction hides latency completely. The break-even math is identical.
+
+**Heterogeneous execution.** ARM big.LITTLE puts heavy threads on performance cores and light threads on efficiency cores. Our framework puts complex reasoning on the most capable model and mechanical tasks on faster/cheaper models. The scheduling algorithm is the same: classify workload complexity, route to appropriate execution unit.
+
+## The Implications
+
+### For software architects
+
+If your multi-agent system is hitting scaling limits, look at chip architecture literature from the relevant era. The solutions already exist -- they just need translation from transistors to tokens.
+
+### For chip architects
+
+AI agent orchestration workloads have non-trivial dispatch logic with their own scheduling, caching, and coherence requirements. This is not just "run matrix multiply faster." The orchestration layer above inference is a distinct workload class that could benefit from dedicated hardware acceleration.
+
+### For the research community
+
+The convergence suggests a deeper principle: any system that manages parallel execution of heterogeneous tasks over shared resources will independently evolve toward the same architectural patterns. The medium (silicon, software, biological neural networks) determines the implementation, but the architecture is universal.
+
+## Where This Led
+
+Recognizing the mapping had two practical consequences:
+
+1. **Hardware-Aware Dispatch Framework (HADF).** If the framework already emulates hardware concepts, it should be aware of the actual hardware it runs on. HADF adds a 5-layer detection system that fingerprints both device chips and cloud inference hardware to optimize dispatch decisions. See [hadf-design.md](hadf-design.md).
+
+2. **Orchid -- a RISC-V accelerator for AI agent orchestration.** If the software is emulating hardware, what happens if we give those concepts back to actual hardware? Orchid is a chip design where each of the 7 functional units corresponds directly to a framework component. The dispatch scorer is combinational logic. The cache controller is a scratchpad with LZ4 decompression. The coherence unit is a MESI FSM. See [orchid-accelerator.md](orchid-accelerator.md).
+
+The loop closed: software learned from hardware, then hardware learned from software.
+
+## Key Takeaways
+
+1. **The mapping is structural, not metaphorical.** Each framework component solves the same mathematical problem as its hardware counterpart. The solutions converge because the constraints converge.
+
+2. **40 years of CPU architecture is a cheat code for AI framework design.** Every scaling problem we hit had a known solution in the chip design literature. We just needed to recognize which era we were in.
+
+3. **The evolution is predictable.** Once you see the pattern, you can anticipate the next bottleneck. After coherence (v5.2), the next step was adaptive hardware awareness (HADF). After that, dedicated hardware (Orchid). Each step was obvious in hindsight.
+
+4. **The research frontier is convergence.** Hardware that adapts to software workloads (HADF) and software that designs its own hardware (Orchid) are two sides of the same coin. The boundary between software architecture and hardware architecture is dissolving.

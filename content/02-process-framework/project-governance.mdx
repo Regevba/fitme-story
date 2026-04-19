@@ -1,0 +1,184 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Project Governance -- The Rules That Ship Quality Code
+
+## Context
+
+A framework is only as good as the rules that enforce it. This document describes the governance model that every feature, enhancement, fix, and chore in FitMe must follow. These rules aren't aspirational guidelines -- they are hard gates enforced by CI, the PM workflow, and the design system compliance gateway. They exist because in a solo-developer-with-AI-agents setup, discipline must be systematic, not personal.
+
+---
+
+## Product Management Lifecycle
+
+Every new feature MUST follow the PM workflow. No exceptions.
+
+**Non-negotiable rules:**
+
+1. **No phase is skipped.** Every phase requires explicit user approval before the next begins.
+2. **No PRD without success metrics.** Every feature defines: primary metric, baseline, target, kill criteria.
+3. **No merge without CI.** Both the feature branch AND main must be green.
+4. **Data drives decisions.** Research, metrics, and kill criteria guide the lifecycle -- not gut feeling.
+5. **Post-launch metrics review is mandatory** at the cadence defined in the PRD.
+6. **Phase transitions auto-sync** to GitHub Issue labels (dashboard updates automatically).
+7. **Manual overrides allowed.** Features can move forward (skip) or backward (rollback) at any time. Skipped phases are recorded in the audit trail.
+8. **Conflicts are resolved by asking the user.** When automated state and GitHub disagree, the system surfaces the conflict rather than guessing.
+
+---
+
+## Work Item Types
+
+Not everything needs the full 10-phase funnel. The work type determines the lifecycle shape:
+
+| Type | Lifecycle | When to Use |
+|------|-----------|-------------|
+| **Feature** | Research --> PRD --> Tasks --> UX --> Implement --> Test --> Review --> Merge --> Docs --> Learn | New capabilities requiring research, PRD, design |
+| **Enhancement** | Tasks --> Implement --> Test --> Merge | Improvements to shipped features (parent must have a PRD) |
+| **Fix** | Implement --> Test | Bug fixes, error handling, security patches |
+| **Chore** | Implement | Docs, config, refactoring, dependency updates |
+
+The key insight: fast-tracking reduces _planning_ overhead, not _quality_ gates. Even a chore goes through review.
+
+---
+
+## Branching Strategy
+
+```
+main ----------------------------------------------------->
+       \                                    /
+        \-- feature/dark-mode -------------/
+              (isolated, CI-green)     (squash merge)
+```
+
+| Rule | Description |
+|------|-------------|
+| Large features (>5 files changed OR new models/services) | Must use feature branch |
+| Small fixes (<5 files, no new models) | Can use direct task branch |
+| Before merge | CI must pass on BOTH feature branch and main |
+| Merge method | Squash merge (clean history) |
+| After merge | Delete feature branch |
+
+### High-Risk Files Requiring Extra Review
+
+Certain files affect the entire system and require heightened scrutiny during code review:
+
+- **Data models** -- changes ripple through every feature
+- **Encryption service** -- security-critical
+- **Sync services** (Supabase, CloudKit) -- data integrity
+- **Auth services** (Sign-in, Auth Manager) -- authentication flows
+- **AI Orchestrator** -- AI pipeline behavior
+
+---
+
+## CI Pipeline
+
+Three gates must pass before any merge to main:
+
+| Gate | What It Checks |
+|------|---------------|
+| **Token check** | Design system drift detection -- ensures semantic tokens in code match the design token source of truth |
+| **Build** | Full iOS Simulator build (no code signing required) |
+| **Test** | Complete XCTest suite execution |
+
+All three must be green. No exceptions, no manual overrides on CI.
+
+---
+
+## Data-Driven Development
+
+The app is data-driven at every level:
+
+### System-Wide Guardrails
+
+These metrics must not degrade for ANY feature:
+
+| Metric | Threshold |
+|--------|-----------|
+| Crash-free rate | > 99.5% |
+| Cold start time | < 2 seconds |
+| Sync success rate | > 99% |
+| CI pass rate | > 95% |
+| Cross-feature WAU (North Star) | Trending up or flat |
+
+### Per-Feature Metrics
+
+Every feature has a metrics section in its PRD with:
+- Primary metric (the one number that defines success)
+- Kill criteria (when to revert or fundamentally rethink)
+- Review cadence (when to check -- daily, weekly, monthly)
+
+---
+
+## Design System (Living Framework)
+
+The design system is a living, evolving framework -- not a static constraint. It serves the product, not the other way around.
+
+### What It Contains
+
+- ~125 semantic tokens (colors, typography, spacing, motion, shadows)
+- 13 reusable components
+- Token pipeline: source JSON --> Style Dictionary --> generated code
+- CI gate: automated check prevents token drift between source and code
+
+### Evolution Rules
+
+1. New tokens/components are **proposed on feature branches**, never directly on main
+2. Phase 3 compliance gateway validates every UI feature against the design system
+3. If a feature needs to deviate, the user chooses: **fix**, **evolve the system**, or **override with justification**
+4. Approved changes merge to main with the feature and become part of the system
+5. All changes documented in the design system feature memory
+
+### Compliance Gateway
+
+Every UI feature passes through a 5-point compliance check:
+
+| Check | What's Validated |
+|-------|-----------------|
+| Token compliance | Every color/font/spacing maps to semantic tokens |
+| Component reuse | Uses existing components or justifies new ones |
+| Pattern consistency | Matches existing screen patterns |
+| Accessibility | 44pt tap targets, WCAG AA contrast, Dynamic Type, VoiceOver |
+| Motion | Uses preset animations, reduce-motion support |
+
+---
+
+## Analytics Naming Convention
+
+Every analytics event that tracks an action on a specific screen MUST include that screen name as a prefix.
+
+**The point:** When looking at an event in any analytics dashboard, the source screen should be obvious without checking source code. Funnel analysis, regression isolation, and per-screen metric tracking all become dramatically faster.
+
+### Naming Pattern
+
+| Screen | Event prefix | Example events |
+|--------|-------------|---------------|
+| Home | `home_` | `home_action_tap`, `home_metric_tile_tap` |
+| Nutrition | `nutrition_` | `nutrition_meal_logged`, `nutrition_scanner_opened` |
+| Training | `training_` | `training_workout_start`, `training_set_completed` |
+| Stats | `stats_` | `stats_period_changed`, `stats_chart_interaction` |
+| Settings | `settings_` | `settings_consent_updated`, `settings_export_requested` |
+| Onboarding | `onboarding_` | `onboarding_step_viewed`, `onboarding_skipped` |
+| Auth | `auth_` | `auth_signin_started`, `auth_signin_completed` |
+
+### Exceptions
+
+- **Cross-screen lifecycle events** stay unprefixed: `app_open`, `session_start`, `sign_in`, `sign_up`
+- **GA4 recommended events** keep their standard names: `tutorial_begin`, `tutorial_complete`, `select_content`, `login`
+
+### Enforcement
+
+1. **PRD Phase 1 gate** validates every new event for prefix compliance. Non-compliant events block PRD approval.
+2. **Analytics validation** checks for violations and refuses to write specs that contain them.
+3. **Analytics taxonomy** has a `screen_scope` column tracking the prefix scope per event.
+4. **Periodic audits** flag non-conforming events and plan migrations that preserve historical dashboards.
+
+---
+
+## Key Takeaways
+
+- **Rules are enforced by automation, not willpower.** CI gates, compliance gateways, and analytics validation catch violations before they reach main.
+- **The design system evolves with the product.** Features can propose system changes on their branch, and approved changes become part of the system on merge. This prevents the "design system as obstacle" antipattern.
+- **Every feature has a kill switch.** Kill criteria defined in the PRD mean underperforming features are iterated or removed -- not left to accumulate technical debt.
+- **Analytics naming is a first-class concern.** Screen-prefixed events make dashboard analysis, funnel debugging, and regression isolation possible without source code access.
+- **High-risk files get extra scrutiny.** The branching strategy identifies files where a bug would cascade system-wide, and mandates additional review for any changes to them.

@@ -1,0 +1,26 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Act 5: Research Frontier
+
+The most unexpected outcome of building a PM framework for a fitness app was discovering that its evolution recapitulated 40 years of CPU architecture history.
+
+It started as a productivity observation. As the framework grew from a serial script into a parallel, multi-agent orchestration system, the optimizations we kept reaching for had familiar names: caching, branch prediction, out-of-order execution, coherence protocols. We were not borrowing metaphors from chip design. We were independently re-deriving the same solutions to the same fundamental problems -- resource contention, scheduling overhead, speculative execution, and data consistency across parallel writers.
+
+Once we recognized the pattern, we leaned into it deliberately. We studied seven chip design principles (LoRA hot-swap, palettization, systolic dataflow, unified memory, mixed precision, branch prediction, and cache coherence) and translated each into a concrete software optimization. The results were measurable: 63% reduction in framework overhead, context window utilization nearly doubled, and dispatch latency cut by an order of magnitude. That work is documented in [What Chip Design Taught Us About Software Architecture](soc-software-architecture.md).
+
+The research then branched in two directions. First, we asked: if the framework already adapts its behavior based on task complexity, could it also adapt based on the hardware it runs on? That question produced the [Hardware-Aware Dispatch Framework](hadf-design.md) -- a 5-layer detection system that fingerprints both device chips and cloud inference hardware to optimize dispatch decisions in real time. The [reference implementations](hadf-reference-impl.md) cover 17 chip profiles across 6 vendors. Second, we explored the inverse question: if our software is already emulating hardware concepts, what would happen if we gave those concepts back to actual hardware? That led to [Orchid](orchid-accelerator.md), a RISC-V accelerator designed specifically for AI agent orchestration -- the first open-source chip targeting the decision-making layer above inference, not the inference itself.
+
+Along the way, we solved practical problems that emerged from running parallel AI agents at scale. [Cache Coherence for AI Agents](parallel-write-safety.md) applies the MESI protocol to prevent data corruption when multiple agents write to shared files simultaneously. And [the mapping document](framework-to-hardware.md) traces the complete genealogy -- how each framework version corresponds to a specific era in CPU architecture, from single-core in-order processors through heterogeneous multi-core systems to self-aware adaptive hardware.
+
+## Documents in this section
+
+| Document | What it covers |
+|---|---|
+| [What Chip Design Taught Us About Software Architecture](soc-software-architecture.md) | 7 hardware principles translated into software optimizations |
+| [Hardware-Aware Dispatch -- Designing a 5-Layer Detection System](hadf-design.md) | Device fingerprinting + cloud inference classification + real-time adaptation |
+| [17 Chip Profiles Across 6 Vendors -- Reference Implementations](hadf-reference-impl.md) | Cross-platform detection code and Mahalanobis classification algorithm |
+| [Cache Coherence for AI Agents -- Applying MESI to Parallel Code Writes](parallel-write-safety.md) | Snapshot/rollback + mirror pattern for safe parallel writes |
+| [How Software Framework Evolution Recapitulates CPU Architecture History](framework-to-hardware.md) | The 1:1 mapping from framework versions to hardware eras |
+| [Orchid -- Designing a RISC-V Accelerator for AI Agent Orchestration](orchid-accelerator.md) | A custom chip for the orchestration layer above inference |

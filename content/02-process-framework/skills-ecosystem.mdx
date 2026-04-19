@@ -1,0 +1,146 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# The Skills Ecosystem -- 11 Specialized AI Agents
+
+## Context
+
+FitMe's development is managed by 11 AI agents, each owning a distinct domain of the product lifecycle. The original system was a single monolithic workflow that handled everything inline. As the product grew, that approach couldn't scale: adding a new domain meant bloating one giant prompt, and you couldn't run a design audit without triggering the entire PM pipeline. The ecosystem replaces that monolith with a hub-and-spoke architecture where every agent works independently AND fits into the orchestrated lifecycle.
+
+---
+
+## The 11 Agents
+
+| # | Agent | Role | Sub-commands | Lifecycle Phase |
+|---|-------|------|-------------|----------------|
+| 0 | **/pm-workflow** | **The hub.** Orchestrates the 10-phase lifecycle, dispatches all other agents. | `{feature-name}` | All phases (dispatch) |
+| 1 | **/ux** | **What and Why.** UX research, principles, specs, wireframes, v2 audits. | `research`, `spec`, `wireframe`, `validate`, `audit`, `patterns` | Phase 0 (v2) + Phase 3 + Phase 6 |
+| 2 | **/design** | **How it Looks.** Design system governance, Figma builds, token pipeline, WCAG AA. | `audit`, `ux-spec`, `figma`, `tokens`, `accessibility` | Phase 3 + Phase 6 |
+| 3 | **/dev** | **How it's Built.** Branching, code review, CI, dependencies, performance. | `branch`, `review`, `deps`, `perf`, `ci-status` | Phase 4 + Phase 6 + Phase 7 |
+| 4 | **/qa** | **Does it Work.** Test planning, coverage, regression, security audits. | `plan`, `run`, `coverage`, `regression`, `security` | Phase 5 |
+| 5 | **/analytics** | **Can We Measure It.** Event taxonomy, instrumentation, dashboards, funnels. | `spec`, `validate`, `dashboard`, `report`, `funnel` | Phase 1 + Phase 5 + Phase 8 |
+| 6 | **/cx** | **What Users Say.** Reviews, NPS, sentiment, post-deployment feedback loops. | `reviews`, `nps`, `sentiment`, `testimonials`, `roadmap`, `digest`, `analyze` | Phase 0 + Phase 8 + Phase 9 |
+| 7 | **/marketing** | **How We Tell the World.** ASO, campaigns, content, email, launch comms. | `aso`, `campaign`, `competitive`, `content`, `email`, `launch`, `screenshots` | Phase 0 + Phase 8 |
+| 8 | **/research** | **What's Out There.** Cross-industry to same-category to feature-specific research funnel. | `wide`, `narrow`, `feature`, `competitive`, `market`, `ux-patterns`, `aso` | Phase 0 |
+| 9 | **/ops** | **Is it Up.** Infrastructure monitoring, incidents, cost, alerting. | `health`, `incident`, `cost`, `alerts` | Cross-phase |
+| 10 | **/release** | **Is it Ready.** Version bumps, changelogs, TestFlight, App Store submission. | `prepare`, `checklist`, `notes`, `submit` | Phase 7 |
+
+---
+
+## How They Connect
+
+```
+                   +-----------+
+                   | WEB SEARCH |
+                   | APP STORES |
+                   |INDUSTRY DATA|
+                   +-----+-----+
+                         |
+                         v
+                   +-----------+
+                   | /research  |  <-- teardowns, HIG, competitive intel
+                   +-----+-----+
+                         |
+                         v
+                   +--------------------+
+                   | /pm-workflow (HUB)  |
+                   | 10-phase lifecycle  |
+                   +--+------+-----+--+-+
+                      |      |     |  |
+     +----------------+      |     |  +----------+
+     |                       |     |             |
+     v                       v     v             v
+  +------+           +-------+ +------+     +---------+
+  | /ux  |--spec-->  |/design| | /dev |---->| /release |
+  | what |           |how it | |how it|     | ship it  |
+  | & why|           |looks  | |built |     |          |
+  +--+---+           +---+---+ +--+---+     +----+----+
+     |                    |       |               |
+     |    +---------------+       v               |
+     |    |                  +--------+            |
+     |    |                  |  /qa   |            |
+     |    |                  | does   |            |
+     |    |                  | it work|            |
+     |    |                  +---+----+            |
+     |    v                      v                 v
+     | +----------+         App Build         App Store
+     | |/analytics|
+     | |can we    |
+     | |measure it|
+     | +----+-----+
+     |      |
+     +------+--+
+               |
+               v
+      +-----------+
+      | Post-Launch|
+      +-----+-----+
+            |
+    +-------+-------+
+    |       |       |
+    v       v       v
+  +---+ +-------+ +---+
+  |/cx| |/market| |/ops|
+  |   | | -ing  | |    |
+  +-+-+ +---+---+ +-+--+
+    |       |        |
+    +---+---+--------+
+        |
+        v  feedback loop
+  /pm-workflow <--- next cycle
+```
+
+### Key Connections
+
+- **/ux --> /design** -- The UX spec is the handoff. /ux owns what and why; /design owns how it looks.
+- **/research --> /ux** -- Competitive UX patterns and platform guidelines flow from research into UX planning.
+- **/design --> /dev** -- The design token inventory is the contract between designed components and coded components.
+- **/analytics --> /qa** -- Analytics tests go in the same test suite as functional tests; one CI gate validates both.
+- **/cx --> back to /pm-workflow** -- Post-deployment feedback closes the loop. Root cause classification dispatches corrective work to the responsible agent.
+
+---
+
+## Rules That Apply to Every Agent
+
+1. **Every agent is standalone.** You can invoke any agent directly without running a full PM workflow.
+2. **Every agent is composable.** The hub can chain agents together for a full lifecycle.
+3. **Every agent writes to at most one shared file.** Reads from many.
+4. **No agent auto-advances.** User approves every phase transition.
+5. **Change broadcasts.** When a work item completes, the hub writes to the audit log and notifies downstream agents.
+6. **Every agent follows the 5-phase internal lifecycle.** Health Check --> Cache Check --> Research (if miss) --> Execute --> Learn.
+7. **Every agent declares its external data sources.** Local adapters, external connectors, shared layer targets, and validation gate behavior are documented.
+8. **Every agent has a domain-specific research scope.** When cache misses, the agent knows exactly what to investigate.
+9. **Data flows reactively.** Any entry point, any time. A single agent invocation can ripple through the entire shared layer.
+
+---
+
+## What's Been Built
+
+**8 features shipped through the full PM lifecycle (all 6 screens v2 aligned):**
+
+| Feature | Type | Highlights |
+|---------|------|-----------|
+| Home Today Screen v2 | Feature (v2 refactor) | 27-finding audit, v2 convention at scale |
+| Onboarding retro | Enhancement | Retroactive v2 alignment of pilot feature |
+| Body Composition card | Enhancement | Reusable metric tile drill-down pattern |
+| Metric Deep Link | Enhancement | Home tile to detail view deep navigation |
+| Training Plan v2 | Feature (v2 refactor) | 533-line container + 6 extracted views, 12 events, 16 tests |
+| Nutrition v2 | Feature (v2 refactor) | Progress bar component, opacity enum, 5 events, 7 tests |
+| Stats v2 | Feature (v2 refactor) | Layout enum, chart accessibility, 4 events, 6 tests |
+| Settings v2 | Feature (v2 refactor) | Color tokenization, destructive action accessibility, 3 events, 5 tests |
+
+**Ecosystem metrics:**
+- 119 audit findings fixed across 6 screens
+- 33 screen-prefixed analytics events instrumented
+- 60+ analytics tests across 6 test files
+- Learning cache validated: 6th refactor was 6.5x faster than the 1st
+
+---
+
+## Key Takeaways
+
+- **The monolith-to-microservices pattern applies to AI workflows.** Breaking one giant prompt into 11 specialized agents made each domain deeper while keeping the orchestration layer thin.
+- **Shared data is the glue.** Agents don't call each other -- they communicate through 15 JSON files that any agent can read and any debugging session can inspect.
+- **Standalone + composable is non-negotiable.** Every agent must work independently (for ad-hoc tasks) and compose into the hub (for lifecycle work). This dual-use design was validated across 20+ production features.
+- **The learning cache is the multiplier.** Without it, agents are stateless functions. With it, the ecosystem gets measurably faster on every similar task.

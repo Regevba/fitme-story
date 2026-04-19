@@ -1,0 +1,93 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# From "Zero Conflicts by Luck" to "Zero Conflicts by Design"
+
+> The v5.1 stress test had 0 file conflicts across 15 same-file edits. But luck isn't a safety guarantee.
+
+## Context
+
+During the v5.1 parallel stress test, 3 agents edited the same files simultaneously — analytics providers, service files, and the project build file — 15 times total. The result: zero conflicts. But that outcome was probabilistic, not deterministic. The agents happened to edit non-overlapping sections. With different features or different file structures, the result could have been catastrophic — silent overwrites, lost work, or corrupted build files.
+
+Parallel Write Safety (v5.2, Sub-Project B) was designed to make the zero-conflict guarantee structural rather than lucky.
+
+---
+
+## The Problem
+
+When multiple AI agents edit the same file simultaneously, three things can go wrong:
+
+1. **Overwrite:** Agent B reads the file before Agent A's write lands. B's write overwrites A's changes.
+2. **Interleave:** Both agents edit adjacent lines. The merge produces syntactically valid but semantically broken code.
+3. **Corruption:** Both agents edit the same region. The result is neither agent's intended output.
+
+The v5.1 stress test avoided all three by accident. The safety system needed to prevent all three by design.
+
+---
+
+## The Design: 2-Layer Safety
+
+**Layer 1 — Snapshot/Rollback.** Before dispatching agents to a shared file, snapshot the original. After agents return, reconstruct the full file from their region edits. If the build fails, rollback to the snapshot. If it passes, commit.
+
+**Layer 2 — Region-Based Mirror Pattern.** Instead of giving each agent the full file, extract only the region they need to edit. Agents work on isolated sections, and the controller reconstructs the full file from their outputs.
+
+### 3-Tier Region Detection
+
+| Tier | Method | Speed | When Used |
+|------|--------|-------|-----------|
+| Tier 1 | Explicit region markers in the file | Instant | Files with existing markers |
+| Tier 2 | Structural analysis (functions, classes, sections) | Fast | Files with clear boundaries |
+| Tier 3 | Full-file snapshot | Baseline | First-time files |
+
+### Progressive Learning
+
+The key insight: Tier 3 dispatches automatically add region markers to the file. The next dispatch targeting the same file uses Tier 1 (instant). Over N dispatch cycles, the framework converges toward Tier 1 for all frequently-edited files — an analog of branch prediction warming up a CPU's cache.
+
+---
+
+## Implementation
+
+| Metric | Value |
+|--------|-------|
+| Wall time | ~20 minutes (design through deployment) |
+| Tasks | 6 |
+| Files created | 1 (task breakdown) |
+| Files modified | 3 (dispatch config, workflow protocol, research doc) |
+| New Swift code | 0 — pure framework infrastructure |
+| Validation checks | 3 (all passing) |
+| Velocity | 9.26 min/CU (+39% vs baseline) |
+
+The entire safety system is a framework protocol enforced by the dispatch controller — not compiled application code. It ships as configuration and documentation, not as a library.
+
+---
+
+## How It Complements Dispatch Intelligence
+
+Sub-Project A (Dispatch Intelligence) decides *who* works on *what*: complexity scoring routes tasks to the right agent tier.
+
+Sub-Project B (Parallel Write Safety) ensures they can do so *safely in parallel*: region isolation prevents conflicts, and snapshot/rollback provides a safety net when isolation isn't possible.
+
+Together they form the complete v5.2 dispatch system. A without B risks conflicts. B without A wastes expensive agents on simple tasks. Both are needed.
+
+---
+
+## What Worked
+
+1. **All 6 tasks completed in a single session with zero failures.** The design was clean enough to implement without iteration.
+
+2. **The progressive learning property is self-improving.** Every Tier 3 dispatch upgrades the file for all future dispatches. The cost of the safety system decreases over time.
+
+3. **Reuse of the v5.2 discovery.** The finding from Sub-Project A (subagents can't write to framework paths) was immediately applied — all tasks executed inline by the controller, avoiding wasted dispatches.
+
+## What Remains Unvalidated
+
+1. **No runtime stress test yet.** The mirror pattern configuration is deployed but hasn't been tested with actual parallel agents editing the same marked file simultaneously. The design guarantees are sound, but empirical validation under real contention is the next step.
+
+---
+
+## Key Takeaways
+
+- "It worked" is not the same as "it's safe." Zero conflicts in a stress test proved the framework *can* handle parallel writes — but the absence of failure doesn't prove the presence of safety. Structural guarantees do.
+- The safety system is lighter than expected. 20 minutes of design and configuration work, zero new compiled code. The complexity lives in the protocol (how the controller manages regions), not in the infrastructure.
+- Self-improving systems compound. Progressive marker learning means the safety overhead decreases with every use — the opposite of most safety mechanisms, which add fixed cost per operation.

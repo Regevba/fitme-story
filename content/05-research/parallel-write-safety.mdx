@@ -1,0 +1,143 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Cache Coherence for AI Agents -- Applying MESI to Parallel Code Writes
+
+## Context
+
+When multiple AI agents work in parallel on a shared codebase, they face the same data consistency problem that multi-core CPUs solved decades ago: how do you let independent processors write to shared memory without corrupting state? This document describes how we adapted the MESI cache coherence protocol into a practical system for safe parallel code writes by AI agents.
+
+## The Problem
+
+During a parallel stress test, three AI agents edited parts of the same project simultaneously. They got lucky -- each agent happened to write to different files. But as features mature, multiple agents will inevitably need to modify the same file. A shared theme configuration file needs new tokens from the design agent while the analytics agent adds new events to a shared provider file while the data agent adds new types to a shared model file.
+
+Without coordination, parallel agents risk:
+- **Overwriting each other's changes** when targeting the same file
+- **Corrupting file state** if a write fails mid-operation
+- **Type conflicts** when two agents define incompatible interfaces
+- **No rollback** if a merged result does not compile
+
+## Solution 1: Snapshot and Rollback
+
+Before any agent writes to a code file, the controller creates a snapshot. If the write fails or the build breaks, the controller restores the snapshot.
+
+```
+Controller (before dispatch):
+  1. For each file the agent will touch:
+     - Copy file to snapshot storage
+     - Record SHA256 hash
+  2. Dispatch agent with file list
+
+Controller (after agent returns):
+  3. Build check:
+     - If BUILD SUCCEEDED -> delete snapshots, commit
+     - If BUILD FAILED -> restore all snapshots, log failure, redispatch
+
+Controller (on agent error/timeout):
+  4. Restore snapshots automatically
+  5. Report which files were rolled back
+```
+
+Cost is negligible: a few KB per Swift file, ~100ms for snapshot and hash. Benefit: 100% safe rollback on any failure mode.
+
+## Solution 2: Code Region Isolation (Mirror Pattern)
+
+Instead of agents writing directly to shared files, the controller extracts the specific code region each agent needs and gives them an isolated mirror. When the agent finishes, the controller merges the result back.
+
+```
+Original file (AnalyticsProvider.swift):
+  +-------------------------------------+
+  | Line 1-100: existing events          |
+  | Line 101-120: // MARK: - Profile     | <-- Agent A needs this region
+  | Line 121-200: existing events        |
+  | Line 201-220: // MARK: - Nutrition   | <-- Agent B needs this region
+  | Line 221-300: existing events        |
+  +-------------------------------------+
+
+Controller extracts:
+  Agent A mirror: lines 101-120 (profile events)
+  Agent B mirror: lines 201-220 (nutrition events)
+
+Agents work on isolated snippets:
+  Agent A: adds profileGoalChanged event to their mirror
+  Agent B: adds nutritionMealLogged event to their mirror
+
+Controller reconstructs:
+  Original[101-120] = Agent A result
+  Original[201-220] = Agent B result
+  -> Single write, no conflicts
+```
+
+### Region Detection Strategies
+
+1. **MARK comments** -- `// MARK: - Profile Events` to the next MARK
+2. **Function boundaries** -- extract a specific function by name
+3. **Extension blocks** -- `extension AnalyticsService { ... }`
+4. **Semantic markers** -- `// BEGIN:agent-region:profile` ... `// END:agent-region:profile`
+
+### Why This Beats Direct Writes
+
+| Aspect | Direct Write | Mirror Pattern |
+|---|---|---|
+| Conflict risk | High (same file) | **Zero** (isolated regions) |
+| Agent context cost | Entire file (wastes tokens) | **Just their region** (lean) |
+| Merge quality | Git-style (may fail) | **Deterministic** (controller reconstructs) |
+| Rollback | Manual | **Automatic** (original preserved) |
+| Parallelism | Limited by file locks | **Unlimited** (different regions) |
+
+## Combined System: Snapshot + Mirror
+
+The two solutions compose naturally:
+
+1. **SNAPSHOT** the target file (safety net)
+2. **EXTRACT** regions for each agent (isolation)
+3. **DISPATCH** agents with isolated mirrors (parallel execution)
+4. **COLLECT** results from all agents
+5. **RECONSTRUCT** file from mirrors (deterministic merge)
+6. **BUILD CHECK** the result
+7. If **PASS** -- commit, delete snapshot
+8. If **FAIL** -- rollback to snapshot, report error
+
+This gives:
+- **Isolation** during parallel writes (mirror pattern prevents conflicts)
+- **Safety net** if reconstruction fails (snapshot enables rollback)
+- **Token efficiency** -- agents only see their code region, not the entire file
+- **Deterministic merging** -- no git conflict resolution needed
+
+## Connection to Hardware Architecture
+
+The mirror pattern maps directly to concepts from the SoC-on-Software research:
+
+| Hardware Principle | Application Here |
+|---|---|
+| Skill-on-demand loading | Mirror pattern loads only the code region needed, not the entire file |
+| Cache compression | Mirrors are compressed views of the full file |
+| Result forwarding | Agent result forwarded to controller for reconstruction |
+| Systolic chains | Agents see only their upstream input (mirror), not global state |
+| MESI coherence | Snapshot/rollback is hardware-enforced atomic transactions in software |
+
+## Expected Impact
+
+- **Unlock true parallel code writes** to shared files (previously unsafe)
+- **~50% token reduction** per agent (mirror vs. full file context)
+- **Zero merge conflicts** by design, not by luck
+- **Automatic rollback** on any failure mode
+
+## Open Questions
+
+1. **New code regions.** How to handle agents that need to add code (not modify existing regions)? The controller pre-creates a placeholder region with a marker comment.
+
+2. **Cross-region dependencies.** What if Agent A defines a type that Agent B's region uses? Include type signatures in both mirrors as read-only context.
+
+3. **Optimal granularity.** Function-level, section-level, or file-level regions? Starting with MARK-section level, to be refined based on empirical data.
+
+## Key Takeaways
+
+1. **Multi-agent coordination is a cache coherence problem.** The conceptual mapping from MESI to parallel agent writes is not a metaphor -- it is a direct structural analogy. Modified/Exclusive/Shared/Invalid states map to agent write permissions on code regions.
+
+2. **Isolation beats locking.** Instead of file-level locks that serialize agents (destroying parallelism), the mirror pattern gives each agent an isolated copy of just their region. This is the software equivalent of per-core L1 caches with a coherence protocol.
+
+3. **Composition of simple mechanisms produces robust systems.** Snapshots alone handle rollback. Mirrors alone handle isolation. Together they handle the full failure surface: conflicts, build failures, agent timeouts, and mid-write crashes.
+
+4. **Token efficiency is a side effect of good architecture.** The mirror pattern was designed for safety, but cutting agent context from full-file to region-only also reduces token usage by ~50%. Good architecture optimizes multiple dimensions simultaneously.

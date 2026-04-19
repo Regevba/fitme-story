@@ -1,0 +1,398 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# 11-Skill Hub-and-Spoke Architecture -- How AI Agents Coordinate
+
+## Context
+
+When a single AI assistant tries to do everything -- research, PRD writing, UX specs, code review, testing, deployment, and docs -- it works for simple projects but collapses at scale. Adding a new domain means bloating one already-large prompt. Running a design audit means triggering the entire PM pipeline. Cross-domain information stays trapped inside one workflow's context.
+
+This document describes the hub-and-spoke architecture that solved these problems: 11 specialized AI agents (1 hub + 10 spokes) communicating through a shared data layer of 15 JSON files, with a 3-level learning cache, automatic data validation, and self-healing integrity checks.
+
+**Key principle:** Every agent is a **Lego piece** (works alone) AND a **puzzle piece** (fits into the hub).
+
+---
+
+## 1. System Overview (v6.0)
+
+```
++==============================================================+
+|              EXTERNAL SERVICES (MCPs / APIs)                  |
+|  GA4 | App Store Connect | Sentry | Firecrawl | Axe | ...    |
+|  Linear | Notion | Figma | GitHub | Xcode | Fastlane         |
++============================+=================================+
+                             |
+                             v
++==============================================================+
+|              INTEGRATION ADAPTERS (6 local)                   |
+|              adapter.md + schema.json + mapping.json          |
++============================+=================================+
+                             | normalized JSON
+                             v
++==============================================================+
+|              AUTOMATIC VALIDATION GATE                        |
+|         GREEN (>=95%) | ORANGE (90-95%) | RED (<90%)          |
+|         Validation = automatic. Resolution = manual.          |
++============================+=================================+
+                             |
+              +--------------+--------------+
+              v              v              v
++=================+ +================+ +=====================+
+| SHARED LAYER    | | CHANGE LOG     | | LEARNING CACHE      |
+| 15 JSON files   | | (audit trail)  | | L1 (per-skill)      |
+|                 | |                | | L2 (cross-skill)    |
++=======+=========+ +================+ | L3 (project-wide)   |
+        |                              +=======+=============+
+        +----------------+--------------------+
+                         v
++==============================================================+
+|                    SKILLS LAYER (11 total)                     |
+|              +----------------------+                         |
+|              |    /pm-workflow      | <-- Phase 0 Health      |
+|              |    (HUB)             |     Check (v4.2)        |
+|              +--+--+--+--+--+--+--+                         |
+|     +-----------+  |  |  |  |  +-----------+                |
+|     v     v     v     v     v     v        v                |
+|  /research /ux /design /dev /qa /analytics /release          |
+|                  v        v        v                         |
+|                /cx    /marketing  /ops                        |
+|                  +--------+----+---+                          |
+|                                v                              |
+|                /pm-workflow (Phase 9: Learn -> loop)           |
++==============================================================+
+```
+
+---
+
+## 2. Hub-and-Spoke Dispatch Model
+
+```
+                        +-------------------+
+                        |   WEB SEARCH      |
+                        |   APP STORES      |
+                        |   INDUSTRY DATA   |
+                        +--------+----------+
+                                 |
+                                 v
+                        +-------------------+
+                        |   /research       |
+                        +--------+----------+
+                                 | competitive data, UX patterns
+                                 v
+               +---------------------------------------+
+               |        /pm-workflow (HUB)              |
+               |   Orchestrates Phases 0-9              |
+               |   Reads/writes shared data layer       |
+               +--+------+------+------+------+--------+
+                  |      |      |      |      |
+          +-------+   +--+  +--+  +---+  +---+
+          v           v     v      v      v
+        /ux --> /design /dev  /qa /analytics /release
+          |           |      |      |          |
+          | (planning |      |      |          |
+          |  layer)   |      |      |          |
+          +-----+-----+------+------+          |
+                |                              v
+                v                    App Store / TestFlight
+          +-----------+
+          | App Build  |
+          +-----+-----+
+                |
+     +----------+----------+
+     v          v          v
+   /cx     /marketing    /ops
+     |          |          |
+     +----+-----+          |
+           |               |
+           v feedback      |
+     /pm-workflow <--------+
+     (back to hub)
+```
+
+### 10-Phase Dispatch Sequence
+
+```
+Phase 0  Research  ------> /research (new feat) OR /ux audit (v2 refactor)
+                           /cx (pain points)
+Phase 1  PRD       ------> /analytics spec (instrumentation plan)
+Phase 2  Tasks     ------> /pm-workflow (internal -- no dispatch)
+Phase 3  UX/Integ  ------> /ux research --> /ux spec --> /ux validate
+                            /design audit
+Phase 4  Implement ------> /dev branch, parallel task dispatch
+Phase 5  Test      ------> /qa plan + /qa run, /analytics validate
+Phase 6  Review    ------> /dev review (code), /design audit (visual),
+                            /ux validate (heuristic)
+Phase 7  Merge     ------> /release checklist + prepare, /dev ci-status
+Phase 8  Docs      ------> /marketing launch, /cx roadmap,
+                            /analytics dashboard
+Phase 9  Learn     ------> /cx analyze (feedback loop)
+                            /analytics report
+                            Root cause --> dispatch fix --> loop
+```
+
+---
+
+## 3. The Shared Data Layer
+
+Agents never call each other directly. All inter-agent communication flows through 15 JSON files:
+
+| File | Primary Writer(s) | Primary Reader(s) |
+|------|-------------------|-------------------|
+| `context.json` | /research, /pm-workflow | ALL agents (startup injection) |
+| `feature-registry.json` | /pm-workflow | /qa, /analytics, /cx, /release, /marketing |
+| `metric-status.json` | /analytics | /qa, /ops, /cx |
+| `design-system.json` | /design, /ux | /marketing |
+| `test-coverage.json` | /qa | /dev, /release |
+| `cx-signals.json` | /cx | /design, /marketing, /analytics, /pm-workflow |
+| `campaign-tracker.json` | /marketing | /analytics, /research |
+| `health-status.json` | /ops, /dev, /qa | /release, /cx |
+| `skill-routing.json` | config (manual) | /pm-workflow (dispatch routing) |
+| `task-queue.json` | /pm-workflow, /dev | /pm-workflow |
+| `change-log.json` | ALL (broadcast) | ALL (audit trail) |
+| `framework-health.json` | hub health check | /pm-workflow |
+| `framework-manifest.json` | config (manual) | docs, dashboards |
+| `case-study-monitoring.json` | /pm-workflow | cross-cycle evidence |
+| `external-sync-status.json` | /pm-workflow | external tool sync |
+
+### Information Flow Protocol
+
+Every agent follows the same contract:
+
+1. **READS** from shared JSON files for context
+2. **WRITES** its outputs back to shared JSON files
+3. **PRODUCES** artifacts (docs, specs, reports)
+4. **REPORTS** status that other agents can query
+
+### Why Shared Data Over Direct Calls?
+
+- **Decoupling:** Agents are independently testable. Changing one never breaks another.
+- **Debuggability:** Inspect any JSON file to see the current state of the entire system.
+- **Recoverability:** Restart from any state checkpoint -- no lost context between sessions.
+- **Extensibility:** Adding a new agent means creating one definition and declaring its reads/writes. No hub modification needed.
+
+---
+
+## 4. The Dual-Use Design (Lego + Puzzle)
+
+Every agent serves two roles:
+
+**STANDALONE mode:** Invoke any agent directly for a specific task without running a full PM cycle. The agent reads its context from shared data, does its work, writes outputs, and reports results.
+
+**INTEGRATED mode:** The hub invokes agents automatically at the right phase. The agent receives the same context but as part of an orchestrated sequence.
+
+**Why this matters:**
+- A solo developer can run a design audit at 2 AM without triggering a 10-phase cycle
+- The hub can skip agents that aren't relevant to a particular feature
+- Adding a new domain (e.g., legal compliance) is one definition file -- no hub rewrite
+
+---
+
+## 5. Learning Cache (3-Level Hierarchy)
+
+When agents perform complex multi-step work (e.g., applying UX foundations across screens), each execution previously started from scratch. The 4th screen took as long as the 1st. The cache changes that.
+
+### Cache Hierarchy
+
+| Level | Scope | Promotion Rule | Example |
+|-------|-------|---------------|---------|
+| **L1** | Single agent | Default home for new patterns | Design token mapping decisions |
+| **L2** | 2+ agents share | Promoted from L1 when pattern spans agents | UX foundations application playbook |
+| **L3** | 5+ agents share | Promoted from L2 when widely referenced | Project-wide architectural conventions |
+
+### Cache Entry Structure
+
+Each entry stores:
+- **Task signature** -- what type of work was done, in what context
+- **Learned patterns** -- what approach worked, with confidence scores
+- **Anti-patterns** -- what was tried and failed, what was caught in review
+- **Speedup instructions** -- how to skip steps next time for a similar task
+- **Staleness tracking** -- SHA256 hashes of source files for invalidation
+
+### Measured Speedup
+
+Applying UX foundations across 6 screens:
+
+| Screen | Cache State | Time Savings |
+|--------|------------|-------------|
+| Home (1st) | Cold -- full derivation | 0% |
+| Training (2nd) | Warm -- token map + component selection cached | ~40% |
+| Nutrition (3rd) | Hot -- anti-patterns from 2 prior screens loaded | ~55% |
+| Stats (4th) | Hot -- only novel layout patterns need derivation | ~65% |
+| Settings (6th) | Hot -- cumulative knowledge from 5 screens | ~70% |
+
+**Result:** The 6th screen refactor was 6.5x faster than the 1st.
+
+---
+
+## 6. Agent Internal Lifecycle
+
+Every agent -- whether invoked standalone or dispatched by the hub -- follows a 5-phase internal lifecycle on every invocation:
+
+```
++----------+    +----------+    +----------+    +----------+    +----------+
+| 0. HEALTH|---+| 1. CACHE |---+|2. RESEARCH|--+|3. EXECUTE|---+| 4. LEARN |
+|  CHECK   |    |  CHECK   |    | (if miss) |   |          |    |          |
++----------+    +----------+    +----------+    +----------+    +----------+
+     |               |               |               |               |
+  Verify         Read L1/L2/L3   Investigate      Do the work    Write back
+  integrity      for matching    via adapters,    using cached +  patterns +
+  (25% random)   task signature  MCPs, codebase   researched data anti-patterns
+```
+
+### Phase 0: Health Check (Self-Healing)
+
+Runs probabilistically (~25% chance, 2-hour cooldown) with 5 weighted integrity checks:
+
+| Check | Weight | What It Validates |
+|-------|--------|-------------------|
+| Cache Staleness | 25% | SHA256 hashes of source files vs. cache entries |
+| Cache Hit Accuracy | 25% | Correction rate after cache hits |
+| Shared Layer Consistency | 20% | Cross-reference fields across JSON files |
+| Routing Integrity | 15% | Agent definitions exist for all routed task types |
+| Adapter Availability | 15% | Each adapter has required config files |
+
+**Scoring:** healthy >= 0.95 (silent), warning 0.90-0.95 (advisory), critical < 0.90 (STOP).
+
+---
+
+## 7. Integration Adapter Layer
+
+External data enters through adapters that isolate format changes from consuming agents:
+
+```
+Raw MCP response --> schema.json (validate) --> mapping.json (normalize)
+    --> validation gate --> shared layer
+```
+
+| Adapter | What It Connects | Consuming Agents |
+|---------|-----------------|-----------------|
+| **GA4** | Google Analytics | /analytics, /pm-workflow, /cx |
+| **App Store Connect** | Apple review data (208 tools) | /cx, /release, /marketing |
+| **Sentry** | Error tracking | /ops, /cx, /qa |
+| **Firecrawl** | Web scraping | /research, /marketing |
+| **Axe** | Accessibility auditing | /ux, /qa, /design |
+| **Security Audit** | Dependency scanning | /dev, /ops, /qa |
+
+### Automatic Validation Gate
+
+All incoming data is cross-referenced against existing shared layer state:
+
+- **GREEN (>= 95%)** -- Data is clean. Write + notify receiving agent and hub.
+- **ORANGE (90-95%)** -- Minor discrepancies. Write + advisory. Review when convenient.
+- **RED (< 90%)** -- Significant contradictions. DO NOT write. User must resolve.
+
+**Validation is automatic. Resolution is always manual.** The system never silently resolves conflicts or auto-corrects data.
+
+---
+
+## 8. The CX Feedback Loop (Phase 9)
+
+Phase 9 is what makes the pipeline **circular** instead of linear. After a feature ships, the hub enters continuous monitoring:
+
+```
+    /cx analyze {feature}
+       |
+       +-- Is it a MESSAGING problem?
+       |   --> /marketing (reposition, rephrase)
+       |
+       +-- Is it a UX problem?
+       |   --> /design (revise UX spec)
+       |   --> /pm-workflow (new iteration cycle)
+       |
+       +-- Is it a FUNCTIONALITY problem?
+       |   --> /dev + /qa (bug fix cycle)
+       |   --> /release (hotfix)
+       |
+       +-- Is it an EXPECTATION mismatch?
+       |   --> /pm-workflow (re-scope PRD)
+       |   --> /research (validate user needs)
+       |
+       +-- Did it SOLVE the original pain point?
+           +-- YES --> /analytics (track success), /marketing (success story)
+           +-- NO  --> /pm-workflow (re-enter Phase 0)
+```
+
+### Post-Deployment Assessment Categories
+
+| Assessment | Meaning | Action |
+|-----------|---------|--------|
+| **Solved** | Pain point eliminated | Celebrate, use as marketing fuel |
+| **Improved** | Reduced but not eliminated | Plan iteration |
+| **Status Quo** | No measurable change | Investigate discoverability/messaging |
+| **Worsened** | New confusion introduced | UX emergency review |
+| **New Problem** | Solved original, created new | New PRD cycle |
+
+---
+
+## 9. SoC-on-Software Optimizations (v5.0/v5.1)
+
+By v4.3, the framework loaded all 11 agent definitions (~30K tokens) and all cache entries (~24K tokens) at session start, regardless of which phase was active. This consumed ~54K tokens (27% of a 200K context window) before any work began.
+
+The solution borrowed from chip architecture:
+
+### On-Demand Loading (inspired by Apple LoRA Hot-Swap)
+
+Instead of loading all agent definitions, the hub loads only the 1-2 agents relevant to the current phase:
+
+```
+phase_skills mapping:
+  research          --> [research, cx]
+  prd               --> [pm-workflow, analytics]
+  ux_or_integration --> [ux, design]
+  implementation    --> [dev, design]
+  testing           --> [qa, analytics]
+  review            --> [dev, qa]
+  merge             --> [release, dev]
+  documentation     --> [marketing, cx]
+  learn             --> [cx, analytics, ops]
+```
+
+### Cache Compression (inspired by Apple 3.7-bit Palettization)
+
+Each cache entry has a compressed view (~200 words) loaded by default. Full expansion only on demand.
+
+### Additional SoC Items (v5.1)
+
+| # | Optimization | Chip Inspiration | What It Does |
+|---|-------------|-----------------|-------------|
+| 3 | Batch Dispatch | TPU weight-stationary | Load template once, iterate N targets. 5x fewer dispatches. |
+| 4 | Result Forwarding | UMA zero-copy | Pass output inline to next agent instead of write-to-disk-read-back. |
+| 5 | Model Tiering | ANE mixed-precision | Fast model for mechanical tasks, deep model for judgment tasks. |
+| 6 | Speculative Preload | Branch prediction | Pre-load likely-next-agent cache. 85% hit rate target. |
+| 7 | Systolic Chains | TPU systolic array | Each agent in a chain receives ONLY upstream output + own cache. |
+| 8 | Task Complexity Gate | ARM big.LITTLE | Classify tasks as lightweight (parallel) or heavyweight (serial). |
+
+**Combined impact:** ~63% framework overhead reduction (121K --> 45K tokens per phase).
+
+---
+
+## 10. Dispatch Intelligence (v5.2)
+
+A 3-stage pipeline that makes parallel agent coordination deterministic rather than luck-dependent:
+
+1. **Score complexity** -- Static scoring classifies each task as lightweight/standard/heavyweight
+2. **Probe capability** -- Permission table + micro-probe verifies the dispatched agent can access required resources
+3. **Dispatch with budget** -- Model routing (fast/balanced/deep) + tool budgets (10/25/50 per tier)
+
+**Results:** 48% reduction in average tool usage, 84% reduction in variance (from 23x spread to 3.7x).
+
+### Parallel Write Safety
+
+2-layer system: snapshot/rollback + code region mirror pattern with progressive marker learning.
+
+- **Tier 1:** Explicit region markers (fastest, deterministic)
+- **Tier 2:** Convention-based section markers (fast)
+- **Tier 3:** Full file (slow, triggers marker addition for next time)
+
+Each successful Tier 3 dispatch adds markers, so the next dispatch automatically uses Tier 1. The system gets faster with every use.
+
+---
+
+## Key Takeaways
+
+- **Agents communicate through data, not calls.** The shared JSON layer makes the system debuggable, recoverable, and extensible without any agent knowing about the others.
+- **The cache creates compounding returns.** The 6th similar task is 6.5x faster than the 1st, because patterns, anti-patterns, and speedup instructions accumulate across executions.
+- **Self-healing prevents silent degradation.** Probabilistic integrity checks catch data drift before it compounds -- the same principle as CI catching code drift, applied to the framework's own data layer.
+- **Chip architecture principles transfer to software.** On-demand loading, cache compression, batch dispatch, and hybrid task routing reduced framework overhead by 63%.
+- **The feedback loop is the most valuable phase.** Phase 9 (Learn) transforms a "ship and forget" pipeline into a learning organization where every shipped feature generates data that improves the next feature.

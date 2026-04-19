@@ -1,0 +1,116 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Design System Governance -- How Tokens Evolve Without Breaking
+
+## Context
+
+A design system that never changes is dead. A design system that changes without rules is chaos. Governance is the middle ground: clear rules for how tokens, components, and patterns evolve so that every contributor -- whether building the first screen or the fiftieth -- works from the same foundation.
+
+This document defines how the FitMe design system stays coherent across dozens of features, multiple refactors, and a growing component library. The core tension it resolves: **how do you let the system evolve to serve new features without breaking the features that already depend on it?**
+
+---
+
+## Source of Truth
+
+The design system is intentionally multi-artifact:
+
+1. **Code foundation** -- semantic tokens for color, typography, spacing, radius, shadow, and motion
+2. **Shared UI primitives** -- reusable SwiftUI components (cards, buttons, metrics, segmented controls, etc.)
+3. **In-app catalog** -- a live design system browser accessible from the app's settings screen
+4. **Documentation** -- UX foundations, component contracts, responsive handoff rules, and this governance doc
+5. **Figma library** -- canonical visual reference for designers, synced with the token pipeline
+6. **Feature memory log** -- a running record of every token and component change, tied to the feature that drove it
+
+No single screenshot, mockup, or one-off screen is allowed to overrule the system without an explicit component or token change.
+
+---
+
+## Naming Rules
+
+### Tokens
+
+Prefer **semantic names** over palette names for all new work.
+
+| Quality | Example |
+|---------|---------|
+| Good | `Surface.elevated`, `Text.secondary`, `Status.success` |
+| Avoid | Raw color constructors, named system colors, ad-hoc opacity chains |
+
+Semantic names communicate intent. When the brand palette changes (and it will), semantic tokens remap without touching any feature code.
+
+### Components
+
+Components reflect **purpose**, not page context.
+
+| Quality | Example |
+|---------|---------|
+| Good | `AppCard`, `AppMenuRow`, `MetricCard`, `AppButton` |
+| Avoid | `HomeActionCard`, `StatsShellThing`, `SettingsRoundedTile` |
+
+A component named after a specific screen cannot be reused elsewhere without confusion. Purpose-based names scale.
+
+---
+
+## Contribution Flow
+
+Every design system change follows this decision tree:
+
+1. **Try to solve the design with existing tokens and components.** Most features can be built entirely from what already exists.
+2. **Define the problem before the UI.** Behavior, states, and wireframes come before final visuals.
+3. **Extend before creating.** If a component exists but is missing a needed state or variant, extend the shared primitive rather than creating a parallel one.
+4. **Create only when reusable.** A new primitive is justified only when the pattern appears across multiple product surfaces. One-off layout helpers stay private to the screen that needs them.
+5. **Document everything.** Every new primitive gets:
+   - Code-level documentation
+   - An entry in the in-app catalog (if user-facing)
+   - A design system docs update
+   - A feature memory entry linking the change to the feature that drove it
+
+---
+
+## Required Review Questions
+
+Every design system change must answer these questions before approval:
+
+- What user problem or task flow is this supporting?
+- Is this a new primitive, or can it reuse an existing one?
+- Which semantic tokens does it use?
+- Which states exist: default, pressed, disabled, empty, loading, error, success?
+- Was the flow wireframed before final UI?
+- Does it behave correctly on compact-width devices first?
+- What is the explicit asset handoff rule: content mode, crop behavior, min/max size, overflow behavior?
+- What changes for tablet and desktop layouts?
+- What is the cross-platform equivalent or adaptation note?
+
+These questions prevent the most common design system violations: creating new primitives that duplicate existing ones, shipping components with missing states, and building for one screen size without considering others.
+
+---
+
+## Deprecation Policy
+
+Tokens and components age out gracefully:
+
+1. **Keep legacy aliases only while they unblock migration.** An alias exists to prevent breakage during transition, not as a permanent fixture.
+2. **Mark deprecated items explicitly.** Code comments and documentation both flag compatibility-only tokens so no new feature accidentally adopts them.
+3. **Remove only after full migration.** A deprecated alias is removed only after all known call sites are migrated and the replacement is documented. No silent removals.
+
+This three-step policy means the system can evolve without surprise breakage. Features in progress are never broken by a token rename mid-sprint.
+
+---
+
+## Ownership and Cadence
+
+- **Dual review.** Design system changes are reviewed by both product/design and engineering. A token that looks right but performs poorly (or vice versa) gets caught early.
+- **Changelog in PRs.** Every PR that touches a primitive or token contract includes a lightweight changelog in the description.
+- **Post-feature review.** After any roadmap feature that introduces a new surface, navigation pattern, or input pattern, the design system is reviewed for gaps or inconsistencies the feature exposed.
+- **Baseline device validation.** Every new or updated feature records whether it was visually validated on the current baseline device (updated periodically as the device landscape shifts).
+
+---
+
+## Key Takeaways
+
+- **Semantic naming scales; page-specific naming doesn't.** Tokens and components named for intent survive redesigns. Those named for screens don't.
+- **Extend before creating.** The contribution flow's bias toward extending existing primitives keeps the component count manageable and the consistency high.
+- **Deprecation is a process, not an event.** Legacy aliases, explicit marking, and full-migration gates prevent the "surprise breakage" that makes teams afraid to evolve their design system.
+- **Governance enables evolution.** The rules aren't constraints on creativity -- they're what makes it safe to change the system without breaking the product.

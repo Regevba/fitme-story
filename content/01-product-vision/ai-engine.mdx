@@ -1,0 +1,123 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Federated AI That Never Sees Your Health Data
+
+## Context
+
+Most fitness apps that offer AI recommendations require uploading raw health data to a cloud server. FitMe takes a fundamentally different approach: a 3-tier AI pipeline where personal data never leaves the device, cloud models only see anonymized population bands, and on-device Foundation Models handle the final personalization step. This document describes how the AI engine architecture achieves meaningful recommendations while maintaining zero-knowledge privacy.
+
+---
+
+## The Problem
+
+FitMe's AI engine (the AIOrchestrator) currently generates recommendations across four segments --- training, nutrition, recovery, and stats --- using a 3-tier pipeline. The challenge is making these recommendations specific and useful while honoring the privacy-first architecture. Generic advice ("train hard" / "train easy") is not valuable. Goal-specific, readiness-aware guidance ("Zone 2 for 45 min --- your sleep was excellent but ACWR is elevated") requires deep context that traditional cloud AI would get by reading your raw data.
+
+---
+
+## The 3-Tier Pipeline
+
+```
+Tier 1: Local Rules (on-device)
+  Immediate, always available. Rule-based recommendations
+  from local data. Works offline.
+
+Tier 2: Cloud Cohort Intelligence (privacy-preserving)
+  Population-level insights from anonymized bands.
+  The server never sees raw values --- only ranges like
+  "age: 25-34", "sleep: 7-8h", "BMI: 25-29.9".
+
+Tier 3: On-Device Foundation Model
+  Apple Intelligence (iOS 26+) personalizes cloud insights
+  using private data that never leaves the device.
+  Fallback model for older devices.
+```
+
+### Data Flow
+
+1. A `LocalUserSnapshot` is built on-device from encrypted local data
+2. Privacy-preserving bands are extracted (age range, BMI range, sleep range --- never exact values)
+3. Only the bands plus a JWT token are sent to the cloud endpoint
+4. The cloud returns population-level signals with confidence scores
+5. The on-device Foundation Model adapts those signals using the full private context
+6. The final personalized recommendation is displayed
+
+### What the Cloud Sees vs. What It Does Not
+
+| Cloud receives (anonymized bands) | Cloud never sees |
+|---|---|
+| Age range: "25-34" | Exact age or birthday |
+| BMI range: "25-29.9" | Exact weight or height |
+| Sleep range: "7-8h" | Sleep stage breakdown |
+| Resting HR range: "60-70" | Exact heart rate values |
+| Program phase: "build" | Training history or exercise logs |
+| Stress level: "moderate" | HRV readings |
+
+A k-anonymity floor of k=50 ensures the cloud never returns insights for cohorts smaller than 50 users, preventing de-identification through small-group analysis.
+
+---
+
+## Readiness-Aware Recommendations
+
+The AI engine consumes the readiness score (see [readiness-score-formula.md](readiness-score-formula.md)) as a primary input signal. This enables context-specific guidance:
+
+### How Readiness Shapes Recommendations
+
+| Condition | AI Behavior |
+|---|---|
+| Readiness score < 30 | Override training recommendations with rest/recovery guidance |
+| Low confidence (Layer 0, < 7 days of data) | Append caveat noting limited data |
+| Fatigue flags active (dehydration, visceral trend) | Surface flags in recovery segment |
+| High readiness + fat loss goal | Suggest Zone 2 cardio for 45-60 min |
+| High readiness + muscle gain goal | Suggest full progressive overload program |
+| Local readiness conflicts with cloud cohort insight | Flag conflict for user review |
+
+### Privacy-Preserving Bands Sent to Cloud
+
+The readiness score itself generates additional anonymized bands for cohort matching:
+
+| Band | Examples |
+|---|---|
+| Readiness level | high (>=70), moderate (50-69), low (<50) |
+| Fatigue level | none, mild (1 flag), significant (2+ flags) |
+| Training load status | optimal (ACWR 0.8-1.3), underloaded, overreaching |
+
+---
+
+## Four Recommendation Segments
+
+| Segment | What It Covers | Example Output |
+|---|---|---|
+| **Training** | Workout type, intensity, volume adjustments | "Zone 2 cardio, 45min. Your HRV is 12% above baseline." |
+| **Nutrition** | Macro targets, meal timing, deficit/surplus guidance | "Protein target: 140g. You've averaged 128g this week." |
+| **Recovery** | Sleep optimization, hydration, rest day recommendations | "Watch hydration --- overnight weight dropped 1.2%." |
+| **Stats** | Trend analysis, milestone recognition, pattern detection | "Your training volume has increased 15% over 4 weeks." |
+
+Each recommendation includes:
+- **Confidence score** (0.0-1.0, threshold of 0.4 for acceptance)
+- **Source tier** (local rule, cloud cohort, Foundation Model)
+- **Component breakdown** showing which readiness factors drove the recommendation
+
+---
+
+## Graceful Degradation
+
+The pipeline is designed to work even when components are unavailable:
+
+| Scenario | Behavior |
+|---|---|
+| No internet connection | Tier 1 local rules only |
+| No Apple Watch (no HRV data) | Remaining readiness components re-weighted |
+| iOS < 26 (no Foundation Model) | Fallback model provides rule-based personalization |
+| < 7 days of data | Population-level defaults with low-confidence indicator |
+| Readiness score unavailable | Generic recommendations (current behavior) |
+
+---
+
+## Key Takeaways
+
+1. **Privacy and intelligence are not mutually exclusive.** By splitting the pipeline into three tiers, each with different data access levels, FitMe delivers personalized recommendations without centralizing sensitive health data.
+2. **Anonymized bands are the privacy primitive.** Converting exact values to ranges before any network call ensures the cloud cannot reconstruct individual health profiles.
+3. **k-anonymity prevents small-cohort attacks.** The k=50 floor means the system refuses to return insights when the matching population is too small, preventing de-identification through intersection.
+4. **Graceful degradation over graceful failure.** Every component being optional means the system always produces something useful, even on day one with no internet and no wearable data.

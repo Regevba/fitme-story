@@ -1,0 +1,25 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Act 2: The Process Framework
+
+> How do you manage a full product lifecycle -- research, design, implementation, testing, launch, and post-launch learning -- when your entire team is one developer and a set of AI agents?
+
+This section documents the AI-orchestrated product management framework that governed every feature shipped in FitMe. It is not a theoretical design; every component described here was battle-tested across 20+ pull requests, 6 complete screen rewrites, and a framework that evolved through 12 major versions in two weeks.
+
+The core idea is a **hub-and-spoke architecture**: one central orchestrator (the PM workflow) dispatches work to 10 specialized AI agents, each owning a distinct domain -- UX research, design system governance, code review, quality assurance, analytics instrumentation, customer experience, marketing, operations, market research, and release management. These agents communicate not by calling each other, but through a shared data layer of 15 JSON files that act as a lightweight reactive data mesh.
+
+What makes this unusual is the feedback loop. Most development workflows are linear pipelines that end at "merge to main." This framework adds a 10th phase -- Learn -- where customer feedback and analytics data flow back into the hub, get classified by root cause (messaging? UX? functionality? expectation mismatch?), and automatically dispatch corrective work to the responsible agent. The pipeline becomes a cycle.
+
+The framework also borrows from chip architecture. Version 5.0 applied Apple silicon SoC principles -- on-demand loading (like LoRA adapter hot-swap), cache compression (like weight palettization), batch dispatch (like TPU weight-stationary execution), and hybrid task routing (like ARM big.LITTLE cores) -- to reduce framework overhead by 63% and reclaim 54K tokens of context window.
+
+## What's in this section
+
+| Document | What it covers |
+|----------|---------------|
+| [The 10-Phase Product Lifecycle](pm-lifecycle.md) | The formal phase definitions, gates, work types, and approval model |
+| [11-Skill Hub-and-Spoke Architecture](skills-architecture.md) | Technical deep-dive: dispatch model, shared data layer, cache hierarchy, validation gates |
+| [The Skills Ecosystem](skills-ecosystem.md) | Overview of all 11 AI agents and how they connect |
+| [Framework Evolution v1.0 to v6.1](framework-evolution.md) | The narrative timeline from monolithic script to hardware-aware dispatch |
+| [Project Governance](project-governance.md) | The rules that enforce quality: branching strategy, CI pipeline, design system, analytics conventions |

@@ -1,0 +1,133 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# How We Normalized Complexity Across 16 Different Features
+
+> Raw metrics like wall time and file count are meaningless without normalization. A 22-task UI refactor with auth integration is fundamentally different from a 4-task backend enhancement. This model makes them comparable.
+
+## Context
+
+Across 17 case-studied features, the project produced a rare longitudinal dataset: identical workflow template, sequential execution, and progressively newer framework versions. But comparing "6.5 hours for onboarding" to "1.5 hours for AI engine" is misleading without accounting for the fact that onboarding had 22 tasks with UI work while the AI engine enhancement had 13 tasks with cross-cutting architectural scope. The Complexity Unit (CU) model exists to make these comparisons honest.
+
+---
+
+## The Formula
+
+```
+CU = Tasks x Work_Type_Weight x (1 + sum(Complexity_Factors))
+```
+
+### Work Type Weights
+
+| Work Type | Weight | Rationale |
+|-----------|--------|-----------|
+| Feature | 1.0 | Full lifecycle, maximum ceremony |
+| Refactor (v2) | 0.9 | Full lifecycle but v1 exists as reference |
+| Enhancement | 0.8 | 4-phase lifecycle, parent PRD exists |
+| Fix | 0.5 | 2-phase lifecycle, minimal planning |
+| Chore | 0.3 | 1-phase, docs/config only |
+
+### Complexity Factors (v2 -- continuous)
+
+| Factor | v1 (binary) | v2 (continuous) | Signal |
+|--------|------------|-----------------|--------|
+| Has UI | +0.3 | +0.15 (1 view) / +0.30 (2-3) / +0.45 (4+) | View count from state |
+| Auth/External Service | +0.5 | +0.5 (unchanged) | Binary flag |
+| Runtime Testing Required | +0.4 | +0.4 (unchanged) | Binary flag |
+| New Model/Service | +0.2 | +0.1 (1-2 types) / +0.2 (3-5) / +0.3 (6+) | Type count from state |
+| Cross-Feature Dependencies | +0.2 | +0.2 (unchanged) | Binary flag |
+| Design Iterations | +0.15 per round | +0.10 (text) / +0.15 (layout) / +0.20 (interaction) / +0.25 (full redesign) per round | Iteration scope |
+| **Architectural Novelty** | Not tracked | **+0.2** | First-of-kind flag (no cache entry) |
+
+---
+
+## Primary Metric: Minutes Per Complexity Unit (min/CU)
+
+```
+Velocity = Wall_Time_Minutes / CU
+```
+
+Lower is better. This is the single metric that enables cross-version comparison.
+
+---
+
+## All 17 Features, Normalized
+
+| # | Feature | FW Ver | Type | Wall Time | Tasks | CU | min/CU | vs Baseline |
+|---|---------|--------|------|-----------|-------|----|--------|-------------|
+| 1 | Onboarding v2 | v2.0 | refactor | 6.5h | 22 | 25.7 | 15.2 | Baseline |
+| 2 | Home v2 | v3.0 | refactor | 36h* | 17 | 23.0 | 93.9* | Outlier |
+| 3 | Training v2 | v4.0 | refactor | 5h | 16 | 18.7 | 16.0 | -5% |
+| 4 | Nutrition v2 | v4.1 | refactor | 2h | 14 | 16.4 | 7.3 | +52% |
+| 5 | Stats v2 | v4.1 | refactor | 1.5h | 10 | 11.7 | 7.7 | +49% |
+| 6 | Settings v2 | v4.1 | refactor | 1h | 6 | 7.0 | 8.6 | +43% |
+| 7 | Readiness v2 | v4.2 | enhancement | 2.5h | 7 | 8.4 | 17.9 | -18% |
+| 8 | AI Engine v2 | v4.2 | enhancement | 0.5h | 4 | 3.8 | 7.9 | +48% |
+| 9 | AI Rec UI | v4.2 | feature | 0.7h | 6 | 7.8 | 5.4 | +64% |
+| 10 | Profile | v4.4 | feature | 2h | 13 | 16.9 | 7.1 | +53% |
+| 11 | AI Engine Arch | v5.1 | enhancement | 1.5h | 13 | 17.7 | 5.1 | +66% |
+| 12 | Onboarding Auth | v5.1 | feature | ~1.7h | 18 | 47.7 | 2.1 | +86% |
+| 13 | Parallel Stress Test | v5.1 | 4x feature | 54 min | 30 | 43.9 | 1.23 | +92% |
+| 14 | Parallel Write Safety | v5.2 | feature | 20 min | 6 | 2.16 | 9.26 | +39% |
+| 15 | Framework Measurement | v6.0 | feature | 1.5h | 20 | 28.0 | 3.21 | +79% |
+
+*Home v2 excluded from trend analysis -- outlier that invented the v2 convention, spawned 3 sub-features, and integrated external tools for the first time.
+
+---
+
+## Trend Analysis
+
+### By Framework Version
+
+| FW Version | Features | Avg min/CU | vs Baseline | Interpretation |
+|-----------|----------|-----------|-------------|----------------|
+| v2.0 | 1 | 15.2 | Baseline | No cache, no skills, monolithic PM |
+| v4.0 | 1 | 16.0 | -5% | Learning cost of cache system (expected regression) |
+| v4.1 | 3 | 7.9 | +48% | Cache acceleration kicks in (40-70% hit rates) |
+| v4.2 | 3 | 10.4 | +32% | Mixed -- includes Readiness (new model type learning tax) |
+| v4.4 | 1 | 7.1 | +53% | Eval-driven development |
+| v5.1 | 2 | 3.6 | +76% | SoC optimizations + deep pattern reuse |
+
+### Power Law Fit
+
+```
+Velocity(N) = 15.2 x N^(-0.68), R-squared = 0.82 (v1 factors)
+Velocity(N) = 15.2 x N^(-0.61), R-squared = 0.87 (v2 factors)
+```
+
+The -0.68 exponent indicates steep improvement that has not yet plateaued. For comparison: typical software learning curves show -0.3 to -0.5; manufacturing improvement shows -0.2 to -0.3.
+
+CU v2 improves the fit from R-squared 0.82 to 0.87. The exponent drops to -0.61 -- slightly less steep but more consistent, with fewer features deviating from the trend.
+
+### Regressions and Learning Taxes
+
+Two non-outlier regressions are visible:
+
+| Feature | FW Version | min/CU | vs Baseline | Attribution |
+|---------|-----------|--------|-------------|-------------|
+| Training v2 | v4.0 | 16.0 | -5% | Cache-system learning overhead (first use) |
+| Readiness v2 | v4.2 | 17.9 | -18% | First-of-kind model/service work |
+
+**Pattern:** When the framework introduces a new structural capability, the next feature pays a measurable learning tax before gains appear. Under CU v2, the Readiness regression drops from -18% to -7% -- half the apparent regression was an artifact of binary factors failing to capture the feature's true complexity.
+
+---
+
+## Confounders and Limitations
+
+| Confounder | Impact | Mitigation |
+|-----------|--------|------------|
+| Single practitioner | Cannot separate framework improvement from personal learning | Cache hit rate provides a proxy -- high cache % means the framework is learning, not just the human |
+| Feature complexity varies | Addressed by CU normalization | Some factors (auth complexity, design iteration difficulty) remain subjective |
+| Framework evolves between measurements | This IS the signal, not noise | Documented which version produced which result |
+| Session continuity varies | Single-session features benefit from warm context | Noted in each case study |
+| Task count is self-reported | Different features may count at different granularity | Mitigated by consistent methodology after v3.0 |
+
+---
+
+## Key Takeaways
+
+- **Full-lifecycle features (4.9 min/CU avg) outperform refactors (8.6 min/CU avg).** This is counterintuitive -- new features should be harder. The explanation: refactors were early in the framework's evolution when the cache was cold and the workflow was immature. New features benefit from a mature cache.
+- **The power law fit (R-squared = 0.87) explains most variance,** but ~13% remains attributable to practitioner learning and feature-specific novelty.
+- **CU v2 continuous factors retroactively explain regressions** that binary factors could not. The Readiness regression was halved when view count and architectural novelty were modeled as continuous variables instead of binary flags.
+- **N=17 is small for robust regression.** All claims should be treated as directional signals, not definitive measures. Bootstrap confidence intervals should be used for any published benchmarks.

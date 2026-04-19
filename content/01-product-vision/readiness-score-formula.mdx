@@ -1,0 +1,146 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# How We Designed a Multi-Source Readiness Score
+
+## Context
+
+Most fitness apps answer "Are you ready to train?" with a simple yes/no based on one or two metrics. FitMe needed something better: a weighted, evidence-based readiness score that adapts to the user's fitness goal, improves as more data becomes available, and transparently shows which factors drive the number. This document walks through the formula design, the scientific evidence behind each weight, and honest limitations of the approach.
+
+---
+
+## The Problem with Simple Readiness
+
+The initial readiness implementation was a binary check: resting heart rate below 75 AND HRV above 28. This is too coarse to be useful.
+
+| Limitation | Impact |
+|---|---|
+| Uses total sleep hours only | Ignores sleep quality --- 7h with 10min deep sleep is not 7h with 70min deep |
+| No training load input | Can't detect overreaching or undertraining |
+| No goal awareness | Fat loss and muscle gain have different recovery requirements |
+| No body composition signals | Weight fluctuations from dehydration are invisible |
+| Binary output | Too coarse for nuanced training recommendations |
+| No confidence indicator | User doesn't know if the score is based on 3 days or 90 days of data |
+
+---
+
+## The Formula: 5 Weighted Components
+
+The readiness engine is a pure function: all inputs explicit, no hidden state, graceful degradation when any component is missing.
+
+| # | Component | Base Weight | Metric | Scientific Basis |
+|---|-----------|------------|--------|-----------------|
+| 1 | **HRV** | 35% | ln(SDNN) deviation from 7-day EWMA baseline | Plews et al. 2013; Shaffer & Ginsberg 2017 |
+| 2 | **Sleep Quality** | 25% | Composite: 40% duration + 30% deep% + 30% REM% | Pittsburgh Sleep Quality Index (Buysse 1989) |
+| 3 | **Training Load** | 20% | Acute:Chronic Workload Ratio via EWMA | Williams et al. 2017; Foster sRPE 1998 |
+| 4 | **Resting HR** | 15% | Deviation from 7-day rolling average | RHR flags overreaching ~6 days before HRV does |
+| 5 | **Body Composition** | 5% | Binary suppressors: overnight weight >1%, visceral fat trend | Population studies on dehydration and metabolic markers |
+
+### Why These Specific Weights
+
+- **HRV at 35%:** WHOOP publicly documents weighting HRV at ~40% of their Recovery score. We chose 35% because we separate training load as its own component (which WHOOP conflates with HRV response).
+- **Sleep at 25%:** Stronger large-population evidence than HRV (PSQI validated on thousands). Increased from WHOOP's ~20% because sleep quality directly undermines fat loss (Nedeltcheva et al. 2010 showed 55% less fat mass lost under sleep restriction).
+- **Training Load at 20%:** The most actionable component --- it's the only input the user directly controls. No commercial system exposes ACWR as a separate scored component.
+- **Resting HR at 15%:** An early warning signal. RHR elevation appears ~6 days into overreaching, earlier than HRV changes (~10 days).
+- **Body Composition at 5%:** No validated formula exists for body comp as a direct readiness input. Used as binary suppressors (can only reduce score, never increase it) rather than linear scoring.
+
+---
+
+## Goal-Aware Weight Shifts
+
+Different fitness goals demand different recovery priorities. The formula shifts component weights based on the user's active goal:
+
+| Goal | HRV | Sleep | Training Load | RHR | Body Comp | Rationale |
+|------|-----|-------|---------------|-----|-----------|-----------|
+| **General** | 0.35 | 0.25 | 0.20 | 0.15 | 0.05 | Balanced default |
+| **Fat Loss** | 0.30 | 0.30 | 0.15 | 0.15 | 0.10 | Sleep deprivation impairs fat oxidation. Body comp signals more relevant. |
+| **Muscle Gain** | 0.30 | 0.20 | 0.25 | 0.20 | 0.05 | Full recovery needed for hypertrophy. Training load monitoring prevents overreaching. |
+| **Maintain** | 0.35 | 0.25 | 0.20 | 0.15 | 0.05 | Same as general --- conservative approach. |
+
+No competitor offers goal-specific readiness weight shifts.
+
+---
+
+## Progressive Personalization
+
+The formula does not assume 90 days of history on day one. It operates in layers, becoming more personalized as data accumulates:
+
+| Layer | Trigger | What Changes | Confidence |
+|-------|---------|-------------|------------|
+| Layer 0 | Day 1 (0-6 days) | Population-level absolute thresholds. No baseline comparison. | Low |
+| Layer 1 | Week 2+ (7-27 days) | Personal 7-day EWMA baseline kicks in. Deviation-based scoring. | Medium |
+| Layer 2 | Month 2+ (28-89 days) | ACWR has full chronic window. Goal adjustments at full strength. | Medium |
+| Layer 3 | Month 3+ (90+ days) | AI engine integration. Learns personal patterns. | High |
+
+---
+
+## Training Recommendations from Score
+
+| Score Range | Recommendation | Description |
+|------------|---------------|-------------|
+| 85-100 | Push Hard | All systems go --- maximize the day |
+| 70-84 | Full Intensity | Normal training, no restrictions |
+| 50-69 | Moderate | Reduce intensity or volume by ~20% |
+| 30-49 | Light Only | Active recovery, Zone 2 cardio, mobility |
+| 0-29 | Rest Day | Body needs recovery --- skip structured training |
+
+---
+
+## How This Compares to Commercial Systems
+
+| System | HRV | Sleep | Training Load | RHR | Body Comp | Goal Awareness | Personalization |
+|--------|-----|-------|--------------|-----|-----------|---------------|-----------------|
+| **WHOOP** | ~40% | ~20% (stages) | Implicit in HRV | ~10% | None | None | 30-day baseline |
+| **Oura** | 1 of 9 contributors | Multiple | None | Recovery Index | Skin temp | None | 14-day baseline |
+| **Garmin** | Stress-based | Duration + stages | Activity drain | Stress drain | None | None | Rolling baseline |
+| **FitMe** | 35% | 25% (composite) | 20% (ACWR via EWMA) | 15% (early warning) | 5% (binary flags) | 4-goal weight shifts | 4-layer progressive |
+
+Key differentiators:
+1. Training load as an explicit scored component (WHOOP/Oura don't separate it)
+2. Goal-aware weight shifts (no competitor does this)
+3. 4-layer progressive personalization with confidence indicator
+4. Body composition integration (no wearable-only system can do this)
+
+---
+
+## Honest Limitations
+
+1. **No single readiness model has been validated on >1000 subjects.** Our formula combines validated components (PSQI, ACWR) with less-validated integration (the weights themselves).
+2. **HRV-guided training studies have small samples** (typically n=20-60). The effect is consistent but small.
+3. **Goal-specific weight shifts are theoretically grounded but not empirically validated.** The fat-loss sleep boost is supported by Nedeltcheva 2010, but the exact 0.30 weight is a design choice.
+4. **EWMA lambda values are conventions**, not derived from first principles.
+5. **Body composition as readiness input is weakly evidenced.** Mitigated by using binary flags with low weight (5%), not linear scoring.
+
+---
+
+## Kill Criteria
+
+The formula ships with explicit failure conditions:
+
+- Readiness score correlation with self-reported outcomes is negative (formula is misleading)
+- Users consistently override recommendations (>80% override rate)
+- Computation adds >100ms to home screen load time
+
+---
+
+## References
+
+The formula draws on 20 sources across three tiers (primary peer-reviewed, secondary commercial, tertiary context). Key citations:
+
+1. Plews et al. (2013) --- ln(rMSSD) as the dual monitoring standard for training readiness
+2. Buysse et al. (1989) --- Pittsburgh Sleep Quality Index, validated on thousands
+3. Williams et al. (2017) --- EWMA ACWR superior to simple rolling average for injury prediction
+4. Foster (1998) --- Session RPE as practical training load metric
+5. Nedeltcheva et al. (2010) --- Sleep restriction reduced fat mass loss by 55%
+6. Aubry et al. (2014) --- RHR elevation flags overreaching ~6 days before HRV
+7. Griffin et al. (2025) --- Meta-analysis of 22 cohort studies confirming ACWR injury association
+
+---
+
+## Key Takeaways
+
+1. **Evidence-based does not mean perfect.** The formula is grounded in peer-reviewed research, but the weight integration is a design choice. Acknowledging limitations builds more trust than hiding them.
+2. **Goal awareness is a genuine differentiator.** No commercial system (WHOOP, Oura, Garmin) adjusts readiness weights based on whether you're cutting or bulking.
+3. **Progressive personalization solves the cold-start problem.** Rather than requiring a month of data before showing anything useful, the formula starts with population defaults and sharpens over time.
+4. **Kill criteria prevent commitment bias.** Defining failure conditions upfront makes it possible to abandon a feature that isn't working, rather than defending sunk cost.

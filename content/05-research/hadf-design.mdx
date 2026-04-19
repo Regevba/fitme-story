@@ -1,0 +1,313 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# Hardware-Aware Dispatch -- Designing a 5-Layer Detection System
+
+## Context
+
+This is the design specification for the Hardware-Aware Dispatch Framework (HADF), a research extension to the PM framework. The framework already optimizes dispatch based on task complexity (what work needs doing), but is blind to hardware capability (what the execution environment can do). HADF makes dispatch hardware-aware at both ends of the pipeline -- the user's device and the cloud inference provider -- and adapts in real time.
+
+## The Problem
+
+Modern devices ship significant on-device compute that goes unused. An A17 Pro delivers 35 TOPS through its Neural Engine. A Tensor G4 exceeds 30 TOPS. Meanwhile, cloud inference hardware varies -- an H100 serves requests differently than a TPU v5 -- but the framework treats all cloud endpoints identically. Conditions change mid-session (thermal throttling, cloud load spikes, network degradation) but dispatch strategy remains static.
+
+HADF addresses three gaps:
+- On-device compute is free but unused
+- Cloud hardware varies but is treated as uniform
+- Conditions change mid-session but dispatch is static
+
+## Design Principles
+
+1. **Extension, not replacement.** HADF adds a `hardware_context` field to the existing dispatch engine. The v5.2 dispatch pipeline (complexity scoring, model routing, tool budgets) remains the decision-maker. HADF provides better inputs.
+
+2. **Graceful degradation.** Every layer has a fallback. Unknown device? Architecture-level default. Uncertain cloud? Static provider lookup. No affinity data? Cold start with baselines. Worst case: the framework behaves identically to today.
+
+3. **Confidence-gated.** HADF never overrides dispatch below a confidence threshold. The gate starts high (effectively disabled) and lowers as data validates the system.
+
+4. **Zero extra cost.** No additional API calls. No telemetry uploads. All fingerprinting data derived from timestamps the app already records. All learning data stays on-device.
+
+5. **Measured from day one.** Existing instrumentation captures HADF-specific data automatically.
+
+## Architecture Overview
+
+```
++------------------------------------------------------------------+
+|                    HADF Pipeline                                  |
+|                                                                   |
+|  +--------------+    +--------------+    +--------------+         |
+|  | Device       |    | Cloud        |    | Composite    |         |
+|  | Detection    |--->| Fingerprint  |--->| Optimizer    |         |
+|  | Engine       |    | Engine       |    | (L/C/Q)      |         |
+|  | (Layer 0)    |    | (Layer 2)    |    |              |         |
+|  +------+-------+    +------+-------+    +------+-------+         |
+|         |                   |                   |                  |
+|         v                   v                   v                  |
+|  +--------------+    +--------------+    +--------------+         |
+|  | Static       |    | Dynamic      |    | Evolutionary |         |
+|  | Profiles     |    | Adaptation   |    | Learning     |         |
+|  | (Layer 1)    |    | (Layer 3)    |    | (Layer 4)    |         |
+|  +--------------+    +--------------+    +--------------+         |
+|         |                   |                   |                  |
+|         +-------------------+-------------------+                  |
+|                             v                                     |
+|                   +------------------+                             |
+|                   | hardware_context |                             |
+|                   | (JSON output)    |                             |
+|                   +--------+---------+                             |
+|                            |                                      |
++----------------------------+--------------------------------------+
+                             v
+                   +------------------+
+                   | Existing v5.2    |
+                   | Dispatch Engine  |
+                   +------------------+
+```
+
+**Data flow per session:**
+
+1. Session starts -- Layer 0 detects device chip (deterministic, instant)
+2. Layer 1 loads matching static profile (lookup, instant)
+3. Layer 4 checks for warm-start data from previous sessions
+4. First cloud call -- Layer 2 begins fingerprinting (probabilistic, improves over calls)
+5. After N calls -- Layer 3 activates dynamic adaptation (continuous)
+6. Session ends -- Layer 4 writes telemetry for cross-session learning
+
+---
+
+## Layer 0: Device Detection Engine
+
+Fully deterministic. Every platform exposes chip identity through OS APIs.
+
+| Platform | API | Example Output |
+|---|---|---|
+| iOS/iPadOS | `utsname.machine` via `sysctlbyname` | `iPhone16,1` --> A17 Pro |
+| macOS | `sysctlbyname("machdep.cpu.brand_string")` | `Apple M3 Max` |
+| Android (API 31+) | `Build.SOC_MANUFACTURER` + `Build.SOC_MODEL` | `Google` + `Tensor G4` |
+| Android (legacy) | `Build.HARDWARE` + `/proc/cpuinfo` | `taro` --> Snapdragon 8 Gen 1 |
+| Web/WASM | `navigator.hardwareConcurrency` + `navigator.deviceMemory` | 8 cores, 8GB |
+
+Output is a Device Capability Manifest containing chip ID, vendor, architecture, core configuration, NPU capabilities, memory bandwidth, and thermal class. Detection confidence is 1.0 for native platforms and coarser for web (enough for tier classification, not specific chips).
+
+**Design decisions:**
+- Local lookup table (~50 chips), updated with app releases. No network call.
+- Runs once at session start (hardware does not change mid-session).
+- Unknown chips degrade to architecture-level defaults (`arm64_mobile_unknown`).
+
+---
+
+## Layer 1: Static Chip Profiles
+
+Pre-built optimization profiles per chip family. The framework's starting knowledge before it observes anything at runtime.
+
+### Coverage (~50 profiles, 95%+ of active devices)
+
+| Tier | Apple | Google | Qualcomm | Samsung | MediaTek |
+|---|---|---|---|---|---|
+| Flagship | A17 Pro, A18 Pro, M3/M4 | Tensor G4 | Snapdragon 8 Gen 3 | Exynos 2400 | Dimensity 9300 |
+| Mid | A16, A17, M1/M2 | Tensor G3 | Snapdragon 7 Gen 3 | Exynos 1480 | Dimensity 8300 |
+| Low | A15 and below | Tensor G2 | Snapdragon 6 Gen 1 | Exynos 1380 | Dimensity 7050 |
+| Desktop | M3 Ultra, M4 Max | -- | Snapdragon X Elite | -- | -- |
+
+Each profile contains:
+- **Compute budget:** NPU TOPS, max model size, preferred precision, concurrent ML task limit
+- **Dispatch hints:** which task types prefer on-device vs. cloud vs. hybrid
+- **Thermal profile:** sustained workload duration, throttle risk, battery sensitivity
+- **Composite baseline:** three scores (0-1) for latency, cost, and quality relative to cloud
+
+**Key design decision:** Profiles are dispatch-oriented, not spec sheets. "NPU 35 TOPS" matters for routing decisions. "GPU clock 2.15GHz" does not.
+
+---
+
+## Layer 2: Cloud Inference Fingerprinting
+
+This is the novel contribution. No one formally does this today.
+
+### The Insight
+
+When you call a cloud inference API, the response does not include a hardware manifest. But the response carries measurable signals about what hardware served it.
+
+| Signal | What It Reveals | How It Is Measured |
+|---|---|---|
+| Time-to-first-token (TTFT) | Prefill speed --> chip architecture class | First token timestamp minus request timestamp |
+| Tokens per second (TPS) | Decode throughput --> memory bandwidth + compute | Output tokens / decode duration |
+| TTFT variance | Load balancer behavior --> fleet homogeneity | Standard deviation over N calls |
+| TPS consistency | Thermal/power throttling --> chip class | Coefficient of variation within session |
+| Latency floor | Network RTT vs. compute --> geography + hardware | Minimum observed TTFT over N calls |
+| Batch sensitivity | Throughput vs. input length --> memory architecture | Compare TPS at 500 vs. 5000 input tokens |
+
+### Three-Stage Classification Algorithm
+
+**Stage 1: Collect (calls 1-5).** Raw signal recording. Every API call automatically records TTFT, TPS, input/output counts, timestamp. Zero overhead -- these timestamps already exist.
+
+**Stage 2: Classify (calls 5-15).** Statistical classifier using Mahalanobis distance against a Hardware Signature Table:
+
+```
+Hardware Class      TTFT/1K tokens   TPS (median)   TPS Variance   Batch Scaling
+-----------------   --------------   ------------   ------------   -------------
+NVIDIA H100 SXM    45-65ms          80-120         < 0.08         0.92-0.98
+NVIDIA A100        70-100ms         55-80          < 0.10         0.88-0.95
+Google TPU v5e     50-75ms          70-100         < 0.12         0.95-0.99
+Google TPU v4      60-90ms          50-75          < 0.15         0.90-0.96
+AWS Trainium 2     55-80ms          65-90          < 0.10         0.91-0.97
+AMD MI300X         50-70ms          75-105         < 0.09         0.93-0.98
+CPU fallback       200+ms           10-30          > 0.20         0.60-0.80
+
+(Illustrative ranges -- real values require empirical calibration.)
+```
+
+The classifier computes Mahalanobis distance from the observed signal vector to each hardware class center, using the signature table's ranges to derive covariance matrices. Output: estimated hardware class with confidence score.
+
+**Stage 3: Refine (calls 15+).** Confidence narrows over calls (0.72 --> 0.88 after 30 calls). The system detects hardware migration (sudden TPS/TTFT pattern shift triggers reclassification), analogous to TCP congestion detection.
+
+### Limitations
+
+- Gets hardware **class**, not exact chip. "H100-class GPU" not "H100 SXM5 in rack 3."
+- Cannot distinguish custom silicon from similar-performing known chips.
+- Network noise inflates TTFT. Mitigated via latency floor and TPS (post-connection, less affected by network).
+- All data stays on-device. Zero privacy impact.
+
+---
+
+## Layer 3: Dynamic Adaptation Engine
+
+Real-time mid-session dispatch adjustment. Static profiles are a starting point; reality drifts.
+
+### Four Signal Categories
+
+**1. Device Thermal State.** Monitored via OS APIs (`ProcessInfo.thermalState` on iOS, `PowerManager.THERMAL_STATUS_*` on Android). Escalation: nominal (full capability) --> fair (reduce concurrency 50%) --> serious (lightweight tasks only) --> critical (all compute to cloud).
+
+**2. Cloud Performance Drift.** TPS drop >20% from baseline indicates cloud under load or hardware migration. TTFT spike >2x from latency floor suggests region failover.
+
+**3. Network Conditions.** RTT increase makes cloud calls more expensive, shifting the balance toward on-device. WiFi-to-cellular handoff changes the entire bandwidth/latency profile.
+
+**4. Battery State (mobile).** Above 50%: full capability. 20-50%: reduce on-device ML 50%. Below 20%: prefer cloud. Charging: full capability (thermal limits still apply).
+
+### Dispatch Weight Formula
+
+```
+adjusted_score = baseline_score
+  x device_modifier    [0.1 - 1.5]
+  x cloud_modifier     [0.1 - 1.5]
+  x network_modifier   [0.1 - 1.5]
+  x battery_modifier   [0.1 - 1.5]
+```
+
+Recalculated only when a modifier changes by more than 5%, preventing thrashing.
+
+---
+
+## Layer 4: Evolutionary Learning
+
+Cross-session learning. Builds a persistent model of what works best on each hardware combination.
+
+### Chip Affinity Map
+
+A local database on-device. Each entry pairs a device chip with an observed cloud hardware class and the optimal dispatch strategy for that pair. Entries include learned task routing weights, performance history (average latency, TPS, p95 latency, cost per 1K tokens), and time-of-day patterns.
+
+### Session Lifecycle
+
+- **Start:** Check affinity map for this chip. Entry exists? Warm start with learned weights. No entry? Cold start with Layer 1 static profile.
+- **During:** Layer 2 classifies cloud hardware. Known pair? Refine learned weights. New pair? Create entry seeded from baseline.
+- **End:** Update performance history (rolling average, last 50 sessions), time patterns, and learned weights if Layer 3 found a better strategy.
+
+### Learning Algorithm
+
+Exponential moving average with decaying learning rate:
+- First 10 sessions: alpha = 0.3 (learn fast)
+- Sessions 10-50: alpha = 0.1 (stabilize)
+- Sessions 50+: alpha = 0.05 (slow drift tracking)
+
+### Time-of-Day Patterns
+
+Cloud performance varies predictably. Peak hours (14:00-18:00 UTC for US providers) show lower TPS. The framework learns this and preemptively shifts dispatch during learned peak hours -- the system's first predictive capability.
+
+### Cold Start vs. Warm Start
+
+| Scenario | Time to Optimal |
+|---|---|
+| Brand new device | ~15 API calls |
+| Known device, new cloud class | ~8 calls |
+| Known device + known cloud | Immediate (0 calls) |
+| Device upgrade (same vendor) | ~5 calls |
+
+Storage cap: ~200 entries (~50 chips x 4 cloud classes) = ~100KB. All on-device. Never synced, never uploaded. Entries expire after 90 days without access.
+
+---
+
+## Composite Optimization Score
+
+All four layers converge into a single output.
+
+```
+CompositeScore = w_L x LatencyScore + w_C x CostScore + w_Q x QualityScore
+```
+
+Weights shift by context:
+
+| Context | Latency | Cost | Quality | Rationale |
+|---|---|---|---|---|
+| User-facing interaction | 0.50 | 0.15 | 0.35 | User is waiting |
+| Background task | 0.15 | 0.50 | 0.35 | No one waiting, minimize cost |
+| Critical reasoning | 0.10 | 0.10 | 0.80 | Accuracy trumps everything |
+| High-frequency polling | 0.35 | 0.45 | 0.20 | Many small calls |
+
+### Confidence Gate
+
+```
+score > 0.7   --> trust HADF strategy fully
+score 0.4-0.7 --> blend HADF with default (weighted average)
+score < 0.4   --> ignore HADF, use default routing
+```
+
+When all layers are degraded (unknown device + uncertain cloud + no affinity), the strategy falls back to `cloud_preferred` -- identical to behavior without HADF. **Zero regression by design.**
+
+---
+
+## Validation Plan
+
+Five phases, each validating a layer independently, then the system end-to-end.
+
+**Phase 1: Device Detection.** 10+ physical devices. 100% chip ID accuracy required. Unknown chips must degrade gracefully.
+
+**Phase 2: Cloud Fingerprinting.** 750 data points (50 calls x 5 times of day x 3 days). This is the key gate -- if hardware clusters do not emerge from the data, Layer 2 falls back to static provider lookup.
+
+**Phase 3: Dynamic Adaptation.** Within-session A/B testing. Thermal adaptation must shift within 30 seconds. Cloud drift must adjust after 3+ degraded calls. Anti-thrashing: maximum 1 change per 30 seconds under stable conditions.
+
+**Phase 4: Evolutionary Learning.** Longitudinal: Week 1 (cold start) vs. Week 2 (warm start). Warm start should reach optimal dispatch 3x faster.
+
+**Phase 5: End-to-End.** Confidence gate ramp from 0.99 (disabled) to 0.40 (full activation) across three feature groups.
+
+| Metric | Baseline | Target | Kill Criterion |
+|---|---|---|---|
+| Dispatch overhead | 0ms | <50ms | >200ms |
+| Latency improvement | 0% | >10% reduction | Increase >5% |
+| Warm-start hit rate | N/A | >60% at 10 sessions | <30% at 20 sessions |
+| Cloud confidence | N/A | >0.70 avg at 15 calls | <0.50 at 30 calls |
+| Zero regression | Pass | Pass | Any feature fails |
+
+Total validation: ~4-5 weeks, ~$5-10 in API costs.
+
+---
+
+## Open Questions
+
+1. **Can cloud fingerprinting actually work?** Phase 2 is the gate. If clusters do not emerge, Layer 2 reduces to static provider lookup -- still useful but less novel.
+
+2. **Multi-provider routing.** If the app calls multiple inference providers, each gets its own fingerprint and affinity map entries.
+
+3. **On-device model availability.** Profiles assume certain models can run locally, but model catalogs evolve per OS version -- profiles need to track availability, not just chip capability.
+
+4. **Privacy regulation.** Device fingerprinting (even on-device, self-directed) may intersect with App Store guidelines. Detection uses public APIs, but capability bundling could be flagged during review.
+
+5. **Affinity map portability.** If a user restores from backup to a new device, device-specific entries become stale. The map should detect chip mismatch and invalidate device entries while preserving cloud-side knowledge.
+
+## Key Takeaways
+
+1. **The most underexploited signal in AI apps is the hardware at both ends.** Every app has the data (timestamps) -- none use it for dispatch optimization.
+
+2. **Mahalanobis distance on inference timing is a viable cloud hardware classifier.** The approach requires empirical calibration, but the signal-to-noise ratio looks favorable based on public benchmark data.
+
+3. **Confidence gates make speculative systems safe to ship.** HADF can be deployed with the gate set to 0.99 (effectively disabled) and gradually lowered as validation data accumulates. Zero regression is a design constraint, not a hope.
+
+4. **Cross-session learning is the multiplier.** Layers 0-3 handle a single session. Layer 4 makes every subsequent session faster. The warm-start advantage compounds over time.

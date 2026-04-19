@@ -1,0 +1,126 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# What Breaks When You Run 4 Features at Once — And How to Fix It
+
+> A stress test revealed two bottlenecks in parallel execution. The fix cut tool usage by 48% and variance by 84%.
+
+## Context
+
+Framework v5.1 had doubled the available context window through SoC-inspired optimizations. The natural next question: what happens when you push 4 features through the full PM lifecycle simultaneously? The stress test was designed to find the breaking points — and then fix them.
+
+This case study covers both halves: the v5.1 stress test that exposed the problems, and the v5.2 Dispatch Intelligence system that solved them.
+
+---
+
+## Part 1: The Stress Test
+
+4 features entered the PM lifecycle in parallel:
+
+| Feature | Starting Phase | Tasks |
+|---------|---------------|-------|
+| Push Notifications | PRD | 12 |
+| App Store Assets | PRD | 10 |
+| Import Training Plan | Research | 13 |
+| Smart Reminders | Not started | 14 |
+
+**Duration:** 54 minutes. 8 phases. 31 subagent dispatches.
+
+### What Worked (Zero Issues)
+
+- **0 git merge conflicts** across 31 dispatches
+- **0 build failures** out of 5 builds
+- **0 test failures** out of 35 tests
+- **15 same-file edits** to 3 shared files — 0 conflicts
+- **0 rework** needed on any artifact
+
+The parallel execution itself was sound. The framework handled 4 features simultaneously without quality degradation.
+
+### What Failed
+
+**Bottleneck 1: Permission routing (critical).** 52% of dispatches (16/31) hit write permission denials when trying to update framework state files. The controller had to manually batch all state updates, adding ~10 minutes of overhead (18.5% of total time). Root cause: subagent permissions are sandboxed independently and don't inherit the controller's configuration.
+
+**Bottleneck 2: Agent execution variance (moderate).** Agent execution times ranged from 43 seconds to 987 seconds — a 23x spread — for similar-complexity tasks. One agent used 68 tool calls to produce identical output to another that used 7. More exploration did not equal better results.
+
+**Non-bottleneck: Context window pressure.** We expected this to be the constraint. It wasn't — v5.1's skill-on-demand loading kept irrelevant context out, and agent results are summaries, not full file contents.
+
+---
+
+## Part 2: Dispatch Intelligence (v5.2)
+
+The stress test generated 5 research ideas that decomposed into 3 sub-projects:
+
+- **Sub-Project A (Dispatch Intelligence):** Complexity scoring + capability probing + tool budgets
+- **Sub-Project B (Parallel Write Safety):** Snapshot/rollback + region-based file isolation
+- **Sub-Project C (Permission fix):** Hard-route framework paths to controller
+
+### The 3-Stage Pipeline
+
+```
+Task arrives → [1] Score complexity → [2] Probe capability → [3] Dispatch with budget
+```
+
+**Stage 1 — Static complexity scoring.** Tasks get a complexity rating (lightweight / standard / heavyweight) at creation time. A validation flag tracks prediction accuracy — if it drops below 60% after 20+ dispatches, the system recommends switching to dynamic scoring.
+
+**Stage 2 — Hybrid capability probe.** Table lookup (instant) for known paths, micro-probe (fast) only for ambiguous paths. The critical discovery: framework state paths must always route to the controller, never to subagents.
+
+**Stage 3 — Model routing + tool budgets.**
+
+| Tier | Model | Tool Budget | Timeout |
+|------|-------|-------------|---------|
+| Lightweight | Fast | 10 tools | 60s |
+| Standard | Balanced | 25 tools | 180s |
+| Heavyweight | Capable | 50 tools | 600s |
+
+---
+
+## The Results
+
+| Metric | v5.1 (no intelligence) | v5.2 (with intelligence) | Change |
+|--------|------------------------|--------------------------|--------|
+| Avg tool uses per agent | 22 | 11.4 | **-48%** |
+| Tool use variance | 23x (3-68) | 3.7x (5-19) | **-84%** |
+| Budget compliance | N/A | 80% (4/5 agents) |  |
+| Complexity prediction | N/A | 80% (4/5 tasks) |  |
+| Build failures | 0/5 | 0/1 | Same |
+| Permission-blocked dispatches | 16/31 (52%) | 0 | **Eliminated** |
+
+### Bonus: The Review Gate Validated
+
+A review agent dispatched against Push Notifications (5 Swift files, 525 lines) found 2 critical bugs:
+- Frequency cap stored but never enforced in the scheduling function
+- Per-type preferences checked at query time but never at schedule time
+
+Both compiled. Both passed tests. The review phase caught functional gaps that build-and-test alone missed. Under v5.1 (no review gate in the stress test), these would have shipped.
+
+---
+
+## Normalized Velocity
+
+| Mode | CU/Hour | vs Baseline |
+|------|---------|-------------|
+| v2.0 serial | 3.95 | Baseline |
+| v5.1 serial | ~22 | 5.6x |
+| v5.1 parallel (4 features) | 48.8 | **12.4x** |
+| v5.2 parallel (with dispatch intelligence) | ~55 | **~14x** |
+
+---
+
+## What This Proved
+
+1. **Tool budgets work.** Agents complete faster with explicit constraints than without. The "explore everything" default wastes time without improving output quality.
+
+2. **Static complexity scoring is sufficient (so far).** 80% accuracy on early samples, above the 60% threshold. No need for expensive dynamic analysis yet.
+
+3. **Permission routing eliminates the biggest bottleneck.** Zero wasted dispatches on blocked paths — the 18.5% overhead from v5.1 vanished completely.
+
+4. **Review gates catch real bugs.** 2 critical issues in 525 lines of compiling, test-passing code. Code review is not ceremony.
+
+---
+
+## Key Takeaways
+
+- Parallel execution at scale exposes bottlenecks that serial execution hides. The permission routing problem was invisible when running one feature at a time — it only became critical at 4 features and 31 dispatches.
+- Constraining agents makes them faster and more predictable. The counterintuitive lesson: giving agents less freedom produces equivalent quality in half the time with a fraction of the variance.
+- The v5.1 → v5.2 evolution followed the same pattern as every prior version: observe real behavior under stress, identify the bottleneck, design a targeted fix, measure the improvement. The framework improves by watching itself fail.

@@ -1,0 +1,117 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# The Fastest Feature — 86% Velocity Improvement on Auth Flow
+
+> Full PM lifecycle plus 3 design iterations in a single session -- and the first feature where runtime testing changed everything.
+
+## Context
+
+The onboarding auth flow embedded account creation directly into the onboarding experience (instead of pushing users to a separate auth screen). It was built under framework v5.1, which had proven high velocity on architectural work. But this was different: it involved external service integration (Supabase), real credential handling, and iterative visual design that required seeing the result on a device. The result was the highest normalized velocity in the project -- and the first feature where a critical bug was invisible to everything except manual runtime testing.
+
+---
+
+## The Problem
+
+The original onboarding flow pushed users to a separate authentication hub after completing the onboarding steps. Competitive analysis (Duolingo, Headspace, Noom) showed that embedding auth mid-flow -- letting users create an account after they are already invested -- produces higher completion rates. The feature needed:
+
+- 2 new screens (Welcome, embedded Sign In/Sign Up)
+- Integration with email registration, Google Sign In, Apple Sign In, and passkeys
+- Session restore that does not freeze on cold launch
+- Guest mode with a "skip for now" option
+- 5 new analytics events
+
+---
+
+## Single-Session Execution
+
+| Phase | Duration | Notes |
+|-------|----------|-------|
+| Research | ~5 min | Competitive analysis drove the "auth mid-flow" decision immediately |
+| PRD | ~5 min | Analytics spec completed inline -- no separate pass needed |
+| Tasks | ~3 min | 12 tasks classified by complexity in under 3 minutes |
+| UX Spec | ~5 min | Design system compliance passed on first check |
+| Implementation | ~15 min | All 12 tasks, 11 files, 627 insertions |
+| Testing | ~3 min | 198 tests pass, 0 failures |
+| Review + Merge | ~2 min | Shipped as PR #80 |
+| **Post-merge: Manual testing** | **~30 min** | **6 issues found and fixed** |
+| **Post-merge: Design iterations** | **~30 min** | **3 rounds of visual polish** |
+| **Total** | **~100 min** | Single session, research through design lock |
+
+---
+
+## The Critical Bug That Only Runtime Testing Could Find
+
+Issue #4: **Email registration was broken.** The registration flow tried to navigate to a view that had been removed from the view hierarchy. The code compiled. The tests passed. The analytics spec was correct. But tapping "Sign Up with Email" on a real device with real Supabase credentials navigated to a view that no longer existed.
+
+This is a class of bug where removing a view breaks invisible references. Static analysis, compilation, and unit tests all reported green. Only running the app and tapping through the flow surfaced it. The fix: add an inline verification code entry to replace the removed navigation target.
+
+**Full issues found in runtime testing:**
+
+| Issue | Severity | Fix |
+|-------|----------|-----|
+| CTAs not pinned to bottom of screen | High | Extracted from ScrollView into pinned layout |
+| Logo gradient wrong and not sharp | High | Replaced code-generated icon with exported design asset |
+| No password manager support | Medium | Already handled by native field types |
+| Email registration navigated to removed view | Critical | Added inline verification code entry |
+| Apple Sign In not configured | Deferred | Requires developer services setup |
+| No "skip for now" option | High | Added skip button with guest mode flow |
+
+---
+
+## Design Iteration Velocity
+
+Three rounds of visual changes were needed to lock the Welcome screen design:
+
+1. **Round 1:** Background color swap, initial icon rendering
+2. **Round 2:** Icon was invisible on the background gradient -- color flip, then switch to exported design asset
+3. **Round 3:** Template mode for the icon, final CTA styling
+
+The PM workflow treats implementation as a single pass. This feature revealed a gap: UI features naturally require iterative refinement after seeing the result on-device. The 30 minutes of design iteration were unplanned and unmodeled.
+
+---
+
+## Normalized Velocity
+
+| Metric | Value |
+|--------|-------|
+| Tasks | 18 (12 planned + 6 post-merge fixes) |
+| Work type | Feature (1.0) |
+| Complexity factors | UI (+0.3) + Auth (+0.5) + Runtime Testing (+0.4) + Design Iterations 3x (+0.45) = +1.65 |
+| **Complexity Units** | **47.7** |
+| Wall time | 100 min |
+| **min/CU** | **2.1** |
+| **Rank** | **1st (best ever)** |
+| **vs Baseline** | **+86% faster** |
+
+The 47.7 CU score is the highest in the dataset -- auth integration, runtime testing, and 3 design iterations all compound. Despite this complexity, the feature completed in 100 minutes. The high CU denominator is why the min/CU ratio is so favorable: the framework handled genuinely difficult work at high speed.
+
+---
+
+## Cross-Version Comparison
+
+| Feature | Version | CU | min/CU | vs Baseline |
+|---------|---------|-----|--------|-------------|
+| Onboarding v2 | v2.0 | 25.7 | 15.2 | Baseline |
+| Training v2 | v4.0 | 18.7 | 16.0 | -5% |
+| Nutrition v2 | v4.1 | 16.4 | 7.3 | +52% |
+| AI Engine Arch | v5.1 | 17.7 | 5.1 | +66% |
+| **Auth Flow** | **v5.1** | **47.7** | **2.1** | **+86%** |
+
+---
+
+## What the Framework Got Wrong
+
+**No design iteration model.** The 10-phase lifecycle treats implementation as a single pass. Manual testing revealed 6 issues requiring iterative fixes that were not captured in the original task breakdown. ~60 minutes of unplanned work.
+
+**The planning-to-implementation gap was zero; the implementation-to-testing gap was critical.** The UX spec translated directly to code with no ambiguity. But the code-to-reality gap (email registration pointing to a removed view) was invisible to everything except runtime testing.
+
+---
+
+## Key Takeaways
+
+- **2.1 min/CU on a feature with auth integration, runtime testing, and 3 design iterations** is the peak velocity result. The framework handled its most complex feature type at its fastest speed.
+- **Compile-verification is necessary but insufficient for features with external service dependencies.** The critical email registration bug passed compilation, passed tests, and was undetectable without running the app with real credentials.
+- **Design iteration is not modeled but essential.** Three rounds of visual changes were needed to lock the Welcome screen. The PM workflow should explicitly support iterative design refinement for UI features instead of treating implementation as one pass.
+- **The highest-velocity feature was also the one that found the most runtime bugs.** Speed and thoroughness were not in tension -- the workflow moved fast through the phases where speed matters (research, planning) and invested time where inspection matters (manual testing, design polish).

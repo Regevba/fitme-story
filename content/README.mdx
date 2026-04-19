@@ -1,0 +1,92 @@
+---
+tier: unassigned
+upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+---
+# FitMe Engineering Showcase
+
+> How a solo developer built and measured an AI-orchestrated product management framework across 16 shipped features — from v1.0 to hardware-aware dispatch.
+
+---
+
+## What This Is
+
+FitMe is an iOS fitness app that unifies training, nutrition, recovery, and body composition into a single privacy-first experience. But the interesting part isn't the app — it's **how it was built**.
+
+Over the course of building FitMe, I developed an AI-assisted product management framework that evolved through 7 major versions. Each version added capabilities — caching, evaluation layers, parallel execution, hardware-aware dispatch — and each was measured against the last. The result is the following dataset: **16 features shipped through the same framework, with honest documentation of both improvements and regressions.**
+
+This repository contains the curated documentation from that process. No source code — just the thinking, the measurements, and the lessons learned.
+
+---
+
+## The Numbers
+
+| Metric | Value |
+|---|---|
+| Features shipped | 16 (through the PM framework) |
+| Framework versions | 7 (v2.0 → v6.1) |
+| Serial velocity improvement | ~5.6x (measured in min/CU) |
+| Parallel throughput | 12.4x vs baseline (4 features in 54 minutes) |
+| Full-system audit findings | 185 (12 critical, 49 high — documented, not hidden) |
+| Design system tokens | ~125 semantic tokens, 13 reusable components |
+| UX screens v2-aligned | 6/6 (100% token compliance) |
+| Framework overhead | 7.91% of context window (79K tokens, measured) |
+
+---
+
+## See the App
+
+Every screen was rebuilt from scratch against [13 UX foundations principles](03-design-system/ux-foundations.md) using a living design system. Browse the [screen gallery](03-design-system/screens/) to see the design system in action — no Figma access needed.
+
+---
+
+## Start Here
+
+**"I have 5 minutes"** — Read [Case Studies Overview](04-case-studies/README.md). The timeline table tells the whole story.
+
+**"I want the technical story"** — Start with [Process Framework](02-process-framework/README.md). It explains the 11-skill architecture, the 10-phase lifecycle, and how they evolved.
+
+**"I want to see the progression"** — Read [Case Studies](04-case-studies/) 01 through 13 in order. Each maps to a framework version (v2.0 through v6.1) and builds on the previous.
+
+**"I want the research"** — Jump to [Research Frontier](05-research/README.md). It covers SoC-on-software architecture, hardware-aware dispatch, and a RISC-V chip design that emerged from the framework.
+
+**"I want everything"** — Read in order: [Product Vision](01-product-vision/README.md) → [Process Framework](02-process-framework/README.md) → [Design System](03-design-system/README.md) → [Case Studies](04-case-studies/README.md) → [Research](05-research/README.md).
+
+---
+
+## Repository Structure
+
+```
+fitme-showcase/
+├── 01-product-vision/       # What we built and why
+├── 02-process-framework/    # How we built it — the AI-orchestrated PM system
+├── 03-design-system/        # Visual foundations and governance
+├── 04-case-studies/         # The proof — 16 features measured and documented
+└── 05-research/             # Where it led — from software patterns to chip design
+```
+
+Each section has its own README with context and a reading guide.
+
+---
+
+## What Makes This Different
+
+Most engineering portfolios show finished code. This one shows **the process that produced the code** — including the failures, regressions, and honest self-assessments that are usually hidden.
+
+- **Regressions are documented.** Every time a new framework capability slowed things down before speeding them up, we measured and reported it.
+- **The audit found 185 real issues.** Including 12 critical ones. We published the findings, not just the fixes.
+- **Measurements evolved.** We started with commit-timestamp estimates and ended with deterministic instrumentation. The journey from approximate to precise is documented.
+- **The framework became the research.** Software patterns mapped 1:1 to hardware architecture, leading to a RISC-V chip design. The connection isn't forced — it emerged from the data.
+
+---
+
+## About
+
+Built by **Regev Barak**, iOS developer. FitMe started as a school project and evolved into a framework research platform. Everything documented here is from real shipped work — not hypotheticals or toy examples.
+
+The AI-assisted development used Claude (Anthropic) across multiple sessions, with the PM framework orchestrating the workflow. The framework itself is the subject of several case studies in this repo.
+
+---
+
+## License
+
+This documentation is shared under [CC-BY-4.0](LICENSE). You're free to reference, adapt, and build on these ideas with attribution.
