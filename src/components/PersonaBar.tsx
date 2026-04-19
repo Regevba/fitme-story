@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { usePersona, type Persona } from '@/lib/persona';
+import { usePersona, type Persona } from '@/lib/persona-context';
 
 const OPTIONS: { value: Exclude<Persona, null>; label: string }[] = [
   { value: 'hr', label: "I'm hiring" },

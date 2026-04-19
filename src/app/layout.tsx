@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import { serif, sans } from './fonts';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -17,9 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-serif antialiased min-h-screen flex flex-col">
         <SiteHeader />
         <main className="flex-1">
-          <Suspense fallback={null}>
-            <PersonaProvider>{children}</PersonaProvider>
-          </Suspense>
+          <PersonaProvider>{children}</PersonaProvider>
         </main>
         <SiteFooter />
       </body>
