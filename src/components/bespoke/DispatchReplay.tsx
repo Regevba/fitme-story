@@ -83,6 +83,15 @@ export function DispatchReplay({ traceId, allowTraceSwitch = true }: Props) {
     return () => clearInterval(id);
   }, [playing, trace.beats.length, reduced]);
 
+  // When auto-play is advancing, scroll the active beat into view so floors stay visible
+  useEffect(() => {
+    if (!playing) return;
+    const el = beatRefs.current[beatIndex];
+    if (el) {
+      el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+    }
+  }, [beatIndex, playing, reduced]);
+
   // Scroll-driven: as each beat anchor enters view, sync beatIndex (unless user is auto-playing)
   useEffect(() => {
     if (playing) return;
