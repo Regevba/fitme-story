@@ -93,26 +93,28 @@ export function LifecycleLoop() {
           const cx = CENTER;
           const cy = CENTER - INNER_RING_RADIUS - 80;
           return (
-            <motion.path
-              d={`M ${start.x} ${start.y} Q ${cx} ${cy} ${end.x} ${end.y}`}
-              stroke="var(--color-brand-coral)"
-              strokeWidth="3"
-              fill="none"
-              strokeLinecap="round"
-              markerEnd="url(#arrowhead-coral)"
-              animate={reduced ? { opacity: 1 } : { opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <text
-              x={cx}
-              y={cy - 12}
-              textAnchor="middle"
-              className="fill-[var(--color-brand-coral)] font-sans"
-              fontSize="13"
-              fontWeight="600"
-            >
-              feedback flows back · next cycle begins
-            </text>
+            <>
+              <motion.path
+                d={`M ${start.x} ${start.y} Q ${cx} ${cy} ${end.x} ${end.y}`}
+                stroke="var(--color-brand-coral)"
+                strokeWidth="3"
+                fill="none"
+                strokeLinecap="round"
+                markerEnd="url(#arrowhead-coral)"
+                animate={reduced ? { opacity: 1 } : { opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <text
+                x={cx}
+                y={cy - 12}
+                textAnchor="middle"
+                className="fill-[var(--color-brand-coral)] font-sans"
+                fontSize="13"
+                fontWeight="600"
+              >
+                feedback flows back · next cycle begins
+              </text>
+            </>
           );
         })()}
 
