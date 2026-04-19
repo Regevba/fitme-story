@@ -1,7 +1,7 @@
 ---
 title: The Fastest Feature — 86% Velocity Improvement on Auth Flow
 slug: auth-flow-velocity
-tier: standard
+tier: flagship
 timeline_position:
   version: '5.1'
   order: 6
@@ -15,6 +15,8 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 # The Fastest Feature — 86% Velocity Improvement on Auth Flow
 
 > Full PM lifecycle plus 3 design iterations in a single session -- and the first feature where runtime testing changed everything.
+
+<HeroMetric value="86%" label="velocity improvement vs baseline (2.1 min/CU — best ever)" accentVar="var(--skill-qa)" />
 
 ## Context
 
@@ -48,6 +50,21 @@ The original onboarding flow pushed users to a separate authentication hub after
 | **Post-merge: Manual testing** | **~30 min** | **6 issues found and fixed** |
 | **Post-merge: Design iterations** | **~30 min** | **3 rounds of visual polish** |
 | **Total** | **~100 min** | Single session, research through design lock |
+
+<DurationStack
+  segmentsJson={JSON.stringify([
+    { label: "Research", minutes: 5, colorVar: "var(--skill-research)" },
+    { label: "PRD", minutes: 5, colorVar: "var(--skill-pm-workflow)" },
+    { label: "Tasks", minutes: 3, colorVar: "var(--skill-pm-workflow)" },
+    { label: "UX Spec", minutes: 5, colorVar: "var(--skill-ux)" },
+    { label: "Implementation", minutes: 15, colorVar: "var(--skill-dev)" },
+    { label: "Testing", minutes: 3, colorVar: "var(--skill-qa)" },
+    { label: "Review+Merge", minutes: 2, colorVar: "var(--skill-release)" },
+    { label: "Manual testing", minutes: 30, colorVar: "var(--skill-cx)" },
+    { label: "Design iterations", minutes: 30, colorVar: "var(--skill-design)" }
+  ])}
+  caption="The planned 9 phases cleared in 38 minutes. The unplanned post-merge manual testing + design iterations took 60 minutes — 60% of the total."
+/>
 
 ---
 
@@ -108,6 +125,17 @@ The 47.7 CU score is the highest in the dataset -- auth integration, runtime tes
 | Nutrition v2 | v4.1 | 16.4 | 7.3 | +52% |
 | AI Engine Arch | v5.1 | 17.7 | 5.1 | +66% |
 | **Auth Flow** | **v5.1** | **47.7** | **2.1** | **+86%** |
+
+<BeforeAfter
+  beforeLabel="Onboarding v2.0 (baseline)"
+  beforeValue="15.2 min/CU"
+  beforeSubtitle="25.7 CU · ~6.5h wall time"
+  afterLabel="Auth Flow v5.1"
+  afterValue="2.1 min/CU"
+  afterSubtitle="47.7 CU · 100 min wall time"
+  afterAccentVar="var(--skill-qa)"
+  delta="+86% faster, on 1.85× the complexity"
+/>
 
 ---
 
