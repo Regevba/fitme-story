@@ -20,7 +20,7 @@ function polar(cx: number, cy: number, r: number, angle: number) {
 }
 
 function scrollToSection(hash: string) {
-  const el = document.getElementById(hash);
+  const el = document.getElementById(hash) ?? document.getElementById('wall');
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
