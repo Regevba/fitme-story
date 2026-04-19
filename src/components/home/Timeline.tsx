@@ -29,9 +29,9 @@ export function Timeline({ timelines }: { timelines: Record<TimelineMode, Node[]
                   onClick={() => !disabled && setMode(m.value)}
                   aria-pressed={mode === m.value}
                   disabled={disabled}
-                  className={`px-3 py-1 rounded-full transition-colors ${
+                  className={`px-3 py-2 min-h-[44px] rounded-full transition-colors ${
                     mode === m.value
-                      ? 'bg-[var(--color-brand-indigo)] text-white'
+                      ? 'bg-indigo-600 text-white'
                       : disabled
                       ? 'text-[var(--color-neutral-300)] cursor-not-allowed'
                       : 'hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)]'

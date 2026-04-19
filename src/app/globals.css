@@ -45,6 +45,13 @@ html {
 html.dark {
   color: var(--color-neutral-100);
   background: var(--color-neutral-900);
+  /* Dark-mode contrast overrides: light-mode neutral-500 and brand-indigo
+     fail WCAG AA on the dark #1C1917/#292524 backgrounds. Shift to lighter
+     shades that pass 4.5:1 for body text and 3.0:1 for large text. */
+  --color-neutral-500: #A8A29E;
+  --color-neutral-700: #D6D3D1;
+  --color-brand-indigo: #818CF8;
+  --color-brand-coral: #FDA29B;
 }
 
 @media (prefers-reduced-motion: reduce) {
