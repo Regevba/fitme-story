@@ -1,6 +1,5 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
 import { PHASES } from '@/lib/lifecycle-phases';
 import { getSkill, type SkillSlug } from '@/lib/skill-ecosystem';
 
@@ -25,7 +24,6 @@ function scrollToSection(hash: string) {
 }
 
 export function LifecycleLoop() {
-  const reduced = useReducedMotion();
 
   return (
     <div className="my-8 max-w-[720px] mx-auto" aria-label="Product-development lifecycle loop — 10 phases + 3 feedback-layer skills">
@@ -85,46 +83,9 @@ export function LifecycleLoop() {
           );
         })}
 
-        {/* Feedback arc — from P9 back to P0. A bold curve drawn outside the ring. */}
-        {(() => {
-          const start = polar(CENTER, CENTER, INNER_RING_RADIUS, phaseAngle(9));
-          const end = polar(CENTER, CENTER, INNER_RING_RADIUS, phaseAngle(0));
-          // Control point above the top of the ring to arc the feedback curve over the circle.
-          const cx = CENTER;
-          const cy = CENTER - INNER_RING_RADIUS - 80;
-          return (
-            <>
-              <motion.path
-                d={`M ${start.x} ${start.y} Q ${cx} ${cy} ${end.x} ${end.y}`}
-                stroke="var(--color-brand-coral)"
-                strokeWidth="3"
-                fill="none"
-                strokeLinecap="round"
-                markerEnd="url(#arrowhead-coral)"
-                animate={reduced ? { opacity: 1 } : { opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <text
-                x={cx}
-                y={cy - 12}
-                textAnchor="middle"
-                className="fill-[var(--color-brand-coral)] font-sans"
-                fontSize="13"
-                fontWeight="600"
-              >
-                feedback flows back · next cycle begins
-              </text>
-            </>
-          );
-        })()}
-
-        <defs>
-          <marker id="arrowhead-coral" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-            <path d="M 0 0 L 8 3 L 0 6 Z" fill="var(--color-brand-coral)" />
-          </marker>
-        </defs>
-
-        {/* Outer ring — three feedback-layer skills (cx, ops, marketing) as arc segments */}
+        {/* Outer ring — three feedback-layer skills (cx, ops, marketing) as arc segments.
+            The circular layout already communicates the feedback loop; a separate
+            P9→P0 arrow is redundant. Center subtitle carries the explicit phrasing. */}
         {(() => {
           const OUTER_SKILLS = ['cx', 'ops', 'marketing'] as const;
           return OUTER_SKILLS.map((slug, i) => {
