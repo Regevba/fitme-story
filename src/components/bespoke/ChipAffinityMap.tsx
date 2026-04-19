@@ -12,7 +12,8 @@ export function ChipAffinityMap() {
   const [hover, setHover] = useState<{ chip: number; sig: number } | null>(null);
 
   return (
-    <div className="my-12 overflow-x-auto font-sans text-xs" aria-label="Chip-to-cloud affinity map">
+    <div className="my-12 max-w-[100ch] mx-auto relative font-sans text-xs" aria-label="Chip-to-cloud affinity map">
+      <div className="overflow-x-auto pb-2">
       <div className="inline-grid gap-1" style={{ gridTemplateColumns: `12rem repeat(${CLOUD_SIGNATURES.length}, 6rem)` }}>
         <div />
         {CLOUD_SIGNATURES.map((sig) => (
@@ -42,6 +43,14 @@ export function ChipAffinityMap() {
             })}
           </Fragment>
         ))}
+      </div>
+      </div>
+      {/* Scroll-right affordance */}
+      <div
+        aria-hidden
+        className="absolute top-0 right-0 bottom-8 w-16 pointer-events-none bg-gradient-to-l from-[var(--color-neutral-50)] dark:from-[var(--color-neutral-900)] to-transparent flex items-start justify-end pt-2"
+      >
+        <span className="text-[var(--color-brand-coral)] font-semibold text-sm">→ scroll</span>
       </div>
       {hover && (
         <div className="mt-4 p-3 rounded bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)]">
