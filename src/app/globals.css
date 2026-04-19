@@ -1,26 +1,48 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Typography */
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+
+  /* FitMe accent palette */
+  --color-brand-indigo: #4F46E5;
+  --color-brand-indigo-hover: #4338CA;
+  --color-brand-coral: #F97066;
+  --color-brand-coral-hover: #F15048;
+
+  /* Editorial neutrals (warm grays) */
+  --color-neutral-50: #FAFAF9;
+  --color-neutral-100: #F5F5F4;
+  --color-neutral-200: #E7E5E4;
+  --color-neutral-300: #D6D3D1;
+  --color-neutral-500: #78716C;
+  --color-neutral-700: #44403C;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1C1917;
+
+  /* Editorial measures */
+  --measure-narrow: 58ch;
+  --measure-body: 65ch;
+  --measure-wide: 72ch;
+
+  /* Editorial type scale */
+  --text-body: 1.0625rem;
+  --text-body-lh: 1.7;
+  --text-display-xl: clamp(2.5rem, 5vw, 4.5rem);
+  --text-display-lg: clamp(2rem, 4vw, 3.25rem);
+  --text-display-md: clamp(1.5rem, 3vw, 2.25rem);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html {
+  color: var(--color-neutral-900);
+  background: var(--color-neutral-50);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html {
+    color: var(--color-neutral-100);
+    background: var(--color-neutral-900);
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
