@@ -11,6 +11,11 @@ export function SiteFooter() {
           <p className="mt-2">
             Content: <a className="underline" href="https://github.com/Regevba/fitme-showcase">github.com/Regevba/fitme-showcase</a>
           </p>
+          <p className="mt-2">
+            <Link href="/trust" className="underline hover:text-[var(--color-brand-indigo)]">
+              How this site stays honest →
+            </Link>
+          </p>
         </div>
         <div>
           <p>© 2026 — content licensed CC-BY-4.0.</p>

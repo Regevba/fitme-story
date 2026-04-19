@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/design-system',
     '/research',
     '/about',
+    '/trust',
     '/case-studies/operations-layer',
   ];
   const studies = await getAllCaseStudies();
