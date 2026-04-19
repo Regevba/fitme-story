@@ -5,6 +5,8 @@ import { Figure } from '@/components/mdx/Figure';
 import { TimelineNav } from '@/components/mdx/TimelineNav';
 import { FindingsTable } from '@/components/mdx/FindingsTable';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
+import { ChipAffinityMap } from '@/components/bespoke/ChipAffinityMap';
+import { PhaseTimingChart } from '@/components/bespoke/PhaseTimingChart';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -15,5 +17,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     TimelineNav,
     FindingsTable,
     BlueprintOverlay,
+    ChipAffinityMap,
+    PhaseTimingChart,
   };
 }

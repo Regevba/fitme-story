@@ -17,6 +17,8 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 > Can a software framework passively detect whether it is running on an M4 Pro, a Snapdragon 8 Gen 3, or a cloud TPU -- and does knowing that change how it allocates work?
 
+<ChipAffinityMap />
+
 ## Context
 
 The PM framework dispatches tasks to different AI models based on complexity (lightweight tasks to smaller models, heavyweight reasoning to larger ones). But it treated all hardware as identical -- an M4 Pro with massive unified memory got the same dispatch profile as a mobile chip with aggressive thermal throttling. This feature asked whether injecting hardware awareness into the dispatch layer would improve routing quality, and whether the infrastructure could ship without regressing existing behavior.
