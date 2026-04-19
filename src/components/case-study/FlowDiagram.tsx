@@ -8,25 +8,27 @@ interface Node {
 }
 
 interface Props {
-  nodes: Node[];
+  nodes?: Node[];
+  nodesJson?: string;
   caption?: string;
   arrowLabel?: (from: Node, to: Node, index: number) => string | undefined;
   className?: string;
 }
 
-export function FlowDiagram({ nodes, caption, arrowLabel, className = '' }: Props) {
-  if (nodes.length === 0) return null;
+export function FlowDiagram({ nodes, nodesJson, caption, arrowLabel, className = '' }: Props) {
+  const effectiveNodes: Node[] = nodes ?? (nodesJson ? JSON.parse(nodesJson) as Node[] : []);
+  if (effectiveNodes.length === 0) return null;
 
   return (
     <figure
       className={`my-10 max-w-[var(--measure-wide)] mx-auto font-sans ${className}`}
-      aria-label={`Flow diagram: ${nodes.map((n) => n.label).join(' → ')}`}
+      aria-label={`Flow diagram: ${effectiveNodes.map((n) => n.label).join(' → ')}`}
     >
       <div className="overflow-x-auto pb-2">
         <div className="flex items-stretch gap-3 min-w-min">
-          {nodes.map((node, i) => {
+          {effectiveNodes.map((node, i) => {
             const color = node.colorVar ?? 'var(--color-brand-indigo)';
-            const nextArrowLabel = arrowLabel && i < nodes.length - 1 ? arrowLabel(node, nodes[i + 1], i) : undefined;
+            const nextArrowLabel = arrowLabel && i < effectiveNodes.length - 1 ? arrowLabel(node, effectiveNodes[i + 1], i) : undefined;
             return (
               <Fragment key={node.label + i}>
                 <div
@@ -42,7 +44,7 @@ export function FlowDiagram({ nodes, caption, arrowLabel, className = '' }: Prop
                     </div>
                   )}
                 </div>
-                {i < nodes.length - 1 && (
+                {i < effectiveNodes.length - 1 && (
                   <div className="flex flex-col items-center justify-center shrink-0 text-[var(--color-neutral-500)] min-w-[44px]">
                     <ArrowRight size={18} aria-hidden />
                     {nextArrowLabel && (
