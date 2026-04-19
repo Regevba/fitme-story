@@ -11,21 +11,51 @@ interface Side {
 }
 
 interface Props {
-  before: Side;
-  after: Side;
+  // Object-form props (for programmatic use)
+  before?: Side;
+  after?: Side;
+  // Flat-string props (for MDX inline use — RSC-safe primitives)
+  beforeLabel?: string;
+  beforeValue?: string;
+  beforeSubtitle?: string;
+  afterLabel?: string;
+  afterValue?: string;
+  afterSubtitle?: string;
+  afterAccentVar?: string;
   delta?: string;       // "+79%", "12.4× faster" — shown on the arrow
   className?: string;
 }
 
-export function BeforeAfter({ before, after, delta, className = '' }: Props) {
+export function BeforeAfter({
+  before,
+  after,
+  beforeLabel,
+  beforeValue,
+  beforeSubtitle,
+  afterLabel,
+  afterValue,
+  afterSubtitle,
+  afterAccentVar,
+  delta,
+  className = '',
+}: Props) {
   const reduced = useReducedMotion();
-  const beforeAccent = before.accentVar ?? 'var(--color-neutral-500)';
-  const afterAccent = after.accentVar ?? 'var(--color-brand-indigo)';
+
+  // Resolve from either object-form or flat-string props
+  const bLabel = before?.label ?? beforeLabel ?? '';
+  const bValue = before?.value ?? beforeValue ?? '';
+  const bSubtitle = before?.subtitle ?? beforeSubtitle;
+  const aLabel = after?.label ?? afterLabel ?? '';
+  const aValue = after?.value ?? afterValue ?? '';
+  const aSubtitle = after?.subtitle ?? afterSubtitle;
+
+  const beforeAccent = before?.accentVar ?? 'var(--color-neutral-500)';
+  const afterAccent = after?.accentVar ?? afterAccentVar ?? 'var(--color-brand-indigo)';
 
   return (
     <figure
       className={`my-10 max-w-[var(--measure-body)] mx-auto ${className}`}
-      aria-label={`Comparison: ${before.label} ${before.value} versus ${after.label} ${after.value}`}
+      aria-label={`Comparison: ${bLabel} ${bValue} versus ${aLabel} ${aValue}`}
     >
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
         <motion.div
@@ -36,13 +66,13 @@ export function BeforeAfter({ before, after, delta, className = '' }: Props) {
           className="text-center"
         >
           <div className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
-            {before.label}
+            {bLabel}
           </div>
           <div className="mt-2 font-serif text-4xl" style={{ color: beforeAccent }}>
-            {before.value}
+            {bValue}
           </div>
-          {before.subtitle && (
-            <div className="mt-1 text-xs text-[var(--color-neutral-500)] font-sans">{before.subtitle}</div>
+          {bSubtitle && (
+            <div className="mt-1 text-xs text-[var(--color-neutral-500)] font-sans">{bSubtitle}</div>
           )}
         </motion.div>
 
@@ -66,13 +96,13 @@ export function BeforeAfter({ before, after, delta, className = '' }: Props) {
           className="text-center"
         >
           <div className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
-            {after.label}
+            {aLabel}
           </div>
           <div className="mt-2 font-serif text-4xl" style={{ color: afterAccent }}>
-            {after.value}
+            {aValue}
           </div>
-          {after.subtitle && (
-            <div className="mt-1 text-xs text-[var(--color-neutral-500)] font-sans">{after.subtitle}</div>
+          {aSubtitle && (
+            <div className="mt-1 text-xs text-[var(--color-neutral-500)] font-sans">{aSubtitle}</div>
           )}
         </motion.div>
       </div>

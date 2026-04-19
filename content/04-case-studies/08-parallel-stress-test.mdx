@@ -17,16 +17,11 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 > What happens when you push a framework designed for sequential work to handle four features simultaneously?
 
-<HeroMetric value="12.4×" label="parallel throughput vs baseline" accentVar="var(--skill-qa)" context={<>4 features shipped through 8 lifecycle phases in one 54-minute run. Zero build failures, zero test failures, zero merge conflicts across 31 subagent dispatches.</>} />
+<HeroMetric value="12.4×" label="parallel throughput vs baseline" accentVar="var(--skill-qa)" context="4 features shipped through 8 lifecycle phases in one 54-minute run. Zero build failures, zero test failures, zero merge conflicts across 31 subagent dispatches." />
 
 <ParallelGantt
   totalMinutes={54}
-  lanes={[
-    { feature: "Push Notifications", complexity: "Medium · permission handling", endedAt: 54, colorVar: "var(--skill-research)", phaseMark: "Testing 10/12" },
-    { feature: "App Store Assets", complexity: "Low · visual assets, config", endedAt: 54, colorVar: "var(--skill-marketing)", phaseMark: "Impl 5/10" },
-    { feature: "Import Training Plan", complexity: "High · multi-source parser, UI", endedAt: 54, colorVar: "var(--skill-dev)", phaseMark: "Testing 8/13" },
-    { feature: "Smart Reminders", complexity: "High · AI-powered, 5 types", endedAt: 54, colorVar: "var(--skill-analytics)", phaseMark: "Testing 7/14" },
-  ]}
+  lanesJson='[{"feature":"Push Notifications","complexity":"Medium · permission handling","endedAt":54,"colorVar":"var(--skill-research)","phaseMark":"Testing 10/12"},{"feature":"App Store Assets","complexity":"Low · visual assets, config","endedAt":54,"colorVar":"var(--skill-marketing)","phaseMark":"Impl 5/10"},{"feature":"Import Training Plan","complexity":"High · multi-source parser, UI","endedAt":54,"colorVar":"var(--skill-dev)","phaseMark":"Testing 8/13"},{"feature":"Smart Reminders","complexity":"High · AI-powered, 5 types","endedAt":54,"colorVar":"var(--skill-analytics)","phaseMark":"Testing 7/14"}]'
   caption="Four features advanced concurrently through eight lifecycle phases. All four landed at minute 54."
 />
 
@@ -75,8 +70,13 @@ After proving that the PM framework could deliver single features at high veloci
 | **Parallel (this test)** | **4** | **54 min** | **43.9** | **48.8** | **12.4x** |
 
 <BeforeAfter
-  before={{ label: "Serial v2.0 baseline", value: "390 min", subtitle: "1 feature" }}
-  after={{ label: "Parallel v5.1", value: "54 min", subtitle: "4 features", accentVar: "var(--skill-qa)" }}
+  beforeLabel="Serial v2.0 baseline"
+  beforeValue="390 min"
+  beforeSubtitle="1 feature"
+  afterLabel="Parallel v5.1"
+  afterValue="54 min"
+  afterSubtitle="4 features"
+  afterAccentVar="var(--skill-qa)"
   delta="12.4× throughput"
 />
 
@@ -94,16 +94,7 @@ After proving that the PM framework could deliver single features at high veloci
 | Testing | 17 min | 0 | 3 test files | 35/35 PASS |
 
 <DurationStack
-  segments={[
-    { label: "Research→PRD", minutes: 5, colorVar: "var(--skill-research)" },
-    { label: "PRD→Tasks", minutes: 4, colorVar: "var(--skill-pm-workflow)" },
-    { label: "Tasks→UX", minutes: 8, colorVar: "var(--skill-ux)" },
-    { label: "UX→Impl", minutes: 5, colorVar: "var(--skill-design)" },
-    { label: "Deep Impl", minutes: 4, colorVar: "var(--skill-dev)" },
-    { label: "UI+Orchestrator", minutes: 3, colorVar: "var(--skill-dev)" },
-    { label: "Analytics", minutes: 4, colorVar: "var(--skill-analytics)" },
-    { label: "Testing", minutes: 17, colorVar: "var(--skill-qa)" },
-  ]}
+  segmentsJson='[{"label":"Research→PRD","minutes":5,"colorVar":"var(--skill-research)"},{"label":"PRD→Tasks","minutes":4,"colorVar":"var(--skill-pm-workflow)"},{"label":"Tasks→UX","minutes":8,"colorVar":"var(--skill-ux)"},{"label":"UX→Impl","minutes":5,"colorVar":"var(--skill-design)"},{"label":"Deep Impl","minutes":4,"colorVar":"var(--skill-dev)"},{"label":"UI+Orchestrator","minutes":3,"colorVar":"var(--skill-dev)"},{"label":"Analytics","minutes":4,"colorVar":"var(--skill-analytics)"},{"label":"Testing","minutes":17,"colorVar":"var(--skill-qa)"}]'
   caption="Phase durations during the parallel run. Testing was 31% of the total — the longest phase."
 />
 
@@ -156,12 +147,7 @@ Decomposing the 12.4x headline:
 
 <RankedBars
   title="CU contribution per feature"
-  items={[
-    { label: "Push Notifications", value: 15.0, colorVar: "var(--skill-research)", valueSuffix: " CU" },
-    { label: "Import Training Plan", value: 12.0, colorVar: "var(--skill-dev)", valueSuffix: " CU" },
-    { label: "Smart Reminders", value: 11.9, colorVar: "var(--skill-analytics)", valueSuffix: " CU" },
-    { label: "App Store Assets", value: 5.0, colorVar: "var(--skill-marketing)", valueSuffix: " CU" },
-  ]}
+  itemsJson='[{"label":"Push Notifications","value":15.0,"colorVar":"var(--skill-research)","valueSuffix":" CU"},{"label":"Import Training Plan","value":12.0,"colorVar":"var(--skill-dev)","valueSuffix":" CU"},{"label":"Smart Reminders","value":11.9,"colorVar":"var(--skill-analytics)","valueSuffix":" CU"},{"label":"App Store Assets","value":5.0,"colorVar":"var(--skill-marketing)","valueSuffix":" CU"}]'
   caption="CU = Complexity Units. Higher-complexity features carried the load."
 />
 

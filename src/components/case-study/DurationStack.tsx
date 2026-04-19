@@ -9,14 +9,18 @@ interface Segment {
 }
 
 interface Props {
-  segments: Segment[];
+  // Object-form prop (for programmatic use)
+  segments?: Segment[];
+  // JSON string prop (for MDX inline use — RSC-safe primitive)
+  segmentsJson?: string;
   caption?: string;       // "v2.0 pilot — 9 phases, 5h total"
   showLegend?: boolean;   // default true
   className?: string;
 }
 
-export function DurationStack({ segments, caption, showLegend = true, className = '' }: Props) {
+export function DurationStack({ segments: segmentsProp, segmentsJson, caption, showLegend = true, className = '' }: Props) {
   const reduced = useReducedMotion();
+  const segments: Segment[] = segmentsProp ?? (segmentsJson ? JSON.parse(segmentsJson) : []);
   const total = segments.reduce((sum, s) => sum + s.minutes, 0);
 
   return (

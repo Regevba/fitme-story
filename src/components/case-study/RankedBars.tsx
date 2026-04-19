@@ -1,3 +1,5 @@
+'use client';
+
 interface BarItem {
   label: string;        // "Critical", "High", "Medium", "Low"
   value: number;        // e.g. 12, 49, 74, 50
@@ -6,13 +8,17 @@ interface BarItem {
 }
 
 interface Props {
-  items: BarItem[];
+  // Object-form prop (for programmatic use)
+  items?: BarItem[];
+  // JSON string prop (for MDX inline use — RSC-safe primitive)
+  itemsJson?: string;
   title?: string;
   caption?: string;
   className?: string;
 }
 
-export function RankedBars({ items, title, caption, className = '' }: Props) {
+export function RankedBars({ items: itemsProp, itemsJson, title, caption, className = '' }: Props) {
+  const items: BarItem[] = itemsProp ?? (itemsJson ? JSON.parse(itemsJson) : []);
   if (items.length === 0) return null;
   const max = Math.max(...items.map((i) => i.value));
   const sorted = [...items].sort((a, b) => b.value - a.value);

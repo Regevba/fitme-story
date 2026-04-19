@@ -11,13 +11,17 @@ interface Lane {
 }
 
 interface Props {
-  lanes: Lane[];
+  // Object-form prop (for programmatic use)
+  lanes?: Lane[];
+  // JSON string prop (for MDX inline use — RSC-safe primitive)
+  lanesJson?: string;
   totalMinutes: number;    // e.g. 54
   caption?: string;
   className?: string;
 }
 
-export function ParallelGantt({ lanes, totalMinutes, caption, className = '' }: Props) {
+export function ParallelGantt({ lanes: lanesProp, lanesJson, totalMinutes, caption, className = '' }: Props) {
+  const lanes: Lane[] = lanesProp ?? (lanesJson ? JSON.parse(lanesJson) : []);
   const reduced = useReducedMotion();
 
   return (

@@ -20,7 +20,7 @@ export const FrontmatterSchema = z.object({
       academic: z.string().optional(),
     })
     .optional(),
-  hero_component: z.enum(['BlueprintOverlay', 'ChipAffinityMap', 'PhaseTimingChart']).optional(),
+  hero_component: z.enum(['BlueprintOverlay', 'ChipAffinityMap', 'PhaseTimingChart', 'ParallelGantt']).optional(),
   related: z.array(z.string()).optional(),
   reading_time_min: z.number().optional(),
   date: z.string().optional(),
