@@ -1,7 +1,7 @@
 ---
 title: When We Stopped Estimating and Started Measuring
 slug: measurement-v6
-tier: standard
+tier: flagship
 timeline_position:
   version: '6.0'
   order: 11
@@ -15,6 +15,8 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 # When We Stopped Estimating and Started Measuring
 
 > The case study where the measurement infrastructure measured itself being built -- and why self-referential bootstrapping is both the hardest and most honest test of an instrumentation system.
+
+<HeroMetric value="7/9" label="measurement DVs now deterministic" accentVar="var(--skill-analytics)" />
 
 ## Context
 
@@ -52,6 +54,18 @@ The Readiness v2 regression (-18% vs baseline) had an error band of -6% to -29%.
 
 **CU v2 continuous factors.** View count tiers instead of binary "has UI." Type count tiers instead of binary "new model." Design iteration scope tiers (text, layout, interaction, full redesign) instead of flat +0.15 per round. Architectural novelty factor for first-of-kind work.
 
+<FlowDiagram
+  nodesJson={JSON.stringify([
+    { label: "Phase timing", sublabel: "per-phase start/end", colorVar: "var(--skill-pm-workflow)" },
+    { label: "Cache tracking", sublabel: "L1/L2/L3 counters", colorVar: "var(--skill-research)" },
+    { label: "Eval coverage gate", sublabel: "AI-feature blocker", colorVar: "var(--skill-qa)" },
+    { label: "Monitoring auto-sync", sublabel: "phase-transition trigger", colorVar: "var(--skill-ops)" },
+    { label: "Token counting", sublabel: "tokenizer, not word-count", colorVar: "var(--skill-analytics)" },
+    { label: "CU v2", sublabel: "continuous factors", colorVar: "var(--skill-dev)" }
+  ])}
+  caption="Six measurement primitives added in v6.0. All deterministic, all instrumented at source."
+/>
+
 ---
 
 ## The Self-Referential Test
@@ -67,6 +81,17 @@ This feature is its own proof of concept. The phase timing data recorded during 
 | Monitoring freshness | Manual updates | Phase-transition auto-sync | Deterministic |
 | CU reproducibility | Binary factors (subjective) | Continuous factors (objective) | Deterministic |
 | Planning velocity | Derived from estimated phase times | Derived from measured phase times | Deterministic |
+
+<BeforeAfter
+  beforeLabel="Pre-v6.0 wall-time"
+  beforeValue="±22.5 min"
+  beforeSubtitle="estimated from commit timestamps"
+  afterLabel="v6.0 instrumented"
+  afterValue="±0 min"
+  afterSubtitle="deterministic phase-timing log"
+  afterAccentVar="var(--skill-analytics)"
+  delta="100% error-band elimination"
+/>
 
 **7 of 9 dependent variables now have deterministic instrumentation.** Target was 8/9. Kill criteria was 5/9.
 
