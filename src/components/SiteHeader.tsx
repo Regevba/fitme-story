@@ -6,6 +6,7 @@ import { Moon, Sun } from 'lucide-react';
 
 const NAV = [
   { href: '/case-studies', label: 'Case Studies' },
+  { href: '/pm-flow', label: 'PM Flow' },
   { href: '/framework', label: 'Framework' },
   { href: '/research', label: 'Research' },
   { href: '/design-system', label: 'Design System' },
