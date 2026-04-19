@@ -48,6 +48,16 @@ export default async function CaseStudiesIndex() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
       <h1 className="font-serif text-[length:var(--text-display-lg)] mb-12">Case studies</h1>
+      <section className="mb-10 rounded-lg border border-[var(--color-brand-coral)] bg-[color-mix(in_srgb,var(--color-brand-coral)_8%,transparent)] p-5 font-sans text-sm">
+        <p className="font-semibold text-[var(--color-brand-coral)] uppercase tracking-wider text-xs mb-2">
+          Independent audit in progress
+        </p>
+        <p className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+          All case studies and the site&apos;s source code are currently being reviewed by an independent external AI model
+          as a neutral second pass — checking accuracy, methodology, and honesty. Results and the reviewer&apos;s findings will
+          be published here when they come in.
+        </p>
+      </section>
       <Section title="Flagship" items={flagship} />
       <Section title="Standard" items={standard} />
       <Section title="Light" items={light} />
