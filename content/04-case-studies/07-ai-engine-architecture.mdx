@@ -1,7 +1,7 @@
 ---
 title: First Feature Under the New Architecture — AI Engine Adaptation
 slug: ai-engine-architecture
-tier: standard
+tier: flagship
 timeline_position:
   version: '5.1'
   order: 7
@@ -15,6 +15,8 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 # First Feature Under the New Architecture — AI Engine Adaptation
 
 > What happens when the patterns you built for your development process turn out to be the same patterns your product needs?
+
+<HeroMetric value="45%" label="cache hit rate — first framework-to-product pattern transfer" accentVar="var(--skill-analytics)" />
 
 ## Context
 
@@ -49,6 +51,18 @@ The research phase completed in 15 minutes -- not because the problem was simple
 | Testing | 10 min | 197 tests pass, 1 test needed parameter fix |
 | Review + Merge | 5 min | Shipped as PR #79 |
 | **Total** | **~90 min** | Research through merge |
+
+<DurationStack
+  segmentsJson={JSON.stringify([
+    { label: "Research", minutes: 15, colorVar: "var(--skill-research)" },
+    { label: "PRD", minutes: 15, colorVar: "var(--skill-pm-workflow)" },
+    { label: "Tasks", minutes: 10, colorVar: "var(--skill-pm-workflow)" },
+    { label: "Implementation", minutes: 35, colorVar: "var(--skill-dev)" },
+    { label: "Testing", minutes: 10, colorVar: "var(--skill-qa)" },
+    { label: "Review+Merge", minutes: 5, colorVar: "var(--skill-release)" }
+  ])}
+  caption="13 tasks, 17 files, 986 insertions — delivered in 90 minutes end-to-end. Implementation was the longest phase at 39% of total time."
+/>
 
 **Mid-session scope expansion:** The user proposed goal-aware metric prioritization during the PRD review. This was added as two new requirements and a new data model within the same session -- no rework needed, no phase restart. The framework absorbed scope changes gracefully because the adapter pattern was flexible enough to accommodate new input dimensions.
 
@@ -103,6 +117,19 @@ All three were caught on the first build attempt and fixed immediately. Zero tes
 | Goal-aware weights pattern | L1 | ~5 min |
 | Insight card UI structure | L1 | ~3 min |
 | Design system badge pattern | L1 | ~2 min |
+
+<RankedBars
+  title="Cache time saved per reused framework pattern"
+  itemsJson={JSON.stringify([
+    { label: "Adapter protocol pattern", value: 10, colorVar: "var(--skill-dev)", valueSuffix: " min" },
+    { label: "Validation gate model", value: 8, colorVar: "var(--skill-qa)", valueSuffix: " min" },
+    { label: "Analytics naming convention", value: 5, colorVar: "var(--skill-analytics)", valueSuffix: " min" },
+    { label: "Goal-aware weights pattern", value: 5, colorVar: "var(--skill-pm-workflow)", valueSuffix: " min" },
+    { label: "Insight card UI structure", value: 3, colorVar: "var(--skill-design)", valueSuffix: " min" },
+    { label: "Design system badge pattern", value: 2, colorVar: "var(--skill-ux)", valueSuffix: " min" }
+  ])}
+  caption="33 of the 90 minutes came from cache hits — 37% of build time was patterns reused from earlier PM-framework work."
+/>
 
 ---
 
