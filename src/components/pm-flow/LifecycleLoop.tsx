@@ -115,6 +115,49 @@ export function LifecycleLoop() {
           </marker>
         </defs>
 
+        {/* Outer ring — three feedback-layer skills (cx, ops, marketing) as arc segments */}
+        {(() => {
+          const OUTER_SKILLS = ['cx', 'ops', 'marketing'] as const;
+          return OUTER_SKILLS.map((slug, i) => {
+            const s = getSkill(slug);
+            const totalArcSpan = (2 * Math.PI) / 3; // each segment gets 120° of arc
+            const arcStart = -Math.PI / 2 + i * totalArcSpan + 0.15;
+            const arcEnd = arcStart + totalArcSpan - 0.3; // tiny gap between segments
+            const startPt = polar(CENTER, CENTER, OUTER_RING_RADIUS, arcStart);
+            const endPt = polar(CENTER, CENTER, OUTER_RING_RADIUS, arcEnd);
+            const largeArcFlag = arcEnd - arcStart > Math.PI ? 1 : 0;
+            const arcPath = `M ${startPt.x} ${startPt.y} A ${OUTER_RING_RADIUS} ${OUTER_RING_RADIUS} 0 ${largeArcFlag} 1 ${endPt.x} ${endPt.y}`;
+
+            const labelAngle = (arcStart + arcEnd) / 2;
+            const labelPos = polar(CENTER, CENTER, OUTER_RING_RADIUS + 18, labelAngle);
+
+            return (
+              <g
+                key={slug}
+                role="link"
+                tabIndex={0}
+                aria-label={`${s.displayName} — jump to always-on row`}
+                onClick={() => scrollToSection(`always-on-${slug}`)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToSection(`always-on-${slug}`); }}
+                className="cursor-pointer focus:outline-none"
+              >
+                <path d={arcPath} stroke={s.accent} strokeWidth="28" fill="none" strokeLinecap="round" opacity="0.8" />
+                <text
+                  x={labelPos.x}
+                  y={labelPos.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="fill-[var(--color-neutral-700)] dark:fill-[var(--color-neutral-300)] font-sans"
+                  fontSize="13"
+                  fontWeight="600"
+                >
+                  {s.displayName}
+                </text>
+              </g>
+            );
+          });
+        })()}
+
         {/* Center label */}
         <text
           x={CENTER}
