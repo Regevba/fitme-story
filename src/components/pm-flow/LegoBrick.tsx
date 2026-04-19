@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getSkill } from '@/lib/skill-ecosystem';
 import type { Skill, SkillSlug } from '@/lib/skill-ecosystem';
@@ -13,34 +13,47 @@ interface Props {
   onPickSkill: (slug: SkillSlug) => void; // clicking an invokes/invoked-by chip
 }
 
-// Opening a brick expands it to take the full grid row ("center stage") while
-// Framer's `layout` prop animates the surrounding bricks into their new
-// positions. No 3D flip, no absolute-positioned back face — just grid
-// reflow + content reveal.
+// Open/close animation sequencing:
+//
+// Open:  isOpen=true → expanded=true immediately → container expands (CSS
+//        grid snap via col-span-full) → AnimatePresence enter fades details
+//        in after ~150ms (waits for container + sibling reflow to settle).
+//
+// Close: isOpen=false → AnimatePresence exit starts (details animate both
+//        height AND opacity to 0 over ~250ms) → onExitComplete fires →
+//        expanded=false → container collapses → siblings reflow.
+//
+// The key to clean timing is that the container stays wide (expanded=true)
+// throughout the details' exit animation. Because the details animate their
+// OWN height to 0, the container's natural height shrinks with them — so
+// there's no moment where a wide-but-empty container snaps narrow.
 export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
   const reduced = useReducedMotion();
   const [hovered, setHovered] = useState(false);
+  const [expanded, setExpanded] = useState(isOpen);
+
+  useEffect(() => {
+    if (isOpen) setExpanded(true);
+    // Close case is handled by AnimatePresence onExitComplete.
+  }, [isOpen]);
 
   const hoverTintStyle =
-    hovered && !isOpen ? { backgroundColor: `${skill.accent}18` } : {};
+    hovered && !expanded ? { backgroundColor: `${skill.accent}18` } : {};
 
   return (
     <motion.div
       // layout="position" animates ONLY translate (for sibling reflow),
-      // never scale — so the active brick's size change is an instant CSS
-      // grid snap and content inside is never horizontally/vertically
-      // stretched. Other bricks slide into their new positions smoothly.
+      // never scale — active brick never gets its content stretched.
       layout="position"
       transition={{ type: 'spring', stiffness: 300, damping: 34 }}
       className={`relative overflow-hidden rounded-md ${
-        isOpen ? 'col-span-full z-10' : ''
+        expanded ? 'col-span-full z-10' : ''
       }`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Accent stripe lives OUTSIDE the scaling content so it doesn't smear
-          across the box during close. It's a positioned element pinned to
-          the left edge of the outer (layout-animated) wrapper. */}
+      {/* Accent stripe lives outside the button so its width stays fixed
+          regardless of any transforms on inner content. */}
       <span
         aria-hidden
         className="absolute left-0 top-0 bottom-0 w-1.5 pointer-events-none"
@@ -51,13 +64,13 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
         onClick={onToggle}
         aria-expanded={isOpen}
         className={`w-full text-left rounded-md border bg-white dark:bg-[var(--color-neutral-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-indigo)] overflow-hidden transition-shadow pl-1.5 ${
-          isOpen
+          expanded
             ? 'border-transparent shadow-xl'
             : 'border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]'
         }`}
         style={hoverTintStyle}
       >
-        <div className={isOpen ? 'p-6 md:p-8' : 'p-4'}>
+        <div className={expanded ? 'p-6 md:p-8' : 'p-4'}>
           <div className="flex items-center gap-2 font-sans text-xs">
             <span
               className="inline-block w-2.5 h-2.5 rounded-full"
@@ -71,7 +84,7 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
                 ? 'Outer · feedback'
                 : `Owns ${skill.phaseOwnership.join(', ')}`}
             </span>
-            {isOpen && (
+            {expanded && (
               <span
                 aria-hidden
                 className="ml-auto uppercase tracking-wider text-[var(--color-neutral-500)]"
@@ -83,7 +96,7 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
 
           <div
             className={`mt-1 font-serif leading-tight ${
-              isOpen ? 'text-2xl md:text-3xl' : 'text-lg'
+              expanded ? 'text-2xl md:text-3xl' : 'text-lg'
             }`}
           >
             {skill.displayName}
@@ -91,37 +104,53 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
 
           <p
             className={`mt-2 text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] ${
-              isOpen ? 'text-base md:text-lg max-w-[var(--measure-body)]' : 'text-xs'
+              expanded ? 'text-base md:text-lg max-w-[var(--measure-body)]' : 'text-xs'
             }`}
           >
             {skill.oneLiner}
           </p>
 
-          <AnimatePresence initial={false}>
+          <AnimatePresence
+            initial={false}
+            onExitComplete={() => {
+              // Only collapse if the parent still wants it closed. If the
+              // user re-opened mid-exit, isOpen will already be true and
+              // we keep expanded=true.
+              if (!isOpen) setExpanded(false);
+            }}
+          >
             {isOpen && (
               <motion.div
                 key="details"
                 initial={
                   reduced
-                    ? false
-                    : { opacity: 0, y: 8, transition: { duration: 0.35, delay: 0.15 } }
+                    ? { opacity: 1, height: 'auto' }
+                    : { opacity: 0, height: 0 }
                 }
                 animate={{
                   opacity: 1,
-                  y: 0,
-                  transition: { duration: reduced ? 0 : 0.35, delay: reduced ? 0 : 0.15 },
+                  height: 'auto',
+                  transition: {
+                    height: { duration: reduced ? 0 : 0.3, delay: reduced ? 0 : 0.1 },
+                    opacity: { duration: reduced ? 0 : 0.35, delay: reduced ? 0 : 0.2 },
+                  },
                 }}
-                // Fast exit with no delay — details vanish before the
-                // container shrinks so the grid reflow doesn't drag a
-                // scaled-down copy of the content across the row.
+                // On close: shrink height and fade opacity together. The
+                // container stays expanded=true until this finishes, so the
+                // grid cell's natural height follows the details down to 0
+                // smoothly — no mid-air snap.
                 exit={{
                   opacity: 0,
-                  y: 0,
-                  transition: { duration: reduced ? 0 : 0.12 },
+                  height: 0,
+                  transition: {
+                    height: { duration: reduced ? 0 : 0.25 },
+                    opacity: { duration: reduced ? 0 : 0.18 },
+                  },
                 }}
-                className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 text-sm"
+                style={{ overflow: 'hidden' }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 text-sm"
               >
-                <div>
+                <div className="mt-6">
                   <SectionLabel>Purpose</SectionLabel>
                   <p className="mt-1 text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
                     {skill.purpose}
@@ -142,7 +171,7 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
                   </div>
                 </div>
 
-                <div>
+                <div className="mt-6">
                   {skill.invokes.length > 0 && (
                     <div>
                       <SectionLabel>Invokes</SectionLabel>

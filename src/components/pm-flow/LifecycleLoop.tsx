@@ -3,10 +3,9 @@
 import { PHASES } from '@/lib/lifecycle-phases';
 import { getSkill, type SkillSlug } from '@/lib/skill-ecosystem';
 
-const SVG_SIZE = 720;
+const SVG_SIZE = 640;
 const CENTER = SVG_SIZE / 2;
 const INNER_RING_RADIUS = 220;
-const OUTER_RING_RADIUS = 320;
 
 // Convert a phase's order (0..9) to an angle on the clock face.
 // P0 sits at 12 o'clock (-90deg), increasing clockwise.
@@ -24,19 +23,23 @@ function scrollToSection(hash: string) {
 }
 
 export function LifecycleLoop() {
-
   return (
-    <div className="my-8 max-w-[720px] mx-auto" aria-label="Product-development lifecycle loop — 10 phases + 3 feedback-layer skills">
+    <div
+      className="my-8 max-w-[640px] mx-auto"
+      aria-label="Product-development lifecycle loop — 10 phases"
+    >
       <span className="sr-only">
-        Product-development lifecycle loop. Ten phases arranged in a clockwise circle — Research, PRD, Tasks, UX/Design, Implement, Test, Review, Merge, Docs, Learn — with a feedback arc closing the loop from Learn back to Research. Outer ring shows three feedback-layer skills that continuously feed information into the cycle: cx, ops, and marketing.
+        Product-development lifecycle loop. Ten phases arranged in a clockwise circle
+        — Research, PRD, Tasks, UX/Design, Implement, Test, Review, Merge, Docs, Learn
+        — with the circle itself communicating how the cycle closes from Learn back to
+        Research.
       </span>
       <svg
         role="img"
-        aria-label="Product-development lifecycle loop — 10 phases with a feedback arc and 3 outer-ring feedback-layer skills"
+        aria-label="Product-development lifecycle loop — 10 phases"
         viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
         className="w-full h-auto"
       >
-
         {/* Inner ring dashed guide circle */}
         <circle
           cx={CENTER}
@@ -49,7 +52,7 @@ export function LifecycleLoop() {
           opacity="0.5"
         />
 
-        {/* Inner ring — phase pips */}
+        {/* Phase pips */}
         {PHASES.map((phase) => {
           const angle = phaseAngle(phase.order);
           const { x, y } = polar(CENTER, CENTER, INNER_RING_RADIUS, angle);
@@ -64,7 +67,9 @@ export function LifecycleLoop() {
               tabIndex={0}
               aria-label={`Phase ${phase.id} ${phase.name} — jump to column`}
               onClick={() => scrollToSection(`column-${phase.id}`)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToSection(`column-${phase.id}`); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') scrollToSection(`column-${phase.id}`);
+              }}
               className="cursor-pointer focus:outline-none"
               style={{ outlineOffset: 4 }}
             >
@@ -82,51 +87,6 @@ export function LifecycleLoop() {
             </g>
           );
         })}
-
-        {/* Outer ring — three feedback-layer skills (cx, ops, marketing) as arc segments.
-            The circular layout already communicates the feedback loop; a separate
-            P9→P0 arrow is redundant. Center subtitle carries the explicit phrasing. */}
-        {(() => {
-          const OUTER_SKILLS = ['cx', 'ops', 'marketing'] as const;
-          return OUTER_SKILLS.map((slug, i) => {
-            const s = getSkill(slug);
-            const totalArcSpan = (2 * Math.PI) / 3; // each segment gets 120° of arc
-            const arcStart = -Math.PI / 2 + i * totalArcSpan + 0.15;
-            const arcEnd = arcStart + totalArcSpan - 0.3; // tiny gap between segments
-            const startPt = polar(CENTER, CENTER, OUTER_RING_RADIUS, arcStart);
-            const endPt = polar(CENTER, CENTER, OUTER_RING_RADIUS, arcEnd);
-            const largeArcFlag = arcEnd - arcStart > Math.PI ? 1 : 0;
-            const arcPath = `M ${startPt.x} ${startPt.y} A ${OUTER_RING_RADIUS} ${OUTER_RING_RADIUS} 0 ${largeArcFlag} 1 ${endPt.x} ${endPt.y}`;
-
-            const labelAngle = (arcStart + arcEnd) / 2;
-            const labelPos = polar(CENTER, CENTER, OUTER_RING_RADIUS + 18, labelAngle);
-
-            return (
-              <g
-                key={slug}
-                role="link"
-                tabIndex={0}
-                aria-label={`${s.displayName} — jump to always-on row`}
-                onClick={() => scrollToSection(`always-on-${slug}`)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') scrollToSection(`always-on-${slug}`); }}
-                className="cursor-pointer focus:outline-none"
-              >
-                <path d={arcPath} stroke={s.accent} strokeWidth="28" fill="none" strokeLinecap="round" opacity="0.8" />
-                <text
-                  x={labelPos.x}
-                  y={labelPos.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="fill-[var(--color-neutral-700)] dark:fill-[var(--color-neutral-300)] font-sans"
-                  fontSize="13"
-                  fontWeight="600"
-                >
-                  {s.displayName}
-                </text>
-              </g>
-            );
-          });
-        })()}
 
         {/* Center label */}
         <text
