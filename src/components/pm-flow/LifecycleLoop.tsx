@@ -103,6 +103,16 @@ export function LifecycleLoop() {
               animate={reduced ? { opacity: 1 } : { opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             />
+            <text
+              x={cx}
+              y={cy - 12}
+              textAnchor="middle"
+              className="fill-[var(--color-brand-coral)] font-sans"
+              fontSize="13"
+              fontWeight="600"
+            >
+              feedback flows back · next cycle begins
+            </text>
           );
         })()}
 
