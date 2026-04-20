@@ -103,17 +103,6 @@ export default async function CaseStudiesIndex() {
         </p>
       </header>
 
-      <section className="mb-12 rounded-lg border border-[var(--color-brand-coral)] bg-[color-mix(in_srgb,var(--color-brand-coral)_8%,transparent)] p-5 font-sans text-sm">
-        <p className="font-semibold text-[var(--color-brand-coral)] uppercase tracking-wider text-xs mb-2">
-          Independent audit in progress
-        </p>
-        <p className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          All case studies and the site&apos;s source code are currently being reviewed by an
-          independent external AI model as a neutral second pass — checking accuracy, methodology,
-          and honesty. Results and the reviewer&apos;s findings will be published here when they come in.
-        </p>
-      </section>
-
       {/* ============ INFOGRAPHIC — framework progression strip ============
           Horizontal color-coded timeline. Each pin jumps to its milestone
           card below; the pin's color matches the card's leading color bar,
