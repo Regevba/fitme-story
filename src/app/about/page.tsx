@@ -20,7 +20,7 @@ export default function AboutPage() {
         <p>
           I built an AI-orchestrated PM workflow — <code>/pm-workflow</code> — to enforce the planning discipline I kept
           abandoning. Then the workflow itself started evolving. Caches, eval layers, dispatch intelligence, measurement.
-          By v6.1 it was routing to hardware-aware models.
+          By v7.0 it was routing to hardware-aware models.
         </p>
         <p>
           This site is the guided tour of that process. All docs are from real shipped work. All metrics are measured,

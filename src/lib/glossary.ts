@@ -136,8 +136,8 @@ export const GLOSSARY: GlossaryEntry[] = [
     term: 'HADF (Hardware-Aware Dispatch Framework)',
     aliases: ['HADF', 'Hardware-Aware Dispatch', 'hardware-aware dispatch'],
     category: 'framework',
-    tooltip: "Framework v6.1: detects the chip it's running on and adjusts dispatch accordingly.",
-    full: "HADF extends the dispatch layer with a hardware awareness stage. It detects the chip/runtime fingerprint via OS APIs and Mahalanobis distance matching against 17 chip profiles + 7 cloud signatures, then adjusts model routing and cache strategy for the detected environment. Ships as framework version 6.1.",
+    tooltip: "Framework v7.0: detects the chip it's running on and adjusts dispatch accordingly.",
+    full: "HADF extends the dispatch layer with a hardware awareness stage. It detects the chip/runtime fingerprint via OS APIs and Mahalanobis distance matching against 17 chip profiles + 7 cloud signatures, then adjusts model routing and cache strategy for the detected environment. Ships as framework version 7.0.",
   },
   {
     slug: 'complexity-units',
@@ -227,7 +227,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     aliases: ['audit findings', 'findings'],
     category: 'methodology',
     tooltip: 'Defects and gaps surfaced during full-system audits — tracked, prioritized, fixed.',
-    full: 'When the framework audits itself (every few months), it produces findings: typed issues with severity (critical / high / medium / low) and domain. The v6.1 audit produced 185 findings, 12 critical. Every finding is publicly tracked, addressed, and closed out in a sprint.',
+    full: 'When the framework audits itself (every few months), it produces findings: typed issues with severity (critical / high / medium / low) and domain. The v7.0 audit produced 185 findings, 12 critical. Every finding is publicly tracked, addressed, and closed out in a sprint.',
   },
 
   // --- Web vitals ---

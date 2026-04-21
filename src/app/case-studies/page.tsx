@@ -64,7 +64,7 @@ const MILESTONES: Array<{
   },
   {
     slug: 'hadf',
-    version: 'v6.1',
+    version: 'v7.0',
     shortLabel: 'Hardware-aware',
     impact: '17 chip profiles',
     hook: 'The framework learned to detect the machine it runs on. 17 chip profiles, 7 cloud signatures, dispatch routing that adapts to hardware — little-core for mechanical work, big-core for reasoning, cloud only when locally infeasible.',
@@ -158,7 +158,7 @@ export default async function CaseStudiesIndex() {
               timestamps (±15–30 min), cache hit rates inferred from narrative.{' '}
               <strong>v6.0</strong> — instrumented: per-phase timestamps, L1/L2/L3 cache counters,
               tokenizer-based overhead measurement, mandatory eval-coverage gate.{' '}
-              <strong>v6.1 onwards</strong> — continuous factors: view-count tiers replaced binary
+              <strong>v7.0 onwards</strong> — continuous factors: view-count tiers replaced binary
               &quot;has UI&quot;, architectural-novelty replaced binary &quot;new model&quot;.
             </dd>
           </div>
@@ -187,7 +187,7 @@ export default async function CaseStudiesIndex() {
               How we analyzed results
             </dt>
             <dd>
-              Three comparison axes: framework-era averages (v2.0 → v6.1), work-type segmentation
+              Three comparison axes: framework-era averages (v2.0 → v7.0), work-type segmentation
               (refactor vs feature vs enhancement), and execution-mode (serial vs parallel).
               Trend fitted as a power law — R²&nbsp;=&nbsp;0.87 under v2 factors. Rolling
               baselines replaced the single anchor to detect plateaus. Regressions documented

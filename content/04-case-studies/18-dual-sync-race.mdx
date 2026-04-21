@@ -1,7 +1,7 @@
 ---
 title: The Dual-Sync Race — Two Backends, One Last-Writer-Wins Silence
 slug: dual-sync-race
-upstream_path: docs/case-studies/meta-analysis-full-system-audit-v6.1-case-study.md
+upstream_path: docs/case-studies/meta-analysis-full-system-audit-v7.0-case-study.md
 tier: light
 timeline_position:
   version: '6.1'
@@ -20,7 +20,7 @@ persona_emphasis:
 
 FitMe started on CloudKit (user-private iCloud sync for cardio logs and photos), then added Supabase for cross-device logins, onboarding data, and structured records. Both backends worked. Both shipped. Neither one ever visibly lost data during internal testing.
 
-Then the v6.1 full-system audit ran a risk-weighted deep dive against the dual-sync architecture -- `SupabaseSyncService.swift` and `CloudKitSyncService.swift` -- and produced 13 findings, 3 of them critical. The headline finding (DEEP-SYNC-001) had been sitting in production for four months.
+Then the v7.0 full-system audit ran a risk-weighted deep dive against the dual-sync architecture -- `SupabaseSyncService.swift` and `CloudKitSyncService.swift` -- and produced 13 findings, 3 of them critical. The headline finding (DEEP-SYNC-001) had been sitting in production for four months.
 
 ---
 

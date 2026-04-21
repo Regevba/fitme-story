@@ -31,7 +31,7 @@ export const ORIGIN_BEATS: OriginBeat[] = [
     visual: { kind: 'metric', value: '7', label: 'framework versions' },
   },
   {
-    title: 'By v6.1 it was measuring itself and routing to hardware-aware models.',
+    title: 'By v7.0 it was measuring itself and routing to hardware-aware models.',
     body: "Phase timing instrumented. Cache hit rates tracked. Chip-affinity maps for model selection. The tool had learned to profile its own work.",
     visual: { kind: 'metric', value: '17', label: 'chip profiles' },
   },

@@ -38,7 +38,7 @@ Three templates render case studies based on tier:
 
 [src/components/home/Timeline.tsx](src/components/home/Timeline.tsx) renders a three-mode timeline pill:
 
-- **Versions** — 8 framework versions (v2.0 → v6.1)
+- **Versions** — 8 framework versions (v2.0 → v7.0)
 - **Case studies** — every case study with a `timeline_position`, ordered
 - **Features** — curated FitMe product & framework features, each linked to its canonical case study. Defined in the `FEATURES` array in [src/lib/timeline.ts](src/lib/timeline.ts)
 
@@ -53,7 +53,7 @@ Three templates render case studies based on tier:
   - [20-xctwaiter-abort-retry.mdx](content/04-case-studies/20-xctwaiter-abort-retry.mdx) — first M-series feature where attempt 1 was aborted
 - Added a **"Read the full case study on GitHub"** CTA on all 22 curated case studies via the `upstream_path` frontmatter field and a shared [FullCaseStudyLink.tsx](src/components/case-study/FullCaseStudyLink.tsx) component.
 - Redesigned the `PhaseTimingChart` hero on the onboarding pilot case study — labels moved out of the bars into a clear legend grid below (fixes overlap on narrow viewports).
-- Fixed stale HADF framework-version label on the case-studies index (`v7.0` → `v6.1`) and the matching `v7` reference in the Lego PM-Flow deep-dive.
+- Fixed stale HADF framework-version label on the case-studies index (`v7.0` → `v7.0`) and the matching `v7` reference in the Lego PM-Flow deep-dive.
 - Bumped `buildTimeline('cases')` test expectation from 13 → 17 and relaxed the `getByTier('flagship')` count assertion.
 
 ## Learn more
