@@ -101,15 +101,18 @@ export default function TrustPage() {
               </dd>
             </div>
             <div>
-              <dt className="font-semibold">Open corrections</dt>
+              <dt className="font-semibold">Corrections (same-day)</dt>
               <dd>
-                3 cited PRs don&apos;t resolve — tracked at{' '}
+                Initial &ldquo;3 broken PR citations&rdquo; finding was a false positive
+                propagated from the input meta-analysis — all three were GitHub issues,
+                not PRs. Correction appended to the audit; issue{' '}
                 <a
                   href="https://github.com/Regevba/FitTracker2/issues/138"
                   className="underline"
                 >
-                  FitTracker2 #138
-                </a>
+                  #138
+                </a>{' '}
+                closed with full explanation.
               </dd>
             </div>
           </dl>

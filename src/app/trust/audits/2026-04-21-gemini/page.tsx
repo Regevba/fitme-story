@@ -47,15 +47,23 @@ export default function GeminiAudit20260421Page() {
         </dl>
 
         <div className="mt-6 rounded border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-600 dark:bg-amber-950 dark:text-amber-200">
-          <p className="font-semibold">Published with known open corrections.</p>
+          <p className="font-semibold">
+            Correction (same-day): the &ldquo;3 broken PR citations&rdquo; finding was a
+            false positive.
+          </p>
           <p className="mt-2">
-            Gemini confirmed that three PR numbers cited as evidence in shipped case studies
-            (#51, #69, #70) do not resolve on GitHub. Root-cause investigation is tracked at{' '}
+            Gemini was supplied a meta-analysis that had flagged #51, #69, #70 as
+            non-existent PRs. Same-day verification shows all three are real{' '}
+            <strong>GitHub issues</strong>, not PRs. The structural meta-analysis used a
+            liberal <code>#\d+</code> regex and conflated issue citations with PR
+            citations; Gemini faithfully repeated the error because it was given the
+            flawed meta-analysis as input. See §10 below for the full correction.{' '}
             <a href={GITHUB_ISSUE_URL} className="underline">
-              FitTracker2 issue #138
-            </a>
-            . This page ships before that investigation concludes; corrections will be
-            appended when they land rather than the finding being silently edited out.
+              Issue #138
+            </a>{' '}
+            has been closed with the full explanation. The original Gemini text in
+            §§ 1–9 below is preserved unchanged — this site publishes audits verbatim
+            and appends corrections rather than silently editing.
           </p>
         </div>
 
@@ -576,6 +584,97 @@ export default function GeminiAudit20260421Page() {
             provided in a prompt; it did not run the framework on an independent task.
           </li>
         </ul>
+
+        <h2>10. Corrections (appended 2026-04-21 after initial publication)</h2>
+        <p>
+          <strong>
+            The &ldquo;three PR citations don&apos;t resolve&rdquo; finding is wrong.
+          </strong>{' '}
+          Gemini correctly flagged it based on what it was told, but the underlying claim
+          came from a false positive in the structural meta-analysis Gemini was supplied
+          with.
+        </p>
+
+        <h3>What actually exists</h3>
+        <p>All three numbers are real GitHub issues, not PRs:</p>
+        <ul>
+          <li>
+            <a href="https://github.com/Regevba/FitTracker2/issues/51">Issue #51</a>{' '}
+            &ldquo;Onboarding Flow&rdquo; (CLOSED) — cited in{' '}
+            <code>pm-workflow-showcase-onboarding.md</code> as{' '}
+            <code>regevba/fittracker2#51</code>
+          </li>
+          <li>
+            <a href="https://github.com/Regevba/FitTracker2/issues/69">Issue #69</a>{' '}
+            &ldquo;Rest Day — Positive Experience Redesign&rdquo; (OPEN) — cited in{' '}
+            <code>training-plan-v2-case-study.md</code> as <code>issue #69</code>
+          </li>
+          <li>
+            <a href="https://github.com/Regevba/FitTracker2/issues/70">Issue #70</a>{' '}
+            &ldquo;Advanced Data Fusion + AI Exercise Recommendations&rdquo; (OPEN) —
+            cited in <code>training-plan-v2-case-study.md</code> as <code>issue #70</code>
+          </li>
+        </ul>
+        <p>
+          <code>gh issue view</code> confirms all three resolve. No case-study correction
+          is needed for the citations themselves.
+        </p>
+
+        <h3>Who was wrong, and what this means</h3>
+        <ul>
+          <li>
+            <strong>Claude&apos;s structural meta-analysis was the source of the error.</strong>{' '}
+            Its mechanical PR extraction used a liberal <code>#\d+</code> regex and
+            checked every match against <code>gh pr list</code>, conflating issue
+            citations with PR citations.
+          </li>
+          <li>
+            <strong>Gemini&apos;s audit faithfully reproduced the error</strong> because
+            the flawed meta-analysis was fed to it as input. Gemini did not independently
+            re-run the <code>gh pr view</code> queries — it cited the meta-analysis&apos;s
+            finding as evidence.
+          </li>
+          <li>
+            <strong>Gemini&apos;s meta-evaluation was still correct in form:</strong>{' '}
+            &ldquo;demonstrating factual errors in the evidence cited for at least two
+            case studies (S01, S19) weakens the original claims.&rdquo; If the finding
+            had been real, that critique would stand. Because the finding itself was
+            flawed, the actual weakness is in the meta-analysis&apos;s precision —
+            something Gemini could not have detected without re-running the queries.
+          </li>
+        </ul>
+
+        <h3>What was actually verified vs. what wasn&apos;t</h3>
+        <p>
+          Gemini&apos;s other structural findings — <code>state.json</code> schema drift,
+          the audit-v2-gN stub cluster, the dispatch-pattern gap, the
+          95%-in-three-weeks observation, the showcase ↔ main-repo mapping — were{' '}
+          <strong>not re-verified</strong> by the author. Those findings propagate from
+          the meta-analysis with the same epistemic status: they could be correct, or they
+          could contain similar precision gaps. The Auditor Agent (below) is the forward
+          defense.
+        </p>
+
+        <h3>Tooling response</h3>
+        <p>
+          The Auditor Agent extension shipped in{' '}
+          <code>scripts/integrity-check.py</code> (2026-04-21) uses a tighter regex
+          requiring <code>PR</code> or <code>pull/</code> context. Running this check
+          against the same corpus produces <strong>zero</strong>{' '}
+          <code>BROKEN_PR_CITATION</code> findings on the original case studies. This is
+          how the false positive surfaced: cross-checking the new Auditor Agent&apos;s
+          output against the original meta-analysis revealed the discrepancy.
+        </p>
+
+        <h3>Policy precedent</h3>
+        <p>
+          This correction was <strong>appended</strong>, not substituted for the original
+          text. Sections 1–9 above still contain the original statement.{' '}
+          <a href={GITHUB_ISSUE_URL}>Issue #138</a> is closed with a full explanation, not
+          deleted. Every subsequent audit will follow the same pattern: the initial
+          finding stays visible, the correction appears as a time-stamped append, and the
+          chain of reasoning is preserved for future reviewers (human or AI) to retrace.
+        </p>
 
         <hr />
 
