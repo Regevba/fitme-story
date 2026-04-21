@@ -103,6 +103,140 @@ export default async function CaseStudiesIndex() {
         </p>
       </header>
 
+      {/* ============ METHODOLOGY — how we measured ============
+          Framing section. Every case study below cites velocity, CU, and
+          cache-hit numbers. This block explains how those numbers are
+          computed, how the measurement approach evolved across framework
+          versions, and what the numbers can and can't prove. Placed
+          intentionally before the infographic so readers hit the framing
+          before the data. */}
+      <section
+        aria-labelledby="methodology-heading"
+        className="mb-16 rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-6 sm:p-8"
+      >
+        <div className="flex items-baseline justify-between flex-wrap gap-3 mb-4">
+          <h2
+            id="methodology-heading"
+            className="font-serif text-[length:var(--text-display-md)]"
+          >
+            How we measured
+          </h2>
+          <p className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
+            Framing · read before the numbers below
+          </p>
+        </div>
+
+        <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed mb-8 max-w-[var(--measure-body)]">
+          Every case study below cites numbers — wall time, complexity units, cache-hit rates,
+          throughput multipliers. This block explains where those numbers come from, how the
+          measurement approach evolved across framework versions, and what the numbers can and
+          can&apos;t prove.
+        </p>
+
+        <dl className="grid md:grid-cols-2 gap-x-8 gap-y-6 font-sans text-sm leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+          <div>
+            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+              The assumption — a natural experiment
+            </dt>
+            <dd>
+              Six sequential UX-alignment refactors ran across six FitMe screens. Identical scope
+              (same phase list, same compliance checklist, same design-system target) meant any
+              velocity difference between refactor 1 and refactor 6 could only come from screen
+              complexity, practitioner learning, or framework evolution. Normalize for complexity
+              and treat learning as roughly constant after the first run, and what&apos;s left is
+              framework evolution — a controlled natural experiment with N=6 initial datapoints,
+              now 17.
+            </dd>
+          </div>
+
+          <div>
+            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+              How measurement evolved
+            </dt>
+            <dd>
+              Three generations. <strong>v2.0–v5.2</strong> — estimated: wall time from commit
+              timestamps (±15–30 min), cache hit rates inferred from narrative.{' '}
+              <strong>v6.0</strong> — instrumented: per-phase timestamps, L1/L2/L3 cache counters,
+              tokenizer-based overhead measurement, mandatory eval-coverage gate.{' '}
+              <strong>v6.1 onwards</strong> — continuous factors: view-count tiers replaced binary
+              &quot;has UI&quot;, architectural-novelty replaced binary &quot;new model&quot;.
+            </dd>
+          </div>
+
+          <div>
+            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+              The normalization model
+            </dt>
+            <dd>
+              Every feature converts to a single number — <strong>Complexity Units (CU)</strong> —
+              via <code className="font-mono text-xs">CU = Tasks × Work_Type_Weight × (1 + Σ Complexity_Factors)</code>.
+              The primary metric is <strong>min/CU</strong>: wall time divided by CU; lower is
+              better. This is what makes a 6.5-hour onboarding refactor comparable to a
+              54-minute 4-feature parallel run.{' '}
+              <Link
+                href="/case-studies/normalization-model"
+                className="text-[var(--color-brand-indigo)] hover:underline font-medium"
+              >
+                Full formula →
+              </Link>
+            </dd>
+          </div>
+
+          <div>
+            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+              How we analyzed results
+            </dt>
+            <dd>
+              Three comparison axes: framework-era averages (v2.0 → v6.1), work-type segmentation
+              (refactor vs feature vs enhancement), and execution-mode (serial vs parallel).
+              Trend fitted as a power law — R²&nbsp;=&nbsp;0.87 under v2 factors. Rolling
+              baselines replaced the single anchor to detect plateaus. Regressions documented
+              honestly: two real ones (Training v4.0, Readiness v4.2), both attributed to
+              measurable learning taxes from new framework capabilities.{' '}
+              <Link
+                href="/case-studies/meta-analysis"
+                className="text-[var(--color-brand-indigo)] hover:underline font-medium"
+              >
+                Full retrospective →
+              </Link>
+            </dd>
+          </div>
+
+          <div>
+            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+              How we compared across features
+            </dt>
+            <dd>
+              Every case study ends with a <em>Normalized velocity</em> block that cites the same
+              CU formula, making cross-comparison honest. A framework refactor and a new feature
+              land on the same axis. A serial v5.1 run and a parallel v5.1 stress test land on the
+              same axis. The full dataset was submitted for independent review — arithmetic
+              verified, structure sound, weaknesses surfaced and mostly fixed in v6.0.{' '}
+              <Link
+                href="/case-studies/meta-analysis-validation"
+                className="text-[var(--color-brand-indigo)] hover:underline font-medium"
+              >
+                External validation →
+              </Link>
+            </dd>
+          </div>
+
+          <div>
+            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+              What this can&apos;t prove
+            </dt>
+            <dd>
+              Single practitioner. N=17 is small for robust regression. Of the 185 full-audit
+              findings, only 11.4% are externally-automated (confirmed by build, test, or
+              independent measurement); 78.9% are framework-only (AI assertion from code
+              reading). All claims should be read as directional signals, not statistical
+              certainties. The honest reporting of regressions and limitations is what makes the
+              rest of the dataset trustworthy.
+            </dd>
+          </div>
+        </dl>
+      </section>
+
       {/* ============ INFOGRAPHIC — framework progression strip ============
           Horizontal color-coded timeline. Each pin jumps to its milestone
           card below; the pin's color matches the card's leading color bar,
