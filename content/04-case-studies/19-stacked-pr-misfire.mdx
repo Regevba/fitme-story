@@ -1,0 +1,103 @@
+---
+title: The Stacked-PR Misfire — When "Merged" Didn't Mean "On Main"
+slug: stacked-pr-misfire
+upstream_path: docs/case-studies/m-2-mealentrysheet-decomposition-case-study.md
+tier: light
+timeline_position:
+  version: '6.1'
+  order: 19
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+---
+# The Stacked-PR Misfire — When "Merged" Didn't Mean "On Main"
+
+> Two PRs in a row said "merged". Main had neither. This is the short case study of the framework surfacing a new failure mode -- and how the recovery shaped a durable methodology rule.
+
+## Context
+
+M-2 was decomposing a 1,104-line `MealEntrySheet.swift` into 9 focused files. The plan had four phases -- leaf types (M-2a), view model (M-2c), per-tab views (M-2b), and the case study + audit closure (M-2d). Each phase was its own PR. To minimize rebase pain, the PRs were stacked: M-2c was opened with `--base feature/m2a-...`, and M-2b was opened with `--base feature/m2c-...`.
+
+The stacking made the diffs smaller to review (each PR only showed its own phase). It was supposed to make life easier.
+
+---
+
+## The Failure
+
+M-2a landed on main. Both downstream PRs were merged via the GitHub UI. The PR list showed all three as "Merged". Every status check was green. The local branches were deleted.
+
+Main only had M-2a.
+
+Nothing on main had the ViewModel extraction. Nothing on main had the per-tab views. The ~80% of the decomposition that lived in the two stacked PRs had merged into their stacked base branches -- not into main. When those base branches were deleted (because their PRs had "landed"), the commits went with them.
+
+---
+
+## The Root Cause
+
+GitHub's "Merge pull request" button merges whatever `--base` was set at PR creation time. It does not re-check whether the base branch itself is still the intended target. If you set `--base feature/m2c-...` and the m2c branch later lands on main, the downstream PR still merges into m2c -- not main -- when you click the button.
+
+The stacked PR workflow requires an extra step that the UI doesn't prompt for:
+
+> After the upstream PR lands on main, retarget the downstream PR to `main` **before** clicking Merge.
+
+`gh pr edit <n> --base main` flips it. Miss that step and the merge silently goes to the wrong branch.
+
+The M-2 sequence hit this because M-2a landed fast enough that both downstream PRs were still stacked when they were merged. Nothing alerted that the base branch was about to be deleted. Nothing in the PR UI showed that `main` did not contain the commits the PR claimed were landing.
+
+---
+
+## The Recovery
+
+Because the branches were chained (`m2a → m2c → m2b`), the deepest branch (`m2b`) already contained every commit from every phase. A single new PR from `m2b → main` bundled both phases onto main as one merge.
+
+Total cost: ~20 minutes of diagnosis + one new PR (#129). No commits were lost; the branch history was intact. The recovery was cheap precisely because the stacking itself -- the thing that caused the bug -- had chained all the commits into one branch.
+
+---
+
+## The Methodology Rule
+
+Three workable patterns for multi-phase features in this project:
+
+1. **Don't stack. Open each phase's PR from main once the predecessor merges.** Slowest but foolproof. The M-1 series did this across 4 PRs and never hit a misfire.
+2. **Stack, then retarget.** `gh pr edit <n> --base main` after the predecessor lands, before clicking Merge. Fast when disciplined; failure-prone when rushed.
+3. **Resubmit from the head branch.** What M-2 did after the misfire. Useful as recovery; wasteful as a routine strategy.
+
+The methodology rule adopted after M-2 was option 1 for future series unless a phase-chaining review discipline justified option 2. M-4 followed option 1 and had no issues.
+
+---
+
+## What the Framework Learned
+
+This was a **new failure mode** in the M-series. M-1, M-2, and M-3 had all shipped on first try before this. The stacked-PR misfire surfaced a gap in the framework's dispatch protocol: multi-phase features had no checkpoint for "verify main actually contains the predecessor before merging the downstream PR".
+
+Three things changed after the recovery:
+
+- The M-series methodology doc adopted "no stacking by default".
+- The post-merge verification step explicitly checks `git log origin/main` for the claimed commits, not just the PR's "Merged" status.
+- The case study for M-2 ships with the misfire documented prominently -- not buried in footnotes -- so future agents reading the cache see the failure before they reach for `--base feature/...`.
+
+---
+
+## The Numbers
+
+| Metric | Value |
+|--------|-------|
+| PRs in the series | 5 (#126 M-2a + #127 M-2c + #128 M-2b + #129 resubmit + M-2d) |
+| PRs that merged into the wrong branch | 2 (#127, #128) |
+| Time lost to diagnosis + recovery | ~20 min |
+| Code lost | 0 lines |
+| Commits lost | 0 |
+| Downstream features blocked | 0 |
+| Framework rule added | 1 ("no stacking by default") |
+| Reference to this case in the feature cache | Added so future multi-phase features surface the rule before they reach for stacking |
+
+---
+
+## Key Takeaways
+
+- **"Merged" is a UI state, not a main-branch guarantee.** The PR badge tells you the base branch accepted the commits. It does not tell you that base branch is main.
+- **Stacked PRs are fast to review and slow to trust.** The same property that makes them nice to look at -- small isolated diffs -- is the property that hides the wrong-base problem.
+- **Failure modes with zero user impact are still framework lessons.** No user noticed the misfire. The code was ultimately correct. But a process that silently merges code into the wrong branch would eventually cause production-facing damage. Catching the methodology gap at ~20 minutes of cost is the cheapest time it will ever be caught.
+- **Recovery-friendly branch structures matter.** Because the M-2 branches were chained, one new PR from the deepest branch landed everything. A different stacking strategy (branches independently based on main) would have required a chain rebuild.

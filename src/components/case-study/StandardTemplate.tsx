@@ -1,4 +1,5 @@
 import type { ContentEntry } from '@/lib/content';
+import { FullCaseStudyLink } from './FullCaseStudyLink';
 
 export function StandardTemplate({
   entry,
@@ -22,6 +23,7 @@ export function StandardTemplate({
           </p>
         </header>
         <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)]">{children}</div>
+        <FullCaseStudyLink fm={entry.frontmatter} />
       </div>
       <aside aria-label="Sidebar" className="hidden md:block" />
     </article>

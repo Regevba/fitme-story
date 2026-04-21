@@ -64,7 +64,7 @@ const MILESTONES: Array<{
   },
   {
     slug: 'hadf',
-    version: 'v7.0',
+    version: 'v6.1',
     shortLabel: 'Hardware-aware',
     impact: '17 chip profiles',
     hook: 'The framework learned to detect the machine it runs on. 17 chip profiles, 7 cloud signatures, dispatch routing that adapts to hardware — little-core for mechanical work, big-core for reasoning, cloud only when locally infeasible.',

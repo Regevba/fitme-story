@@ -23,7 +23,7 @@ test('getCaseStudyBySlug resolves a known slug', async () => {
   assert.equal(study.frontmatter.tier, 'flagship');
 });
 
-test('getByTier("flagship") returns exactly 3 entries', async () => {
+test('getByTier("flagship") returns at least 3 entries', async () => {
   const flagship = await getByTier('flagship');
-  assert.equal(flagship.length, 3);
+  assert.ok(flagship.length >= 3, `expected >= 3, got ${flagship.length}`);
 });

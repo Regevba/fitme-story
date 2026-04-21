@@ -66,6 +66,37 @@ export interface TimelineNode {
   metricLabelByPersona?: Record<string, string>;
 }
 
+// Features mode — shipped FitMe product & framework features, each linked to
+// its canonical case study on this site. Curated (not auto-derived) so that
+// feature cards use product-facing names rather than case-study titles, and
+// so the ordering tells a story across app + framework + failure-mode lenses.
+interface FeatureEntry {
+  id: string;
+  label: string;
+  caseStudySlug: string;
+  headlineMetric: { value: string; label: string };
+}
+
+const FEATURES: FeatureEntry[] = [
+  { id: 'onboarding', label: 'Onboarding', caseStudySlug: 'onboarding-pilot', headlineMetric: { value: '24', label: 'findings' } },
+  { id: 'six-refactors', label: 'Home + 6 v2 refactors', caseStudySlug: 'framework-evolution', headlineMetric: { value: '6.5×', label: 'speedup' } },
+  { id: 'eval-layer', label: 'Eval layer', caseStudySlug: 'eval-driven-development', headlineMetric: { value: '29/29', label: 'green' } },
+  { id: 'user-profile', label: 'User profile', caseStudySlug: 'user-profile', headlineMetric: { value: '2h', label: 'end-to-end' } },
+  { id: 'soc-framework', label: 'SoC framework', caseStudySlug: 'soc-on-software', headlineMetric: { value: '63%', label: 'overhead cut' } },
+  { id: 'auth-flow', label: 'Auth flow', caseStudySlug: 'auth-flow-velocity', headlineMetric: { value: '86%', label: 'faster' } },
+  { id: 'ai-engine', label: 'AI engine architecture', caseStudySlug: 'ai-engine-architecture', headlineMetric: { value: '45%', label: 'cache hit' } },
+  { id: 'parallel-dispatch', label: 'Parallel dispatch', caseStudySlug: 'parallel-stress-test', headlineMetric: { value: '12.4×', label: 'throughput' } },
+  { id: 'dispatch-intel', label: 'Dispatch intelligence', caseStudySlug: 'dispatch-intelligence', headlineMetric: { value: '48%', label: 'tools saved' } },
+  { id: 'write-safety', label: 'Parallel write safety', caseStudySlug: 'parallel-write-safety', headlineMetric: { value: '0', label: 'conflicts' } },
+  { id: 'measurement', label: 'Framework measurement', caseStudySlug: 'measurement-v6', headlineMetric: { value: '7/9', label: 'DVs deterministic' } },
+  { id: 'hadf', label: 'Hardware-aware dispatch', caseStudySlug: 'hadf', headlineMetric: { value: '17', label: 'chip profiles' } },
+  { id: 'full-audit', label: 'Full-system audit', caseStudySlug: 'full-system-audit', headlineMetric: { value: '185', label: 'findings' } },
+  { id: 'story-site', label: 'Story site', caseStudySlug: 'framework-story-site', headlineMetric: { value: '2h', label: 'meta-build' } },
+  { id: 'dual-sync-race', label: 'Data sync', caseStudySlug: 'dual-sync-race', headlineMetric: { value: '3', label: 'critical findings' } },
+  { id: 'stacked-pr-misfire', label: 'Multi-phase release', caseStudySlug: 'stacked-pr-misfire', headlineMetric: { value: '20m', label: 'recovery' } },
+  { id: 'xcuitest-harness', label: 'XCUITest harness', caseStudySlug: 'xctwaiter-abort-retry', headlineMetric: { value: '1→2', label: 'attempts to ship' } },
+];
+
 export async function buildTimeline(mode: TimelineMode): Promise<TimelineNode[]> {
   if (mode === 'versions') {
     return FRAMEWORK_VERSIONS.map((v) => ({
@@ -95,8 +126,25 @@ export async function buildTimeline(mode: TimelineMode): Promise<TimelineNode[]>
         metric: { value: `${c.readingTimeMin}`, label: 'min read' },
       }));
   }
-  // features mode: placeholder — populated in a later phase
-  return [];
+  // features mode — each feature card links to its canonical case study.
+  const all = await getAllCaseStudies();
+  const bySlug = new Map(all.map((c) => [c.frontmatter.slug, c]));
+  return FEATURES.flatMap((f) => {
+    const entry = bySlug.get(f.caseStudySlug);
+    if (!entry) return [];
+    const version = entry.frontmatter.timeline_position?.version ?? '';
+    return [
+      {
+        id: f.id,
+        label: f.label,
+        subLabel: version ? `v${version} · ${entry.readingTimeMin} min read` : `${entry.readingTimeMin} min read`,
+        href: `/case-studies/${f.caseStudySlug}`,
+        version,
+        date: entry.frontmatter.date ?? '',
+        metric: f.headlineMetric,
+      },
+    ];
+  });
 }
 
 export async function buildAllTimelines(): Promise<Record<TimelineMode, TimelineNode[]>> {

@@ -1,0 +1,105 @@
+---
+title: The Dual-Sync Race — Two Backends, One Last-Writer-Wins Silence
+slug: dual-sync-race
+upstream_path: docs/case-studies/meta-analysis-full-system-audit-v6.1-case-study.md
+tier: light
+timeline_position:
+  version: '6.1'
+  order: 18
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+---
+# The Dual-Sync Race — Two Backends, One Last-Writer-Wins Silence
+
+> The audit's top backend finding: two sync paths that both pull on login with no coordination. Whichever one finishes last wins. This is the case study of how a structural audit surfaced a data-integrity bug that unit tests, manual QA, and day-to-day usage had all missed.
+
+## Context
+
+FitMe started on CloudKit (user-private iCloud sync for cardio logs and photos), then added Supabase for cross-device logins, onboarding data, and structured records. Both backends worked. Both shipped. Neither one ever visibly lost data during internal testing.
+
+Then the v6.1 full-system audit ran a risk-weighted deep dive against the dual-sync architecture -- `SupabaseSyncService.swift` and `CloudKitSyncService.swift` -- and produced 13 findings, 3 of them critical. The headline finding (DEEP-SYNC-001) had been sitting in production for four months.
+
+---
+
+## The Bug
+
+On login, both services independently pull their remote state and call `persistToDisk()`. There is no merge coordinator. There is no sequencing. Whichever service finishes its write last overwrites the other's result.
+
+The race is non-deterministic. On a warm network, Supabase usually wins. On a cold launch or constrained radio, CloudKit sometimes wins. The user sees whichever set of rows landed last -- possibly stale, possibly stripped of edits made on another device, possibly a mix that was never in either source of truth.
+
+Two related findings compound the exposure:
+
+- **DEEP-SYNC-002**: `lastPull` advances even when rows fail decryption. Failed records are permanently skipped on subsequent syncs. A user with one corrupted row can silently lose all newer rows that shared the same pull batch.
+- **DEEP-SYNC-003**: CloudKit daily log merge ignores the `needsSync` flag (unlike the weekly snapshot merge, which respects it). Local edits that haven't been synced yet can be overwritten by the remote-wins branch.
+
+All three findings coexist in the same code path. Any user editing on two devices during a sync window is at risk.
+
+---
+
+## Why Nothing Caught It
+
+| Signal | What it reported | Why it missed the bug |
+|--------|-----------------|----------------------|
+| Unit tests | 231/231 green | No integration coverage for dual-sync interaction |
+| Manual QA | No reports | Single-device testing cannot reproduce it |
+| Production crashes | None | Silent data overwrite is not a crash |
+| App Store reviews | No mentions | Users don't attribute "missing row" to a sync race -- they re-enter the data |
+| CloudKit dashboard | Clean | CloudKit succeeded at what it was asked to do |
+| Supabase logs | Clean | Supabase succeeded at what it was asked to do |
+
+Each system was behaving correctly in isolation. The bug lives in the absence of a coordinator that neither system can observe on its own.
+
+---
+
+## How the Audit Surfaced It
+
+The 4-layer full-system audit methodology assigned one domain agent per area (AI, Backend, Tests, UI, Design System, Framework). The Backend agent's Layer-1 sweep found surface symptoms -- `persistToDisk()` called from both services, `lastPull` advancement on failures. Layer 2 then ran a risk-weighted deep dive against the two files the Layer-1 heat map flagged: `SupabaseSyncService.swift` (480 lines) and `CloudKitSyncService.swift` (520 lines). Deep dive read both full files, traced every caller, and produced the root-cause narrative.
+
+The structural bug was invisible at the statement level. It only appeared when you read both sync services end-to-end as a single system. The audit's domain-constrained parallel sweep + risk-weighted deep-dive was exactly the methodology needed to find it. No single-file review would have caught it; no single-feature stress test would have caught it; no runtime alert would have caught it.
+
+---
+
+## The Numbers
+
+| Metric | Value |
+|--------|-------|
+| Audit finding ID | DEEP-SYNC-001 (+ DEEP-SYNC-002, DEEP-SYNC-003 as related) |
+| Severity | Critical |
+| Estimated time in production before discovery | ~4 months |
+| Production crashes triggered | 0 |
+| User-visible errors | 0 |
+| Dedicated unit tests for the dual-sync path | 0 |
+| Files implicated | 2 (`SupabaseSyncService.swift`, `CloudKitSyncService.swift`) |
+| Related findings clustered under the same root cause | 3 critical + 7 supporting |
+
+---
+
+## What It Means for the Framework
+
+The audit's bias report notes that 79% of its 185 findings are "framework-only" -- AI assertions from code reading with no external verification. DEEP-SYNC-001 is different. It falls into the **cross-referenced** 9.7% because an earlier onboarding auth case study had already flagged session-restore race conditions in the same area. The bug had been *predicted* by a prior case study's open-questions section, then forgotten, then shipped, then re-discovered by the audit.
+
+That's the value proposition of structured audits on self-built software. Humans forget. Case studies remember. The audit re-surfaced what the project had already half-known -- and escalated it from "open question" to "critical backend finding" with reproducible root cause.
+
+---
+
+## Remediation Shape (Proposed, Not Yet Shipped)
+
+The audit's recommended fix has three parts, in priority order:
+
+1. **Sequence the syncs on login.** Either Supabase-then-CloudKit or CloudKit-then-Supabase, picked based on data primacy. Both services finish before any `persistToDisk()`. No parallel races.
+2. **Track failed decryption rows.** Don't advance `lastPull` past the oldest failure; retry those rows on the next sync.
+3. **Add a merge coordinator** for the dual-sync path. When both remotes have records for the same entity, a deterministic resolver (last-writer-wins by server timestamp, or field-level merge) decides the outcome -- not whichever service's async task finished last.
+
+Shipping this is a multi-PR feature (tagged DEEP-SYNC-010 as its downstream blocker). It remained open as an external-blocker in the M-4 final audit closure because it involves coordinated changes across both sync paths and the encryption layer.
+
+---
+
+## Key Takeaways
+
+- **Two systems that each pass their own tests can still form a broken system together.** The dual-sync race was invisible to every per-service signal because the bug lives in the coordination layer that neither service owns.
+- **Structured audits beat episodic review for coordination bugs.** A risk-weighted deep dive forced the reviewer to read both sync services in one pass. No routine PR review had that scope.
+- **Case studies with honest open-questions sections pay off retroactively.** The auth-flow case study had flagged the session-restore race as an open issue. The audit re-discovered it at a more fundamental layer -- exactly because the earlier case study had told it where to look.
+- **"Zero production crashes" is not the same as "no bug."** Silent data overwrite, non-deterministic by design, was four months in the wild before a structured audit surfaced it.

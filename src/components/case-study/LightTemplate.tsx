@@ -1,4 +1,5 @@
 import type { ContentEntry } from '@/lib/content';
+import { FullCaseStudyLink } from './FullCaseStudyLink';
 
 export function LightTemplate({
   entry,
@@ -20,6 +21,7 @@ export function LightTemplate({
         </h1>
       </header>
       <div className="prose prose-lg dark:prose-invert max-w-none">{children}</div>
+      <FullCaseStudyLink fm={entry.frontmatter} />
     </article>
   );
 }

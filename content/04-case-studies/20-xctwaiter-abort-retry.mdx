@@ -1,0 +1,104 @@
+---
+title: The XCTWaiter Abort — Learning to Stop, Rollback, and Retry
+slug: xctwaiter-abort-retry
+upstream_path: docs/case-studies/m-4-xcuitest-infrastructure-case-study.md
+tier: light
+timeline_position:
+  version: '6.1'
+  order: 20
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+---
+# The XCTWaiter Abort — Learning to Stop, Rollback, and Retry
+
+> M-4 was the first M-series feature where attempt 1 failed. Not on build, not on review, not on integration -- on the logic of the bootstrap test itself. This is the case study of how "stop and rollback" became a proper methodology rather than a failure recovery.
+
+## Context
+
+The last in-project audit finding was TEST-025: the project had no XCUITest target. Unit tests covered logic; nothing exercised the real app on a simulator. M-4 was scoped to add the missing target, land a bootstrap test, and cover the four audit-named flows (sign-in, onboarding, home readiness, meal-log).
+
+The user's explicit instruction at start of execution: *"if anything fails, stop and rollback."* This was the first M-series feature with that rule in writing.
+
+---
+
+## The Bug
+
+Attempt 1 of Phase M-4a succeeded at the hard part. Adding a new target to `project.pbxproj` required 12 edits across 11 sections + 2 edits to the shared scheme file. All of it shipped clean. The build went green. The XCUITest harness compiled. The test bundle launched.
+
+Then the bootstrap test failed every run.
+
+The test was trying to prove "the app launches and lands on *one* of three plausible root surfaces" -- either the sign-in screen, the onboarding flow, or the authenticated home view. The implementation used `XCTWaiter.wait(for: [signIn, onboarding, home], timeout:)`.
+
+`XCTWaiter.wait` requires **ALL** expectations to fulfill, not any. The app can only ever be on one surface at a time, so two of the three expectations always time out. The assertion always fails. The harness wasn't broken; the predicate was wrong.
+
+The subtlety: the test code looked like it was asking for "any". The semantics of `XCTWaiter` silently do "all". The mistake compiles, runs, and produces an always-failing test that looks like an infrastructure problem rather than a logic problem.
+
+---
+
+## The Choice Point
+
+With a broken test, the obvious move is to push another commit that fixes it. That's what a normal debug loop looks like: see a failure, think about it, change the code, try again. Cheap, conversational, what most engineers do ten times a day.
+
+The user's instruction was the opposite: stop the session, abort the branch, rollback any project-level changes, report the failure, and only then decide whether to retry.
+
+The decision to honor "stop and rollback" literally -- rather than fix-in-place -- turned out to be the methodology lesson.
+
+---
+
+## What "Rollback" Bought
+
+Three concrete benefits, none of which were obvious before they paid off:
+
+1. **A clean main throughout the failure window.** There was never a half-broken branch lingering. No risk that a future agent would pick up the aborted work and not notice it was aborted. Main was exactly as it had been before M-4 started.
+
+2. **A formal postmortem before retry.** The plan PR (#131) was amended with the XCTWaiter gotcha + the corrected test code *before* the retry session started. That addendum became the durable artifact. When attempt 2 launched, the recipe was already written.
+
+3. **An explicit decision to retry.** Fixing-in-place would have silently continued the session. Stop-and-rollback forced a yes/no on "is this still worth doing today?". The answer was yes, but the act of asking is the methodology win.
+
+---
+
+## The Retry
+
+Attempt 2 used `app.wait(for: .runningForeground, timeout: 10)` -- a single expectation on the app state, not three expectations on competing UI surfaces. Decouples "is the harness working?" from "what surface did the app land on?".
+
+The pbxproj recipe was already known-good from attempt 1 (the infrastructure had compiled cleanly; only the test logic was wrong). Attempt 2 ran in ~30 minutes end-to-end vs. the 60-90 min estimate. The retry cost was lower than the retry's budget because the infrastructure work didn't have to be redone.
+
+Total M-4a wall time: ~60 min attempt 1 (abort) + ~30 min attempt 2 = ~90 min -- within the original estimate window.
+
+---
+
+## The Numbers
+
+| Metric | Value |
+|--------|-------|
+| M-series features shipping on first try before M-4 | 3 (M-1, M-2, M-3) |
+| M-4 attempt 1 outcome | Aborted, rolled back |
+| M-4 attempt 2 outcome | Shipped (PR #132) |
+| Time lost to attempt 1 | ~60 min |
+| Time spent on attempt 2 | ~30 min |
+| Total M-4a wall time vs estimate | 90 min vs 60-90 min estimate |
+| Code committed to main during failure window | 0 lines |
+| Branches lingering after abort | 0 |
+| Plan PR addendum describing the gotcha | 1 (the durable artifact) |
+
+---
+
+## What the Framework Learned
+
+Stop-on-failure-and-rollback is now a recognized methodology in the cleanup program, not just M-4's special case. The case study for M-4 (upstream) captures it as a decision entry. Three things changed:
+
+- The M-series plan template now includes an explicit "abort criteria" section -- under what conditions do we stop vs. fix-in-place?
+- Plan PRs are amended with postmortems *before* retry sessions, not after. The addendum precedes the work.
+- The cache entry for "first failed attempt in a session" points at this case study. Future agents reading the cache see the rollback pattern before they reach for push-another-commit.
+
+---
+
+## Key Takeaways
+
+- **Fix-in-place is a short feedback loop. Stop-and-rollback is a durable artifact.** Both can produce a working fix. Only one produces documentation that prevents the next occurrence.
+- **"Attempt 1 aborted" isn't a framework failure -- it's a framework capability.** The M-series shipped its first three features on first try. Landing the fourth on second try, with a clean rollback and a better outcome, is the mature behavior of a system that knows it can recover.
+- **Test logic bugs look like infrastructure bugs.** The XCTWaiter mistake was subtle because it compiled, ran, and produced a plausible failure message. A harness problem would have looked identical until you read the `XCTWaiter.wait` doc carefully. Cheap fix once you know; silently expensive otherwise.
+- **The plan PR is the right place to capture postmortems before retry.** The durable artifact needs to precede the work, not follow it. Adding the gotcha to `docs/superpowers/plans/...m4-xcuitest-infrastructure.md` before attempt 2 launched meant attempt 2 had a recipe; if the note had been written after, it would have been post-hoc storytelling.
