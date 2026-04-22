@@ -28,14 +28,16 @@ export function CacheTiers() {
       {TIERS.map((tier) => (
         <div
           key={tier.label}
-          className="rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-5 bg-white dark:bg-[var(--color-neutral-900)]"
+          className="min-w-0 rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-5 bg-white dark:bg-[var(--color-neutral-900)]"
           style={{ borderLeft: `6px solid ${tier.accent}` }}
         >
-          <div className="flex items-baseline gap-3 mb-2">
+          <div className="mb-3 min-w-0">
             <span className="font-serif text-3xl font-semibold">{tier.label}</span>
-            <code className="text-xs text-[var(--color-neutral-500)] font-mono">{tier.location}</code>
+            <code className="mt-2 block break-all text-xs leading-5 text-[var(--color-neutral-500)] font-mono">
+              {tier.location}
+            </code>
           </div>
-          <p className="text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+          <p className="text-sm leading-6 text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
             {tier.description}
           </p>
         </div>
