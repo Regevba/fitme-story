@@ -6,6 +6,7 @@ type WorkType = {
   label: string;
   entry: string;
   accent: string;
+  background: string;
 };
 
 type PhaseBlueprint = {
@@ -19,10 +20,30 @@ type PhaseBlueprint = {
 const INPUTS = ['User prompt', 'CX signal', 'Ops incident', 'Research trigger'];
 
 const WORK_TYPES: WorkType[] = [
-  { label: 'Feature', entry: 'P0', accent: 'var(--color-brand-indigo)' },
-  { label: 'Enhancement', entry: 'P2', accent: 'var(--skill-marketing)' },
-  { label: 'Fix', entry: 'P4', accent: '#DC2626' },
-  { label: 'Chore', entry: 'Minimal', accent: 'var(--skill-ops)' },
+  {
+    label: 'Feature',
+    entry: 'P0',
+    accent: 'var(--color-brand-indigo)',
+    background: 'color-mix(in srgb, var(--color-brand-indigo) 10%, white)',
+  },
+  {
+    label: 'Enhancement',
+    entry: 'P2',
+    accent: 'var(--color-brand-coral)',
+    background: 'color-mix(in srgb, var(--color-brand-coral) 10%, white)',
+  },
+  {
+    label: 'Fix',
+    entry: 'P4',
+    accent: 'var(--color-brand-indigo-hover)',
+    background: 'color-mix(in srgb, var(--color-brand-indigo-hover) 8%, white)',
+  },
+  {
+    label: 'Chore',
+    entry: 'Minimal',
+    accent: 'var(--color-neutral-500)',
+    background: 'color-mix(in srgb, var(--color-neutral-500) 10%, white)',
+  },
 ];
 
 const PHASES: PhaseBlueprint[] = [
@@ -95,17 +116,17 @@ const CONTINUOUS = [
   {
     title: '/cx',
     detail: 'Customer voice across P0, P8, and P9.',
-    accent: 'var(--skill-cx)',
+    accent: 'var(--color-brand-coral)',
   },
   {
     title: '/marketing',
     detail: 'Positioning before launch and after ship.',
-    accent: 'var(--skill-marketing)',
+    accent: 'var(--color-brand-indigo)',
   },
   {
     title: '/ops',
     detail: 'Health, incidents, and operational drift across the loop.',
-    accent: 'var(--skill-ops)',
+    accent: 'var(--color-neutral-500)',
   },
 ];
 
@@ -138,7 +159,7 @@ function SkillChip({ slug }: { slug: SkillSlug }) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">
+    <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-brand-indigo)] dark:text-[var(--color-brand-indigo)]">
       {children}
     </div>
   );
@@ -149,10 +170,10 @@ export function LifecycleLoop() {
     <div className="my-8 space-y-6">
       <div className="rounded-[32px] border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)] md:p-8">
         <div
-          className="rounded-[28px] border border-[var(--color-neutral-200)] p-5 dark:border-[var(--color-neutral-700)]"
+          className="rounded-[28px] border border-[var(--color-neutral-200)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] dark:border-[var(--color-neutral-700)]"
           style={{
             backgroundImage:
-              'linear-gradient(to right, rgba(79,70,229,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(120,113,108,0.05) 1px, transparent 1px)',
+              'linear-gradient(to right, rgba(79,70,229,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(249,112,102,0.04) 1px, transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         >
@@ -179,7 +200,7 @@ export function LifecycleLoop() {
               <div className="mt-4 flex justify-center text-[var(--color-neutral-500)]">↓</div>
             </div>
 
-            <div className="rounded-3xl bg-[var(--color-neutral-900)] px-6 py-7 text-white dark:bg-[var(--color-neutral-800)]">
+            <div className="rounded-3xl border border-[color:color-mix(in_srgb,var(--color-brand-indigo)_22%,transparent)] bg-[var(--color-neutral-900)] px-6 py-7 text-white shadow-[0_18px_40px_rgba(79,70,229,0.12)] dark:bg-[var(--color-neutral-800)]">
               <SectionLabel>PM Workflow Hub</SectionLabel>
               <div className="mt-3 font-serif text-3xl">/pm-workflow</div>
               <p className="mt-3 max-w-[60ch] text-sm leading-6 text-[rgba(255,255,255,0.78)]">
@@ -196,10 +217,7 @@ export function LifecycleLoop() {
                   <div
                     key={type.label}
                     className="rounded-2xl border p-4"
-                    style={{
-                      borderColor: `${type.accent}33`,
-                      backgroundColor: `${type.accent}10`,
-                    }}
+                    style={{ borderColor: `${type.accent}33`, backgroundColor: type.background }}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="font-serif text-lg">{type.label}</div>
@@ -224,7 +242,7 @@ export function LifecycleLoop() {
                 {PHASES.map((phase) => (
                   <div
                     key={phase.id}
-                    className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-4 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]"
+                    className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-4 transition-colors hover:border-[color:color-mix(in_srgb,var(--color-brand-indigo)_24%,var(--color-neutral-200))] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
@@ -234,7 +252,7 @@ export function LifecycleLoop() {
                         <div className="mt-1 font-serif text-xl">{phase.title}</div>
                       </div>
                       {phase.sync ? (
-                        <div className="rounded-full border border-[var(--color-neutral-200)] bg-white px-3 py-1 text-xs text-[var(--color-neutral-500)] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
+                        <div className="rounded-full border border-[color:color-mix(in_srgb,var(--color-brand-coral)_28%,var(--color-neutral-200))] bg-[color:color-mix(in_srgb,var(--color-brand-coral)_8%,white)] px-3 py-1 text-xs text-[var(--color-neutral-700)] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)] dark:text-[var(--color-neutral-300)]">
                           {phase.sync}
                         </div>
                       ) : null}
@@ -253,15 +271,15 @@ export function LifecycleLoop() {
               <div className="rounded-3xl border border-[var(--color-neutral-200)] bg-white p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
                 <SectionLabel>Continuous Layer</SectionLabel>
                 <div className="mt-4 space-y-3">
-                  {CONTINUOUS.map((item) => (
-                    <div
-                      key={item.title}
-                      className="rounded-2xl border p-4"
-                      style={{
-                        borderColor: `${item.accent}33`,
-                        backgroundColor: `${item.accent}10`,
-                      }}
-                    >
+                {CONTINUOUS.map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border p-4"
+                    style={{
+                      borderColor: `${item.accent}33`,
+                      backgroundColor: `color-mix(in srgb, ${item.accent} 10%, white)`,
+                    }}
+                  >
                       <div className="text-sm font-semibold" style={{ color: item.accent }}>
                         {item.title}
                       </div>
@@ -279,7 +297,7 @@ export function LifecycleLoop() {
                   {SHARED_FILES.map((item) => (
                     <span
                       key={item}
-                      className="rounded-full border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] px-3 py-1.5 text-xs dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]"
+                      className="rounded-full border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] px-3 py-1.5 text-xs text-[var(--color-neutral-700)] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)] dark:text-[var(--color-neutral-300)]"
                     >
                       {item}
                     </span>
@@ -307,7 +325,7 @@ export function LifecycleLoop() {
             down here so the blueprint stays clear.
           </p>
         </div>
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
+        <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--color-brand-coral)_22%,var(--color-neutral-200))] bg-[color:color-mix(in_srgb,var(--color-brand-coral)_6%,var(--color-neutral-50))] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
           <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">
             Fast Lanes
           </div>
@@ -318,7 +336,7 @@ export function LifecycleLoop() {
             test, review, and merge.
           </p>
         </div>
-        <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
+        <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--color-brand-indigo)_22%,var(--color-neutral-200))] bg-[color:color-mix(in_srgb,var(--color-brand-indigo)_6%,var(--color-neutral-50))] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
           <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">
             Continuous Roles
           </div>
