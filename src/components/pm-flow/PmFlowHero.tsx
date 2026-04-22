@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 const ANCHOR_CHIPS = [
-  { hash: 'loop', label: 'The loop' },
+  { hash: 'loop', label: 'Task orbit' },
   { hash: 'wall', label: 'The wall' },
   { hash: 'evolution', label: 'Evolution' },
   { hash: 'data', label: 'Data layer' },
@@ -16,7 +16,7 @@ export function PmFlowHero() {
         The PM-flow ecosystem
       </h1>
       <p className="mt-6 text-lg max-w-[var(--measure-narrow)] mx-auto text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-        How the framework&apos;s 11 skills orchestrate a continuous product-development cycle. If you manage product work through Claude, this is the pattern.
+        A task comes in. The hub classifies it, wakes only the right skills, routes it through the right slice of the lifecycle, and loops evidence back into the next request.
       </p>
       <div className="mt-10 flex flex-wrap gap-2 justify-center">
         {ANCHOR_CHIPS.map((c) => (
