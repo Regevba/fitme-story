@@ -4,12 +4,12 @@ import { useCurrentPersona } from '@/lib/persona-context';
 
 const SUBTITLES: Record<string, string> = {
   default:
-    'A worked example of building software differently — 16 features shipped through a framework that taught itself to measure its own work.',
-  hr: '16 features shipped. 185 audit findings published. Measured outcomes, honest regressions — ready for an interview about any of them.',
-  pm: 'Nine phases, enforced. A workflow that learned to measure itself across 7 framework versions and 13 documented case studies.',
-  dev: 'From SoC-on-software to hardware-aware dispatch — an AI-orchestrated PM framework explained floor by floor, with real code behind every claim.',
+    'A worked example of building software differently — one PM flow enforced research, planning, testing, and learning until it became a measurable framework.',
+  hr: 'A PM flow that became operating leverage: 16 shipped features, public audits, honest regressions, and a framework you can inspect page by page.',
+  pm: 'Start with the flow itself: phases, skills, handoffs, and shared state. Then trace how that workflow evolved across 7 framework versions.',
+  dev: 'From /pm-flow to SoC-on-software to hardware-aware dispatch — the framework is explained floor by floor, with real code and real receipts behind it.',
   academic:
-    'Normalization R²=0.82. 7/9 DVs deterministic. Full-system audit findings public. Bias acknowledged in the meta-analysis.',
+    'Workflow first, measurement second: normalization R²=0.82, 7/9 DVs deterministic, public audit findings, and methodological gaps stated plainly.',
 };
 
 export function HeroSubtitle() {

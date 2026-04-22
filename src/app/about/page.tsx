@@ -32,13 +32,19 @@ export default function AboutPage() {
             <a href="https://github.com/Regevba/fitme-showcase">fitme-showcase</a> — canonical markdown docs (GitHub)
           </li>
           <li>
-            <Link href="/case-studies">case studies</Link> — 13 chronological deep-dives
+            <Link href="/pm-flow">pm flow</Link> — the phases, skills, and shared-state model
           </li>
           <li>
-            <Link href="/framework">the framework</Link> — floor by floor
+            <Link href="/framework">framework</Link> — the six-floor architecture
           </li>
           <li>
-            <Link href="/research">research</Link> — where this pointed next
+            <Link href="/design-system">design system</Link> — tokens, principles, and shipped UI
+          </li>
+          <li>
+            <Link href="/case-studies">case studies</Link> — chronological deep-dives
+          </li>
+          <li>
+            <Link href="/research">research</Link> — where the framework pointed next
           </li>
         </ul>
         <h2>Contact</h2>

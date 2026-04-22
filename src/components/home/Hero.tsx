@@ -7,7 +7,7 @@ export function Hero() {
   return (
     <section className="max-w-4xl mx-auto px-6 py-24 text-center">
       <h1 className="text-[length:var(--text-display-xl)] leading-[1.05] font-serif">
-        How an AI-orchestrated PM framework grew up alongside a fitness app.
+        How <span className="text-[var(--color-brand-indigo)]">/pm-flow</span> became a framework, and grew up alongside a fitness app.
       </h1>
       <HeroSubtitle />
       <div className="mt-10">

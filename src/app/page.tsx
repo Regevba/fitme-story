@@ -7,11 +7,11 @@ import { ThreeWaysIn } from '@/components/home/ThreeWaysIn';
 import { buildAllTimelines } from '@/lib/timeline';
 
 export const metadata: Metadata = {
-  title: 'fitme-story — how an AI-orchestrated PM framework grew up alongside a fitness app',
-  description: 'Case studies, framework evolution, and research from building FitMe.',
+  title: 'fitme-story — how a PM flow became a framework',
+  description: 'PM flow, framework evolution, design system, case studies, and research from building FitMe.',
   openGraph: {
     title: 'fitme-story',
-    description: 'How an AI-orchestrated PM framework grew up alongside a fitness app.',
+    description: 'How a PM flow became a framework and grew up alongside a fitness app.',
     type: 'website',
     url: 'https://fitme-story.vercel.app',
   },

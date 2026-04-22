@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { BookOpen, Layers, Microscope } from 'lucide-react';
+import { BookOpen, Layers, Workflow } from 'lucide-react';
 
 const CARDS = [
   {
-    href: '/case-studies',
-    icon: BookOpen,
-    title: 'Read the case studies',
-    body: '13 chronological deep-dives — from the pilot feature to hardware-aware dispatch.',
+    href: '/pm-flow',
+    icon: Workflow,
+    title: 'Start with PM flow',
+    body: 'The phases, skills, shared files, and cache tiers that turned a personal workflow into a reusable system.',
   },
   {
     href: '/framework',
@@ -15,10 +15,10 @@ const CARDS = [
     body: 'The skills, hub, cache layers, and dispatch intelligence, explained floor by floor.',
   },
   {
-    href: '/research',
-    icon: Microscope,
-    title: 'See the research',
-    body: 'SoC-on-software, hardware-aware dispatch, and what comes next.',
+    href: '/case-studies',
+    icon: BookOpen,
+    title: 'Read the case studies',
+    body: 'Chronological deep-dives showing what the flow shipped, what it broke, and what it learned.',
   },
 ];
 
