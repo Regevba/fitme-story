@@ -178,15 +178,15 @@ export function LifecycleLoop() {
           }}
         >
           <div className="text-center">
-            <SectionLabel>Blueprint View</SectionLabel>
+            <SectionLabel>Aqueduct View</SectionLabel>
             <h3 className="mt-2 font-serif text-2xl md:text-3xl">
-              The hub, the lanes, and the full PM-flow cycle
+              A connected flow of work through the PM-flow cycle
             </h3>
           </div>
 
           <div className="mt-8 space-y-5">
             <div className="rounded-3xl border border-[var(--color-neutral-200)] bg-white p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
-              <SectionLabel>Inputs</SectionLabel>
+              <SectionLabel>Headwaters</SectionLabel>
               <div className="mt-4 flex flex-wrap justify-center gap-3">
                 {INPUTS.map((item) => (
                   <span
@@ -201,7 +201,7 @@ export function LifecycleLoop() {
             </div>
 
             <div className="rounded-3xl border border-[color:color-mix(in_srgb,var(--color-brand-indigo)_22%,transparent)] bg-[var(--color-neutral-900)] px-6 py-7 text-white shadow-[0_18px_40px_rgba(79,70,229,0.12)] dark:bg-[var(--color-neutral-800)]">
-              <SectionLabel>PM Workflow Hub</SectionLabel>
+              <SectionLabel>Main Reservoir</SectionLabel>
               <div className="mt-3 font-serif text-3xl">/pm-workflow</div>
               <p className="mt-3 max-w-[60ch] text-sm leading-6 text-[rgba(255,255,255,0.78)]">
                 Reads feature state, classifies the work type, chooses the entry point,
@@ -211,13 +211,17 @@ export function LifecycleLoop() {
             </div>
 
             <div className="rounded-3xl border border-[var(--color-neutral-200)] bg-white p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
-              <SectionLabel>Work Type Lanes</SectionLabel>
+              <SectionLabel>Feeder Channels</SectionLabel>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {WORK_TYPES.map((type) => (
                   <div
                     key={type.label}
                     className="rounded-2xl border p-4"
-                    style={{ borderColor: `${type.accent}33`, backgroundColor: type.background }}
+                    style={{
+                      borderColor: `${type.accent}33`,
+                      backgroundColor: type.background,
+                      boxShadow: `inset 4px 0 0 ${type.accent}`,
+                    }}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="font-serif text-lg">{type.label}</div>
@@ -237,12 +241,13 @@ export function LifecycleLoop() {
             </div>
 
             <div className="rounded-3xl border border-[var(--color-neutral-200)] bg-white p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
-              <SectionLabel>Phase Spine</SectionLabel>
+              <SectionLabel>Main Channel</SectionLabel>
               <div className="mt-5 grid gap-4 lg:grid-cols-2">
                 {PHASES.map((phase) => (
                   <div
                     key={phase.id}
                     className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-4 transition-colors hover:border-[color:color-mix(in_srgb,var(--color-brand-indigo)_24%,var(--color-neutral-200))] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]"
+                    style={{ boxShadow: 'inset 4px 0 0 var(--color-brand-indigo)' }}
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
@@ -269,17 +274,18 @@ export function LifecycleLoop() {
 
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
               <div className="rounded-3xl border border-[var(--color-neutral-200)] bg-white p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
-                <SectionLabel>Continuous Layer</SectionLabel>
+                <SectionLabel>Side Return Channels</SectionLabel>
                 <div className="mt-4 space-y-3">
-                {CONTINUOUS.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-2xl border p-4"
-                    style={{
-                      borderColor: `${item.accent}33`,
-                      backgroundColor: `color-mix(in srgb, ${item.accent} 10%, white)`,
-                    }}
-                  >
+                  {CONTINUOUS.map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-2xl border p-4"
+                      style={{
+                        borderColor: `${item.accent}33`,
+                        backgroundColor: `color-mix(in srgb, ${item.accent} 10%, white)`,
+                        boxShadow: `inset 4px 0 0 ${item.accent}`,
+                      }}
+                    >
                       <div className="text-sm font-semibold" style={{ color: item.accent }}>
                         {item.title}
                       </div>
@@ -292,7 +298,7 @@ export function LifecycleLoop() {
               </div>
 
               <div className="rounded-3xl border border-[var(--color-neutral-200)] bg-white p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
-                <SectionLabel>Shared Memory + Broadcast</SectionLabel>
+                <SectionLabel>Underground Cistern</SectionLabel>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {SHARED_FILES.map((item) => (
                     <span
@@ -308,6 +314,14 @@ export function LifecycleLoop() {
                   and new signals route back into the hub as a fix, enhancement, or re-scope.
                 </p>
               </div>
+            </div>
+
+            <div className="rounded-3xl border border-[color:color-mix(in_srgb,var(--color-brand-coral)_28%,var(--color-neutral-200))] bg-[color:color-mix(in_srgb,var(--color-brand-coral)_7%,white)] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
+              <SectionLabel>Upstream Return</SectionLabel>
+              <div className="mt-3 font-serif text-2xl">Feedback current returns to the hub.</div>
+              <p className="mt-2 max-w-[62ch] text-sm leading-6 text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                Signals from <span className="font-medium">cx</span>, <span className="font-medium">marketing</span>, and <span className="font-medium">ops</span> do not stop at the end of the flow. They are elevated back upstream, feeding the next decision the same way water returns to a reservoir.
+              </p>
             </div>
           </div>
         </div>
