@@ -28,29 +28,6 @@ export default function PmFlowPage() {
           Enhancements and fixes join later. Learn sends evidence back into the next cycle.
         </p>
         <LifecycleLoop />
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-5">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">Task intake</div>
-            <h3 className="mt-3 font-serif text-xl">The loop starts before Phase 0.</h3>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              The real entry point is a request: a user prompt, a CX signal, or an ops incident. The hub translates that input into structured work before the phase orbit even begins.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-5">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">Fast lanes</div>
-            <h3 className="mt-3 font-serif text-xl">Not every task takes the full circle.</h3>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              Features start at Research. Enhancements can join at Tasks. Fixes and chores can drop in at Implement. The diagram shows how one framework handles all four without pretending they are the same kind of work.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-5">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">Closed loop</div>
-            <h3 className="mt-3 font-serif text-xl">Shipping is a midpoint, not the end.</h3>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              Learn feeds evidence back into the next intake. That is what turns the PM-flow from a pipeline into a living operating system for product work.
-            </p>
-          </div>
-        </div>
       </section>
 
       <section id="wall" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">

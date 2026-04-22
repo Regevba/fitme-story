@@ -1,397 +1,307 @@
 'use client';
 
-import { PHASES, type PhaseId } from '@/lib/lifecycle-phases';
+import { PHASES } from '@/lib/lifecycle-phases';
 import { getSkill, type SkillSlug } from '@/lib/skill-ecosystem';
 
-const WIDTH = 900;
-const HEIGHT = 760;
-const CENTER_X = 445;
-const CENTER_Y = 340;
-const ORBIT_RADIUS = 228;
+const SVG_SIZE = 760;
+const CENTER = SVG_SIZE / 2;
+const ORBIT_RADIUS = 220;
+const HUB_RADIUS = 104;
 const SEGMENT_STROKE = 28;
-const HUB_RADIUS = 112;
-
-type Point = { x: number; y: number };
-
-type WorkTypeLane = {
-  label: string;
-  entryPhase: PhaseId;
-  color: string;
-  note: string;
-  y: number;
-};
-
-const WORK_TYPE_LANES: WorkTypeLane[] = [
-  { label: 'Feature', entryPhase: 'P0', color: '#4F46E5', note: 'starts at research', y: 264 },
-  { label: 'Enhancement', entryPhase: 'P2', color: '#F97316', note: 'joins at tasks', y: 318 },
-  { label: 'Fix', entryPhase: 'P4', color: '#EF4444', note: 'joins at implement', y: 372 },
-  { label: 'Chore', entryPhase: 'P4', color: '#64748B', note: 'minimal late entry', y: 426 },
-];
 
 function phaseAngle(order: number): number {
   return -Math.PI / 2 + (order * 2 * Math.PI) / PHASES.length;
 }
 
-function polar(cx: number, cy: number, radius: number, angle: number): Point {
+function polar(cx: number, cy: number, radius: number, angle: number) {
   return {
     x: cx + radius * Math.cos(angle),
     y: cy + radius * Math.sin(angle),
   };
 }
 
-function arcPath(cx: number, cy: number, radius: number, startAngle: number, endAngle: number): string {
+function arcPath(cx: number, cy: number, radius: number, startAngle: number, endAngle: number) {
   const start = polar(cx, cy, radius, startAngle);
   const end = polar(cx, cy, radius, endAngle);
   const largeArcFlag = endAngle - startAngle <= Math.PI ? 0 : 1;
   return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
 }
 
-function lanePath(y: number, end: Point): string {
-  return `M 246 ${y} C 304 ${y}, 320 ${end.y}, ${end.x} ${end.y}`;
+function splitPhaseName(name: string) {
+  switch (name) {
+    case 'UX/Design':
+      return ['UX /', 'Design'];
+    default:
+      return [name];
+  }
 }
 
-function scrollToSection(hash: string) {
-  const el = document.getElementById(hash) ?? document.getElementById('wall');
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function getPhase(id: PhaseId) {
-  const phase = PHASES.find((entry) => entry.id === id);
-  if (!phase) throw new Error(`Unknown phase: ${id}`);
-  return phase;
-}
-
-function TextBlock({
-  x,
-  y,
-  lines,
-  className,
-  fontSize,
-  lineHeight,
-  anchor = 'start',
+function InfoCard({
+  eyebrow,
+  title,
+  body,
 }: {
-  x: number;
-  y: number;
-  lines: string[];
-  className?: string;
-  fontSize: number;
-  lineHeight: number;
-  anchor?: 'start' | 'middle' | 'end';
+  eyebrow: string;
+  title: string;
+  body: string;
 }) {
   return (
-    <text x={x} y={y} className={className} fontSize={fontSize} textAnchor={anchor}>
-      {lines.map((line, index) => (
-        <tspan key={`${line}-${index}`} x={x} dy={index === 0 ? 0 : lineHeight}>
-          {line}
-        </tspan>
-      ))}
-    </text>
+    <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
+      <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">
+        {eyebrow}
+      </div>
+      <h3 className="mt-3 font-serif text-xl leading-tight">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+        {body}
+      </p>
+    </div>
+  );
+}
+
+function WorkTypeRow({
+  color,
+  label,
+  detail,
+}: {
+  color: string;
+  label: string;
+  detail: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-2xl border border-[var(--color-neutral-200)] bg-white px-4 py-3 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
+      <span
+        aria-hidden="true"
+        className="mt-1 h-3 w-3 shrink-0 rounded-full"
+        style={{ backgroundColor: color }}
+      />
+      <div>
+        <div className="font-medium">{label}</div>
+        <div className="text-sm text-[var(--color-neutral-500)]">{detail}</div>
+      </div>
+    </div>
   );
 }
 
 export function LifecycleLoop() {
-  const learnPoint = polar(CENTER_X, CENTER_Y, ORBIT_RADIUS + 20, phaseAngle(9));
-  const returnPath = `M ${learnPoint.x} ${learnPoint.y} C ${learnPoint.x - 90} ${learnPoint.y + 115}, 212 566, 106 198`;
-  const panelClass = 'fill-[var(--color-neutral-50)] dark:fill-[var(--color-neutral-900)] stroke-[var(--color-neutral-200)] dark:stroke-[var(--color-neutral-700)]';
-  const panelTextClass = 'fill-[var(--color-neutral-700)] dark:fill-[var(--color-neutral-300)] font-sans';
+  const learnAngle = phaseAngle(9);
+  const researchAngle = phaseAngle(0);
+  const learnPoint = polar(CENTER, CENTER, ORBIT_RADIUS + 30, learnAngle);
+  const researchPoint = polar(CENTER, CENTER, ORBIT_RADIUS + 30, researchAngle);
+  const feedbackPath = [
+    `M ${learnPoint.x} ${learnPoint.y}`,
+    `C ${learnPoint.x - 132} ${learnPoint.y + 74}, ${researchPoint.x - 132} ${researchPoint.y + 74}, ${researchPoint.x} ${researchPoint.y}`,
+  ].join(' ');
 
   return (
-    <div
-      className="my-8 max-w-[920px] mx-auto rounded-[32px] border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-4"
-      aria-label="Task translation orbit for the PM-flow ecosystem"
-    >
-      <span className="sr-only">
-        A task translation orbit. A task arrives from a user request, customer feedback,
-        or an incident. The pm-workflow hub reads state, classifies the work type,
-        decides where the task enters the lifecycle, dispatches the right skills, syncs
-        shared memory and external tools, and loops learnings back into the next cycle.
-      </span>
-      <svg
-        role="img"
-        aria-label="Task translation orbit for the PM-flow ecosystem"
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="w-full h-auto"
-      >
-        <defs>
-          <marker
-            id="lane-arrow"
-            markerWidth="10"
-            markerHeight="10"
-            refX="8"
-            refY="5"
-            orient="auto"
-            markerUnits="strokeWidth"
+    <div className="my-8 rounded-[32px] border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)] md:p-8">
+      <div className="grid gap-6 xl:grid-cols-[18rem_minmax(0,1fr)_18rem] xl:items-center">
+        <div className="space-y-4">
+          <InfoCard
+            eyebrow="Step 1"
+            title="A task arrives."
+            body="The real entry point is a request: a user prompt, a customer signal, or an ops incident. The framework starts by translating that input into structured work."
+          />
+          <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-5 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
+            <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">
+              Step 3
+            </div>
+            <h3 className="mt-3 font-serif text-xl leading-tight">Work type picks the entry lane.</h3>
+            <div className="mt-4 space-y-3">
+              <WorkTypeRow color="#4F46E5" label="Feature" detail="takes the full P0 → P9 loop" />
+              <WorkTypeRow color="#F97316" label="Enhancement" detail="joins later at Tasks (P2)" />
+              <WorkTypeRow color="#EF4444" label="Fix" detail="joins at Implement (P4)" />
+              <WorkTypeRow color="#64748B" label="Chore" detail="uses the shortest implementation lane" />
+            </div>
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <div className="mb-4 text-center">
+            <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">
+              The Lifecycle Orbit
+            </div>
+            <h3 className="mt-2 font-serif text-2xl">The hub routes work through the phases.</h3>
+          </div>
+
+          <svg
+            role="img"
+            aria-label="PM-flow lifecycle orbit"
+            viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
+            className="mx-auto w-full max-w-[680px] h-auto"
           >
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
-          </marker>
-        </defs>
+            <defs>
+              <marker
+                id="feedback-arrow"
+                markerWidth="10"
+                markerHeight="10"
+                refX="8"
+                refY="5"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-neutral-500)" />
+              </marker>
+            </defs>
 
-        <rect x="24" y="92" width="218" height="108" rx="24" className={panelClass} opacity="0.88" />
-        <TextBlock
-          x={46}
-          y={122}
-          lines={['1. A task arrives', 'user prompt', 'cx signal', 'ops incident']}
-          className="fill-[var(--color-neutral-900)] dark:fill-[var(--color-neutral-100)] font-sans"
-          fontSize={14}
-          lineHeight={22}
-        />
-
-        <rect x="24" y="226" width="218" height="240" rx="24" className={panelClass} opacity="0.88" />
-        <TextBlock
-          x={46}
-          y={256}
-          lines={[
-            '3. Work type decides entry point',
-            'Feature uses the full orbit.',
-            'Enhancements and fixes join later.',
-            'The same hub handles all four lanes.',
-          ]}
-          className={panelTextClass}
-          fontSize={13}
-          lineHeight={20}
-        />
-
-        <rect x="312" y="46" width="266" height="86" rx="28" className={panelClass} opacity="0.92" />
-        <TextBlock
-          x={445}
-          y={76}
-          lines={[
-            '2. The hub translates the request',
-            'reads state.json, current phase, and routing rules',
-            'then wakes only the skills this task needs',
-          ]}
-          className="fill-[var(--color-neutral-900)] dark:fill-[var(--color-neutral-100)] font-sans"
-          fontSize={13}
-          lineHeight={20}
-          anchor="middle"
-        />
-
-        <rect x="646" y="104" width="226" height="152" rx="24" className={panelClass} opacity="0.88" />
-        <TextBlock
-          x={670}
-          y={134}
-          lines={[
-            '5. Spokes + tool sync',
-            'research, ux, design, dev, qa',
-            'analytics, cx, marketing, ops, release',
-            'GitHub, Notion, Figma, Vercel on transitions',
-          ]}
-          className={panelTextClass}
-          fontSize={13}
-          lineHeight={20}
-        />
-
-        <rect x="646" y="278" width="226" height="152" rx="24" className={panelClass} opacity="0.88" />
-        <TextBlock
-          x={670}
-          y={308}
-          lines={[
-            '6. Gates decide if the orbit can advance',
-            'explicit user approval',
-            'CI, eval, analytics, and review checks',
-            'evidence lands before the next phase opens',
-          ]}
-          className={panelTextClass}
-          fontSize={13}
-          lineHeight={20}
-        />
-
-        <circle
-          cx={CENTER_X}
-          cy={CENTER_Y}
-          r={ORBIT_RADIUS}
-          fill="none"
-          className="stroke-[var(--color-neutral-200)] dark:stroke-[var(--color-neutral-700)]"
-          strokeWidth="2"
-          strokeDasharray="6 7"
-        />
-
-        {PHASES.map((phase) => {
-          const gap = 0.12;
-          const startAngle = phaseAngle(phase.order) + gap;
-          const endAngle = phaseAngle(phase.order + 1) - gap;
-          const skill = getSkill(phase.primarySkillSlug as SkillSlug);
-          return (
-            <path
-              key={`segment-${phase.id}`}
-              d={arcPath(CENTER_X, CENTER_Y, ORBIT_RADIUS, startAngle, endAngle)}
+            <circle
+              cx={CENTER}
+              cy={CENTER}
+              r={ORBIT_RADIUS}
               fill="none"
-              stroke={skill.accent}
-              strokeWidth={SEGMENT_STROKE}
-              strokeLinecap="round"
-              opacity="0.9"
+              stroke="var(--color-neutral-200)"
+              strokeWidth="2"
+              strokeDasharray="6 8"
             />
-          );
-        })}
 
-        {WORK_TYPE_LANES.map((lane) => {
-          const phase = getPhase(lane.entryPhase);
-          const target = polar(CENTER_X, CENTER_Y, ORBIT_RADIUS - 8, phaseAngle(phase.order));
-          return (
-            <g key={lane.label} style={{ color: lane.color }}>
-              <path
-                d={lanePath(lane.y, target)}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeDasharray="8 7"
-                markerEnd="url(#lane-arrow)"
-              />
-              <rect
-                x="46"
-                y={lane.y - 16}
-                width="128"
-                height="32"
-                rx="16"
-                className="fill-[var(--color-neutral-50)] dark:fill-[var(--color-neutral-800)]"
-                stroke="currentColor"
-              />
-              <text
-                x="110"
-                y={lane.y + 5}
-                textAnchor="middle"
-                className="font-sans"
-                fontSize="13"
-                fill="currentColor"
-              >
-                {lane.label}
-              </text>
-              <text
-                x="188"
-                y={lane.y + 5}
-                className="fill-[var(--color-neutral-500)] dark:fill-[var(--color-neutral-500)] font-sans"
-                fontSize="12"
-              >
-                {lane.note}
-              </text>
-            </g>
-          );
-        })}
+            {PHASES.map((phase) => {
+              const skill = getSkill(phase.primarySkillSlug as SkillSlug);
+              const gap = 0.1;
+              const start = phaseAngle(phase.order) + gap;
+              const end = phaseAngle(phase.order + 1) - gap;
+              return (
+                <path
+                  key={`segment-${phase.id}`}
+                  d={arcPath(CENTER, CENTER, ORBIT_RADIUS, start, end)}
+                  fill="none"
+                  stroke={skill.accent}
+                  strokeWidth={SEGMENT_STROKE}
+                  strokeLinecap="round"
+                  opacity="0.95"
+                />
+              );
+            })}
 
-        <path
-          d={returnPath}
-          fill="none"
-          stroke="var(--color-neutral-500)"
-          strokeWidth="3"
-          strokeDasharray="10 8"
-          markerEnd="url(#lane-arrow)"
-          style={{ color: 'var(--color-neutral-500)' }}
-        />
-        <TextBlock
-          x={188}
-          y={548}
-          lines={['7. Learn closes the loop', 'new evidence becomes the next intake']}
-          className="fill-[var(--color-neutral-500)] font-sans"
-          fontSize={12}
-          lineHeight={18}
-        />
-
-        <circle
-          cx={CENTER_X}
-          cy={CENTER_Y}
-          r={HUB_RADIUS}
-          className="fill-[var(--color-neutral-900)] dark:fill-[var(--color-neutral-800)]"
-          opacity="0.98"
-        />
-        <circle
-          cx={CENTER_X}
-          cy={CENTER_Y}
-          r={HUB_RADIUS + 20}
-          fill="none"
-          className="stroke-[var(--color-neutral-300)] dark:stroke-[var(--color-neutral-500)]"
-          strokeWidth="1.5"
-          strokeDasharray="4 6"
-          opacity="0.8"
-        />
-        <TextBlock
-          x={CENTER_X}
-          y={312}
-          lines={['/pm-workflow', 'the hub']}
-          className="fill-white font-serif"
-          fontSize={24}
-          lineHeight={26}
-          anchor="middle"
-        />
-        <TextBlock
-          x={CENTER_X}
-          y={370}
-          lines={[
-            'read feature state',
-            'classify work type',
-            'load phase skills',
-            'dispatch + sync',
-          ]}
-          className="fill-[rgba(255,255,255,0.76)] font-sans"
-          fontSize={13}
-          lineHeight={18}
-          anchor="middle"
-        />
-
-        {PHASES.map((phase) => {
-          const angle = phaseAngle(phase.order);
-          const skill = getSkill(phase.primarySkillSlug as SkillSlug);
-          const node = polar(CENTER_X, CENTER_Y, ORBIT_RADIUS, angle);
-          const label = polar(CENTER_X, CENTER_Y, ORBIT_RADIUS + 56, angle);
-          const cosine = Math.cos(angle);
-          const sine = Math.sin(angle);
-          let anchor: 'start' | 'middle' | 'end' = 'middle';
-          let labelX = label.x;
-          let labelY = label.y;
-
-          if (cosine > 0.28) {
-            anchor = 'start';
-            labelX += 8;
-          } else if (cosine < -0.28) {
-            anchor = 'end';
-            labelX -= 8;
-          }
-
-          if (sine > 0.7) labelY += 8;
-          if (sine < -0.7) labelY -= 8;
-
-          return (
-            <g
-              key={phase.id}
-              role="link"
-              tabIndex={0}
-              aria-label={`${phase.id} ${phase.name} — jump to the matching phase column`}
-              onClick={() => scrollToSection(`column-${phase.id}`)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  scrollToSection(`column-${phase.id}`);
-                }
-              }}
-              className="cursor-pointer focus:outline-none"
-              style={{ outlineOffset: 4 }}
+            <path
+              d={feedbackPath}
+              fill="none"
+              stroke="var(--color-neutral-500)"
+              strokeWidth="3"
+              strokeDasharray="10 8"
+              markerEnd="url(#feedback-arrow)"
+            />
+            <text
+              x={CENTER}
+              y={CENTER - ORBIT_RADIUS - 58}
+              textAnchor="middle"
+              className="fill-[var(--color-neutral-500)] font-sans"
+              fontSize="12"
             >
-              <circle cx={node.x} cy={node.y} r="14" fill={skill.accent} stroke="white" strokeWidth="3" />
-              <TextBlock
-                x={labelX}
-                y={labelY}
-                lines={[phase.id, phase.name]}
-                className="fill-[var(--color-neutral-800)] dark:fill-[var(--color-neutral-100)] font-sans"
-                fontSize={12}
-                lineHeight={14}
-                anchor={anchor}
-              />
-            </g>
-          );
-        })}
+              feedback loop
+            </text>
 
-        <rect x="82" y="626" width="748" height="96" rx="28" className={panelClass} opacity="0.9" />
-        <TextBlock
-          x={110}
-          y={658}
-          lines={[
-            'Shared memory beneath everything',
-            'state.json tracks current phase and approvals. .claude/shared/*.json lets skills communicate without calling each other directly.',
-            'change-log, case-study monitoring, and external-sync status turn the orbit into an auditable system.',
-          ]}
-          className={panelTextClass}
-          fontSize={13}
-          lineHeight={20}
-        />
-      </svg>
+            <circle
+              cx={CENTER}
+              cy={CENTER}
+              r={HUB_RADIUS + 18}
+              fill="none"
+              stroke="var(--color-neutral-300)"
+              strokeWidth="1.5"
+              strokeDasharray="4 6"
+            />
+            <circle cx={CENTER} cy={CENTER} r={HUB_RADIUS} fill="var(--color-neutral-900)" />
+
+            <text
+              x={CENTER}
+              y={CENTER - 14}
+              textAnchor="middle"
+              className="fill-white font-serif"
+              fontSize="28"
+            >
+              /pm-workflow
+            </text>
+            <text
+              x={CENTER}
+              y={CENTER + 22}
+              textAnchor="middle"
+              className="fill-white font-serif"
+              fontSize="28"
+            >
+              the hub
+            </text>
+            <text
+              x={CENTER}
+              y={CENTER + 62}
+              textAnchor="middle"
+              className="fill-[rgba(255,255,255,0.78)] font-sans"
+              fontSize="14"
+            >
+              reads state • classifies work • dispatches skills
+            </text>
+
+            {PHASES.map((phase) => {
+              const angle = phaseAngle(phase.order);
+              const skill = getSkill(phase.primarySkillSlug as SkillSlug);
+              const node = polar(CENTER, CENTER, ORBIT_RADIUS, angle);
+              const label = polar(CENTER, CENTER, ORBIT_RADIUS + 64, angle);
+              const cosine = Math.cos(angle);
+              const lines = splitPhaseName(phase.name);
+              let anchor: 'start' | 'middle' | 'end' = 'middle';
+              let labelX = label.x;
+
+              if (cosine > 0.3) {
+                anchor = 'start';
+                labelX += 10;
+              } else if (cosine < -0.3) {
+                anchor = 'end';
+                labelX -= 10;
+              }
+
+              return (
+                <g key={phase.id}>
+                  <circle cx={node.x} cy={node.y} r="13" fill={skill.accent} stroke="white" strokeWidth="3" />
+                  <text
+                    x={labelX}
+                    y={label.y - (lines.length > 1 ? 8 : 0)}
+                    textAnchor={anchor}
+                    className="fill-[var(--color-neutral-800)] font-sans dark:fill-[var(--color-neutral-100)]"
+                    fontSize="12"
+                  >
+                    <tspan x={labelX} dy="0">{phase.id}</tspan>
+                    {lines.map((line, index) => (
+                      <tspan key={`${phase.id}-${line}`} x={labelX} dy={index === 0 ? 14 : 14}>
+                        {line}
+                      </tspan>
+                    ))}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-4 text-sm leading-6 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
+              <div className="font-medium">P0 → P9</div>
+              <div className="text-[var(--color-neutral-500)]">Full product-development loop</div>
+            </div>
+            <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-4 text-sm leading-6 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
+              <div className="font-medium">Shared memory underneath</div>
+              <div className="text-[var(--color-neutral-500)]">`state.json` + `.claude/shared/*.json` keep the system in sync</div>
+            </div>
+            <div className="rounded-2xl border border-[var(--color-neutral-200)] bg-white p-4 text-sm leading-6 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)]">
+              <div className="font-medium">Learn closes the loop</div>
+              <div className="text-[var(--color-neutral-500)]">Evidence from shipped work becomes the next input</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <InfoCard
+            eyebrow="Step 2"
+            title="The hub translates the request."
+            body="It reads the current feature state, decides what kind of work this is, loads only the relevant skills, and chooses where the task should enter the lifecycle."
+          />
+          <InfoCard
+            eyebrow="Step 4"
+            title="Gates and tool sync keep the loop honest."
+            body="User approval, CI, evals, analytics, and review checks gate advancement. GitHub, Notion, Figma, and Vercel stay aligned while the feature moves."
+          />
+          <InfoCard
+            eyebrow="Step 5"
+            title="Shipping is a midpoint, not the end."
+            body="The Learn phase monitors outcomes and feeds them back into the next cycle. That is what turns the PM-flow from a pipeline into a living operating system."
+          />
+        </div>
+      </div>
     </div>
   );
 }
