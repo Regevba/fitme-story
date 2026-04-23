@@ -10,7 +10,7 @@ import { Term } from '@/components/mdx/Term';
 
 export const metadata: Metadata = {
   title: 'The PM-flow ecosystem — fitme-story',
-  description: 'How one task becomes product work inside the PM-flow ecosystem: intake, hub translation, phase routing, dispatch, and feedback.',
+  description: 'How the framework\'s 11 skills orchestrate a continuous product-development cycle. A guide for PMs using Claude.',
 };
 
 export default function PmFlowPage() {
@@ -19,38 +19,11 @@ export default function PmFlowPage() {
       <PmFlowHero />
 
       <section id="loop" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
-        <h2 className="font-serif text-3xl mb-4">How one request becomes product work.</h2>
+        <h2 className="font-serif text-3xl mb-4">The process is a cycle, not a pipeline.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          The framework does more than move clockwise through ten phases. A task arrives,
-          the hub reads the current state, decides what kind of work it is, chooses where
-          that work enters the lifecycle, wakes the right spokes, and keeps syncing memory,
-          gates, and external tools while the loop runs. Feature work takes the full orbit.
-          Enhancements and fixes join later. Learn sends evidence back into the next cycle.
+          Product development never ends with shipping. It loops back through monitoring, feedback, and analysis into the next iteration. The inner ring below shows the 10 phases. The outer ring shows the feedback-layer skills — cx, ops, and marketing — that continuously feed information into the cycle.
         </p>
         <LifecycleLoop />
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-5">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">Task intake</div>
-            <h3 className="mt-3 font-serif text-xl">The loop starts before Phase 0.</h3>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              The real entry point is a request: a user prompt, a CX signal, or an ops incident. The hub translates that input into structured work before the phase orbit even begins.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-5">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">Fast lanes</div>
-            <h3 className="mt-3 font-serif text-xl">Not every task takes the full circle.</h3>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              Features start at Research. Enhancements can join at Tasks. Fixes and chores can drop in at Implement. The diagram shows how one framework handles all four without pretending they are the same kind of work.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-5">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--color-neutral-500)]">Closed loop</div>
-            <h3 className="mt-3 font-serif text-xl">Shipping is a midpoint, not the end.</h3>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              Learn feeds evidence back into the next intake. That is what turns the PM-flow from a pipeline into a living operating system for product work.
-            </p>
-          </div>
-        </div>
       </section>
 
       <section id="wall" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
