@@ -29,6 +29,17 @@ persona_emphasis:
   caption="The predicate semantics was the bug — XCTWaiter's 'wait for all' was mistaken for 'wait for any'."
 />
 
+<BeforeAfter
+  beforeLabel="Attempt 1 — the gotcha"
+  beforeValue="wait ALL"
+  beforeSubtitle="XCTWaiter.wait(for: [signIn, onboarding, home]) — app can only be on one surface, so 2 of 3 always time out"
+  afterLabel="Attempt 2 — the fix"
+  afterValue="wait ANY"
+  afterSubtitle="app.wait(for: .runningForeground, timeout: 10) — one predicate on app state, decoupled from which surface loaded"
+  delta="ALL → ANY"
+  afterAccentVar="var(--skill-qa)"
+/>
+
 ## Context
 
 The last in-project audit finding was TEST-025: the project had no XCUITest target. Unit tests covered logic; nothing exercised the real app on a simulator. M-4 was scoped to add the missing target, land a bootstrap test, and cover the four audit-named flows (sign-in, onboarding, home readiness, meal-log).

@@ -19,6 +19,18 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 <HeroMetric value="2h" label="wall clock — first commit to shipped feature" />
 
+<DurationStack
+  segmentsJson='[
+    {"label":"Research","minutes":15,"colorVar":"var(--skill-research)"},
+    {"label":"PRD","minutes":15,"colorVar":"var(--skill-pm-workflow)"},
+    {"label":"Tasks","minutes":10,"colorVar":"var(--skill-pm-workflow)"},
+    {"label":"Implementation","minutes":60,"colorVar":"var(--skill-dev)"},
+    {"label":"Testing","minutes":15,"colorVar":"var(--skill-qa)"},
+    {"label":"Accessibility","minutes":5,"colorVar":"var(--skill-design)"}
+  ]'
+  caption="The complexity shape: 60 of 120 minutes was implementation. Upstream phases (research → tasks) ate 40 minutes combined despite this being a greenfield feature with new data model + new tab + 9 eval definitions."
+/>
+
 ## Context
 
 The User Profile was FitMe's 5th tab — a unified control center for identity, body composition, goals, and settings access. Unlike the six v2 refactors that preceded it (which rebuilt existing screens against the design system), this was a greenfield feature: new data model enums, new views, new navigation structure, onboarding integration, and the project's first formal accessibility pass. It was also the first feature built under framework v4.4, which mandated eval definitions and case study tracking for every feature.
