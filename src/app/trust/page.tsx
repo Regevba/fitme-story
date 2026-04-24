@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { FrameworkAdvancement } from '@/components/case-study/FrameworkAdvancement';
 
 export const metadata: Metadata = {
   title: 'How this site stays honest — fitme-story',
@@ -180,6 +181,19 @@ export default function TrustPage() {
               Read the full audit →
             </Link>
           </p>
+        </div>
+
+        <h2>Framework advancement — what the audit could and couldn&apos;t verify</h2>
+        <p>
+          The chart below plots each significant feature against the framework version
+          it shipped under. Solid dots are <strong>T1 instrumented</strong> data — the
+          post-v6.0 era Gemini endorsed as reliable. Dashed outlines are pre-v6.0
+          <strong> T3 narrative estimates</strong>, which the audit flagged as
+          unreliable and which are shown here for context rather than as trend evidence.
+          The trend line only connects T1 points.
+        </p>
+        <div className="not-prose">
+          <FrameworkAdvancement />
         </div>
 
         <h2>How we act on audit findings</h2>

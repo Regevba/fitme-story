@@ -19,6 +19,7 @@ import { ParallelGantt } from '@/components/case-study/ParallelGantt';
 import { AuditFunnel } from '@/components/case-study/AuditFunnel';
 import { RaceTimeline } from '@/components/case-study/RaceTimeline';
 import { PRStackDiagram } from '@/components/case-study/PRStackDiagram';
+import { FrameworkAdvancement } from '@/components/case-study/FrameworkAdvancement';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -43,5 +44,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     AuditFunnel,
     RaceTimeline,
     PRStackDiagram,
+    FrameworkAdvancement,
   };
 }
