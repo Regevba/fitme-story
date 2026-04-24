@@ -14,9 +14,19 @@ const CENTER = SVG_SIZE / 2;
 const INNER_RING_RADIUS = 220;
 const OUTER_RING_RADIUS = 310;        // the dashed guide circle
 const ANCHOR_RADIUS = 360;            // pill CENTERS sit outside the ring
-const PILL_W = 128;
 const PILL_H = 44;
+const PILL_ICON_ZONE = 42;            // icon + spacing before label text
+const PILL_RIGHT_PAD = 18;
 const STORAGE_KEY = 'fitme-story.lifecycle.work-item-type';
+
+// Character-width heuristic at the pill's two font sizes. SVG can't auto-
+// size pills from their content, so we estimate and size each pill
+// per-source to avoid overflow for longer descriptions like Ops's.
+function estimatePillWidth(label: string, description: string): number {
+  const labelPx = label.length * 7.3;        // ~13px semibold sans
+  const descPx = description.length * 5.6;   // ~10px regular sans
+  return Math.ceil(PILL_ICON_ZONE + Math.max(labelPx, descPx) + PILL_RIGHT_PAD);
+}
 
 function polar(cx: number, cy: number, r: number, angleRad: number) {
   return { x: cx + r * Math.cos(angleRad), y: cy + r * Math.sin(angleRad) };
@@ -205,12 +215,16 @@ export function LifecycleLoop() {
         </motion.g>
 
         {/* === Outer anchor nodes — pills sit OUTSIDE the dashed ring at
-             ANCHOR_RADIUS so the ring itself is a clean unbroken circle. */}
+             ANCHOR_RADIUS so the ring itself is a clean unbroken circle.
+             Pill width is per-source so longer descriptions (e.g. Ops) don't
+             spill outside the rounded rect. */}
         {FEEDBACK_SOURCES.map((src) => {
           const angle = anchorAngle(src.anchorAngleDeg);
           const anchor = polar(CENTER, CENTER, ANCHOR_RADIUS, angle);
           const skill = getSkill(src.skillSlug);
           const Icon = FEEDBACK_ICONS[src.iconName];
+          const pillW = estimatePillWidth(src.label, src.description);
+          const pillLeft = anchor.x - pillW / 2;
 
           return (
             <g
@@ -226,9 +240,9 @@ export function LifecycleLoop() {
             >
               {/* Pill background */}
               <rect
-                x={anchor.x - PILL_W / 2}
+                x={pillLeft}
                 y={anchor.y - PILL_H / 2}
-                width={PILL_W}
+                width={pillW}
                 height={PILL_H}
                 rx={PILL_H / 2}
                 ry={PILL_H / 2}
@@ -239,14 +253,14 @@ export function LifecycleLoop() {
               />
               {/* Icon */}
               <g
-                transform={`translate(${anchor.x - PILL_W / 2 + 14}, ${anchor.y - 10})`}
+                transform={`translate(${pillLeft + 14}, ${anchor.y - 10})`}
                 style={{ color: skill.accent }}
               >
                 <Icon aria-hidden="true" width={20} height={20} strokeWidth={1.75} />
               </g>
               {/* Label + description */}
               <text
-                x={anchor.x - PILL_W / 2 + 42}
+                x={pillLeft + PILL_ICON_ZONE}
                 y={anchor.y - 2}
                 className="font-sans fill-[var(--color-neutral-900)] dark:fill-[var(--color-neutral-100)]"
                 fontSize="13"
@@ -255,7 +269,7 @@ export function LifecycleLoop() {
                 {src.label}
               </text>
               <text
-                x={anchor.x - PILL_W / 2 + 42}
+                x={pillLeft + PILL_ICON_ZONE}
                 y={anchor.y + 12}
                 className="font-sans fill-[var(--color-neutral-500)]"
                 fontSize="10"
