@@ -12,7 +12,7 @@ import { FEEDBACK_SOURCES } from '@/lib/feedback-sources';
 const SVG_SIZE = 800;
 const CENTER = SVG_SIZE / 2;
 const INNER_RING_RADIUS = 220;
-const OUTER_RING_RADIUS = 340;
+const OUTER_RING_RADIUS = 350;
 const STORAGE_KEY = 'fitme-story.lifecycle.work-item-type';
 
 function polar(cx: number, cy: number, r: number, angleRad: number) {
@@ -83,6 +83,12 @@ export function LifecycleLoop() {
     workItemType === 'feature'
       ? 'inner ships forward · outer feeds back'
       : `${activeType.phaseCount} of ${PHASES.length} phases active`;
+
+  // Phases that sit directly under an outer feedback anchor — their labels
+  // flip inward so they don't crowd the pill above the pip.
+  const anchorTargetedPhases = new Set<PhaseId>(
+    FEEDBACK_SOURCES.map((s) => s.targetPhases[0])
+  );
 
   return (
     <div
@@ -258,30 +264,34 @@ export function LifecycleLoop() {
           );
         })}
 
-        {/* === Radial connectors: anchor -> target phase pips === */}
-        {FEEDBACK_SOURCES.flatMap((src) => {
-          const anchorPos = polar(CENTER, CENTER, OUTER_RING_RADIUS - 24, anchorAngle(src.anchorAngleDeg));
+        {/* === Radial connectors: anchor -> PRIMARY target phase pip ===
+             Anchors are positioned at the same angle as their primary target,
+             so each connector is a short radial line — no diagonal lines
+             crossing through the center. Secondary targets (e.g. Ops → P1)
+             are surfaced in the anchor description + aria-label, not drawn. */}
+        {FEEDBACK_SOURCES.map((src) => {
+          const primaryPhaseId = src.targetPhases[0];
+          const phase = PHASES.find((p) => p.id === primaryPhaseId);
+          if (!phase) return null;
           const skill = getSkill(src.skillSlug);
-          return src.targetPhases.map((phaseId) => {
-            const phase = PHASES.find((p) => p.id === phaseId);
-            if (!phase) return null;
-            const phasePos = polar(CENTER, CENTER, INNER_RING_RADIUS + 18, phaseAngle(phase.order));
-            return (
-              <line
-                key={`${src.id}-${phaseId}`}
-                x1={anchorPos.x}
-                y1={anchorPos.y}
-                x2={phasePos.x}
-                y2={phasePos.y}
-                stroke={skill.accent}
-                strokeWidth="1.5"
-                strokeDasharray="3 4"
-                opacity="0.6"
-                markerEnd="url(#arrow-in)"
-                style={{ color: skill.accent }}
-              />
-            );
-          });
+          const angle = anchorAngle(src.anchorAngleDeg);
+          const anchorPos = polar(CENTER, CENTER, OUTER_RING_RADIUS - 24, angle);
+          const phasePos = polar(CENTER, CENTER, INNER_RING_RADIUS + 18, phaseAngle(phase.order));
+          return (
+            <line
+              key={`${src.id}-${primaryPhaseId}`}
+              x1={anchorPos.x}
+              y1={anchorPos.y}
+              x2={phasePos.x}
+              y2={phasePos.y}
+              stroke={skill.accent}
+              strokeWidth="1.5"
+              strokeDasharray="3 4"
+              opacity="0.6"
+              markerEnd="url(#arrow-in)"
+              style={{ color: skill.accent }}
+            />
+          );
         })}
 
         {/* === Inner ring (forward, unchanged guide) === */}
@@ -310,13 +320,26 @@ export function LifecycleLoop() {
           const { x, y } = polar(CENTER, CENTER, INNER_RING_RADIUS, angle);
           const skill = getSkill(phase.primarySkillSlug as SkillSlug);
           const isActive = activePhaseSet.has(phase.id);
+          const isAnchorTargeted = anchorTargetedPhases.has(phase.id);
 
           const c = Math.cos(angle);
-          const labelR = INNER_RING_RADIUS + 28;
+          // Label sits OUTSIDE the pip by default; flip to INSIDE for phases
+          // with an outer-ring feedback anchor so they don't crowd the pill.
+          const labelR = isAnchorTargeted ? INNER_RING_RADIUS - 28 : INNER_RING_RADIUS + 28;
           let labelX = CENTER + labelR * c;
           const labelY = CENTER + labelR * Math.sin(angle);
           let textAnchor: 'start' | 'middle' | 'end' = 'middle';
-          if (c > 0.3) {
+          if (isAnchorTargeted) {
+            // When flipped inward, lean the anchor AWAY from the center so
+            // the text reads on the side opposite its pip.
+            if (c > 0.3) {
+              textAnchor = 'end';
+              labelX -= 6;
+            } else if (c < -0.3) {
+              textAnchor = 'start';
+              labelX += 6;
+            }
+          } else if (c > 0.3) {
             textAnchor = 'start';
             labelX += 6;
           } else if (c < -0.3) {
