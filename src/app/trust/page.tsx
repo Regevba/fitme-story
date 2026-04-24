@@ -75,7 +75,7 @@ export default function TrustPage() {
         <h2>Latest audit results</h2>
         <div className="not-prose my-6 rounded-lg border border-[var(--color-neutral-300)] bg-[var(--color-neutral-50)] p-6 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
           <p className="text-sm uppercase tracking-wide text-[var(--color-neutral-500)]">
-            2026-04-21 · Google Gemini 2.5 Pro
+            2026-04-21 · Google Gemini 2.5 Pro · follow-up progress 2026-04-23
           </p>
           <p className="mt-3 font-serif text-xl">
             Mixed: methodologically strong, empirically weak on pre-v6.0 quantitative
@@ -85,6 +85,14 @@ export default function TrustPage() {
             <div>
               <dt className="font-semibold">Scope</dt>
               <dd>24 showcase + 41 main-repo case studies + 3 internal meta-analyses</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Remediation progress (2026-04-23)</dt>
+              <dd>
+                6 of 9 Tier 1/2/3 items fully shipped, 2 partial/pilot, 1 external-blocked.
+                Remaining: real-provider auth verification (manual 7-step playbook),
+                Tier 2.2 process migration, Tier 3.2 trend after 3 integrity cycles.
+              </dd>
             </div>
             <div>
               <dt className="font-semibold">Well-supported</dt>
@@ -113,6 +121,15 @@ export default function TrustPage() {
                   #138
                 </a>{' '}
                 closed with full explanation.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Honest downgrade (2026-04-23)</dt>
+              <dd>
+                Tier 1.1 (automated time/event metrics) was initially marked &ldquo;done&rdquo;
+                on 2026-04-21; the 2026-04-23 status pass downgraded it to
+                &ldquo;partial&rdquo; because system-wide adoption is still incomplete.
+                Publishing the downgrade rather than leaving the overstatement in place.
               </dd>
             </div>
           </dl>
