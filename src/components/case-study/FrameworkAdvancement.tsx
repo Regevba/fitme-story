@@ -188,30 +188,34 @@ function ChartSvg({ points }: { points: AdvancementPoint[] }) {
         );
       })}
 
-      <g transform={`translate(${MARGIN.left}, ${MARGIN.top - 16})`}>
-        <circle cx={0} cy={0} r={5} fill="var(--skill-analytics)" />
-        <text
-          x={10}
-          y={3}
-          fontSize="10"
-          className="fill-[var(--color-neutral-700)] dark:fill-[var(--color-neutral-300)]"
-        >
-          T1 · instrumented (audit-trusted)
-        </text>
-        <circle
-          cx={210}
-          cy={0}
-          r={5}
-          fill="white"
-          stroke="var(--color-neutral-400)"
-          strokeWidth="1.5"
-          strokeDasharray="3 3"
-        />
-        <text x={220} y={3} fontSize="10" className="fill-[var(--color-neutral-500)]">
-          T3 · narrative estimate (pre-v6.0)
-        </text>
-      </g>
     </svg>
+  );
+}
+
+// HTML legend — lives outside the SVG so it never collides with SVG-rendered
+// point labels (the previous inline-SVG legend overlapped Onboarding's label
+// at the top-left corner). Scales responsively with the page and supports
+// text wrapping on narrow viewports.
+function ChartLegend() {
+  return (
+    <div className="mb-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-sans">
+      <span className="inline-flex items-center gap-2 text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+        <span
+          aria-hidden="true"
+          className="inline-block h-3 w-3 rounded-full"
+          style={{ backgroundColor: 'var(--skill-analytics)' }}
+        />
+        T1 · instrumented (audit-trusted)
+      </span>
+      <span className="inline-flex items-center gap-2 text-[var(--color-neutral-500)]">
+        <span
+          aria-hidden="true"
+          className="inline-block h-3 w-3 rounded-full border-2 border-dashed"
+          style={{ borderColor: 'var(--color-neutral-400)' }}
+        />
+        T3 · narrative estimate (pre-v6.0)
+      </span>
+    </div>
   );
 }
 
@@ -246,6 +250,7 @@ export function FrameworkAdvancement({
         className="my-10 max-w-[var(--measure-wide)] mx-auto font-sans"
         aria-label="Framework advancement chart — audit-validated feature data points over time"
       >
+        <ChartLegend />
         <div className="relative group">
           <button
             type="button"
@@ -321,6 +326,7 @@ export function FrameworkAdvancement({
                   Press <kbd className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)]">Esc</kbd> or click outside to close.
                 </p>
               </div>
+              <ChartLegend />
               <ChartSvg points={points} />
             </motion.div>
           </motion.div>
