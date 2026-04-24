@@ -4,6 +4,7 @@ import { Pullquote } from '@/components/mdx/Pullquote';
 import { Figure } from '@/components/mdx/Figure';
 import { TimelineNav } from '@/components/mdx/TimelineNav';
 import { FindingsTable } from '@/components/mdx/FindingsTable';
+import { DevDive } from '@/components/mdx/DevDive';
 import { Term } from '@/components/mdx/Term';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
 import { ChipAffinityMap } from '@/components/bespoke/ChipAffinityMap';
@@ -24,6 +25,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     Figure,
     TimelineNav,
     FindingsTable,
+    DevDive,
     Term,
     BlueprintOverlay,
     ChipAffinityMap,
