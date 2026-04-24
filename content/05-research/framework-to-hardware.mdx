@@ -20,7 +20,7 @@ This document maps the complete genealogy.
 | 2000s | Configurable cores + memory compression | v5.0 | Skill-on-demand loading (configurable function units) + cache compression (hardware scratchpad with decompression). First architectural leap: 54K tokens reclaimed, overhead dropped 63%. |
 | 2010s | Heterogeneous multi-core + speculation | v5.1 | Batch dispatch (<Term slug="systolic-chain">systolic array</Term> scheduling), result forwarding (UMA zero-copy), model tiering (<Term slug="big-little">big.LITTLE</Term> heterogeneous cores), speculative preloading (branch prediction). Eight <Term slug="soc">SoC</Term>-inspired optimizations shipped in a single release. |
 | 2020s | Intelligent scheduling + coherence | v5.2 | <Term slug="dispatch-intelligence">Dispatch intelligence</Term> (CPU decode/scheduler with scoring) + <Term slug="parallel-write-safety">parallel write safety</Term> (MESI-inspired coherence protocol). The framework became self-aware about task complexity and agent coordination. |
-| Research frontier | Self-aware adaptive hardware | v7.0 (<Term slug="hadf">HADF</Term>) | Hardware-aware dispatch: the framework detects and adapts to the actual hardware at both ends (device + cloud). Like a chip that reconfigures itself based on workload characteristics. |
+| Research frontier | Self-aware adaptive hardware | <Term slug="hadf">V7.0 HADF</Term> | Hardware-aware dispatch: the framework detects and adapts to the actual hardware at both ends (device + cloud). Like a chip that reconfigures itself based on workload characteristics. |
 
 ## The Component-Level Mapping
 
@@ -68,7 +68,7 @@ The convergence suggests a deeper principle: any system that manages parallel ex
 
 Recognizing the mapping had two practical consequences:
 
-1. **Hardware-Aware Dispatch Framework (HADF).** If the framework already emulates hardware concepts, it should be aware of the actual hardware it runs on. HADF adds a 5-layer detection system that fingerprints both device chips and cloud inference hardware to optimize dispatch decisions. See [hadf-design.md](hadf-design.md).
+1. **V7.0 HADF (Hardware-Aware Dispatch Framework).** If the framework already emulates hardware concepts, it should be aware of the actual hardware it runs on. V7.0 HADF adds a 5-layer detection system that fingerprints both device chips and cloud inference hardware to optimize dispatch decisions. See [hadf-design.md](hadf-design.md).
 
 2. **Orchid -- a RISC-V accelerator for AI agent orchestration.** If the software is emulating hardware, what happens if we give those concepts back to actual hardware? Orchid is a chip design where each of the 7 functional units corresponds directly to a framework component. The dispatch scorer is combinational logic. The cache controller is a scratchpad with LZ4 decompression. The coherence unit is a MESI FSM. See [orchid-accelerator.md](orchid-accelerator.md).
 
@@ -80,6 +80,6 @@ The loop closed: software learned from hardware, then hardware learned from soft
 
 2. **40 years of CPU architecture is a cheat code for AI framework design.** Every scaling problem we hit had a known solution in the chip design literature. We just needed to recognize which era we were in.
 
-3. **The evolution is predictable.** Once you see the pattern, you can anticipate the next bottleneck. After coherence (v5.2), the next step was adaptive hardware awareness (HADF). After that, dedicated hardware (Orchid). Each step was obvious in hindsight.
+3. **The evolution is predictable.** Once you see the pattern, you can anticipate the next bottleneck. After coherence (v5.2), the next step was adaptive hardware awareness (V7.0 HADF). After that, dedicated hardware (Orchid). Each step was obvious in hindsight.
 
-4. **The research frontier is convergence.** Hardware that adapts to software workloads (HADF) and software that designs its own hardware (Orchid) are two sides of the same coin. The boundary between software architecture and hardware architecture is dissolving.
+4. **The research frontier is convergence.** Hardware that adapts to software workloads (V7.0 HADF) and software that designs its own hardware (Orchid) are two sides of the same coin. The boundary between software architecture and hardware architecture is dissolving.

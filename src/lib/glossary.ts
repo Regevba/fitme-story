@@ -87,7 +87,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     aliases: ['Mahalanobis'],
     category: 'hardware-analog',
     tooltip: 'A statistical distance metric that accounts for how measurements correlate with each other.',
-    full: "Mahalanobis distance measures how far one point is from a cluster of other points, taking into account how correlated the different dimensions are. The framework's Hardware-Aware Dispatch (HADF) uses it to match a running environment's performance fingerprint to the closest chip profile in its library of 17 chips.",
+    full: "Mahalanobis distance measures how far one point is from a cluster of other points, taking into account how correlated the different dimensions are. The framework's V7.0 HADF (Hardware-Aware Dispatch) uses it to match a running environment's performance fingerprint to the closest chip profile in its library of 17 chips.",
   },
 
   // --- Framework components ---
@@ -133,11 +133,11 @@ export const GLOSSARY: GlossaryEntry[] = [
   },
   {
     slug: 'hadf',
-    term: 'HADF (Hardware-Aware Dispatch Framework)',
-    aliases: ['HADF', 'Hardware-Aware Dispatch', 'hardware-aware dispatch'],
+    term: 'V7.0 HADF (Hardware-Aware Dispatch Framework)',
+    aliases: ['V7.0 HADF', 'HADF', 'Hardware-Aware Dispatch', 'hardware-aware dispatch'],
     category: 'framework',
-    tooltip: "Framework v7.0: detects the chip it's running on and adjusts dispatch accordingly.",
-    full: "HADF extends the dispatch layer with a hardware awareness stage. It detects the chip/runtime fingerprint via OS APIs and Mahalanobis distance matching against 17 chip profiles + 7 cloud signatures, then adjusts model routing and cache strategy for the detected environment. Ships as framework version 7.0.",
+    tooltip: "Framework V7.0: HADF detects the chip it's running on and adjusts dispatch accordingly.",
+    full: "V7.0 HADF extends the dispatch layer with a hardware awareness stage. It detects the chip/runtime fingerprint via OS APIs and Mahalanobis distance matching against 17 chip profiles + 7 cloud signatures, then adjusts model routing and cache strategy for the detected environment. Ships as framework version 7.0.",
   },
   {
     slug: 'complexity-units',

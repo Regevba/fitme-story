@@ -1,41 +1,41 @@
 ---
-title: Hardware-Aware Dispatch — Designing a 5-Layer Detection System
+title: V7.0 HADF — Designing a 5-Layer Detection System
 slug: hadf-design
 tier: unassigned
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
-# <Term slug="hadf">Hardware-Aware Dispatch</Term> -- Designing a 5-Layer Detection System
+# <Term slug="hadf">V7.0 HADF (Hardware-Aware Dispatch Framework)</Term> -- Designing a 5-Layer Detection System
 
 ## Context
 
-This is the design specification for the Hardware-Aware Dispatch Framework (HADF), a research extension to the PM framework. The framework already optimizes dispatch based on task complexity (what work needs doing), but is blind to hardware capability (what the execution environment can do). HADF makes dispatch hardware-aware at both ends of the pipeline -- the user's device and the cloud inference provider -- and adapts in real time.
+This is the design specification for V7.0 HADF (Hardware-Aware Dispatch Framework), a research extension to the PM framework. The framework already optimizes dispatch based on task complexity (what work needs doing), but is blind to hardware capability (what the execution environment can do). V7.0 HADF makes dispatch hardware-aware at both ends of the pipeline -- the user's device and the cloud inference provider -- and adapts in real time.
 
 ## The Problem
 
 Modern devices ship significant on-device compute that goes unused. An A17 Pro delivers 35 TOPS through its Neural Engine. A Tensor G4 exceeds 30 TOPS. Meanwhile, cloud inference hardware varies -- an H100 serves requests differently than a <Term slug="tpu">TPU</Term> v5 -- but the framework treats all cloud endpoints identically. Conditions change mid-session (thermal throttling, cloud load spikes, network degradation) but dispatch strategy remains static.
 
-HADF addresses three gaps:
+V7.0 HADF addresses three gaps:
 - On-device compute is free but unused
 - Cloud hardware varies but is treated as uniform
 - Conditions change mid-session but dispatch is static
 
 ## Design Principles
 
-1. **Extension, not replacement.** HADF adds a `hardware_context` field to the existing dispatch engine. The v5.2 dispatch pipeline (complexity scoring, model routing, tool budgets) remains the decision-maker. HADF provides better inputs.
+1. **Extension, not replacement.** V7.0 HADF adds a `hardware_context` field to the existing dispatch engine. The v5.2 dispatch pipeline (complexity scoring, model routing, tool budgets) remains the decision-maker. V7.0 HADF provides better inputs.
 
 2. **Graceful degradation.** Every layer has a fallback. Unknown device? Architecture-level default. Uncertain cloud? Static provider lookup. No affinity data? Cold start with baselines. Worst case: the framework behaves identically to today.
 
-3. **Confidence-gated.** HADF never overrides dispatch below a confidence threshold. The gate starts high (effectively disabled) and lowers as data validates the system.
+3. **Confidence-gated.** V7.0 HADF never overrides dispatch below a confidence threshold. The gate starts high (effectively disabled) and lowers as data validates the system.
 
 4. **Zero extra cost.** No additional API calls. No telemetry uploads. All fingerprinting data derived from timestamps the app already records. All learning data stays on-device.
 
-5. **Measured from day one.** Existing instrumentation captures HADF-specific data automatically.
+5. **Measured from day one.** Existing instrumentation captures V7.0 HADF-specific data automatically.
 
 ## Architecture Overview
 
 ```
 +------------------------------------------------------------------+
-|                    HADF Pipeline                                  |
+|                    V7.0 HADF Pipeline                             |
 |                                                                   |
 |  +--------------+    +--------------+    +--------------+         |
 |  | Device       |    | Cloud        |    | Composite    |         |
@@ -257,12 +257,12 @@ Weights shift by context:
 ### Confidence Gate
 
 ```
-score > 0.7   --> trust HADF strategy fully
-score 0.4-0.7 --> blend HADF with default (weighted average)
-score < 0.4   --> ignore HADF, use default routing
+score > 0.7   --> trust V7.0 HADF strategy fully
+score 0.4-0.7 --> blend V7.0 HADF with default (weighted average)
+score < 0.4   --> ignore V7.0 HADF, use default routing
 ```
 
-When all layers are degraded (unknown device + uncertain cloud + no affinity), the strategy falls back to `cloud_preferred` -- identical to behavior without HADF. **Zero regression by design.**
+When all layers are degraded (unknown device + uncertain cloud + no affinity), the strategy falls back to `cloud_preferred` -- identical to behavior without V7.0 HADF. **Zero regression by design.**
 
 ---
 
@@ -310,6 +310,6 @@ Total validation: ~4-5 weeks, ~$5-10 in API costs.
 
 2. **Mahalanobis distance on inference timing is a viable cloud hardware classifier.** The approach requires empirical calibration, but the signal-to-noise ratio looks favorable based on public benchmark data.
 
-3. **Confidence gates make speculative systems safe to ship.** HADF can be deployed with the gate set to 0.99 (effectively disabled) and gradually lowered as validation data accumulates. Zero regression is a design constraint, not a hope.
+3. **Confidence gates make speculative systems safe to ship.** V7.0 HADF can be deployed with the gate set to 0.99 (effectively disabled) and gradually lowered as validation data accumulates. Zero regression is a design constraint, not a hope.
 
 4. **Cross-session learning is the multiplier.** Layers 0-3 handle a single session. Layer 4 makes every subsequent session faster. The warm-start advantage compounds over time.

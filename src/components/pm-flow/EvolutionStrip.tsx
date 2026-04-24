@@ -53,7 +53,7 @@ const MILESTONES: Milestone[] = [
   {
     version: 'v7.0',
     date: '2026-04-16',
-    headline: 'HADF — hardware-aware dispatch',
+    headline: 'V7.0 HADF — hardware-aware dispatch',
     what: '17 chip profiles + 7 cloud signatures. Mahalanobis fingerprinting picks the right model tier for the detected environment.',
     caseStudyHref: '/case-studies/hadf',
     tintVar: 'var(--skill-analytics)',

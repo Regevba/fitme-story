@@ -88,7 +88,7 @@ export const SHARED_DATA_FILES: SharedDataFile[] = [
   },
   {
     filename: 'chip-affinity-map.json',
-    oneLiner: '17 chip profiles + 7 cloud signatures for HADF hardware-aware dispatch.',
+    oneLiner: '17 chip profiles + 7 cloud signatures for V7.0 HADF hardware-aware dispatch.',
     readBy: ['pm-workflow'],
     writtenBy: ['pm-workflow'],
   },

@@ -261,7 +261,7 @@ export default function GeminiAudit20260421Page() {
               </tr>
               <tr>
                 <td>S12</td>
-                <td>HADF</td>
+                <td>V7.0 HADF</td>
                 <td>Moderate</td>
                 <td>
                   Shipped disabled (<code>enabled=false</code>). 5 open questions on

@@ -15,7 +15,7 @@ export const FRAMEWORK_VERSIONS: FrameworkVersion[] = [
   { version: '5.1', date: '2026-04-15', headline: 'Adaptive batch execution', keyMetric: { value: '12.4x', label: 'parallel throughput' } },
   { version: '5.2', date: '2026-04-16', headline: 'Dispatch intelligence + parallel write safety', keyMetric: { value: '48%', label: 'tool-budget reduction' } },
   { version: '6.0', date: '2026-04-16', headline: 'The framework learns to measure itself', keyMetric: { value: '7/9', label: 'DVs deterministic' } },
-  { version: '6.1', date: '2026-04-16', headline: 'Hardware-aware dispatch (HADF)', keyMetric: { value: '17', label: 'chip profiles' } },
+  { version: '6.1', date: '2026-04-16', headline: 'V7.0 HADF — hardware-aware dispatch', keyMetric: { value: '17', label: 'chip profiles' } },
 ];
 
 const PERSONA_METRIC_LABELS: Record<string, Record<string, string>> = {
@@ -49,7 +49,7 @@ const PERSONA_METRIC_LABELS: Record<string, Record<string, string>> = {
   },
   '6.1': {
     default: 'chip profiles', hr: 'hardware-aware', pm: 'adaptive dispatch',
-    dev: 'HADF routing', academic: 'Mahalanobis fingerprinting',
+    dev: 'V7.0 HADF routing', academic: 'Mahalanobis fingerprinting',
   },
 };
 

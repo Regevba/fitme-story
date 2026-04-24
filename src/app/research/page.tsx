@@ -20,7 +20,7 @@ const RESEARCH: ResearchItem[] = [
     href: '/case-studies/soc-on-software',
   },
   {
-    title: 'Hardware-Aware Dispatch (HADF)',
+    title: 'V7.0 HADF (Hardware-Aware Dispatch)',
     body: '17 chip profiles, 7 cloud signatures, Mahalanobis-distance fingerprinting.',
     href: '/case-studies/hadf',
   },

@@ -1,5 +1,5 @@
 ---
-title: Hardware-Aware Dispatch — Teaching the Framework to Detect Chip Architecture
+title: V7.0 HADF — Teaching the Framework to Detect Chip Architecture
 slug: hadf
 upstream_path: docs/case-studies/hadf-hardware-aware-dispatch-case-study.md
 tier: flagship
@@ -14,7 +14,7 @@ persona_emphasis:
 hero_component: ChipAffinityMap
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
-# <Term slug="hadf">Hardware-Aware Dispatch</Term> — Teaching the Framework to Detect Chip Architecture
+# <Term slug="hadf">V7.0 HADF (Hardware-Aware Dispatch Framework)</Term> — Teaching the Framework to Detect Chip Architecture
 
 > Can a software framework passively detect whether it is running on an M4 Pro, a Snapdragon 8 Gen 3, or a cloud <Term slug="tpu">TPU</Term> -- and does knowing that change how it allocates work?
 
@@ -73,13 +73,13 @@ The key technical insight: cloud providers leave measurable fingerprints in thei
 | Custom accelerator | 200-350 | 40-60 |
 | Generic GPU | 250-450 | 30-50 |
 
-Nearest-centroid assignment with a minimum-distance threshold gates unknown hardware to a fallback. The confidence gate ensures this is safe: below 0.4 confidence, HADF is ignored entirely. Between 0.4 and 0.7, suggestions are advisory. Above 0.7, hardware scores influence routing weights.
+Nearest-centroid assignment with a minimum-distance threshold gates unknown hardware to a fallback. The confidence gate ensures this is safe: below 0.4 confidence, V7.0 HADF is ignored entirely. Between 0.4 and 0.7, suggestions are advisory. Above 0.7, hardware scores influence routing weights.
 
 ---
 
 ## Zero-Regression Shipping
 
-The infrastructure shipped with `enabled: false` as the default. The confidence gate means the cost of being wrong about initial accuracy is zero. With HADF disabled, existing dispatch behavior is bit-for-bit identical to the prior version.
+The infrastructure shipped with `enabled: false` as the default. The confidence gate means the cost of being wrong about initial accuracy is zero. With V7.0 HADF disabled, existing dispatch behavior is bit-for-bit identical to the prior version.
 
 **Validation results:**
 - 17 of 17 targeted chip profiles present, each with capability vector, thermal envelope, and recommended context window
@@ -110,13 +110,13 @@ Parallel dispatch on independent task clusters (chip profiles, affinity maps, an
 
 1. **Cloud fingerprinting accuracy in production.** Published benchmark ranges are sufficient for v1, but real production variance (load balancing, geographic routing) may widen distributions enough to degrade classification below the 70% confidence threshold.
 2. **Evolutionary learning convergence.** The EMA decay schedule (fast to stable to locked) was chosen from general theory, not calibrated against dispatch-specific session variance.
-3. **Unknown hardware degradation.** New devices that don't match any profile fall back to confidence 0.0 (HADF disabled). Safe but means zero value until a profile is added.
+3. **Unknown hardware degradation.** New devices that don't match any profile fall back to confidence 0.0 (V7.0 HADF disabled). Safe but means zero value until a profile is added.
 
 ---
 
 ## Key Takeaways
 
 - **Passive inference from observable signals can solve problems that seem to require active APIs.** No provider cooperation was needed. Published benchmarks and behavioral measurement were sufficient for v1 cloud fingerprinting.
-- **Novel infrastructure should always ship with a kill switch that requires no code change to activate.** The confidence gate means HADF can be fully disabled, advisory-only, or fully active based on a single threshold value.
+- **Novel infrastructure should always ship with a kill switch that requires no code change to activate.** The confidence gate means V7.0 HADF can be fully disabled, advisory-only, or fully active based on a single threshold value.
 - **Brainstorming three named approaches with explicit rejection reasons produces better designs.** Each rejection articulated a specific failure mode that the next approach had to solve. "Too simple" and "requires provider adoption" are falsifiable criteria, not preferences.
 - **The tightest constraint was not technical but budgetary.** 733 tokens with a 1% ceiling leaves 7 tokens of headroom. Any expansion pushes the framework over budget.
