@@ -75,7 +75,7 @@ export default function TrustPage() {
         <h2>Latest audit results</h2>
         <div className="not-prose my-6 rounded-lg border border-[var(--color-neutral-300)] bg-[var(--color-neutral-50)] p-6 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
           <p className="text-sm uppercase tracking-wide text-[var(--color-neutral-500)]">
-            2026-04-21 · Google Gemini 2.5 Pro · follow-up progress 2026-04-23
+            2026-04-21 · Google Gemini 2.5 Pro · follow-up progress 2026-04-24
           </p>
           <p className="mt-3 font-serif text-xl">
             Mixed: methodologically strong, empirically weak on pre-v6.0 quantitative
@@ -87,11 +87,12 @@ export default function TrustPage() {
               <dd>24 showcase + 41 main-repo case studies + 3 internal meta-analyses</dd>
             </div>
             <div>
-              <dt className="font-semibold">Remediation progress (2026-04-23)</dt>
+              <dt className="font-semibold">Remediation progress (2026-04-24)</dt>
               <dd>
-                6 of 9 Tier 1/2/3 items fully shipped, 2 partial/pilot, 1 external-blocked.
+                7 of 9 Tier 1/2/3 items fully shipped, 2 partial/pilot, 1 external-blocked.
                 Remaining: real-provider auth verification (manual 7-step playbook),
-                Tier 2.2 process migration, Tier 3.2 trend after 3 integrity cycles.
+                Tier 2.2 process adoption, Tier 3.2 trend after 3 integrity cycles, and
+                Tier 1.1 adoption gap (see &ldquo;New measurement gap&rdquo; below).
               </dd>
             </div>
             <div>
@@ -130,6 +131,44 @@ export default function TrustPage() {
                 on 2026-04-21; the 2026-04-23 status pass downgraded it to
                 &ldquo;partial&rdquo; because system-wide adoption is still incomplete.
                 Publishing the downgrade rather than leaving the overstatement in place.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Tier advancement (2026-04-24)</dt>
+              <dd>
+                Tier 1.2 (integrate with sources of truth) promoted from partial to
+                fully shipped — a pre-commit hook now verifies that the{' '}
+                <code className="font-mono text-xs">phases.merge.pr_number</code> field
+                resolves on GitHub at write time, not just at audit time. Tier 2.2
+                (contemporaneous logging) expanded from pilot to 5 live logs, with
+                fresh scaffolds for app-store-assets, import-training-plan, and
+                push-notifications.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold">New measurement gap (2026-04-24)</dt>
+              <dd>
+                A fresh integrity run found <code className="font-mono text-xs">cache_hits</code>
+                {' '}at 0 of 40 across the feature corpus. The v6.0 measurement protocol
+                defined the field, but no feature session actually writes to it —
+                distinct from Tier 1.1&apos;s adoption gap. Filed as issue{' '}
+                <a
+                  href="https://github.com/Regevba/FitTracker2/issues/140"
+                  className="underline"
+                >
+                  #140
+                </a>{' '}
+                rather than silently fixed. Measurable via{' '}
+                <code className="font-mono text-xs">make measurement-adoption</code>.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Framework evolution (2026-04-24)</dt>
+              <dd>
+                Framework v7.1 → v7.5 (&ldquo;Data Integrity Framework&rdquo;) shipped
+                2026-04-24 as a direct extension of the Gemini audit remediation —
+                the same-direction response to &ldquo;our own measurement was the
+                weakest link.&rdquo; Details in the audit archive.
               </dd>
             </div>
           </dl>

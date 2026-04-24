@@ -58,6 +58,14 @@ const MILESTONES: Milestone[] = [
     caseStudyHref: '/case-studies/hadf',
     tintVar: 'var(--skill-analytics)',
   },
+  {
+    version: 'v7.5',
+    date: '2026-04-24',
+    headline: 'V7.5 — Data Integrity Framework',
+    what: 'Gemini-audit response. Pre-commit PR-number verification, contemporaneous logging (5 live), measurement-adoption ledger. Exposed that cache_hits was 0 of 40 across the corpus — filed honestly as issue #140.',
+    caseStudyHref: '/trust',
+    tintVar: 'var(--skill-ops)',
+  },
 ];
 
 export function EvolutionStrip() {
