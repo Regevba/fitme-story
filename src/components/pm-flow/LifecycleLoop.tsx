@@ -9,7 +9,7 @@ import { getSkill, type SkillSlug } from '@/lib/skill-ecosystem';
 import { WORK_ITEM_TYPES, type WorkItemType, getWorkItemType } from '@/lib/work-item-types';
 import { FEEDBACK_SOURCES } from '@/lib/feedback-sources';
 
-const SVG_SIZE = 800;
+const SVG_SIZE = 900;       // grown from 800 to fit Marketing (P8 @ 288°)
 const CENTER = SVG_SIZE / 2;
 const INNER_RING_RADIUS = 220;
 const OUTER_RING_RADIUS = 310;        // the dashed guide circle
@@ -105,7 +105,7 @@ export function LifecycleLoop() {
 
   return (
     <div
-      className="my-8 max-w-[800px] mx-auto"
+      className="my-8 max-w-[900px] mx-auto"
       aria-label="Product-development lifecycle — inner 10-phase ring plus outer feedback ring"
     >
       {/* Work-item type pill toggle */}
@@ -153,9 +153,11 @@ export function LifecycleLoop() {
       <span className="sr-only">
         Two-ring lifecycle diagram. Inner ring: ten forward phases (Research, PRD, Tasks,
         UX, Implement, Test, Review, Merge, Docs, Learn) arranged clockwise. Outer ring:
-        three feedback sources (CX, Ops, Marketing) arranged counter-clockwise, with
-        dotted connectors showing which phases each source informs. CX informs Research.
-        Ops informs PRD and Test. Marketing informs PRD.
+        three feedback skills arranged around the cycle at the phases where they fire.
+        CX sits at Research — reviews, sentiment, and NPS feed new research. Marketing
+        sits at Documentation — ASO, campaigns, and launch comms. Ops sits at Learn —
+        incidents, latency, and SLOs feed post-launch synthesis; Ops also runs
+        continuously in the background across every phase.
       </span>
 
       <svg
