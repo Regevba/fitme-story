@@ -1,24 +1,32 @@
+export type LucideIconName =
+  | 'Smartphone'
+  | 'RefreshCw'
+  | 'ShieldCheck'
+  | 'Compass';
+
 export interface OriginBeat {
   title: string;
   body: string;
-  visual: { kind: 'metric'; value: string; label: string } | { kind: 'emoji'; value: string };
+  visual:
+    | { kind: 'metric'; value: string; label: string }
+    | { kind: 'lucide'; icon: LucideIconName };
 }
 
 export const ORIGIN_BEATS: OriginBeat[] = [
   {
     title: 'This started as a personal project.',
     body: "I wanted a faster, simpler way to track my own fitness and wellbeing — and to keep that data private, on-device, and mine. What grew out of it was bigger than the app.",
-    visual: { kind: 'emoji', value: '📱' },
+    visual: { kind: 'lucide', icon: 'Smartphone' },
   },
   {
     title: 'Building the app kept surfacing the same planning mistakes.',
     body: "Missed edge cases. Skipped research. Ship-first-measure-later. I was fast and wrong, a lot.",
-    visual: { kind: 'emoji', value: '🔁' },
+    visual: { kind: 'lucide', icon: 'RefreshCw' },
   },
   {
     title: 'Privacy-first, on-device, owned by the user.',
     body: "Every byte of health data stays local unless the user explicitly shares it. No cloud AI round-trips. Analysis happens on-device when possible, by design.",
-    visual: { kind: 'emoji', value: '🔒' },
+    visual: { kind: 'lucide', icon: 'ShieldCheck' },
   },
   {
     title: 'So I built /pm-workflow — one command, nine phases.',
@@ -31,7 +39,7 @@ export const ORIGIN_BEATS: OriginBeat[] = [
     visual: { kind: 'metric', value: '7', label: 'framework versions' },
   },
   {
-    title: 'By v7.0 it was measuring itself and routing to hardware-aware models.',
+    title: 'By V7.0 it was measuring itself and routing to hardware-aware models.',
     body: "Phase timing instrumented. Cache hit rates tracked. Chip-affinity maps for model selection. The tool had learned to profile its own work.",
     visual: { kind: 'metric', value: '17', label: 'chip profiles' },
   },
@@ -43,6 +51,6 @@ export const ORIGIN_BEATS: OriginBeat[] = [
   {
     title: 'This site is the guided tour. The timeline is below.',
     body: '↓',
-    visual: { kind: 'emoji', value: '🧭' },
+    visual: { kind: 'lucide', icon: 'Compass' },
   },
 ];

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Play, Pause, ArrowRight } from 'lucide-react';
+import { Play, Pause, ArrowRight, Check } from 'lucide-react';
 import { FLOORS } from './blueprint-data';
 import { TRACES, type FloorState, type Trace, type TraceBeat } from './dispatch-traces';
 
@@ -44,7 +44,12 @@ function Floor({
         <span className="text-sm text-[var(--color-neutral-500)]">{floor.sub}</span>
         <span className="ml-auto text-xs font-sans uppercase tracking-wider">
           {isFiring && <span className="text-[var(--color-brand-coral)]">▸ executing</span>}
-          {isDone && <span className="text-[var(--color-neutral-500)]">✓ done</span>}
+          {isDone && (
+            <span className="inline-flex items-center gap-1 text-[var(--color-neutral-500)]">
+              <Check aria-hidden="true" width={12} height={12} strokeWidth={2} />
+              done
+            </span>
+          )}
           {isDormant && <span className="text-[var(--color-neutral-500)]">— dormant —</span>}
         </span>
       </div>

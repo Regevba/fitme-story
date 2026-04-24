@@ -203,9 +203,9 @@ ORCHID  software->chip: close the loop
 
 **The insight that makes Orchid non-obvious:** Most AI accelerators start from the workload (matrix multiply, attention) and design hardware to speed it up. Orchid starts from the orchestration layer -- the decision-making that determines which workload runs where, when, and how. No one has built hardware for this because, until multi-agent AI frameworks matured, the orchestration layer was trivial. Our framework proved it is not trivial: it has its own complexity scoring, speculative execution, cache hierarchy, and coherence protocol. Those are hardware concepts running in software. Orchid gives them back to hardware.
 
-## Relationship to <Term slug="hadf">HADF</Term>
+## Relationship to <Term slug="hadf">V7.0 HADF</Term>
 
-Orchid and the Hardware-Aware Dispatch Framework are complementary research threads. HADF asks "how should the framework adapt to whatever hardware it runs on?" Orchid asks "what if we designed hardware specifically for the framework?" If both succeed, the convergence point is an Orchid chip that is HADF-aware -- hardware that adapts its own parameters based on runtime telemetry. That is a v2 ambition, not a v1 goal.
+Orchid and the V7.0 HADF (Hardware-Aware Dispatch Framework) are complementary research threads. V7.0 HADF asks "how should the framework adapt to whatever hardware it runs on?" Orchid asks "what if we designed hardware specifically for the framework?" If both succeed, the convergence point is an Orchid chip that is V7.0 HADF-aware -- hardware that adapts its own parameters based on runtime telemetry. That is a v2 ambition, not a v1 goal.
 
 ## Key Takeaways
 

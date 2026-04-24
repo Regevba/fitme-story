@@ -136,7 +136,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     term: 'V7.0 HADF (Hardware-Aware Dispatch Framework)',
     aliases: ['V7.0 HADF', 'HADF', 'Hardware-Aware Dispatch', 'hardware-aware dispatch'],
     category: 'framework',
-    tooltip: "Framework V7.0: HADF detects the chip it's running on and adjusts dispatch accordingly.",
+    tooltip: "V7.0 HADF detects the chip it's running on and adjusts dispatch accordingly.",
     full: "V7.0 HADF extends the dispatch layer with a hardware awareness stage. It detects the chip/runtime fingerprint via OS APIs and Mahalanobis distance matching against 17 chip profiles + 7 cloud signatures, then adjusts model routing and cache strategy for the detected environment. Ships as framework version 7.0.",
   },
   {

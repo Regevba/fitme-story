@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Wrench } from 'lucide-react';
 import { getAllCaseStudies, type ContentEntry } from '@/lib/content';
 
 export const metadata: Metadata = {
@@ -416,7 +417,13 @@ export default async function CaseStudiesIndex() {
           id="dev-heading"
           className="font-serif text-[length:var(--text-display-md)] mb-2 flex items-baseline gap-3"
         >
-          <span aria-hidden="true">⚙️</span>
+          <Wrench
+            aria-hidden="true"
+            width={28}
+            height={28}
+            strokeWidth={1.75}
+            className="text-[var(--color-neutral-500)]"
+          />
           <span>Developer deep-dives</span>
         </h2>
         <p className="font-sans text-sm text-[var(--color-neutral-500)] mb-6 max-w-[var(--measure-body)]">
