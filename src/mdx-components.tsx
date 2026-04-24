@@ -15,6 +15,9 @@ import { DurationStack } from '@/components/case-study/DurationStack';
 import { RankedBars } from '@/components/case-study/RankedBars';
 import { FlowDiagram } from '@/components/case-study/FlowDiagram';
 import { ParallelGantt } from '@/components/case-study/ParallelGantt';
+import { AuditFunnel } from '@/components/case-study/AuditFunnel';
+import { RaceTimeline } from '@/components/case-study/RaceTimeline';
+import { PRStackDiagram } from '@/components/case-study/PRStackDiagram';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -35,5 +38,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     RankedBars,
     FlowDiagram,
     ParallelGantt,
+    AuditFunnel,
+    RaceTimeline,
+    PRStackDiagram,
   };
 }

@@ -16,6 +16,19 @@ persona_emphasis:
 
 > M-4 was the first M-series feature where attempt 1 failed. Not on build, not on review, not on integration -- on the logic of the bootstrap test itself. This is the case study of how "stop and rollback" became a proper methodology rather than a failure recovery.
 
+<HeroMetric value="2" label="attempts to ship — attempt 1 aborted, attempt 2 passed" />
+
+<FlowDiagram
+  nodes={[
+    { label: 'Attempt 1', sublabel: 'XCTWaiter.wait = expect ALL' },
+    { label: 'Always fails', sublabel: '2 of 3 time out' },
+    { label: 'Stop + rollback', sublabel: 'methodology rule' },
+    { label: 'Attempt 2', sublabel: 'XCTNSPredicate.evaluate = ANY' },
+    { label: 'Passes', sublabel: 'test green' },
+  ]}
+  caption="The predicate semantics was the bug — XCTWaiter's 'wait for all' was mistaken for 'wait for any'."
+/>
+
 ## Context
 
 The last in-project audit finding was TEST-025: the project had no XCUITest target. Unit tests covered logic; nothing exercised the real app on a simulator. M-4 was scoped to add the missing target, land a bootstrap test, and cover the four audit-named flows (sign-in, onboarding, home readiness, meal-log).

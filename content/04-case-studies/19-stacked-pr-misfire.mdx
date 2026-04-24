@@ -16,6 +16,16 @@ persona_emphasis:
 
 > Two PRs in a row said "merged". Main had neither. This is the short case study of the framework surfacing a new failure mode -- and how the recovery shaped a durable methodology rule.
 
+<PRStackDiagram
+  nodesJson='[
+    {"id":"main","label":"main","base":null,"highlight":"intended"},
+    {"id":"m2a","label":"feature/m2a-leaf-types","title":"PR #126 — base: main","base":"main","highlight":"ok"},
+    {"id":"m2c","label":"feature/m2c-view-model","title":"PR #127 — base: m2a","base":"m2a","highlight":"wrong"},
+    {"id":"m2b","label":"feature/m2b-tab-views","title":"PR #128 — base: m2c","base":"m2c","highlight":"wrong"}
+  ]'
+  caption="GitHub showed all three PRs as merged. Main only received #126 — #127 and #128 merged into their stacked parents, not main."
+/>
+
 ## Context
 
 M-2 was decomposing a 1,104-line `MealEntrySheet.swift` into 9 focused files. The plan had four phases -- leaf types (M-2a), view model (M-2c), per-tab views (M-2b), and the case study + audit closure (M-2d). Each phase was its own PR. To minimize rebase pain, the PRs were stacked: M-2c was opened with `--base feature/m2a-...`, and M-2b was opened with `--base feature/m2c-...`.
