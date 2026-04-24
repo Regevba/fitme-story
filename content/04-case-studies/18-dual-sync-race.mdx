@@ -16,6 +16,25 @@ persona_emphasis:
 
 > The audit's top backend finding: two sync paths that both pull on login with no coordination. Whichever one finishes last wins. This is the case study of how a structural audit surfaced a data-integrity bug that unit tests, manual QA, and day-to-day usage had all missed.
 
+<RaceTimeline
+  lanesJson='[
+    {"label":"CloudKit sync","colorVar":"var(--skill-design)","events":[
+      {"t":0,"label":"login","detail":""},
+      {"t":120,"label":"pull remote","detail":"iCloud state A"},
+      {"t":260,"label":"persistToDisk(A)"}
+    ]},
+    {"label":"Supabase sync","colorVar":"var(--skill-dev)","events":[
+      {"t":0,"label":"login","detail":""},
+      {"t":90,"label":"pull remote","detail":"DB state B"},
+      {"t":310,"label":"persistToDisk(B)"}
+    ]}
+  ]'
+  collisionAt={310}
+  collisionLabel="persistToDisk(B) overwrites (A) — silent data loss"
+  maxMs={400}
+  caption="Both services pull independently on login. The last write wins. No merge, no warning, no log."
+/>
+
 ## Context
 
 FitMe started on CloudKit (user-private iCloud sync for cardio logs and photos), then added Supabase for cross-device logins, onboarding data, and structured records. Both backends worked. Both shipped. Neither one ever visibly lost data during internal testing.

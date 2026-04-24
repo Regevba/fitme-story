@@ -17,6 +17,15 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 > What happens when the AI system that built the framework audits its own work -- and how honest can a self-referential audit be?
 
+<AuditFunnel
+  tiersJson='[
+    {"label":"Raw findings","count":185,"colorVar":"var(--skill-qa)"},
+    {"label":"Clusters","count":20,"colorVar":"var(--skill-analytics)"},
+    {"label":"Root causes","count":3,"colorVar":"var(--color-brand-coral)"}
+  ]'
+  caption="The 4-layer methodology compressed 185 raw findings into 20 thematic clusters and ultimately 3 root causes."
+/>
+
 ## Context
 
 After shipping 22 features across 6 framework versions, FitMe had accumulated substantial technical debt that individual feature-level audits could not see. This full-system audit used a 4-layer methodology -- surface sweep, risk-weighted deep dive, historical cross-reference, and external validation -- to assess the entire codebase. The audit was performed by the same AI system that built the framework. The implications of that self-referential structure are documented honestly in the bias section below.

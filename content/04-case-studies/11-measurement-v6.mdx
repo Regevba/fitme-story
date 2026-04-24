@@ -19,6 +19,17 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 <HeroMetric value="7/9" label="measurement DVs now deterministic" accentVar="var(--skill-analytics)" />
 
+<BeforeAfter
+  beforeLabel="Before v6.0"
+  beforeValue="T3 narrative"
+  beforeSubtitle="± 15–30 min estimates · narrative cache hits · binary complexity"
+  afterLabel="After v6.0"
+  afterValue="T1 instrumented"
+  afterSubtitle="commit-timestamp · cache-hits.json · 0.0–1.0 continuous factors"
+  delta="7 of 9 DVs"
+  afterAccentVar="var(--skill-analytics)"
+/>
+
 ## Context
 
 Through 16 features, every velocity claim in this project rested on estimated wall times (plus or minus 15-30 minutes), narrative-inferred cache hit rates ("~45%"), and binary complexity factors that treated a 1-view feature the same as a 5-view feature. The numbers were directionally correct but not reproducible. Framework v6.0 was built to fix this: deterministic timing, deterministic cache tracking, and continuous complexity factors. The twist -- this feature was the first to use the infrastructure it was building.

@@ -18,6 +18,8 @@ Next.js 16 · `useSearchParams` · Suspense · static generation. PM/HR readers:
 
 > What does it look like when every page on a freshly-deployed site ships 251 characters of HTML? Here's the production incident nobody saw coming, because nobody looked past HTTP 200.
 
+<HeroMetric value="251" label="bytes of HTML shipped per page — all 48 routes, zero content" />
+
 ## Context
 
 The fitme-story site was built in a single two-hour session using the superpowers brainstorming → writing-plans → subagent-driven-development chain. Preview passed. Tweaks landed. Production was promoted with `vercel --prod`. Every existing route returned HTTP 200 against both the preview and production URL. The site looked complete.
