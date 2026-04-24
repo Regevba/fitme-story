@@ -12,7 +12,10 @@ import { FEEDBACK_SOURCES } from '@/lib/feedback-sources';
 const SVG_SIZE = 800;
 const CENTER = SVG_SIZE / 2;
 const INNER_RING_RADIUS = 220;
-const OUTER_RING_RADIUS = 350;
+const OUTER_RING_RADIUS = 310;        // the dashed guide circle
+const ANCHOR_RADIUS = 360;            // pill CENTERS sit outside the ring
+const PILL_W = 128;
+const PILL_H = 44;
 const STORAGE_KEY = 'fitme-story.lifecycle.work-item-type';
 
 function polar(cx: number, cy: number, r: number, angleRad: number) {
@@ -201,14 +204,13 @@ export function LifecycleLoop() {
           />
         </motion.g>
 
-        {/* === Outer anchor nodes === */}
+        {/* === Outer anchor nodes — pills sit OUTSIDE the dashed ring at
+             ANCHOR_RADIUS so the ring itself is a clean unbroken circle. */}
         {FEEDBACK_SOURCES.map((src) => {
           const angle = anchorAngle(src.anchorAngleDeg);
-          const anchor = polar(CENTER, CENTER, OUTER_RING_RADIUS, angle);
+          const anchor = polar(CENTER, CENTER, ANCHOR_RADIUS, angle);
           const skill = getSkill(src.skillSlug);
           const Icon = FEEDBACK_ICONS[src.iconName];
-          const PILL_W = 128;
-          const PILL_H = 44;
 
           return (
             <g
@@ -275,7 +277,9 @@ export function LifecycleLoop() {
           if (!phase) return null;
           const skill = getSkill(src.skillSlug);
           const angle = anchorAngle(src.anchorAngleDeg);
-          const anchorPos = polar(CENTER, CENTER, OUTER_RING_RADIUS - 24, angle);
+          // Start just inside the pill's inward edge, end just outside the
+          // phase pip — line passes cleanly over the outer dashed ring.
+          const anchorPos = polar(CENTER, CENTER, ANCHOR_RADIUS - PILL_H / 2, angle);
           const phasePos = polar(CENTER, CENTER, INNER_RING_RADIUS + 18, phaseAngle(phase.order));
           return (
             <line
@@ -406,6 +410,64 @@ export function LifecycleLoop() {
           {centerSubtitle}
         </text>
       </svg>
+
+      {/* === Work-item-type legend ===
+           Explains what each pill actually means — counts + one-line scope +
+           the exact phases included. The active type gets a subtle accent. */}
+      <div className="mt-10 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pt-6">
+        <div className="mb-4 text-center text-xs font-sans uppercase tracking-wider text-[var(--color-neutral-500)]">
+          work-item types
+        </div>
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 font-sans">
+          {WORK_ITEM_TYPES.map((w) => {
+            const Icon = PILL_ICONS[w.id];
+            const isActive = w.id === workItemType;
+            return (
+              <li
+                key={w.id}
+                className={[
+                  'rounded-md border p-4 transition',
+                  isActive
+                    ? 'border-[var(--color-brand-indigo)] bg-[var(--color-brand-indigo)]/5'
+                    : 'border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-transparent',
+                ].join(' ')}
+              >
+                <div className="flex items-center gap-2">
+                  <Icon
+                    aria-hidden="true"
+                    width={16}
+                    height={16}
+                    strokeWidth={1.75}
+                    className={isActive ? 'text-[var(--color-brand-indigo)]' : 'text-[var(--color-neutral-500)]'}
+                  />
+                  <span className="font-serif text-base">{w.label}</span>
+                  <span className="ml-auto text-xs text-[var(--color-neutral-500)] tabular-nums">
+                    {w.phaseCount} {w.phaseCount === 1 ? 'phase' : 'phases'}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
+                  {w.summary}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {w.phases.map((p) => (
+                    <code
+                      key={p}
+                      className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]"
+                    >
+                      {p}
+                    </code>
+                  ))}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-5 text-center text-[11px] font-sans text-[var(--color-neutral-500)] max-w-[var(--measure-body)] mx-auto">
+          Not every work item runs all ten phases. Features get the full
+          lifecycle; smaller work skips the upstream phases it doesn&apos;t need.
+          Pick a type above to see which phases fire.
+        </p>
+      </div>
     </div>
   );
 }
