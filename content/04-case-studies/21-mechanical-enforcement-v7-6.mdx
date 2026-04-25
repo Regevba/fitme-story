@@ -1,0 +1,125 @@
+---
+title: Mechanical Enforcement — How v7.6 Closed the Class B Gap from Gemini's Audit
+slug: mechanical-enforcement-v7-6
+upstream_path: docs/case-studies/mechanical-enforcement-v7-6-case-study.md
+tier: light
+timeline_position:
+  version: '7.6'
+  order: 21
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+---
+# Mechanical Enforcement — How v7.6 Closed the Class B Gap
+
+> The 2026-04-21 Google Gemini 2.5 Pro independent audit triggered v7.5 (Data Integrity Framework, eight cooperating defenses, shipped 2026-04-24). v7.5 was a complete *policy* response — but most of its new defenses were Class B: they relied on the agent remembering to invoke them. v7.6 is the *mechanical* response. It promotes 4 silent agent-attention checks to write-time pre-commit failures, adds a per-PR review bot that fails the status check on new findings vs main, ships a weekly framework-status cron with a regression watcher, and explicitly enumerates the 5 gaps that **cannot** be promoted because pretending we could mechanize them would itself be a lie. This case study is the framework's full mechanical answer to the audit, published verbatim per the publish-then-remediate policy.
+
+## Read this first — outlier flag
+
+This case study is **itself an outlier in the corpus**. v7.6 shipped in a single ~6-hour working session on 2026-04-25. Three biases stack:
+
+1. **Single-session execution** — no organic cadence; phases ran sequentially in one sitting.
+2. **Dogfooded data collection** — the author of the framework rework also wrote the data and reads it. Same-author confound.
+3. **Retroactive v6.0 application** — the v6.0 measurement protocol shipped 2026-04-16; the data being reported is dominated by retroactive backfill, not by organic adoption on new feature work.
+
+The full upstream case study labels the limits explicitly in §10 *Outlier Limitations* and applies them to the published numbers (e.g., 3.33 min/CU is a dogfooded micro-benchmark, **not** a generalizable velocity claim). Read the §10–§11 sections of the upstream before quoting any number.
+
+## Trust-page connection
+
+This case study is the **detailed mechanical answer** to the Gemini audit, paired with the v7.5 policy answer. Together they are the framework's full reply to the 9 Tier 1/2/3 recommendations. The trust page Gemini-audit subroute links to both. Per the publish-verbatim policy: the original audit text remains unchanged on `/trust`; corrections and responses are appended.
+
+- **Audit (verbatim):** [/trust/audits/2026-04-21-gemini](/trust/audits/2026-04-21-gemini)
+- **v7.5 policy response:** the eight cooperating defenses (write-time + cycle-time + readout-time)
+- **v7.6 mechanical response:** the seven Class B → Class A promotions enumerated below + the five Class B gaps documented as `unclosable-gaps.md`
+
+## Summary card (T1 unless noted)
+
+- **Framework version:** v7.5 → **v7.6**
+- **Trigger:** Residual Class B → Class A gap left by v7.5; explicit user approval to "close the gap"
+- **Ship sessions:** 1 (2026-04-25)
+- **Wall time:** ~6 hours (T2 — Declared, single-session)
+- **Phase 1 commit (`0a23922`):** 4 new write-time check codes
+- **Phase 2 commit (`c0be8ea`):** PR review bot + history ledger + weekly cron
+- **Phase 3 commit (`ecb172d`):** Class B inventory + CLAUDE.md update
+- **Phase 4 commit (`58b82b5`):** manifest v7.6 bump + 616-line case study + propagation
+- **New scripts:** `scripts/check-case-study-preflight.py`
+- **Extended scripts:** `scripts/check-state-schema.py` (+2 check codes), `scripts/measurement-adoption-report.py` (+history)
+- **New GitHub Actions workflows:** `.github/workflows/pr-integrity-check.yml`, `.github/workflows/framework-status-weekly.yml`
+- **Pipeline regression test:** 8 → 15 assertions, all passing
+- **Class A promotions in v7.6:** 7
+- **Class B gaps remaining (and individually justified):** 5
+- **v7.6 own state.json:** instrumented end-to-end with v6.0 protocol from session-start (`timing.session_start`, `cu_version=2`, `cache_hits[]` populated, 6 contemporaneous log events)
+
+## The 7 Class B → Class A promotions
+
+| Concern | v7.5 | v7.6 |
+|---|---|---|
+| Phase transition w/ no log entry | Class B | **Class A — `PHASE_TRANSITION_NO_LOG` pre-commit (1a)** |
+| Phase transition w/ no timing update | Class B | **Class A — `PHASE_TRANSITION_NO_TIMING` pre-commit (1b)** |
+| Broken PR citation in case study | Class B | **Class A — `BROKEN_PR_CITATION` write-time pre-commit (1c)** |
+| Case study missing tier tags | Class B | **Class A — `CASE_STUDY_MISSING_TIER_TAGS` pre-commit (1d)** |
+| New findings vs main on a PR | Class B | **Class A — `pm-framework/pr-integrity` per-PR status check (2a)** |
+| Append-only adoption history | Class B | **Class A — dedup-by-date snapshot ledger (2b)** |
+| Measurement-adoption regression | Class B | **Class A — weekly cron + regression issue (2c)** |
+
+## The 5 Class B gaps that cannot be promoted
+
+Per `docs/case-studies/meta-analysis/unclosable-gaps.md`. Each gap has its own 4-section format (technical reason / observability / human action / tracking) in the upstream doc.
+
+1. **`cache_hits[]` writer-path adoption** — the *decision* to recognize a cache hit is the judgment we cannot mechanize. Tracked at GitHub issue #140. Observable via `make measurement-adoption`.
+2. **`cu_v2` factor *correctness*** — magnitudes are judgment-based; we check presence, not whether `novelty: 0.2` is the right number for this feature.
+3. **T1/T2/T3 tier tag *correctness*** — preflight (Phase 1d) checks tag *presence* on post-2026-04-21 case studies. Whether the tag is the *right* tag (T1 vs T2 vs T3) requires reading prose in context.
+4. **Tier 2.1 real-provider auth checklist** — Apple/Google sign-in handshake on a real device cannot be driven by an automated test runner without crossing into the mocking pattern v7.5 was built to avoid.
+5. **Tier 3.3 external replication** — no pre-commit hook can simulate "an external operator on an unrelated product succeeded with the framework." This is the open invitation; see Gap 5 tracking.
+
+## Cooperating-defenses recap (v7.5 + v7.6)
+
+```
+ Write-time (pre-commit, fires in <5s):
+   v7.5: SCHEMA_DRIFT, PR_NUMBER_UNRESOLVED
+   v7.6: PHASE_TRANSITION_NO_LOG, PHASE_TRANSITION_NO_TIMING,
+         BROKEN_PR_CITATION (write-time), CASE_STUDY_MISSING_TIER_TAGS
+
+ Per-PR (fires on every push):
+   v7.6: pm-framework/pr-integrity status check (delta vs origin/main)
+
+ 72h cycle (rear-guard safety net):
+   v7.1 → v7.5: 12 check codes scanned across all features + case studies
+
+ Weekly (trend signal):
+   v7.6: framework-status cron (regression watcher on adoption history)
+
+ On-demand readouts (any time):
+   make documentation-debt | make measurement-adoption | make runtime-smoke
+```
+
+## Tooling attribution (honest)
+
+Per the publish-verbatim policy, the upstream §9 names every contributor with what each contributed. Summary:
+
+- **Claude Opus 4.7 (1M context)** — all v7.5 + v7.6 framework commits since 2026-04-21 carry the `Co-Authored-By` tag.
+- **Google Gemini 2.5 Pro** — independent audit on 2026-04-21 (different vendor, different model family, artifact-only access). The audit *triggered* v7.5 → v7.6.
+- **OpenAI Codex** — SSD audit on 2026-04-19 identified the dashboard build break and SSD sprawl that motivated several pre-v7.5 hardening commits. Per `git log --since=2026-04-21 --pretty="%h %an %s"`, no commits in the v7.5/v7.6 window carry Codex attribution. The upstream tooling-attribution section explicitly leaves room to append further attribution if Codex work in this window is identified later.
+- **Human (Regev)** — trigger decisions, the four-part approval gate on 2026-04-25, policy choices (publish-verbatim, honest-status labels, Tier 3.3 sequencing).
+
+## What earned the v7.5 → v7.6 framework bump
+
+1. **A new structural capability** — mechanical enforcement is a layer that did not exist in v7.5. v7.5 had write-time gates for schema and PR-resolution; v7.6 adds the *transition* checks (1a/1b) and the *case-study* checks (1c/1d), plus the per-PR + weekly recurring layer. These are not extensions of existing checks; they are new check classes.
+2. **Propagation across surfaces** — manifest, CLAUDE.md, evolution doc, integrity README, repo-root mirrors, this MDX case study, and the trust page response section.
+3. **A measurement that the change is real** — pipeline regression test extended from 8 to 15 assertions, all passing at every Phase 1/2/3 commit. v7.6's own state.json is instrumented end-to-end with v6.0 protocol — proof of concept that the protocol can be applied without retroactive backfill when started at session-start.
+
+## Lessons (excerpts — see upstream §14 for the full set)
+
+- **Approval gates are multi-part.** The user said "close the gap"; I executed Phase 1 immediately. I should have paused and explicitly answered all four sub-questions (class behavior, scope, version bump, Tier 3.3 sequencing). A new feedback memory captures this so it doesn't recur.
+- **Write-time enforcement is cheaper than cycle-time enforcement** when the cost is failure-mode latency. The 72h cycle is fast in absolute terms but slow relative to the rate at which a single agent can ship 5 PRs in an afternoon. Pre-commit fails in 3–5 seconds; the cycle catches the same class 0–72 hours later.
+- **Class B is not a bug — but undocumented Class B is.** v7.5 had 5+ silent Class B gaps that only surfaced when explicitly enumerated for v7.6. The act of enumerating them in `unclosable-gaps.md` is itself a v7.6 deliverable. A framework that knows what it cannot mechanize is more trustworthy than one that pretends every check is a check.
+
+## Links
+
+- Full upstream case study (616 lines, all 15 sections including the comprehensive CU + workload data analysis): [`docs/case-studies/mechanical-enforcement-v7-6-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/mechanical-enforcement-v7-6-case-study.md)
+- v7.5 companion case study: [`data-integrity-framework-v7.5-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/data-integrity-framework-v7.5-case-study.md)
+- Class B gap inventory: [`unclosable-gaps.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/meta-analysis/unclosable-gaps.md)
+- Trust-page audit subroute: [/trust/audits/2026-04-21-gemini](/trust/audits/2026-04-21-gemini)
+- GitHub issue #140 — `cache_hits` writer-path: [github.com/Regevba/FitTracker2/issues/140](https://github.com/Regevba/FitTracker2/issues/140)

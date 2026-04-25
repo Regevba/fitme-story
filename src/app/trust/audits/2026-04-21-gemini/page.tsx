@@ -678,6 +678,144 @@ export default function GeminiAudit20260421Page() {
 
         <hr />
 
+        <h2>11. How we responded — v7.5 (policy) + v7.6 (mechanical)</h2>
+        <p>
+          The 9 Tier 1/2/3 recommendations in §7 were addressed in two waves. The
+          response is published here as appended commentary, not as silent edits to
+          §§ 1–10.
+        </p>
+
+        <h3>v7.5 — policy response (shipped 2026-04-24)</h3>
+        <p>
+          v7.5 turned the audit's recommendations into <strong>eight cooperating
+          defenses</strong> spanning write-time gates (pre-commit hooks for{' '}
+          <code>SCHEMA_DRIFT</code> and <code>PR_NUMBER_UNRESOLVED</code>),
+          cycle-time enforcement (the 72h Auditor Agent extended from 8 to 11 check
+          codes), runtime smoke gates (5 profiles including{' '}
+          <code>sign_in_surface</code>), contemporaneous logging (5 active feature
+          logs), data-quality tiers (T1 / T2 / T3 convention codified in CLAUDE.md),
+          a documentation-debt dashboard, and a measurement-adoption ledger. 7 of
+          Gemini's 9 Tier items shipped fully or effectively, 2 shipped as
+          partial/pilot with measured known deltas, and 1 (Tier 3.3 — external
+          replication) was deferred as external-blocked. Full narrative:{' '}
+          <a href="https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/data-integrity-framework-v7.5-case-study.md">
+            data-integrity-framework-v7.5-case-study.md
+          </a>
+          .
+        </p>
+
+        <h3>v7.6 — mechanical response (shipped 2026-04-25)</h3>
+        <p>
+          v7.5 was a complete <em>policy</em> answer, but most of its new defenses
+          were Class B — they relied on the agent remembering to invoke them. v7.6 is
+          the <em>mechanical</em> layer that promotes 7 silent agent-attention checks
+          to Class A enforcement and explicitly documents the 5 gaps that{' '}
+          <strong>cannot</strong> be promoted (because pretending we could mechanize
+          them would itself be a lie).
+        </p>
+        <ul>
+          <li>
+            <strong>4 new write-time pre-commit check codes:</strong>{' '}
+            <code>PHASE_TRANSITION_NO_LOG</code>,{' '}
+            <code>PHASE_TRANSITION_NO_TIMING</code>,{' '}
+            <code>BROKEN_PR_CITATION</code> (write-time, narrow regex), and{' '}
+            <code>CASE_STUDY_MISSING_TIER_TAGS</code> (forward-only, dates ≥
+            2026-04-21). Every commit now passes through these checks before it can
+            land.
+          </li>
+          <li>
+            <strong>Per-PR review bot:</strong> a new{' '}
+            <code>pm-framework/pr-integrity</code> commit status that fails when a PR
+            introduces NEW findings vs main. Sticky comment updates in place; status
+            check available for branch protection.
+          </li>
+          <li>
+            <strong>Weekly framework-status cron:</strong> Mondays 05:00 UTC,
+            snapshots the measurement-adoption history (dedup-by-date) and opens a
+            regression issue when <code>fully_adopted</code> or{' '}
+            <code>any_adopted</code> decreases.
+          </li>
+          <li>
+            <strong>5 explicit Class B gaps documented:</strong>{' '}
+            <a href="https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/meta-analysis/unclosable-gaps.md">
+              unclosable-gaps.md
+            </a>{' '}
+            enumerates each gap with a 4-section format (technical reason,
+            observability, human action, tracking). The gaps are: <code>cache_hits[]</code>{' '}
+            writer-path adoption (issue #140), <code>cu_v2</code> factor magnitude
+            correctness, T1/T2/T3 tag correctness (presence promoted to Class A;
+            correctness stays B), Tier 2.1 real-provider auth, and Tier 3.3 external
+            replication.
+          </li>
+        </ul>
+
+        <h3>Outlier framing — read this before quoting numbers</h3>
+        <p>
+          The v7.6 case study is itself an outlier in the corpus. It shipped in a
+          single ~6-hour working session on 2026-04-25; the data is dogfooded (the
+          author of the framework wrote the data and reads it); and the v6.0
+          measurement protocol the case study uses was applied retroactively (v6.0
+          shipped 2026-04-16; most prior features have empty <code>cache_hits[]</code>{' '}
+          arrays not because no hits occurred but because no logger was wired). The
+          case study labels these limits explicitly and applies them to the
+          published numbers — the 3.33 min/CU velocity is a dogfooded micro-benchmark,
+          not a generalizable framework-velocity claim. The fair test of v7.6's
+          success will be downstream organic feature work over the next 6+ weeks. See
+          §§ 10–11 of the upstream for the full data analysis with outlier caveat.
+        </p>
+
+        <h3>Detailed mechanical answer (links)</h3>
+        <ul>
+          <li>
+            v7.6 case study (full Dev-style narrative, comprehensive CU + workload
+            analysis, Codex tooling attribution, outlier limitations):{' '}
+            <a href="https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/mechanical-enforcement-v7-6-case-study.md">
+              mechanical-enforcement-v7-6-case-study.md
+            </a>
+          </li>
+          <li>
+            v7.5 case study (eight cooperating defenses):{' '}
+            <a href="https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/data-integrity-framework-v7.5-case-study.md">
+              data-integrity-framework-v7.5-case-study.md
+            </a>
+          </li>
+          <li>
+            Class B gap inventory:{' '}
+            <a href="https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/meta-analysis/unclosable-gaps.md">
+              unclosable-gaps.md
+            </a>
+          </li>
+          <li>
+            Per-PR review bot workflow:{' '}
+            <a href="https://github.com/Regevba/FitTracker2/blob/main/.github/workflows/pr-integrity-check.yml">
+              .github/workflows/pr-integrity-check.yml
+            </a>
+          </li>
+          <li>
+            Weekly framework-status cron:{' '}
+            <a href="https://github.com/Regevba/FitTracker2/blob/main/.github/workflows/framework-status-weekly.yml">
+              .github/workflows/framework-status-weekly.yml
+            </a>
+          </li>
+          <li>
+            Showcase MDX:{' '}
+            <a href="/case-studies/mechanical-enforcement-v7-6">
+              fitme-story / case-studies / mechanical-enforcement-v7-6
+            </a>
+          </li>
+        </ul>
+
+        <p>
+          Tier 3.3 — the public invitation for an external operator to run the
+          framework on an unrelated product — is the explicit final v7.6 deliverable.
+          The issue link will be inserted in this section once filed. Until an
+          external case study lands, the framework's own measurements remain
+          self-referential by definition; the v7.6 publication is the framework
+          honestly admitting where its own evidence runs out.
+        </p>
+
+        <hr />
+
         <p className="text-sm text-[var(--color-neutral-500)]">
           Full audit source archived at{' '}
           <a href={ARCHIVE_URL}>
