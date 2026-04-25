@@ -807,12 +807,41 @@ export default function GeminiAudit20260421Page() {
 
         <p>
           Tier 3.3 — the public invitation for an external operator to run the
-          framework on an unrelated product — is the explicit final v7.6 deliverable.
-          The issue link will be inserted in this section once filed. Until an
-          external case study lands, the framework's own measurements remain
-          self-referential by definition; the v7.6 publication is the framework
+          framework on an unrelated product — is the explicit final v7.6 deliverable
+          and was filed on 2026-04-25 as{' '}
+          <a href="https://github.com/Regevba/FitTracker2/issues/142">issue #142</a>{' '}
+          (pinned, labels: <code>tier-3-3</code>, <code>external-replication</code>,{' '}
+          <code>help wanted</code>). Until an external case study lands in{' '}
+          <code>docs/case-studies/external/</code>, the framework's own measurements
+          remain self-referential by definition; the v7.6 publication is the framework
           honestly admitting where its own evidence runs out.
         </p>
+
+        <p>
+          Two surfaces complete the audit response on this site:
+        </p>
+        <ul>
+          <li>
+            <a href="/case-studies/mechanical-enforcement-v7-6">
+              Case study (Light template) — fitme-story / case-studies / mechanical-enforcement-v7-6
+            </a>{' '}
+            — outlier-flagged, summary card, 7 promotions, 5 Class B gaps,
+            cooperating-defenses recap, honest tooling attribution.
+          </li>
+          <li>
+            <a href="/framework/dev-guide">
+              Developer guide (technical, dev-only) — fitme-story / framework / dev-guide
+            </a>{' '}
+            — 4 enforcement layers, <code>state.json</code> schema, phase lifecycle,
+            dispatch model, cache architecture, measurement protocol, 12 integrity
+            check codes, 3 operational walkthroughs, compressed v1.0 → v7.6 timeline.
+            Mirrors the canonical{' '}
+            <a href="https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/dev-guide-v1-to-v7-6.md">
+              docs/architecture/dev-guide-v1-to-v7-6.md
+            </a>{' '}
+            on GitHub.
+          </li>
+        </ul>
 
         <hr />
 

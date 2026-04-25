@@ -46,6 +46,24 @@ export default function FrameworkPage() {
           </div>
         </Link>
       </section>
+      <section className="mt-6">
+        <Link
+          href="/framework/dev-guide"
+          className="group block rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6 hover:border-[var(--color-brand-indigo)] hover:shadow-lg transition-all"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
+                Developer guide (v1.0 → v7.6) →
+              </h2>
+              <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 12 integrity check codes, 3 operational walkthroughs, compressed v1.0 → v7.6 timeline.
+              </p>
+            </div>
+            <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
+          </div>
+        </Link>
+      </section>
     </article>
   );
 }
