@@ -28,8 +28,15 @@ Five principles govern every feature:
 
 ```
 0. Research --> 1. PRD --> 2. Tasks --> 3. UX/Integration --> 4. Implement
-            --> 5. Test --> 6. Review --> 7. Merge --> 8. Docs --> 9. Learn
+            --> 5. Test --> 6. Review --> 7. Merge --> 8. Release --> 9. Learn
 ```
+
+After Phase 9 Learn, the cycle closes back to Phase 0 Research — a coral
+arc inside the inner ring of the lifecycle diagram makes the closure
+visible. After Phase 8 Release, three feedback skills (CX, Ops, Marketing)
+observe the shipped product and feed signals back to Research and Learn.
+Internal artifacts (PRDs, QA reports, runbooks) flow off-cycle through a
+Docs satellite — a separate moon in the diagram, not a phase in the loop.
 
 ### Work Types
 
@@ -211,7 +218,8 @@ Here's how the lifecycle plays out for a hypothetical "Push Notifications" featu
 6. **Test:** 6 new tests, CI green, analytics events instrumented.
 7. **Review:** No high-risk file changes, CI green on both branches.
 8. **Merge:** Squash-merged to main.
-9. **Docs:** CHANGELOG updated, backlog item moved to Done, baseline recorded.
+9. **Release:** TestFlight build, App Store submission, public availability — CX, Ops, Marketing satellites begin observing the live feature. CHANGELOG updated, backlog item moved to Done, baseline recorded.
+10. **Learn:** Post-launch metrics review, feedback synthesis, next-cycle inputs.
 10. **Learn:** Week 1 review shows 35% opt-in rate. Week 4 review shows D7 retention +3% (below 5% target). Decision: iterate on notification timing algorithm.
 
 ---

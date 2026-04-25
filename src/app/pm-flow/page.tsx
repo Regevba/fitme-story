@@ -21,9 +21,31 @@ export default function PmFlowPage() {
       <section id="loop" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">The process is a cycle, not a pipeline.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          Product development never ends with shipping. It loops back through monitoring, feedback, and analysis into the next iteration. The inner ring below shows the 10 phases. The outer ring shows the feedback-layer skills — cx, ops, and marketing — that continuously feed information into the cycle.
+          Product development never ends with shipping. It loops back through monitoring, feedback, and analysis into the next iteration. The inner ring below shows the 10 phases. After <strong>P8 Release</strong>, three feedback skills (CX, Ops, Marketing) observe the shipped product and feed signals back to Research and Learn — closing the loop. A separate <strong>Docs satellite</strong> sits off-cycle, carrying internal artifacts (PRDs, QA reports, runbooks) bidirectionally between PRD, Tasks, UX, and Test.
         </p>
         <LifecycleLoop />
+        <aside
+          aria-label="Note on Docs vs Release"
+          className="mx-auto mt-8 max-w-[var(--measure-body)] rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-5 text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed"
+        >
+          <p className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)] mb-2">
+            Footnote · Docs vs Release
+          </p>
+          <p>
+            <strong>Docs</strong> is a <em>structural</em> part of the
+            framework — full documentation about the process, the case
+            studies, the runbooks, the lifecycle records — most of it
+            written <em>after</em> Merge but during the same lifecycle.
+            It&apos;s shown as an off-cycle satellite because its readers
+            are internal: future agents, reviewing humans, the next
+            iteration&apos;s research phase. <strong>Release</strong>, by
+            contrast, is the <em>external</em> artifact — the moment the
+            feature is live for users. That&apos;s why Release is a phase
+            on the inner ring (the public ship event triggers the feedback
+            loop), and Docs is a moon (the documentation work flows
+            between phases without being a phase itself).
+          </p>
+        </aside>
       </section>
 
       <section id="wall" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">

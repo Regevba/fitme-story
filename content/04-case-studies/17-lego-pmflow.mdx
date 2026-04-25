@@ -96,9 +96,9 @@ Colors are defined once as CSS variables (`--skill-pm-workflow`, etc.) and consu
 
 `<LifecycleLoop>` is a 640×640 SVG with two rings:
 
-- **Inner ring:** 10 phase pips arranged clockwise (P0 Plan → P9 Docs), each a labeled circle. Clicking a pip scrolls to that phase's section on the page.
+- **Inner ring:** 10 phase pips arranged clockwise (P0 Research → P9 Learn), each a labeled circle. Clicking a pip scrolls to that phase's section on the page.
 - **Outer ring:** Arc segments, one per skill, colored by the skill's palette slot. An arc covers the phases that skill fires in (e.g., `qa` arcs over P5 + P7; `pm-workflow` arcs over all 10 because it's always-on).
-- **Feedback arc:** A coral arrow from P9 (Docs) back to P0 (Plan) sitting *outside* both rings, labeled "learn & cycle back." Explicitly drawn — the one thing that makes the framework a loop rather than a pipeline.
+- **Feedback arc:** A coral arrow from P9 (Learn) back to P0 (Research) sitting *inside* the inner ring, labeled "learn & cycle back." Explicitly drawn — the one thing that makes the framework a loop rather than a pipeline.
 
 **Why an arc per skill instead of a tile per phase.** The earliest sketch was a phase-column layout: 10 columns for phases, skills listed under the columns they fire in. Two problems: always-on skills (pm-workflow, ops) appeared in every column, and the reader lost the sense that skills are *things* that *span* the lifecycle. An arc gives the skill an identity that crosses phases; a column gives the phase an identity at the cost of the skill's.
 

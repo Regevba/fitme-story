@@ -11,7 +11,7 @@ const PHASES = [
   { name: 'Test', minutes: 35, color: '#F97066' },
   { name: 'Review', minutes: 15, color: '#F59E0B' },
   { name: 'Merge', minutes: 10, color: '#10B981' },
-  { name: 'Docs', minutes: 15, color: '#14B8A6' },
+  { name: 'Release', minutes: 15, color: '#10B981' },
 ];
 
 const totalMinutes = PHASES.reduce((sum, p) => sum + p.minutes, 0);
