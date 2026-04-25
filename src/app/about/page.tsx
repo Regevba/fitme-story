@@ -10,6 +10,25 @@ export default function AboutPage() {
   return (
     <article className="max-w-[var(--measure-wide)] mx-auto px-6 py-16">
       <h1 className="font-serif text-[length:var(--text-display-lg)]">About</h1>
+      <aside
+        aria-label="Project disclaimer"
+        className="not-prose mt-8 max-w-[var(--measure-body)] rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-5 font-sans text-sm leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]"
+      >
+        <p className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)] mb-2">
+          Disclaimer
+        </p>
+        <p>
+          This is an experiment. Everything on this site — the framework, the case
+          studies, the audits, the metrics, the app itself — was built to teach
+          myself what working with AI on real product development actually feels
+          like, from first sketch to last commit. The goal was the learning; the
+          artifacts are byproducts. Read it as one person&apos;s working notebook —
+          how plans form, how builds break, how audits surface what you missed,
+          how iteration plays out across days and weeks. Nothing here claims to be
+          finished, generalizable, or anyone&apos;s recipe to follow.{' '}
+          <strong>The <em>how</em> matters more than the <em>what</em>.</strong>
+        </p>
+      </aside>
       <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-8">
         <p>
           FitMe is a personal project — an iOS app I built to track my own fitness and wellbeing the way I wanted: fast,
