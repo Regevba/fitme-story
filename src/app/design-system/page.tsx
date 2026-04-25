@@ -28,47 +28,57 @@ const PRINCIPLES = [
 
 const ONBOARDING_FLOW = [
   {
+    src: '/design-system/welcome.png',
+    title: 'Welcome',
+    caption: 'Brand entry. One CTA, no chrome, the wordmark and the value proposition. The first frame the user judges the app on.',
+  },
+  {
     src: '/design-system/onboarding-goals.png',
     title: 'Goal selection',
-    caption: 'The user picks a concrete outcome early, with large touch targets and one dominant active state.',
+    caption: 'A concrete outcome chosen up front, with large touch targets and a single primary action. The progress bar at top is the only navigation chrome.',
+  },
+  {
+    src: '/design-system/onboarding-experience.png',
+    title: 'Tell us about you',
+    caption: 'Training experience and weekly frequency calibrate the program. Skip is always available — onboarding never blocks.',
+  },
+  {
+    src: '/design-system/onboarding-apple-health.png',
+    title: 'Sync Apple Health',
+    caption: 'Permission with intent. Each data type listed by purpose, recovery and readiness explicitly named. Skip with a clear later-in-Settings escape.',
   },
   {
     src: '/design-system/onboarding-consent.png',
-    title: 'Consent step',
-    caption: 'Privacy and analytics consent are explained in plain language with a single primary decision path.',
+    title: 'Help us improve',
+    caption: 'Honest analytics. Green checks on what is collected, red on what is not — health values and personal information stay local. Continue Without is just as prominent as Accept.',
   },
   {
-    src: '/design-system/onboarding-first-action.png',
-    title: 'First action',
-    caption: 'The flow closes by pointing the user toward the first meaningful action instead of dropping them into an empty shell.',
+    src: '/design-system/onboarding-save-progress.png',
+    title: 'Save your progress',
+    caption: 'Email or Apple, both equally weighted, log-in for returning users, skip-for-now for trial. The ladder reads top-down by friction.',
   },
 ];
 
-const PRODUCT_SCREENS = [
+const LIVE_APP_SCREENS = [
   {
     src: '/design-system/home-dashboard.png',
-    title: 'Home dashboard',
-    caption: 'Gradient shell, large-type greeting, and card surfaces using the semantic token stack.',
+    title: 'Home — Day 84',
+    caption: 'Personalized greeting, rotating achievements card, contextual day type (rest day with Start Recovery + Log Meal), body-composition snapshot below the fold. All actions are one tap away.',
   },
   {
-    src: '/design-system/training-plan-picker.png',
-    title: 'Training plan',
-    caption: 'Reusable sheet, selection states, and compact action cards inside the training flow.',
+    src: '/design-system/training-plan-live.png',
+    title: 'Training plan — live session',
+    caption: 'Week strip with completion dots, suggested session card with progress ring, exercise rows showing sets / rep range / rest plus an inline coaching note in the brand orange.',
   },
   {
-    src: '/design-system/settings-home.png',
-    title: 'Settings information architecture',
-    caption: 'Area-based grouping makes account, health, goals, training, and sync controls scan quickly.',
+    src: '/design-system/session-complete.png',
+    title: 'Session complete — celebration sheet',
+    caption: 'Modal presentation honours every PR. Duration, exercises, total sets, and volume rendered in the same metric-tile grammar as the home dashboard. Share is one tap.',
   },
   {
-    src: '/design-system/stats-month-view.png',
-    title: 'Stats month view',
-    caption: 'Chart placeholders, segmented controls, and metric tiles all share one visual grammar.',
-  },
-  {
-    src: '/design-system/ai-intelligence-sheet.png',
-    title: 'AI intelligence sheet',
-    caption: 'Modal presentation reuses the same spacing, typography, and surface rules as the rest of the app.',
+    src: '/design-system/nutrition-live.png',
+    title: 'Nutrition — macros and strategy',
+    caption: 'Macro targets at the top, named strategy beneath ("Continuous deficit"), Repeat Last for the daily ritual, meals timestamped with kcal + protein. Same chip and card grammar as the rest of the app.',
   },
 ];
 
@@ -92,13 +102,14 @@ export default function DesignSystemPage() {
           ))}
         </ol>
       </section>
-      <section>
-        <h2 className="font-serif text-2xl mb-3">Onboarding flow</h2>
+      <section className="mt-16">
+        <h2 className="font-serif text-2xl mb-3">Onboarding flow — six screens</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
-          The onboarding path uses the same typography, spacing, card radius, and CTA logic as the rest of the app.
-          That makes the first-run experience feel like the beginning of the product, not a separate mini-site.
+          The first-run path uses the same typography, spacing, card radius, and CTA logic as the
+          rest of the app — so onboarding feels like the beginning of the product, not a separate
+          mini-site. Every screen offers an explicit skip; no step blocks.
         </p>
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {ONBOARDING_FLOW.map((shot) => (
             <figure
               key={shot.src}
@@ -126,14 +137,14 @@ export default function DesignSystemPage() {
         </div>
       </section>
       <section className="mt-16">
-        <h2 className="font-serif text-2xl mb-3">Screens in practice</h2>
+        <h2 className="font-serif text-2xl mb-3">Live app — daily use with mock data</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
-          These simulator captures come from the FitTracker design-system validation run in the main repo&apos;s
-          <code className="mx-1 font-mono">docs/screenshots/</code>
-          corpus. They show the token system after the v2 refactor, not static mocks.
+          Four screens from the daily flow, captured against a seeded test profile so the data is
+          realistic without exposing real users. Same tokens, same components, same metric-tile
+          grammar carried from onboarding into Home, Training, Session-Complete, and Nutrition.
         </p>
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {PRODUCT_SCREENS.map((shot) => (
+          {LIVE_APP_SCREENS.map((shot) => (
             <figure
               key={shot.src}
               className="overflow-hidden rounded-[28px] border border-[var(--color-neutral-200)] bg-white/70 shadow-sm dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]"
