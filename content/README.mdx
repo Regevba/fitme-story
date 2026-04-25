@@ -6,7 +6,7 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
 # FitMe Engineering Showcase
 
-> How a solo developer built and measured an AI-orchestrated product management framework across 16 shipped features — from v1.0 to hardware-aware dispatch.
+> How a solo developer built and measured an AI-orchestrated product management framework across 16+ shipped features — from v1.0 through hardware-aware dispatch (v7.0), the 72h integrity cycle (v7.1), the Data Integrity Framework (v7.5), and Mechanical Enforcement (v7.6).
 
 ---
 
@@ -14,7 +14,7 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 
 FitMe is an iOS fitness app that unifies training, nutrition, recovery, and body composition into a single privacy-first experience. But the interesting part isn't the app — it's **how it was built**.
 
-Over the course of building FitMe, I developed an AI-assisted product management framework that evolved through 7 major versions. Each version added capabilities — caching, evaluation layers, parallel execution, hardware-aware dispatch — and each was measured against the last. The result is the following dataset: **16 features shipped through the same framework, with honest documentation of both improvements and regressions.**
+Over the course of building FitMe, I developed an AI-assisted product management framework that has evolved through nine major versions (v2.0, v3.0, v4.x, v5.x, v6.0, v7.0, v7.1, v7.5, v7.6). Each version added capabilities — caching, evaluation layers, parallel execution, hardware-aware dispatch, integrity cycle, write-time gates, mechanical enforcement — and each was measured against the last. The result is the following dataset: **16+ features shipped through the same framework, with honest documentation of both improvements and regressions, and an explicit inventory of the 5 mechanically unclosable Class B gaps the framework cannot enforce by design.**
 
 This repository contains the curated documentation from that process. No source code — just the thinking, the measurements, and the lessons learned.
 
@@ -24,11 +24,13 @@ This repository contains the curated documentation from that process. No source 
 
 | Metric | Value |
 |---|---|
-| Features shipped | 16 (through the PM framework) |
-| Framework versions | 7 (v2.0 → v7.0) |
+| Features shipped | 16+ (through the PM framework) |
+| Framework versions | 9 (v2.0 → v7.6) |
 | Serial velocity improvement | ~5.6x (measured in min/CU) |
 | Parallel throughput | 12.4x vs baseline (4 features in 54 minutes) |
 | Full-system audit findings | 185 (12 critical, 49 high — documented, not hidden) |
+| Independent audit | Google Gemini 2.5 Pro, 2026-04-21 — published verbatim on `/trust`, with v7.5 + v7.6 as the framework's response |
+| Mechanically unclosable Class B gaps | 5 (explicitly enumerated in `unclosable-gaps.md`, not hidden) |
 | Design system tokens | ~125 semantic tokens, 13 reusable components |
 | UX screens v2-aligned | 6/6 (100% token compliance) |
 | Framework overhead | 7.91% of context window (79K tokens, measured) |
@@ -47,7 +49,11 @@ Every screen was rebuilt from scratch against [13 UX foundations principles](03-
 
 **"I want the technical story"** — Start with [Process Framework](02-process-framework/README.md). It explains the 11-skill architecture, the 10-phase lifecycle, and how they evolved.
 
-**"I want to see the progression"** — Read [Case Studies](04-case-studies/) 01 through 13 in order. Each maps to a framework version (v2.0 through v7.0) and builds on the previous.
+**"I want to see the progression"** — Read [Case Studies](04-case-studies/) 01 through 13 in order, then jump to slot 21 ([Mechanical Enforcement v7.6](https://fitme-story.vercel.app/case-studies/mechanical-enforcement-v7-6)). Each maps to a framework version (v2.0 through v7.6) and builds on the previous.
+
+**"I want the developer view"** — Read the [Developer guide (v1.0 → v7.6)](https://fitme-story.vercel.app/framework/dev-guide). 745 lines covering the wiring (4 enforcement layers, `state.json` schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 12 integrity check codes, 3 operational walkthroughs).
+
+**"I want the audit response"** — Read the [trust page Gemini-audit subroute](https://fitme-story.vercel.app/trust/audits/2026-04-21-gemini). Verbatim audit + appended response section linking the case study, the dev guide, and [Tier 3.3 invitation issue #142](https://github.com/Regevba/FitTracker2/issues/142).
 
 **"I want the research"** — Jump to [Research Frontier](05-research/README.md). It covers <Term slug="soc">SoC</Term>-on-software architecture, hardware-aware dispatch, and a RISC-V chip design that emerged from the framework.
 
@@ -65,6 +71,8 @@ fitme-showcase/
 ├── 04-case-studies/         # The proof — 16 features measured and documented
 └── 05-research/             # Where it led — from software patterns to chip design
 ```
+
+The site also publishes two non-content surfaces complementing the showcase: `/framework/dev-guide` (technical developer onboarding) and `/trust/audits/2026-04-21-gemini` (verbatim independent audit + framework response).
 
 Each section has its own README with context and a reading guide.
 

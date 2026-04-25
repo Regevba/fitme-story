@@ -4,6 +4,12 @@ Next.js 16 site that narrates the FitMe PM-framework evolution through a timelin
 
 Production: [fitme-story.vercel.app](https://fitme-story.vercel.app)
 
+> **Latest at v7.6 (Mechanical Enforcement, shipped 2026-04-25):**
+>
+> - [Case study (Light template)](https://fitme-story.vercel.app/case-studies/mechanical-enforcement-v7-6) — outlier-flagged, summary card, 7 Class B → A promotions, 5 documented Class B gaps, honest tooling attribution.
+> - [Developer guide (technical, dev-only)](https://fitme-story.vercel.app/framework/dev-guide) — 745 lines covering 4 enforcement layers, `state.json` schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 12 integrity check codes, 3 operational walkthroughs. Vendored mirror of [`docs/architecture/dev-guide-v1-to-v7-6.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/dev-guide-v1-to-v7-6.md) on FitTracker2.
+> - [Trust page Gemini-audit subroute](https://fitme-story.vercel.app/trust/audits/2026-04-21-gemini) — verbatim audit + appended response section linking the case study, the dev guide, and [Tier 3.3 invitation issue #142](https://github.com/Regevba/FitTracker2/issues/142).
+
 ## Getting Started
 
 ```bash

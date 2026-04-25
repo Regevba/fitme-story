@@ -6,13 +6,13 @@ upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
 ---
 # Act 4: Case Studies — The Framework Evolution, Told in Data
 
-> 13 features. One complexity model. A linear timeline that traces how an AI-assisted PM framework evolved from a 6.5-hour pilot to hardware-aware dispatch — with honest measurements at every step.
+> 13 timeline studies + 8 deep-dives + the v7.6 mechanical-enforcement case study. One complexity model. A linear progression that traces how an AI-assisted PM framework evolved from a 6.5-hour pilot through hardware-aware dispatch (v7.0), the 72h integrity cycle (v7.1), the Data Integrity Framework (v7.5), and Mechanical Enforcement (v7.6) — with honest measurements at every step, and explicit outlier-flagging where they apply.
 
 ## Context
 
-These case studies document the evolution of an AI-assisted PM framework across 17 features built over 4 weeks. Unlike typical "we shipped fast" narratives, every claim here is backed by a normalized complexity metric (<Term slug="complexity-units">Complexity Units</Term>, or CU) that accounts for task count, work type, and difficulty factors like auth integration, UI complexity, and architectural novelty. The result: apples-to-apples velocity comparisons across features of wildly different scope.
+These case studies document the evolution of an AI-assisted PM framework across features built between v2.0 and v7.6. Unlike typical "we shipped fast" narratives, every claim here is backed by a normalized complexity metric (<Term slug="complexity-units">Complexity Units</Term>, or CU) that accounts for task count, work type, and difficulty factors like auth integration, UI complexity, and architectural novelty. The result: apples-to-apples velocity comparisons across features of wildly different scope.
 
-**Read them in order.** The numbering follows the framework's version timeline — v2.0 through v7.0. Each study builds on the previous, and the progression from "manual and slow" to "parallel, measured, and hardware-aware" is the point.
+**Read them in order.** The numbering follows the framework's version timeline — v2.0 through v7.6. Each study builds on the previous, and the progression from "manual and slow" to "parallel, measured, hardware-aware, and mechanically enforced" is the point. The v7.5 + v7.6 case studies (slot 21 here, plus the upstream long-form versions in [FitTracker2 docs](https://github.com/Regevba/FitTracker2/tree/main/docs/case-studies)) are the framework's response to the [2026-04-21 Google Gemini 2.5 Pro independent audit](https://fitme-story.vercel.app/trust/audits/2026-04-21-gemini); the v7.6 case study is explicitly **outlier-flagged** (single-session, dogfooded, retroactive v6.0).
 
 The measurement methodology is described in [How We Normalized Complexity Across 16 Different Features](normalization-model.md), and independently validated in [External Validation](meta-analysis-validation.md).
 
@@ -35,6 +35,9 @@ The measurement methodology is described in [How We Normalized Complexity Across
 | 11 | [Stopped Estimating, Started Measuring](11-measurement-v6.md) | v6.0 | Self-awareness | 7 of 9 metrics moved from estimated to deterministic |
 | 12 | [<Term slug="hadf">V7.0 HADF</Term>](12-hadf.md) | v7.0 | Hardware | 17 chip profiles + 7 cloud signatures in 120 min |
 | 13 | [185 Findings Full-System Audit](13-full-system-audit.md) | v7.0 | Audit | 185 findings, 12 critical, honest self-referential bias report |
+| 21 | [Mechanical Enforcement (v7.6)](21-mechanical-enforcement-v7-6.md) | v7.5 → v7.6 | Audit response | 7 Class B → A promotions + 5 explicit unclosable Class B gaps; outlier-flagged single-session work |
+
+> Slots 14–20 are deep-dives that branch from the main timeline (framework story site, SSR regression, dispatch-replay, Lego-PM-flow, dual-sync race, stacked-PR misfire, XCTWaiter abort/retry). Slot 21 is the v7.6 audit-response case study.
 
 ---
 
@@ -69,5 +72,9 @@ The model fits a power law with R-squared = 0.87, suggesting the improvement cur
 **If you have 10 minutes:** Read [6 Refactors, 6.5x Speedup](02-framework-evolution.md) — it contains the core thesis with the most data.
 
 **If you have 30 minutes:** Read the full sequence 01 through 13 in order. Each builds on the previous, and the progression from pilot to hardware-aware dispatch is the narrative arc.
+
+**If you have 45 minutes:** Add slot 21 (Mechanical Enforcement v7.6) and the [trust page](https://fitme-story.vercel.app/trust/audits/2026-04-21-gemini) to that sequence. The v7.6 case study is the framework's response to the Gemini independent audit and the explicit closure of v7.5 → v7.6.
+
+**If you are a developer:** read the [Developer guide (v1.0 → v7.6)](https://fitme-story.vercel.app/framework/dev-guide) instead — 745 lines covering the wiring (4 enforcement layers, `state.json` schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 12 integrity check codes, 3 operational walkthroughs).
 
 **If you are evaluating methodology:** Start with the [Normalization Model](normalization-model.md) and [External Validation](meta-analysis-validation.md). They contain the statistical caveats and limitations that make the rest of the data trustworthy.
