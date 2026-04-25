@@ -18,7 +18,7 @@ export const PHASES: Phase[] = [
   { id: 'P5', order: 5, name: 'Test', description: 'Unit, integration, regression, accessibility, security checks.', primarySkillSlug: 'qa' },
   { id: 'P6', order: 6, name: 'Review', description: 'Code review, spec-compliance review, UX review.', primarySkillSlug: 'dev' },
   { id: 'P7', order: 7, name: 'Merge', description: 'Integration, release prep, version bump, changelog.', primarySkillSlug: 'release' },
-  { id: 'P8', order: 8, name: 'Docs', description: 'User docs, release notes, case study, analytics handoff.', primarySkillSlug: 'cx' },
+  { id: 'P8', order: 8, name: 'Release', description: 'The public ship moment — feature is live for users and observed by CX, Ops, and Marketing.', primarySkillSlug: 'release' },
   { id: 'P9', order: 9, name: 'Learn', description: 'Post-launch metrics review, feedback synthesis, next-cycle inputs.', primarySkillSlug: 'cx' },
 ];
 

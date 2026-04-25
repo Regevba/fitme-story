@@ -13,35 +13,31 @@ export interface FeedbackSource {
   iconName: 'MessageSquare' | 'Activity' | 'Megaphone';
 }
 
-// Routing matches the canonical PM-hub schematics:
-//   - .claude/shared/skill-routing.json (FitTracker2)
-//   - src/lib/skill-ecosystem.ts (this repo) — phaseOwnership field
+// All three feedback skills fan out FROM P8 Release (the public ship moment)
+// and feed back IN to early-cycle phases (P0 Research / P9 Learn). The
+// post-release arc — between P8 (288°) and P0 (0°/360°) — is the
+// "observation zone" where shipped product meets real users + production.
 //
-// Where each outer-ring skill actually fires in the forward lifecycle:
-//   - CX         -> P0 Research (reviews, sentiment, NPS ingest)
-//   - Marketing  -> P8 Documentation (launch comms, ASO updates)
-//   - Ops        -> P9 Learn (incident synthesis; continuous background)
+// Each anchor has a primary feedback target (where its observations land in
+// the next iteration's forward path):
+//   - CX         -> P0 Research  (reviews, sentiment, NPS feed new research)
+//   - Marketing  -> P0 Research  (ASO, campaigns, funnels feed prioritization)
+//   - Ops        -> P9 Learn     (incidents, latency, SLOs feed synthesis)
 //
-// Phase angles (clockwise from top, 36° increments): P0=0°, P1=36°, P8=288°,
-// P9=324°. Each anchor sits at its target phase angle so the connector is a
-// short radial arrow — no diagonal cross-center lines.
+// All three also carry an outward "ship signal" connector FROM P8 Release —
+// rendered separately by the LifecycleLoop component, not on this data type.
+//
+// Anchors are clustered post-release at 296°, 324°, 352° (24° apart) so they
+// sit visually between P8 Release and P0 Research, reinforcing the
+// "after release, observe, return to research" narrative.
 export const FEEDBACK_SOURCES: FeedbackSource[] = [
-  {
-    id: 'cx',
-    label: 'CX',
-    description: 'reviews · sentiment · NPS',
-    targetPhases: ['P0'],
-    skillSlug: 'cx',
-    anchorAngleDeg: 0,       // sits over P0 Research
-    iconName: 'MessageSquare',
-  },
   {
     id: 'marketing',
     label: 'Marketing',
-    description: 'ASO · campaigns · launch',
-    targetPhases: ['P8'],
+    description: 'ASO · campaigns · launch funnels',
+    targetPhases: ['P0'],
     skillSlug: 'marketing',
-    anchorAngleDeg: 288,     // sits over P8 Documentation
+    anchorAngleDeg: 296,     // post-release, just past P8
     iconName: 'Megaphone',
   },
   {
@@ -52,5 +48,14 @@ export const FEEDBACK_SOURCES: FeedbackSource[] = [
     skillSlug: 'ops',
     anchorAngleDeg: 324,     // sits over P9 Learn
     iconName: 'Activity',
+  },
+  {
+    id: 'cx',
+    label: 'CX',
+    description: 'reviews · sentiment · NPS',
+    targetPhases: ['P0'],
+    skillSlug: 'cx',
+    anchorAngleDeg: 352,     // just before P0, reinforces loop closure
+    iconName: 'MessageSquare',
   },
 ];

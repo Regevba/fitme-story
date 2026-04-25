@@ -1,30 +1,35 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { Sparkles, Wrench, Bandage, Package, MessageSquare, Activity, Megaphone } from 'lucide-react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import {
+  Sparkles, Wrench, Bandage, Package,
+  MessageSquare, Activity, Megaphone, FileText,
+} from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 import { PHASES, type PhaseId } from '@/lib/lifecycle-phases';
 import { getSkill, type SkillSlug } from '@/lib/skill-ecosystem';
 import { WORK_ITEM_TYPES, type WorkItemType, getWorkItemType } from '@/lib/work-item-types';
-import { FEEDBACK_SOURCES } from '@/lib/feedback-sources';
+import { FEEDBACK_SOURCES, type FeedbackSourceId } from '@/lib/feedback-sources';
+import { INTERNAL_SATELLITES } from '@/lib/internal-satellites';
 
-const SVG_SIZE = 900;       // grown from 800 to fit Marketing (P8 @ 288°)
+const SVG_SIZE = 900;
 const CENTER = SVG_SIZE / 2;
 const INNER_RING_RADIUS = 220;
-const OUTER_RING_RADIUS = 310;        // the dashed guide circle
-const ANCHOR_RADIUS = 360;            // pill CENTERS sit outside the ring
+const OUTER_RING_RADIUS = 310;
+const ANCHOR_RADIUS = 360;
 const PILL_H = 44;
-const PILL_ICON_ZONE = 42;            // icon + spacing before label text
+const PILL_ICON_ZONE = 42;
 const PILL_RIGHT_PAD = 18;
+const DOCS_PILL_H = 36;
+const DOCS_PILL_W = 132;
 const STORAGE_KEY = 'fitme-story.lifecycle.work-item-type';
 
-// Character-width heuristic at the pill's two font sizes. SVG can't auto-
-// size pills from their content, so we estimate and size each pill
-// per-source to avoid overflow for longer descriptions like Ops's.
+type HoverTarget = 'p8' | 'docs' | FeedbackSourceId | null;
+
 function estimatePillWidth(label: string, description: string): number {
-  const labelPx = label.length * 7.3;        // ~13px semibold sans
-  const descPx = description.length * 5.6;   // ~10px regular sans
+  const labelPx = label.length * 7.3;
+  const descPx = description.length * 5.6;
   return Math.ceil(PILL_ICON_ZONE + Math.max(labelPx, descPx) + PILL_RIGHT_PAD);
 }
 
@@ -32,14 +37,26 @@ function polar(cx: number, cy: number, r: number, angleRad: number) {
   return { x: cx + r * Math.cos(angleRad), y: cy + r * Math.sin(angleRad) };
 }
 
-// P0 sits at 12 o'clock (-π/2), increasing clockwise.
 function phaseAngle(order: number): number {
   return -Math.PI / 2 + (order * 2 * Math.PI) / PHASES.length;
 }
 
-// Outer ring anchors — anchorAngleDeg is measured clockwise from 12 o'clock (0°).
 function anchorAngle(deg: number): number {
   return -Math.PI / 2 + (deg * Math.PI) / 180;
+}
+
+// Curved Bezier path between two polar points, bowing outward via an outer
+// control point. Used for fan-out (P8 → pill) and return (pill → phase) arrows.
+function bezierArcPath(startAngle: number, startR: number, endAngle: number, endR: number, ctrlR: number): string {
+  const start = polar(CENTER, CENTER, startR, startAngle);
+  const end = polar(CENTER, CENTER, endR, endAngle);
+  // Midpoint angle, taking the SHORT path (handle wraparound at 0/2π).
+  let midAngle = (startAngle + endAngle) / 2;
+  if (Math.abs(endAngle - startAngle) > Math.PI) {
+    midAngle += Math.PI;
+  }
+  const ctrl = polar(CENTER, CENTER, ctrlR, midAngle);
+  return `M ${start.x} ${start.y} Q ${ctrl.x} ${ctrl.y} ${end.x} ${end.y}`;
 }
 
 function scrollToSection(hash: string) {
@@ -60,11 +77,15 @@ const FEEDBACK_ICONS: Record<'MessageSquare' | 'Activity' | 'Megaphone', Compone
   Megaphone,
 };
 
+const SATELLITE_ICONS: Record<'FileText', ComponentType<SVGProps<SVGSVGElement>>> = {
+  FileText,
+};
+
 export function LifecycleLoop() {
   const reduced = useReducedMotion();
   const [workItemType, setWorkItemType] = useState<WorkItemType>('feature');
+  const [hover, setHover] = useState<HoverTarget>(null);
 
-  // Restore last choice from localStorage.
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY) as WorkItemType | null;
@@ -72,7 +93,7 @@ export function LifecycleLoop() {
         setWorkItemType(stored);
       }
     } catch {
-      // localStorage unavailable — fall through with default.
+      // localStorage unavailable
     }
   }, []);
 
@@ -94,19 +115,26 @@ export function LifecycleLoop() {
       : `${activeType.label.toLowerCase()} lifecycle`;
   const centerSubtitle =
     workItemType === 'feature'
-      ? 'inner ships forward · outer feeds back'
+      ? 'release fans out · feedback closes the loop'
       : `${activeType.phaseCount} of ${PHASES.length} phases active`;
 
-  // Phases that sit directly under an outer feedback anchor — their labels
-  // flip inward so they don't crowd the pill above the pip.
-  const anchorTargetedPhases = new Set<PhaseId>(
-    FEEDBACK_SOURCES.map((s) => s.targetPhases[0])
-  );
+  // Phases with an outer pill nearby — flip their labels inward so they
+  // don't crowd the pill's airspace.
+  const anchorTargetedPhases = new Set<PhaseId>(['P0', 'P8', 'P9']);
+
+  const p8 = PHASES.find((p) => p.id === 'P8')!;
+  const p9 = PHASES.find((p) => p.id === 'P9')!;
+  const p0 = PHASES.find((p) => p.id === 'P0')!;
+
+  // Hover predicates — cheap to compute, no need to memoize.
+  const showFanOut = (pillId: FeedbackSourceId) => hover === 'p8' || hover === pillId;
+  const showReturn = (pillId: FeedbackSourceId) => hover === 'p8' || hover === pillId;
+  const showDocs = hover === 'docs';
 
   return (
     <div
       className="my-8 max-w-[900px] mx-auto"
-      aria-label="Product-development lifecycle — inner 10-phase ring plus outer feedback ring"
+      aria-label="Product-development lifecycle — orbital diagram with release fan-out and feedback return"
     >
       {/* Work-item type pill toggle */}
       <div
@@ -151,24 +179,23 @@ export function LifecycleLoop() {
       </p>
 
       <span className="sr-only">
-        Two-ring lifecycle diagram. Inner ring: ten forward phases (Research, PRD, Tasks,
-        UX, Implement, Test, Review, Merge, Docs, Learn) arranged clockwise. Outer ring:
-        three feedback skills arranged around the cycle at the phases where they fire.
-        CX sits at Research — reviews, sentiment, and NPS feed new research. Marketing
-        sits at Documentation — ASO, campaigns, and launch comms. Ops sits at Learn —
-        incidents, latency, and SLOs feed post-launch synthesis; Ops also runs
-        continuously in the background across every phase.
+        Two-ring lifecycle diagram. Inner ring: ten forward phases — Research, PRD, Tasks,
+        UX, Implement, Test, Review, Merge, Release, Learn — clockwise. After Release at
+        P8, three feedback skills (Marketing, Ops, CX) observe the shipped product and
+        feed back into Research and Learn, closing the loop. A separate Docs satellite
+        sits off-cycle, flowing artifacts between PRD, Tasks, UX, and Test. Hover or
+        focus the Release phase or any feedback pill to see the fan-out and return
+        arrows; hover the Docs satellite to see its connectors.
       </span>
 
       <svg
         id="lifecycle-svg"
         role="img"
-        aria-label="Product-development lifecycle loop with concentric feedback ring"
+        aria-label="Product-development lifecycle loop with release fan-out, feedback return, and Docs satellite"
         viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
         className="w-full h-auto"
       >
         <defs>
-          {/* Arrowhead for inward-pointing radial connectors */}
           <marker
             id="arrow-in"
             viewBox="0 0 10 10"
@@ -180,7 +207,6 @@ export function LifecycleLoop() {
           >
             <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
           </marker>
-          {/* Arrowhead for outer-ring direction cue (counter-clockwise) */}
           <marker
             id="arrow-ring"
             viewBox="0 0 10 10"
@@ -192,9 +218,20 @@ export function LifecycleLoop() {
           >
             <path d="M0,0 L10,5 L0,10 z" fill="var(--color-neutral-500)" opacity="0.7" />
           </marker>
+          <marker
+            id="arrow-closure"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="7"
+            markerHeight="7"
+            orient="auto-start-reverse"
+          >
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--color-brand-coral)" />
+          </marker>
         </defs>
 
-        {/* === Outer ring (counter-clockwise feedback) === */}
+        {/* === Outer ring (counter-clockwise direction marker) === */}
         <motion.g
           initial={reduced ? false : { rotate: 4 }}
           whileInView={{ rotate: 0 }}
@@ -216,10 +253,160 @@ export function LifecycleLoop() {
           />
         </motion.g>
 
-        {/* === Outer anchor nodes — pills sit OUTSIDE the dashed ring at
-             ANCHOR_RADIUS so the ring itself is a clean unbroken circle.
-             Pill width is per-source so longer descriptions (e.g. Ops) don't
-             spill outside the rounded rect. */}
+        {/* === Always-visible: P9 → P0 loop closure arc === */}
+        <path
+          d={bezierArcPath(
+            phaseAngle(p9.order),
+            INNER_RING_RADIUS,
+            phaseAngle(p0.order) + 2 * Math.PI, // unwrap to ensure short path
+            INNER_RING_RADIUS,
+            INNER_RING_RADIUS - 36
+          )}
+          fill="none"
+          stroke="var(--color-brand-coral)"
+          strokeWidth="2"
+          strokeDasharray="4 4"
+          opacity="0.75"
+          markerEnd="url(#arrow-closure)"
+          aria-hidden="true"
+        />
+
+        {/* === Always-visible: ship badge at P8 Release === */}
+        {(() => {
+          const p8Pos = polar(CENTER, CENTER, INNER_RING_RADIUS, phaseAngle(p8.order));
+          // Position badge just outside the P8 pip, away from center
+          const badgePos = polar(CENTER, CENTER, INNER_RING_RADIUS + 38, phaseAngle(p8.order));
+          return (
+            <g aria-hidden="true">
+              <line
+                x1={p8Pos.x}
+                y1={p8Pos.y}
+                x2={badgePos.x}
+                y2={badgePos.y}
+                stroke="var(--skill-release)"
+                strokeWidth="1"
+                opacity="0.5"
+              />
+              <text
+                x={badgePos.x}
+                y={badgePos.y + 4}
+                textAnchor="middle"
+                fontSize="10"
+                fontWeight="700"
+                className="font-sans"
+                style={{ fill: 'var(--skill-release)', letterSpacing: '0.06em' }}
+              >
+                ◇ SHIP
+              </text>
+            </g>
+          );
+        })()}
+
+        {/* === Hover-revealed: fan-out arrows from P8 Release to each pill === */}
+        <AnimatePresence>
+          {FEEDBACK_SOURCES.map((src) => {
+            if (!showFanOut(src.id)) return null;
+            const fromAngle = phaseAngle(p8.order);
+            const toAngle = anchorAngle(src.anchorAngleDeg);
+            return (
+              <motion.path
+                key={`fanout-${src.id}`}
+                d={bezierArcPath(
+                  fromAngle,
+                  INNER_RING_RADIUS + 18,
+                  toAngle,
+                  ANCHOR_RADIUS - PILL_H / 2,
+                  OUTER_RING_RADIUS - 5
+                )}
+                fill="none"
+                stroke="var(--skill-release)"
+                strokeWidth="1.75"
+                strokeDasharray="0"
+                opacity="0.85"
+                markerEnd="url(#arrow-in)"
+                style={{ color: 'var(--skill-release)' }}
+                initial={reduced ? { opacity: 0.85 } : { opacity: 0 }}
+                animate={{ opacity: 0.85 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduced ? 0 : 0.18 }}
+              />
+            );
+          })}
+        </AnimatePresence>
+
+        {/* === Hover-revealed: return arrows from each pill to its primary phase === */}
+        <AnimatePresence>
+          {FEEDBACK_SOURCES.map((src) => {
+            if (!showReturn(src.id)) return null;
+            const primaryPhaseId = src.targetPhases[0];
+            const phase = PHASES.find((p) => p.id === primaryPhaseId);
+            if (!phase) return null;
+            const skill = getSkill(src.skillSlug);
+            const fromAngle = anchorAngle(src.anchorAngleDeg);
+            const toAngle = phaseAngle(phase.order);
+            // Offset to ensure the path doesn't overlap with the fan-out
+            const ctrlR = OUTER_RING_RADIUS + 14;
+            return (
+              <motion.path
+                key={`return-${src.id}`}
+                d={bezierArcPath(
+                  fromAngle,
+                  ANCHOR_RADIUS - PILL_H / 2,
+                  toAngle,
+                  INNER_RING_RADIUS + 18,
+                  ctrlR
+                )}
+                fill="none"
+                stroke={skill.accent}
+                strokeWidth="1.5"
+                strokeDasharray="3 4"
+                opacity="0.7"
+                markerEnd="url(#arrow-in)"
+                style={{ color: skill.accent }}
+                initial={reduced ? { opacity: 0.7 } : { opacity: 0 }}
+                animate={{ opacity: 0.7 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduced ? 0 : 0.18, delay: reduced ? 0 : 0.06 }}
+              />
+            );
+          })}
+        </AnimatePresence>
+
+        {/* === Hover-revealed: Docs satellite connectors === */}
+        <AnimatePresence>
+          {showDocs &&
+            INTERNAL_SATELLITES.flatMap((sat) =>
+              sat.connectedPhases.map((phaseId) => {
+                const phase = PHASES.find((p) => p.id === phaseId);
+                if (!phase) return null;
+                const fromAngle = anchorAngle(sat.anchorAngleDeg);
+                const toAngle = phaseAngle(phase.order);
+                return (
+                  <motion.path
+                    key={`docs-${phaseId}`}
+                    d={bezierArcPath(
+                      fromAngle,
+                      ANCHOR_RADIUS - DOCS_PILL_H / 2,
+                      toAngle,
+                      INNER_RING_RADIUS + 18,
+                      OUTER_RING_RADIUS - 5
+                    )}
+                    fill="none"
+                    stroke="var(--color-neutral-500)"
+                    strokeWidth="1.25"
+                    strokeDasharray="2 4"
+                    opacity="0.6"
+                    initial={reduced ? { opacity: 0.6 } : { opacity: 0 }}
+                    animate={{ opacity: 0.6 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: reduced ? 0 : 0.18 }}
+                  />
+                );
+              })
+            )}
+        </AnimatePresence>
+
+        {/* === Outer feedback pills (always visible) === */}
         {FEEDBACK_SOURCES.map((src) => {
           const angle = anchorAngle(src.anchorAngleDeg);
           const anchor = polar(CENTER, CENTER, ANCHOR_RADIUS, angle);
@@ -227,20 +414,24 @@ export function LifecycleLoop() {
           const Icon = FEEDBACK_ICONS[src.iconName];
           const pillW = estimatePillWidth(src.label, src.description);
           const pillLeft = anchor.x - pillW / 2;
+          const isHovered = hover === src.id || hover === 'p8';
 
           return (
             <g
               key={src.id}
               role="link"
               tabIndex={0}
-              aria-label={`${src.label} feedback source — informs ${src.targetPhases.join(', ')}`}
+              aria-label={`${src.label} feedback skill — observes shipped product after Release, feeds back to ${src.targetPhases.join(', ')}`}
               onClick={() => scrollToSection(`column-${src.skillSlug}`)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') scrollToSection(`column-${src.skillSlug}`);
               }}
+              onMouseEnter={() => setHover(src.id)}
+              onMouseLeave={() => setHover(null)}
+              onFocus={() => setHover(src.id)}
+              onBlur={() => setHover(null)}
               className="cursor-pointer focus:outline-none"
             >
-              {/* Pill background */}
               <rect
                 x={pillLeft}
                 y={anchor.y - PILL_H / 2}
@@ -250,17 +441,15 @@ export function LifecycleLoop() {
                 ry={PILL_H / 2}
                 fill="white"
                 stroke={skill.accent}
-                strokeWidth="2"
-                className="dark:fill-[var(--color-neutral-900)]"
+                strokeWidth={isHovered ? 2.5 : 2}
+                className="dark:fill-[var(--color-neutral-900)] transition-[stroke-width]"
               />
-              {/* Icon */}
               <g
                 transform={`translate(${pillLeft + 14}, ${anchor.y - 10})`}
                 style={{ color: skill.accent }}
               >
                 <Icon aria-hidden="true" width={20} height={20} strokeWidth={1.75} />
               </g>
-              {/* Label + description */}
               <text
                 x={pillLeft + PILL_ICON_ZONE}
                 y={anchor.y - 2}
@@ -282,39 +471,67 @@ export function LifecycleLoop() {
           );
         })}
 
-        {/* === Radial connectors: anchor -> PRIMARY target phase pip ===
-             Anchors are positioned at the same angle as their primary target,
-             so each connector is a short radial line — no diagonal lines
-             crossing through the center. Secondary targets (e.g. Ops → P1)
-             are surfaced in the anchor description + aria-label, not drawn. */}
-        {FEEDBACK_SOURCES.map((src) => {
-          const primaryPhaseId = src.targetPhases[0];
-          const phase = PHASES.find((p) => p.id === primaryPhaseId);
-          if (!phase) return null;
-          const skill = getSkill(src.skillSlug);
-          const angle = anchorAngle(src.anchorAngleDeg);
-          // Start just inside the pill's inward edge, end just outside the
-          // phase pip — line passes cleanly over the outer dashed ring.
-          const anchorPos = polar(CENTER, CENTER, ANCHOR_RADIUS - PILL_H / 2, angle);
-          const phasePos = polar(CENTER, CENTER, INNER_RING_RADIUS + 18, phaseAngle(phase.order));
+        {/* === Docs internal satellite (always visible, muted style) === */}
+        {INTERNAL_SATELLITES.map((sat) => {
+          const angle = anchorAngle(sat.anchorAngleDeg);
+          const anchor = polar(CENTER, CENTER, ANCHOR_RADIUS, angle);
+          const Icon = SATELLITE_ICONS[sat.iconName];
+          const pillLeft = anchor.x - DOCS_PILL_W / 2;
+          const isHovered = hover === 'docs';
+
           return (
-            <line
-              key={`${src.id}-${primaryPhaseId}`}
-              x1={anchorPos.x}
-              y1={anchorPos.y}
-              x2={phasePos.x}
-              y2={phasePos.y}
-              stroke={skill.accent}
-              strokeWidth="1.5"
-              strokeDasharray="3 4"
-              opacity="0.6"
-              markerEnd="url(#arrow-in)"
-              style={{ color: skill.accent }}
-            />
+            <g
+              key={sat.id}
+              role="img"
+              tabIndex={0}
+              aria-label={`${sat.label} satellite — internal artifacts that flow between PRD, Tasks, UX, and Test phases. Hover to see connections.`}
+              onMouseEnter={() => setHover('docs')}
+              onMouseLeave={() => setHover(null)}
+              onFocus={() => setHover('docs')}
+              onBlur={() => setHover(null)}
+              className="cursor-help focus:outline-none"
+            >
+              <rect
+                x={pillLeft}
+                y={anchor.y - DOCS_PILL_H / 2}
+                width={DOCS_PILL_W}
+                height={DOCS_PILL_H}
+                rx={DOCS_PILL_H / 2}
+                ry={DOCS_PILL_H / 2}
+                fill="var(--color-neutral-50)"
+                stroke="var(--color-neutral-400)"
+                strokeWidth={isHovered ? 2 : 1.5}
+                strokeDasharray="4 3"
+                className="dark:fill-[var(--color-neutral-900)] transition-[stroke-width]"
+              />
+              <g
+                transform={`translate(${pillLeft + 12}, ${anchor.y - 8})`}
+                style={{ color: 'var(--color-neutral-500)' }}
+              >
+                <Icon aria-hidden="true" width={16} height={16} strokeWidth={1.75} />
+              </g>
+              <text
+                x={pillLeft + 36}
+                y={anchor.y - 1}
+                className="font-sans fill-[var(--color-neutral-700)] dark:fill-[var(--color-neutral-300)]"
+                fontSize="12"
+                fontWeight="600"
+              >
+                {sat.label}
+              </text>
+              <text
+                x={pillLeft + 36}
+                y={anchor.y + 11}
+                className="font-sans fill-[var(--color-neutral-500)]"
+                fontSize="9"
+              >
+                internal artifacts
+              </text>
+            </g>
           );
         })}
 
-        {/* === Inner ring (forward, unchanged guide) === */}
+        {/* === Inner ring (forward) === */}
         <motion.g
           initial={reduced ? false : { rotate: -4 }}
           whileInView={{ rotate: 0 }}
@@ -341,17 +558,14 @@ export function LifecycleLoop() {
           const skill = getSkill(phase.primarySkillSlug as SkillSlug);
           const isActive = activePhaseSet.has(phase.id);
           const isAnchorTargeted = anchorTargetedPhases.has(phase.id);
+          const isP8 = phase.id === 'P8';
 
           const c = Math.cos(angle);
-          // Label sits OUTSIDE the pip by default; flip to INSIDE for phases
-          // with an outer-ring feedback anchor so they don't crowd the pill.
           const labelR = isAnchorTargeted ? INNER_RING_RADIUS - 28 : INNER_RING_RADIUS + 28;
           let labelX = CENTER + labelR * c;
           const labelY = CENTER + labelR * Math.sin(angle);
           let textAnchor: 'start' | 'middle' | 'end' = 'middle';
           if (isAnchorTargeted) {
-            // When flipped inward, lean the anchor AWAY from the center so
-            // the text reads on the side opposite its pip.
             if (c > 0.3) {
               textAnchor = 'end';
               labelX -= 6;
@@ -372,16 +586,26 @@ export function LifecycleLoop() {
               key={phase.id}
               role="link"
               tabIndex={0}
-              aria-label={`Phase ${phase.id} ${phase.name}${isActive ? '' : ' — not in this work-item type'}`}
+              aria-label={`Phase ${phase.id} ${phase.name}${isActive ? '' : ' — not in this work-item type'}${isP8 ? ' — public ship moment; hover to reveal feedback flow' : ''}`}
               onClick={() => scrollToSection(`column-${phase.id}`)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') scrollToSection(`column-${phase.id}`);
               }}
-              className="cursor-pointer focus:outline-none"
+              onMouseEnter={isP8 ? () => setHover('p8') : undefined}
+              onMouseLeave={isP8 ? () => setHover(null) : undefined}
+              onFocus={isP8 ? () => setHover('p8') : undefined}
+              onBlur={isP8 ? () => setHover(null) : undefined}
+              className={isP8 ? 'cursor-help focus:outline-none' : 'cursor-pointer focus:outline-none'}
               style={{ outlineOffset: 4, opacity: isActive ? 1 : 0.25 }}
             >
               {isActive ? (
-                <circle cx={x} cy={y} r={12} fill={skill.accent} />
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={isP8 && (hover === 'p8' || hover) ? 14 : 12}
+                  fill={skill.accent}
+                  className="transition-[r]"
+                />
               ) : (
                 <circle
                   cx={x}
@@ -427,9 +651,14 @@ export function LifecycleLoop() {
         </text>
       </svg>
 
-      {/* === Work-item-type legend ===
-           Explains what each pill actually means — counts + one-line scope +
-           the exact phases included. The active type gets a subtle accent. */}
+      {/* Hover hint — affordance for the reveal interaction */}
+      <p className="mt-3 text-center text-[11px] font-sans text-[var(--color-neutral-500)] max-w-[var(--measure-body)] mx-auto">
+        Hover or focus <strong>P8 Release</strong> or any feedback pill to see the
+        ship-fan-out and feedback-return arrows. Hover the <strong>Docs</strong>{' '}
+        satellite to see which phases produce and consume internal artifacts.
+      </p>
+
+      {/* === Work-item-type legend === */}
       <div className="mt-10 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pt-6">
         <div className="mb-4 text-center text-xs font-sans uppercase tracking-wider text-[var(--color-neutral-500)]">
           work-item types
