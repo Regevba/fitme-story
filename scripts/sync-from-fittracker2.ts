@@ -68,8 +68,32 @@ async function syncDashboardData(): Promise<FreshnessReport> {
   const startedAt = Date.now();
 
   if (!existsSync(FT2_ROOT)) {
+    // Option A fallback: when FT2 isn't on disk (e.g. Vercel builders, fresh
+    // clones without the FT2 sibling), fall back to the committed snapshot in
+    // src/data/. The build can still succeed; the snapshot will simply be
+    // whatever was last committed by `npm run prebuild` locally. Switching to
+    // Option B (vercel.json buildCommand clones FT2) or Option C (signed
+    // freshness contract) removes the manual commit step.
+    if (existsSync(LOCAL_SHARED) && existsSync(LOCAL_FEATURES)) {
+      const fallbackReport: FreshnessReport = {
+        syncedAt: new Date(0).toISOString(),
+        durationMs: 0,
+        source: 'committed-snapshot (FT2 not present at build time)',
+        counts: { sharedFiles: 0, featureFiles: 0, bytesTotal: 0 },
+        checkedFiles: [],
+      };
+      // Don't overwrite an existing freshness.json — preserve the
+      // last-known-good local sync timestamp for dashboard display.
+      if (!existsSync(FRESHNESS_PATH)) {
+        writeFileSync(FRESHNESS_PATH, JSON.stringify(fallbackReport, null, 2) + '\n');
+      }
+      console.log(
+        `⚠ FT2 not present at ${FT2_ROOT}; using committed snapshot in src/data/ (Option A fallback).`
+      );
+      return fallbackReport;
+    }
     throw new Error(
-      `FitTracker2 repo not found at ${FT2_ROOT}. Locally: ensure FitTracker2 is cloned as a sibling of fitme-story. Vercel: configure vercel.json buildCommand to clone FitTracker2 first.`
+      `FitTracker2 repo not found at ${FT2_ROOT} AND no committed snapshot in src/data/. Locally: ensure FitTracker2 is cloned as a sibling of fitme-story. Vercel: configure vercel.json buildCommand to clone FitTracker2 first, OR commit src/data/ snapshot (Option A).`
     );
   }
   if (!existsSync(FT2_SHARED)) {
