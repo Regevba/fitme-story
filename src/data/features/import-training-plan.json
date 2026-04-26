@@ -1,0 +1,173 @@
+{
+  "feature": "import-training-plan",
+  "case_study": "docs/case-studies/import-training-plan-case-study.md",
+  "case_study_showcase": "04-case-studies/23-import-training-plan.md",
+  "created": "2026-04-11T00:00:00Z",
+  "updated": "2026-04-20T00:00:00Z",
+  "branch": null,
+  "current_phase": "implementation",
+  "work_type": "feature",
+  "has_ui": true,
+  "requires_analytics": true,
+  "github_issue_number": null,
+  "v1_file_path": null,
+  "v2_file_path": null,
+  "parent_feature": null,
+  "phases": {
+    "research": {
+      "status": "approved",
+      "approved_at": "2026-04-15T17:35:00Z"
+    },
+    "prd": {
+      "status": "approved",
+      "path": "docs/product/prd/import-training-plan.md",
+      "approved_at": "2026-04-15T17:42:00Z"
+    },
+    "tasks": {
+      "status": "approved",
+      "task_file": ".claude/features/import-training-plan/tasks.md",
+      "v2_count": 13
+    },
+    "ux_or_integration": {
+      "status": "approved",
+      "type": "ux"
+    },
+    "implementation": {
+      "status": "pending"
+    },
+    "testing": {
+      "status": "pending"
+    },
+    "review": {
+      "status": "pending"
+    },
+    "merge": {
+      "status": "pending"
+    },
+    "documentation": {
+      "status": "pending"
+    }
+  },
+  "transitions": [
+    {
+      "from": null,
+      "to": "research",
+      "timestamp": "2026-04-11T00:00:00Z",
+      "approved_by": "user",
+      "note": "New feature added to backlog. Scope: import training plans from external sources (Hevy, Strong, Fitbod, Jefit, spreadsheets, PDFs, photos, share extension, paste-to-parse). Research phase pending \u2014 awaiting prioritization."
+    },
+    {
+      "from": "research",
+      "to": "prd",
+      "timestamp": "2026-04-15T17:35:00Z",
+      "approved_by": "user",
+      "note": "Research complete \u2014 parser strategy, exercise mapping, AI paste support"
+    },
+    {
+      "from": "prd",
+      "to": "tasks",
+      "timestamp": "2026-04-15T17:42:00Z",
+      "approved_by": "user",
+      "note": "PRD written. Multi-source parser, exercise mapping, AI paste support."
+    },
+    {
+      "from": "tasks",
+      "to": "ux_or_integration",
+      "timestamp": "2026-04-15T17:50:00Z",
+      "approved_by": "user",
+      "note": "13 tasks. Parser protocol + exercise mapper + preview UI."
+    },
+    {
+      "from": "ux_or_integration",
+      "to": "implementation",
+      "timestamp": "2026-04-15T17:58:00Z",
+      "approved_by": "user"
+    },
+    {
+      "from": "implementation",
+      "to": "complete",
+      "timestamp": "2026-04-16T05:30:00Z",
+      "approved_by": "user",
+      "note": "All tasks implemented. BUILD SUCCEEDED. Feature complete."
+    },
+    {
+      "from": "complete",
+      "to": "implementation",
+      "timestamp": "2026-04-20T00:00:00Z",
+      "approved_by": "integrity_audit",
+      "note": "Reopened 2026-04-20 per UI-015: feature shipped infra + tests but no entry point exists. Partial ship flagged per open-items review \u00a7 #12."
+    }
+  ],
+  "tasks": [],
+  "source_investigation_areas": [
+    "CSV/JSON import \u2014 simplest format, used by Strong/Hevy export",
+    "PDF text extraction \u2014 reuse OCR from nutrition feature",
+    "Photo OCR \u2014 handwritten/printed whiteboard or printouts",
+    "Share extension \u2014 iOS native app-to-app sharing",
+    "Paste-to-parse \u2014 from chat/email, pattern-matched parsing",
+    "AI conversation paste \u2014 ChatGPT/Claude/Gemini/Perplexity/custom GPTs full conversation or excerpt",
+    "AI prompt preservation \u2014 store the original prompt used to generate the plan, allow re-running via FitMe's AI engine",
+    "Exercise name mapping \u2014 ML or rule-based, 87-exercise target library",
+    "Progression rules \u2014 linear, wave, percentage-based, RPE-based",
+    "Program structure \u2014 day splits, phases, deload weeks",
+    "Format detection \u2014 auto-detect whether pasted text is markdown table, numbered list, prose, or code block"
+  ],
+  "ai_agent_sources": {
+    "description": "Users frequently ask ChatGPT/Claude/other assistants for training plans. These plans come in varied formats \u2014 markdown tables, numbered lists, prose, code blocks. FitMe should parse all common output styles and optionally preserve the original prompt for regeneration.",
+    "examples": [
+      "ChatGPT: '6-day PPL split for hypertrophy, 4 sets per exercise, 8-12 reps, RPE 7-8'",
+      "Claude: markdown table with exercises, sets, reps, notes per day",
+      "Gemini: prose description broken by day headers",
+      "Custom GPT: structured JSON-like output with progression notes",
+      "Coach bot (Trainerize, Perplexity): structured coach-style output with phase notes"
+    ],
+    "parse_targets": [
+      "Exercise names (map to FitMe's 87-exercise library)",
+      "Sets, reps, weight/percentage, RPE",
+      "Rest periods",
+      "Day/split names (Push, Pull, Legs, Upper, Lower, etc.)",
+      "Phase/mesocycle structure (accumulation, intensification, deload)",
+      "Progression rules (add weight when RPE drops, etc.)",
+      "Notes, cues, form reminders"
+    ],
+    "regeneration_flow": "If user saves the original prompt, FitMe can re-run it via its own AI engine (AIOrchestrator/FoundationModelService) to produce variations \u2014 e.g., 'same plan but with dumbbell substitutions' or 'adapted for my current readiness score'. This turns FitMe into a personalized plan generator that learns from external prompts."
+  },
+  "success_criteria_draft": {
+    "primary_metric": "import_success_rate",
+    "target": ">80% of imports produce a usable training plan without manual fixes",
+    "secondary_metrics": [
+      "exercise_mapping_accuracy >90%",
+      "time_to_first_workout_after_import <2min",
+      "user_satisfaction_rating >=4/5 on import experience"
+    ],
+    "kill_criteria": [
+      "Exercise mapping accuracy <70% (unusable)",
+      "Import success rate <50%",
+      "Parse time >30s for any supported format"
+    ]
+  },
+  "competitive_research_targets": [
+    "Hevy \u2014 CSV export/import UX",
+    "Strong \u2014 iCloud backup/restore format",
+    "Fitbod \u2014 coach plan import",
+    "Jefit \u2014 workout plan sharing",
+    "MacroFactor \u2014 template library UX",
+    "Caliber \u2014 coach assignment flow",
+    "ChatGPT fitness GPTs \u2014 output format patterns",
+    "Trainerize \u2014 coach-to-client plan handoff",
+    "Notion fitness templates \u2014 markdown table parsing patterns"
+  ],
+  "transitions_note_v2": "2026-04-11: Scope expanded to include AI agent prompt parsing. Users often generate plans via ChatGPT/Claude/other assistants \u2014 FitMe should parse these varied outputs and optionally preserve the original prompt for regeneration via its own AI engine.",
+  "partial_ship": true,
+  "known_gaps": {
+    "audit_finding": "UI-015",
+    "summary": "Parser / mapper / orchestrator stack + 23 tests shipped cleanly. Entry-point views (ImportSourcePickerView, ImportPreviewView) were built and tested but never wired into any tab, sheet, or navigation destination. ImportOrchestrator transitions state correctly but confirmImport() does NOT persist to TrainingProgramData. Annotated HISTORICAL 2026-04-17 (commit 0831f60) per audit UI-015.",
+    "open_tasks": [
+      "Wire ImportSourcePickerView into Settings or Training tab navigation",
+      "Wire ImportPreviewView as destination from picker",
+      "Implement confirmImport() persistence to TrainingProgramData",
+      "Remove HISTORICAL header from both views once wired",
+      "Fire the 6 import_* analytics events (constants exist, track() never called)"
+    ]
+  }
+}

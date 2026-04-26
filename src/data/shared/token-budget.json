@@ -1,0 +1,34 @@
+{
+  "measured_at": "2026-04-16T19:48:10Z",
+  "tokenizer": "word-count-estimate",
+  "tokenizer_note": "Approximate via word-count × 1.3. Model field intentionally removed — different agents in the same session may run different models (e.g., parent on opus-4-7, subagents on sonnet); a single model field would be misleading. Audit FW-004.",
+  "layers": {
+    "skills": {
+      "files": 11,
+      "tokens": 32404,
+      "pct_of_total": 0.326
+    },
+    "cache": {
+      "files": 29,
+      "tokens": 20407,
+      "pct_of_total": 0.2053
+    },
+    "shared": {
+      "files": 23,
+      "tokens": 36626,
+      "pct_of_total": 0.3685
+    },
+    "adapters": {
+      "files": 21,
+      "tokens": 9225,
+      "pct_of_total": 0.0928
+    },
+    "hadf": {
+      "files": 3,
+      "tokens": 733,
+      "pct_of_total": 0.0074
+    }
+  },
+  "total_tokens": 99395,
+  "context_budget_pct": 0.099395
+}

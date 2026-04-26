@@ -1,0 +1,116 @@
+{
+  "feature": "app-store-assets",
+  "created": "2026-04-12T21:30:00Z",
+  "updated": "2026-04-20T00:00:00Z",
+  "branch": null,
+  "current_phase": "implementation",
+  "work_type": "feature",
+  "has_ui": true,
+  "requires_analytics": false,
+  "github_issue_number": null,
+  "parent_feature": null,
+  "phases": {
+    "research": {
+      "status": "approved",
+      "note": "High-priority maintenance research opened from the v4.3 cleanup program. Scope: app icon master asset, screenshot system, App Store visual package, and release-readiness evidence.",
+      "approved_at": "2026-04-13T17:45:00Z"
+    },
+    "prd": {
+      "status": "approved",
+      "path": "docs/product/prd/app-store-assets.md",
+      "approved_at": "2026-04-15T17:35:00Z"
+    },
+    "tasks": {
+      "status": "approved",
+      "task_file": ".claude/features/app-store-assets/tasks.md",
+      "v2_count": 10
+    },
+    "ux_or_integration": {
+      "status": "approved",
+      "type": "integration",
+      "compliance_gateway": "6/6 pass"
+    },
+    "implementation": {
+      "status": "in_progress",
+      "started_at": "2026-04-15T17:58:00Z",
+      "commits": [
+        "2942c5c"
+      ]
+    },
+    "testing": {
+      "status": "pending"
+    },
+    "review": {
+      "status": "pending"
+    },
+    "merge": {
+      "status": "pending"
+    },
+    "documentation": {
+      "status": "pending"
+    }
+  },
+  "transitions": [
+    {
+      "from": null,
+      "to": "research",
+      "timestamp": "2026-04-12T21:30:00Z",
+      "approved_by": "user",
+      "note": "Research chapter opened after the maintenance prioritization pass kept app icon and App Store assets in the high-priority stack ahead of marketing launch work."
+    },
+    {
+      "from": "research",
+      "to": "prd",
+      "timestamp": "2026-04-13T17:45:00Z",
+      "approved_by": "user",
+      "note": "Research phase complete. All scope questions answered. Ready for PRD authoring."
+    },
+    {
+      "from": "prd",
+      "to": "tasks",
+      "timestamp": "2026-04-15T17:35:00Z",
+      "approved_by": "user",
+      "note": "PRD written with icon specs, screenshot pipeline, ASO metrics"
+    },
+    {
+      "from": "tasks",
+      "to": "ux_or_integration",
+      "timestamp": "2026-04-15T17:42:00Z",
+      "approved_by": "user",
+      "note": "10 tasks defined. Icon pipeline + screenshots + metadata + submission."
+    },
+    {
+      "from": "ux_or_integration",
+      "to": "implementation",
+      "timestamp": "2026-04-15T17:50:00Z",
+      "approved_by": "user",
+      "note": "UX spec: icon safe area, screenshot story, metadata strategy, visual consistency."
+    },
+    {
+      "from": "implementation",
+      "to": "complete",
+      "timestamp": "2026-04-16T05:30:00Z",
+      "approved_by": "user",
+      "note": "All tasks implemented. BUILD SUCCEEDED. Feature complete."
+    },
+    {
+      "from": "complete",
+      "to": "implementation",
+      "timestamp": "2026-04-20T00:00:00Z",
+      "approved_by": "integrity_reconcile",
+      "note": "Downgraded 2026-04-20 open-items audit: state.json claimed complete but no evidence of shipping. Implementation phase marked in_progress and downstream phases pending \u2014 feature is planned, not shipped."
+    }
+  ],
+  "tasks": [],
+  "known_gaps": {
+    "status": "not_shipped",
+    "summary": "Top-level phase was incorrectly marked 'complete' but phase.implementation=in_progress, testing/review/merge/documentation all pending, no branch, no tasks defined, no commits found. No dedicated case study exists. Downgraded to 'implementation' to match reality. Feature is PLANNED but not yet shipped.",
+    "open_phases": [
+      "implementation",
+      "testing",
+      "review",
+      "merge",
+      "documentation"
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "updated": "2026-04-21T00:00:00Z",
+  "description": "Local-first runtime smoke configuration that extends the M-4 XCUITest harness toward future phase-transition gates.",
+  "policy": {
+    "target_transition": "review_to_merge",
+    "current_enforcement": "advisory",
+    "full_enforcement_blocker": "A staging-grade runtime environment is not yet available.",
+    "evidence_ttl_hours": 72
+  },
+  "xcode_configuration_by_mode": {
+    "local": "Debug",
+    "staging": "Staging"
+  },
+  "staging_prerequisites": {
+    "required_paths": [
+      "Config/Local/Staging.xcconfig",
+      "FitTracker/GoogleService-Info.plist"
+    ],
+    "notes": [
+      "Firebase runtime verification still depends on a local GoogleService-Info.plist.",
+      "Signed-in Supabase verification now expects the untracked Config/Local/Staging.xcconfig overlay to supply real staging credentials."
+    ]
+  },
+  "staging_overlay_validation": {
+    "path": "Config/Local/Staging.xcconfig",
+    "required_keys": [
+      "FITTRACKER_SUPABASE_URL",
+      "FITTRACKER_SUPABASE_ANON_KEY",
+      "FITTRACKER_GOOGLE_CLIENT_ID",
+      "FITTRACKER_GOOGLE_REVERSED_CLIENT_ID"
+    ],
+    "optional_keys": [
+      "FITTRACKER_AI_ENGINE_BASE_URL",
+      "FITTRACKER_PASSKEY_RELYING_PARTY_ID"
+    ]
+  },
+  "profiles": {
+    "app_launch": {
+      "description": "Bootstrap smoke test proving the app reaches foreground state.",
+      "only_testing": [
+        "FitTrackerUITests/AppLaunchUITests/testAppLaunches"
+      ]
+    },
+    "authenticated_home": {
+      "description": "Authenticated review-mode launch that confirms the Home tab renders.",
+      "only_testing": [
+        "FitTrackerUITests/HomeReadinessUITests/testHomeTabRendersInAuthenticatedReviewMode"
+      ]
+    },
+    "sign_in_surface": {
+      "description": "Sign-in surface smoke test with auto-login disabled.",
+      "only_testing": [
+        "FitTrackerUITests/SignInUITests/testSignInScreenRendersWhenAutoLoginDisabled"
+      ]
+    },
+    "onboarding_surface": {
+      "description": "First-launch onboarding surface smoke test.",
+      "only_testing": [
+        "FitTrackerUITests/OnboardingUITests/testOnboardingFirstStepRendersIfNotComplete"
+      ]
+    },
+    "meal_log_surface": {
+      "description": "Authenticated Nutrition-tab path that reaches the meal-log affordance.",
+      "only_testing": [
+        "FitTrackerUITests/MealLogUITests/testNutritionTabOpensMealEntryPath"
+      ]
+    }
+  }
+}

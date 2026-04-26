@@ -1,0 +1,255 @@
+{
+  "feature": "ai-engine-architecture-adaptation",
+  "case_study": "docs/case-studies/ai-engine-architecture-v5.1-case-study.md",
+  "case_study_showcase": "04-case-studies/07-ai-engine-architecture.md",
+  "created": "2026-04-12T21:30:00Z",
+  "updated": "2026-04-20T00:00:00Z",
+  "branch": null,
+  "current_phase": "complete",
+  "work_type": "enhancement",
+  "has_ui": true,
+  "requires_analytics": true,
+  "github_issue_number": null,
+  "parent_feature": "adaptive-intelligence",
+  "phases": {
+    "research": {
+      "status": "completed",
+      "completed_at": "2026-04-15T12:00:00Z",
+      "note": "5-layer architecture proposal grounded in actual AIOrchestrator code. Input adapters, validation gate, recommendation assembly, learning cache, feedback loop. PM-flow pattern mapping documented."
+    },
+    "prd": {
+      "status": "completed",
+      "completed_at": "2026-04-15T13:00:00Z",
+      "note": "PRD with 10 functional requirements across 4 phases. Goal-aware intelligence added. Success metrics, kill criteria, analytics spec defined."
+    },
+    "tasks": {
+      "status": "completed",
+      "completed_at": "2026-04-15T13:00:00Z",
+      "note": "13 tasks across 4 phases with dependency graph. 5 lightweight (E-core parallel), 6 heavyweight (P-core serial), 2 mixed. Parallel opportunities identified at T2-T5 and T9/T11."
+    },
+    "ux_or_integration": {
+      "status": "skipped",
+      "note": "Enhancement work type \u2014 UX changes are scoped within tasks (T10 confidence badge + goal messaging). No standalone UX spec needed."
+    },
+    "implementation": {
+      "status": "approved",
+      "approved_at": "2026-04-14T00:00:00Z",
+      "reconciled_at": "2026-04-20T00:00:00Z",
+      "reconciliation_note": "Shipped per docs/case-studies/ai-engine-architecture-v5.1-case-study.md. 13 tasks, 17 files, ~1.5h single-session end-to-end execution. Tasks reconciled 2026-04-20."
+    },
+    "testing": {
+      "status": "approved",
+      "approved_at": "2026-04-14T00:00:00Z",
+      "reconciled_at": "2026-04-20T00:00:00Z",
+      "reconciliation_note": "Shipped per docs/case-studies/ai-engine-architecture-v5.1-case-study.md. 13 tasks, 17 files, ~1.5h single-session end-to-end execution. Tasks reconciled 2026-04-20."
+    },
+    "review": {
+      "status": "approved",
+      "approved_at": "2026-04-14T00:00:00Z",
+      "reconciled_at": "2026-04-20T00:00:00Z",
+      "reconciliation_note": "Shipped per docs/case-studies/ai-engine-architecture-v5.1-case-study.md. 13 tasks, 17 files, ~1.5h single-session end-to-end execution. Tasks reconciled 2026-04-20."
+    },
+    "merge": {
+      "status": "approved",
+      "approved_at": "2026-04-14T00:00:00Z",
+      "reconciled_at": "2026-04-20T00:00:00Z",
+      "reconciliation_note": "Shipped per docs/case-studies/ai-engine-architecture-v5.1-case-study.md. 13 tasks, 17 files, ~1.5h single-session end-to-end execution. Tasks reconciled 2026-04-20."
+    },
+    "documentation": {
+      "status": "approved",
+      "approved_at": "2026-04-14T00:00:00Z",
+      "reconciled_at": "2026-04-20T00:00:00Z",
+      "reconciliation_note": "Shipped per docs/case-studies/ai-engine-architecture-v5.1-case-study.md. 13 tasks, 17 files, ~1.5h single-session end-to-end execution. Tasks reconciled 2026-04-20."
+    }
+  },
+  "transitions": [
+    {
+      "from": null,
+      "to": "research",
+      "timestamp": "2026-04-12T21:30:00Z",
+      "approved_by": "user",
+      "note": "Research chapter opened after the maintenance prioritization pass."
+    },
+    {
+      "from": "research",
+      "to": "prd",
+      "timestamp": "2026-04-15T12:00:00Z",
+      "approved_by": "user",
+      "note": "Research advanced with 5-layer architecture proposal."
+    },
+    {
+      "from": "prd",
+      "to": "tasks",
+      "timestamp": "2026-04-15T13:00:00Z",
+      "approved_by": "user",
+      "note": "PRD approved with goal-aware intelligence addition. Tasks phase."
+    },
+    {
+      "from": "tasks",
+      "to": "implementation",
+      "timestamp": "2026-04-15T13:00:00Z",
+      "approved_by": "user",
+      "note": "13 tasks broken down with dependency graph. Ready for implementation."
+    },
+    {
+      "from": "complete",
+      "to": "complete",
+      "timestamp": "2026-04-15T20:28:35Z",
+      "approved_by": "user",
+      "note": "PR #79 shipped. All 13 tasks verified in code: 5 adapters, GoalProfile, ValidatedRecommendation, confidence gate, feedback UI, RecommendationMemory, analytics."
+    },
+    {
+      "from": "implementation",
+      "to": "complete",
+      "timestamp": "2026-04-20T00:00:00Z",
+      "approved_by": "integrity_reconcile",
+      "note": "Category B reconcile (open-items audit 2026-04-20): 0 tasks and 5 phases flipped to completed to match shipped reality. Shipped per docs/case-studies/ai-engine-architecture-v5.1-case-study.md. 13 tasks, 17 files, ~1.5h single-session end-to-end execution. Tasks reconciled 2026-04-20."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "AIInputAdapter protocol",
+      "status": "completed",
+      "phase": 1,
+      "complexity": "lightweight",
+      "depends_on": [],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T2",
+      "title": "ProfileAdapter",
+      "status": "completed",
+      "phase": 1,
+      "complexity": "lightweight",
+      "depends_on": [
+        "T1"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T3",
+      "title": "HealthKitAdapter",
+      "status": "completed",
+      "phase": 1,
+      "complexity": "lightweight",
+      "depends_on": [
+        "T1"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T4",
+      "title": "TrainingAdapter",
+      "status": "completed",
+      "phase": 1,
+      "complexity": "lightweight",
+      "depends_on": [
+        "T1"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T5",
+      "title": "NutritionAdapter",
+      "status": "completed",
+      "phase": 1,
+      "complexity": "lightweight",
+      "depends_on": [
+        "T1"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T6",
+      "title": "Refactor AISnapshotBuilder to use adapter registry",
+      "status": "completed",
+      "phase": 1,
+      "complexity": "heavyweight",
+      "depends_on": [
+        "T2",
+        "T3",
+        "T4",
+        "T5"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T7",
+      "title": "GoalProfile + MetricDriver models",
+      "status": "completed",
+      "phase": 2,
+      "complexity": "lightweight",
+      "depends_on": [
+        "T6"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T8",
+      "title": "ValidatedRecommendation + confidence gate",
+      "status": "completed",
+      "phase": 2,
+      "complexity": "heavyweight",
+      "depends_on": [
+        "T7"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T9",
+      "title": "Goal-aware localFallback rewrite",
+      "status": "completed",
+      "phase": 2,
+      "complexity": "heavyweight",
+      "depends_on": [
+        "T7"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T10",
+      "title": "Confidence badge UI + goal messaging",
+      "status": "completed",
+      "phase": 2,
+      "complexity": "heavyweight",
+      "depends_on": [
+        "T8"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T11",
+      "title": "FoundationModel goal-aware prompt",
+      "status": "completed",
+      "phase": 2,
+      "complexity": "lightweight",
+      "depends_on": [
+        "T7"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T12",
+      "title": "RecommendationMemory + threshold tuning",
+      "status": "completed",
+      "phase": 3,
+      "complexity": "heavyweight",
+      "depends_on": [
+        "T8"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    },
+    {
+      "id": "T13",
+      "title": "Feedback UI + analytics events",
+      "status": "completed",
+      "phase": 4,
+      "complexity": "heavyweight",
+      "depends_on": [
+        "T12"
+      ],
+      "completed_at": "2026-04-15T20:28:35Z"
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "feature": "hadf-infrastructure",
+  "case_study": "docs/case-studies/hadf-hardware-aware-dispatch-case-study.md",
+  "case_study_showcase": "04-case-studies/12-hadf.md",
+  "display_name": "HADF \u2014 Hardware-Aware Dispatch Framework",
+  "work_type": "feature",
+  "framework_version": "6.0",
+  "current_phase": "complete",
+  "status": "complete",
+  "created": "2026-04-16T00:00:00Z",
+  "branch": "feature/hadf-infrastructure",
+  "spec": "docs/superpowers/specs/2026-04-16-hadf-hardware-aware-dispatch-design.md",
+  "plan": "docs/superpowers/plans/2026-04-16-hadf-hardware-aware-dispatch.md",
+  "timing": {
+    "time_source": "measured",
+    "session_start": "2026-04-16T00:00:00Z",
+    "session_end": null,
+    "phases": {
+      "research": {
+        "started_at": "2026-04-16T00:00:00Z",
+        "ended_at": "2026-04-16T00:30:00Z",
+        "duration_minutes": 30,
+        "paused_minutes": 0,
+        "notes": "SoC hardware detection feasibility, 3 approaches evaluated"
+      },
+      "prd": {
+        "started_at": "2026-04-16T00:30:00Z",
+        "ended_at": "2026-04-16T01:30:00Z",
+        "duration_minutes": 60,
+        "paused_minutes": 0,
+        "notes": "9-section brainstorm: Layers 0-4, Composite Optimizer, v6.0 Integration, Validation Plan"
+      },
+      "tasks": {
+        "started_at": "2026-04-16T01:30:00Z",
+        "ended_at": "2026-04-16T02:00:00Z",
+        "duration_minutes": 30,
+        "paused_minutes": 0,
+        "notes": "9-task implementation plan written via writing-plans skill"
+      },
+      "ux_or_integration": {
+        "started_at": null,
+        "ended_at": null,
+        "duration_minutes": 0,
+        "paused_minutes": 0,
+        "notes": "N/A \u2014 framework infrastructure, no UI"
+      },
+      "implementation": {
+        "started_at": "2026-04-16T02:00:00Z",
+        "ended_at": null,
+        "duration_minutes": null,
+        "paused_minutes": 0,
+        "notes": "Subagent-driven: 9 tasks, feature/hadf-infrastructure branch"
+      },
+      "testing": {
+        "started_at": null,
+        "ended_at": null,
+        "duration_minutes": null,
+        "paused_minutes": 0
+      },
+      "review": {
+        "started_at": null,
+        "ended_at": null,
+        "duration_minutes": null,
+        "paused_minutes": 0
+      },
+      "merge": {
+        "started_at": null,
+        "ended_at": null,
+        "duration_minutes": null,
+        "paused_minutes": 0
+      },
+      "documentation": {
+        "started_at": null,
+        "ended_at": null,
+        "duration_minutes": null,
+        "paused_minutes": 0
+      }
+    },
+    "parallel_context": {
+      "concurrent_features": 0,
+      "stress_test": false
+    }
+  },
+  "complexity": {
+    "cu_version": 2,
+    "view_count": 0,
+    "new_types_count": 0,
+    "design_iteration_rounds": 1,
+    "is_first_of_kind": true,
+    "architectural_novelty": true,
+    "computed_cu": 1.2,
+    "factors_applied": [
+      "base: 1.0",
+      "first_of_kind: +0.2 (no prior HADF implementation)"
+    ]
+  },
+  "tasks": {
+    "total": 9,
+    "completed": 9,
+    "in_progress": 0,
+    "task_list": [
+      {
+        "id": "T1",
+        "name": "Static Chip Profiles",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "7478a8e",
+        "note": "Static chip profiles shipped retroactively in commit 7478a8e (2026-04-20) as .claude/shared/chip-profiles.json with 17 profiles across 6 vendors (Apple A + M series, Google Tensor, Qualcomm Snapdragon, Samsung Exynos, MediaTek Dimensity, + 3 unknown/fallback). Schema is dispatch-oriented (compute_budget, dispatch_hints, thermal_profile, memory_constraints, composite_baseline). Grounded hardware metadata (cores, GPU, bandwidth, TDP, year, typical devices) deferred to future v1.1 if needed by downstream tasks. State reconciled 2026-04-20 after HADF T1 subagent dispatch reproduced F9 and surfaced the out-of-sync state."
+      },
+      {
+        "id": "T2",
+        "name": "Cloud Hardware Signature Table",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "0a6896b",
+        "note": "Shipped in main (commit 0a6896b, part of PR #82 chain). Cloud hardware signature table with 7 classes (NVIDIA H100/A100, Google TPU v5e/v4, AWS Trainium2, AMD MI300X, CPU fallback) at .claude/shared/hadf/hardware-signature-table.json. State reconciled 2026-04-20 after HADF T1 reconcile exposed the same out-of-sync pattern across T2-T9."
+      },
+      {
+        "id": "T3",
+        "name": "Chip Affinity Map Structure",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "c2e7fd7",
+        "note": "Shipped in main (commit c2e7fd7, part of PR #82 chain). Empty Chip Affinity Map with learning config at .claude/shared/chip-affinity-map.json \u2014 Layer 4 placeholder ready for runtime population. State reconciled 2026-04-20 after HADF T1 reconcile exposed the same out-of-sync pattern across T2-T9."
+      },
+      {
+        "id": "T4",
+        "name": "HADF Metrics Template + README",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "75615a2",
+        "note": "Shipped in main (commit 75615a2, part of PR #82 chain). HADF metrics template + agent README at .claude/shared/hadf/hadf-metrics-template.json + .claude/shared/hadf/README.md. State reconciled 2026-04-20 after HADF T1 reconcile exposed the same out-of-sync pattern across T2-T9."
+      },
+      {
+        "id": "T5",
+        "name": "Dispatch Intelligence Integration",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "13401d9",
+        "note": "Shipped in main (commit 13401d9, part of PR #82 chain). Dispatch intelligence integration \u2014 hardware_context, confidence gate, weight presets, adaptation config merged into .claude/shared/dispatch-intelligence.json. State reconciled 2026-04-20 after HADF T1 reconcile exposed the same out-of-sync pattern across T2-T9."
+      },
+      {
+        "id": "T6",
+        "name": "Extend cache-metrics + token-budget",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "c414140",
+        "note": "Shipped in main (commit c414140, part of PR #82 chain). Extended cache-metrics.json with hadf_affinity field, added hadf layer to token-budget. State reconciled 2026-04-20 after HADF T1 reconcile exposed the same out-of-sync pattern across T2-T9."
+      },
+      {
+        "id": "T7",
+        "name": "Reference Implementations",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "a923c07",
+        "note": "Shipped in main (commit a923c07, part of PR #82 chain). Reference implementations (pseudocode) \u2014 Layer 0 device detection (Swift/Kotlin), Layer 2 Python classifier, Layer 3 adaptation, Composite helper. State reconciled 2026-04-20 after HADF T1 reconcile exposed the same out-of-sync pattern across T2-T9."
+      },
+      {
+        "id": "T8",
+        "name": "Token Budget Counter Update",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "6fa8ca6",
+        "note": "Shipped in main (commit 6fa8ca6, part of PR #82 chain). Token counter update + final validation. Part of the PR #82 close-out chain. State reconciled 2026-04-20 after HADF T1 reconcile exposed the same out-of-sync pattern across T2-T9."
+      },
+      {
+        "id": "T9",
+        "name": "Final Validation",
+        "status": "completed",
+        "completed_at": "2026-04-20T00:00:00Z",
+        "shipped_in_commit": "a5faa4f",
+        "note": "Shipped in main (commit a5faa4f, part of PR #82 chain). Final validation + case study (hadf-hardware-aware-dispatch-case-study.md) + evolution v7.0 documentation + architecture one-pager + README + backlog update. State reconciled 2026-04-20 after HADF T1 reconcile exposed the same out-of-sync pattern across T2-T9."
+      }
+    ]
+  },
+  "cache_hits": [],
+  "transitions": [
+    {
+      "from": "research",
+      "to": "prd",
+      "timestamp": "2026-04-16T00:30:00Z",
+      "approved_by": "user"
+    },
+    {
+      "from": "prd",
+      "to": "tasks",
+      "timestamp": "2026-04-16T01:30:00Z",
+      "approved_by": "user"
+    },
+    {
+      "from": "tasks",
+      "to": "implementation",
+      "timestamp": "2026-04-16T02:00:00Z",
+      "approved_by": "user"
+    },
+    {
+      "from": "implementation",
+      "to": "implementation",
+      "timestamp": "2026-04-20T00:00:00Z",
+      "approved_by": "integrity_reconcile",
+      "note": "T1 marked completed (artifact was shipped 2026-04-20 in commit 7478a8e but state.json was never reconciled). tasks.completed: 0 -> 1. Subagent dispatch for T1 reproduced F9 in practice \u2014 evidence for upstream ticket #51289."
+    },
+    {
+      "from": "implementation",
+      "to": "complete",
+      "timestamp": "2026-04-20T00:00:00Z",
+      "approved_by": "integrity_reconcile",
+      "note": "Full HADF T2\u2013T9 reconcile. All 9 tasks' artifacts had been shipped in PR #82 (2026-04-16 \u2192 2026-04-17) but state.json was never updated \u2014 the feature sat at phase=implementation / 1 of 9 completed for 3-4 days until today's reconciliation. Case study (hadf-hardware-aware-dispatch-case-study.md) already exists and is linked at top-level case_study + case_study_showcase fields. Feature transitioning implementation \u2192 complete at actual delivery truth."
+    }
+  ],
+  "updated": "2026-04-20T00:00:00Z"
+}

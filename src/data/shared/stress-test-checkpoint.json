@@ -1,0 +1,102 @@
+{
+  "experiment": "v5.1-parallel-stress-test",
+  "checkpoint": 8,
+  "status": "COMPLETE",
+  "timestamp": "2026-04-15T18:36:27Z",
+  "phases_completed": 8,
+  "total_duration_minutes": 54,
+  "summary": {
+    "features": 4,
+    "phase_transitions": 16,
+    "swift_files_created": 18,
+    "production_lines": 1930,
+    "tests_written": 35,
+    "tests_passed": 35,
+    "tests_failed": 0,
+    "builds_attempted": 5,
+    "builds_passed": 5,
+    "git_conflicts": 0,
+    "same_file_parallel_edits": 15,
+    "same_file_conflicts": 0,
+    "quality_rework": 0,
+    "subagent_dispatches": 31,
+    "permission_blocked": 16,
+    "speedup_vs_serial": "3.4x"
+  },
+  "features_final": {
+    "push-notifications": {
+      "phase": "testing",
+      "tasks_done": "10/12",
+      "swift_files": 5,
+      "tests": 10
+    },
+    "app-store-assets": {
+      "phase": "implementation",
+      "tasks_done": "5/10",
+      "config_files": 3
+    },
+    "import-training-plan": {
+      "phase": "testing",
+      "tasks_done": "8/13",
+      "swift_files": 4,
+      "tests": 15
+    },
+    "smart-reminders": {
+      "phase": "testing",
+      "tasks_done": "7/14",
+      "swift_files": 3,
+      "tests": 10
+    }
+  },
+  "bottlenecks_final": [
+    {
+      "id": "B1",
+      "severity": "critical",
+      "description": ".claude/ write permissions for subagents",
+      "rate": "100%",
+      "fix": "Add to allowed paths"
+    },
+    {
+      "id": "B2",
+      "severity": "low",
+      "description": "Agent execution time variance (43s-987s)",
+      "fix": "Tool use cap or timeout"
+    },
+    {
+      "id": "B3",
+      "severity": "none",
+      "description": "Git conflicts",
+      "finding": "ZERO across 8 phases"
+    },
+    {
+      "id": "B4",
+      "severity": "none",
+      "description": "Build failures",
+      "finding": "ZERO (5/5 passed)"
+    },
+    {
+      "id": "B5",
+      "severity": "none",
+      "description": "Test failures",
+      "finding": "ZERO (35/35 passed)"
+    },
+    {
+      "id": "B6",
+      "severity": "none",
+      "description": "Same-file parallel edits",
+      "finding": "15 edits, 0 conflicts"
+    },
+    {
+      "id": "B7",
+      "severity": "none",
+      "description": "Cross-agent code comprehension",
+      "finding": "Test agents write passing tests against other agents code"
+    }
+  ],
+  "research_generated": [
+    "Pre-flight capability probe (docs/architecture/subagent-preflight-probe-research.md)",
+    "Snapshot/rollback + Code region mirror pattern (docs/architecture/parallel-code-write-safety-research.md)",
+    "Complexity-weighted adaptive dispatch",
+    "Agent tool use budget normalization"
+  ]
+}
