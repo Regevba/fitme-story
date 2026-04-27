@@ -1,11 +1,11 @@
 {
-  "syncedAt": "2026-04-26T11:10:30.464Z",
-  "durationMs": 216,
+  "syncedAt": "2026-04-27T05:15:45.999Z",
+  "durationMs": 338,
   "source": "/Volumes/DevSSD/FitTracker2",
   "counts": {
     "sharedFiles": 33,
-    "featureFiles": 43,
-    "bytesTotal": 739349
+    "featureFiles": 44,
+    "bytesTotal": 744683
   },
   "checkedFiles": [
     "shared/audit-findings.json",
@@ -48,6 +48,7 @@
     "features/ai-recommendation-ui.json",
     "features/android-design-system.json",
     "features/app-store-assets.json",
+    "features/auth-polish-v2.json",
     "features/authentication.json",
     "features/data-integrity-framework-v7-6.json",
     "features/data-sync.json",
