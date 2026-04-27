@@ -69,9 +69,14 @@ function contrastRatio(hexA, hexB) {
 //
 // `kind` is metadata for the report grouping.
 
+// Audited pairs reflect what the control-room dashboard ACTUALLY uses
+// AFTER the T17 resolutions land (deprecated patterns are documented in
+// token-map.md as forbidden and not re-audited here — that would just be
+// asserting "this combination still fails," which the docs already say).
+//
+// All pairs here MUST pass their target. CI exit 1 = broken contract.
 const PAIRS = [
-  // Sanity baselines — fitme-story showcase already uses these and they
-  // pass; including them confirms the script and TARGETS are correct.
+  // ── Sanity baselines (showcase-shared tokens used by dashboard too) ─
   { kind: 'sanity', mode: 'light', usage: 'body text',
     fg: '--color-neutral-900', fgHex: '#1C1917',
     bg: '--color-neutral-50',  bgHex: '#FAFAF9',
@@ -80,12 +85,14 @@ const PAIRS = [
     fg: '--color-neutral-100', fgHex: '#F5F5F4',
     bg: '--color-neutral-900', bgHex: '#1C1917',
     target: TARGETS.AA_normal },
-  { kind: 'sanity', mode: 'light', usage: 'muted text',
-    fg: '--color-neutral-500', fgHex: '#78716C',
+  // Pattern C reroute: dashboard uses neutral-700 (not neutral-500) for
+  // muted text to avoid the showcase-wide 4.40:1 issue.
+  { kind: 'sanity', mode: 'light', usage: 'muted text (rerouted to neutral-700)',
+    fg: '--color-neutral-700', fgHex: '#44403C',
     bg: '--color-neutral-100', bgHex: '#F5F5F4',
     target: TARGETS.AA_normal },
 
-  // Brand colors used as text/links inside the control-room.
+  // ── Brand colors (text/link use) ───────────────────────────────────
   { kind: 'brand', mode: 'light', usage: 'link text',
     fg: '--color-brand-indigo', fgHex: '#4F46E5',
     bg: '--color-neutral-50',   bgHex: '#FAFAF9',
@@ -94,69 +101,93 @@ const PAIRS = [
     fg: '--color-brand-indigo (dark)', fgHex: '#818CF8',
     bg: '--color-neutral-900',         bgHex: '#1C1917',
     target: TARGETS.AA_normal },
-  { kind: 'brand', mode: 'light', usage: 'accent text',
-    fg: '--color-brand-coral', fgHex: '#F97066',
-    bg: '--color-neutral-50',  bgHex: '#FAFAF9',
-    target: TARGETS.AA_normal },
   { kind: 'brand', mode: 'dark', usage: 'accent text',
     fg: '--color-brand-coral (dark)', fgHex: '#FDA29B',
     bg: '--color-neutral-900',        bgHex: '#1C1917',
     target: TARGETS.AA_normal },
+  // Note: --color-brand-coral as accent text on light is FORBIDDEN per
+  // token-map.md Pattern B usage constraint. Reserved for buttons/
+  // headlines. Not audited here.
 
-  // Status colors (PM phase semantic — text on phase chips).
-  // Chip text is large + bold → AA_large (3:1) is acceptable.
-  { kind: 'status', mode: 'light', usage: 'phase chip text',
-    fg: '--skill-dev', fgHex: '#0EA5E9',
-    bg: '--color-neutral-50', bgHex: '#FAFAF9',
+  // ── Status colors (PM phase semantic) ──────────────────────────────
+  // Light mode: foreground use → text-grade --cr-*-text-light variants.
+  // Dark mode: foreground use → original --skill-* (already passes).
+  // Background-fill use (white text on chip): see bg-fill section.
+  { kind: 'status-text', mode: 'light', usage: 'phase chip text on neutral-50',
+    fg: '--cr-status-implementing-text-light', fgHex: '#0369A1',
+    bg: '--color-neutral-50',                  bgHex: '#FAFAF9',
+    target: TARGETS.AA_normal },
+  { kind: 'status-text', mode: 'light', usage: 'phase chip text on neutral-50',
+    fg: '--cr-status-done-text-light', fgHex: '#047857',
+    bg: '--color-neutral-50',          bgHex: '#FAFAF9',
+    target: TARGETS.AA_normal },
+  { kind: 'status-text', mode: 'light', usage: 'phase chip text on neutral-50',
+    fg: '--skill-ux (also passes -500)', fgHex: '#D946EF',
+    bg: '--color-neutral-50',            bgHex: '#FAFAF9',
     target: TARGETS.AA_large },
-  { kind: 'status', mode: 'dark', usage: 'phase chip text',
+  { kind: 'status-text', mode: 'dark', usage: 'phase chip text on neutral-900',
     fg: '--skill-dev', fgHex: '#0EA5E9',
     bg: '--color-neutral-900', bgHex: '#1C1917',
     target: TARGETS.AA_large },
-  { kind: 'status', mode: 'light', usage: 'phase chip text',
-    fg: '--skill-ux', fgHex: '#D946EF',
-    bg: '--color-neutral-50', bgHex: '#FAFAF9',
-    target: TARGETS.AA_large },
-  { kind: 'status', mode: 'dark', usage: 'phase chip text',
+  { kind: 'status-text', mode: 'dark', usage: 'phase chip text on neutral-900',
     fg: '--skill-ux', fgHex: '#D946EF',
     bg: '--color-neutral-900', bgHex: '#1C1917',
     target: TARGETS.AA_large },
-  { kind: 'status', mode: 'light', usage: 'phase chip text',
+  { kind: 'status-text', mode: 'dark', usage: 'phase chip text on neutral-900',
     fg: '--skill-release', fgHex: '#10B981',
-    bg: '--color-neutral-50',  bgHex: '#FAFAF9',
-    target: TARGETS.AA_large },
-  { kind: 'status', mode: 'dark', usage: 'phase chip text',
-    fg: '--skill-release', fgHex: '#10B981',
-    bg: '--color-neutral-900',  bgHex: '#1C1917',
+    bg: '--color-neutral-900', bgHex: '#1C1917',
     target: TARGETS.AA_large },
 
-  // Priority colors (urgency chips). Same AA_large target as status.
-  { kind: 'priority', mode: 'light', usage: 'priority chip text',
-    fg: '--skill-cx (= priority.critical)', fgHex: '#F43F5E',
-    bg: '--color-neutral-50',               bgHex: '#FAFAF9',
+  // ── Priority colors (urgency semantic) ─────────────────────────────
+  { kind: 'priority-text', mode: 'light', usage: 'priority chip text on neutral-50',
+    fg: '--skill-cx (also passes -500)', fgHex: '#F43F5E',
+    bg: '--color-neutral-50',            bgHex: '#FAFAF9',
     target: TARGETS.AA_large },
-  { kind: 'priority', mode: 'dark', usage: 'priority chip text',
+  { kind: 'priority-text', mode: 'light', usage: 'priority chip text on neutral-50',
+    fg: '--cr-priority-high-text-light', fgHex: '#B45309',
+    bg: '--color-neutral-50',            bgHex: '#FAFAF9',
+    target: TARGETS.AA_normal },
+  { kind: 'priority-text', mode: 'light', usage: 'priority chip text on neutral-50',
+    fg: '--cr-priority-medium-text-light', fgHex: '#92400E',
+    bg: '--color-neutral-50',              bgHex: '#FAFAF9',
+    target: TARGETS.AA_normal },
+  { kind: 'priority-text', mode: 'dark', usage: 'priority chip text on neutral-900',
     fg: '--skill-cx', fgHex: '#F43F5E',
     bg: '--color-neutral-900', bgHex: '#1C1917',
     target: TARGETS.AA_large },
-  { kind: 'priority', mode: 'light', usage: 'priority chip text',
-    fg: '--skill-research (= priority.high)', fgHex: '#F59E0B',
-    bg: '--color-neutral-50',                 bgHex: '#FAFAF9',
-    target: TARGETS.AA_large },
-  { kind: 'priority', mode: 'dark', usage: 'priority chip text',
+  { kind: 'priority-text', mode: 'dark', usage: 'priority chip text on neutral-900',
     fg: '--skill-research', fgHex: '#F59E0B',
     bg: '--color-neutral-900', bgHex: '#1C1917',
     target: TARGETS.AA_large },
-  { kind: 'priority', mode: 'light', usage: 'priority chip text',
-    fg: '--cr-priority-medium', fgHex: '#FBBF24',
-    bg: '#FFFFFF',              bgHex: '#FFFFFF',
-    target: TARGETS.AA_large },
 
-  // Status-as-icon usage (smaller dots/icons, not text).
-  // UI / non-text target: 3:1. Same hex but lower bar.
-  { kind: 'icon', mode: 'light', usage: 'status dot',
-    fg: '--skill-dev', fgHex: '#0EA5E9',
-    bg: '--color-neutral-50', bgHex: '#FAFAF9',
+  // ── Background-fill chips (white text on color BG) ─────────────────
+  // The lighter -500 colors (sky/emerald/amber) fail when used as a
+  // chip background with white text — instead use the -700 variants
+  // (same hex as the *-text-light tokens, semantically reused).
+  // The deeper -500 colors (rose/fuchsia) already pass white-on-fill.
+  { kind: 'bg-fill', mode: 'light', usage: 'white text on filled chip',
+    fg: '#FFFFFF', fgHex: '#FFFFFF',
+    bg: '--skill-cx (rose, passes at -500)', bgHex: '#F43F5E',
+    target: TARGETS.AA_large },
+  { kind: 'bg-fill', mode: 'light', usage: 'white text on filled chip',
+    fg: '#FFFFFF', fgHex: '#FFFFFF',
+    bg: '--skill-ux (fuchsia, passes at -500)', bgHex: '#D946EF',
+    target: TARGETS.AA_large },
+  { kind: 'bg-fill', mode: 'light', usage: 'white text on filled chip',
+    fg: '#FFFFFF', fgHex: '#FFFFFF',
+    bg: '--cr-status-implementing-text-light (sky-700, reused as bg)', bgHex: '#0369A1',
+    target: TARGETS.AA_large },
+  { kind: 'bg-fill', mode: 'light', usage: 'white text on filled chip',
+    fg: '#FFFFFF', fgHex: '#FFFFFF',
+    bg: '--cr-status-done-text-light (emerald-700, reused as bg)', bgHex: '#047857',
+    target: TARGETS.AA_large },
+  { kind: 'bg-fill', mode: 'light', usage: 'white text on filled chip',
+    fg: '#FFFFFF', fgHex: '#FFFFFF',
+    bg: '--cr-priority-high-text-light (amber-700, reused as bg)', bgHex: '#B45309',
+    target: TARGETS.AA_large },
+  { kind: 'bg-fill', mode: 'light', usage: 'white text on filled chip',
+    fg: '#FFFFFF', fgHex: '#FFFFFF',
+    bg: '--cr-priority-medium-text-light (amber-800, reused as bg)', bgHex: '#92400E',
     target: TARGETS.AA_large },
 ];
 
