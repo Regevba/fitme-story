@@ -32,12 +32,28 @@ import { resolve, join } from 'node:path';
 
 const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
 const FITME_STORY_ROOT = resolve(SCRIPT_DIR, '..');
-const FT2_ROOT = resolve(FITME_STORY_ROOT, '..', 'FitTracker2');
-const FT2_SHARED = resolve(FT2_ROOT, '.claude', 'shared');
-const FT2_FEATURES = resolve(FT2_ROOT, '.claude', 'features');
-const LOCAL_SHARED = resolve(FITME_STORY_ROOT, 'src', 'data', 'shared');
-const LOCAL_FEATURES = resolve(FITME_STORY_ROOT, 'src', 'data', 'features');
-const FRESHNESS_PATH = resolve(FITME_STORY_ROOT, 'src', 'data', 'freshness.json');
+
+// Default paths used when syncDashboardData is called without overrides
+// (the production prebuild flow). Tests inject custom paths via the
+// SyncPaths argument so they can construct an isolated tmp-dir layout
+// without touching the real project tree.
+const DEFAULT_PATHS: SyncPaths = {
+  ft2Root:        resolve(FITME_STORY_ROOT, '..', 'FitTracker2'),
+  ft2Shared:      resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'shared'),
+  ft2Features:    resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'features'),
+  localShared:    resolve(FITME_STORY_ROOT, 'src', 'data', 'shared'),
+  localFeatures:  resolve(FITME_STORY_ROOT, 'src', 'data', 'features'),
+  freshnessPath:  resolve(FITME_STORY_ROOT, 'src', 'data', 'freshness.json'),
+};
+
+interface SyncPaths {
+  ft2Root: string;
+  ft2Shared: string;
+  ft2Features: string;
+  localShared: string;
+  localFeatures: string;
+  freshnessPath: string;
+}
 
 interface FreshnessReport {
   syncedAt: string;
@@ -64,17 +80,18 @@ function copyJsonFile(srcPath: string, dstPath: string): { bytes: number } {
   return { bytes: Buffer.byteLength(raw, 'utf8') };
 }
 
-async function syncDashboardData(): Promise<FreshnessReport> {
+async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<FreshnessReport> {
   const startedAt = Date.now();
+  const { ft2Root, ft2Shared, ft2Features, localShared, localFeatures, freshnessPath } = paths;
 
-  if (!existsSync(FT2_ROOT)) {
+  if (!existsSync(ft2Root)) {
     // Option A fallback: when FT2 isn't on disk (e.g. Vercel builders, fresh
     // clones without the FT2 sibling), fall back to the committed snapshot in
     // src/data/. The build can still succeed; the snapshot will simply be
     // whatever was last committed by `npm run prebuild` locally. Switching to
     // Option B (vercel.json buildCommand clones FT2) or Option C (signed
     // freshness contract) removes the manual commit step.
-    if (existsSync(LOCAL_SHARED) && existsSync(LOCAL_FEATURES)) {
+    if (existsSync(localShared) && existsSync(localFeatures)) {
       const fallbackReport: FreshnessReport = {
         syncedAt: new Date(0).toISOString(),
         durationMs: 0,
@@ -84,40 +101,40 @@ async function syncDashboardData(): Promise<FreshnessReport> {
       };
       // Don't overwrite an existing freshness.json — preserve the
       // last-known-good local sync timestamp for dashboard display.
-      if (!existsSync(FRESHNESS_PATH)) {
-        writeFileSync(FRESHNESS_PATH, JSON.stringify(fallbackReport, null, 2) + '\n');
+      if (!existsSync(freshnessPath)) {
+        writeFileSync(freshnessPath, JSON.stringify(fallbackReport, null, 2) + '\n');
       }
       console.log(
-        `⚠ FT2 not present at ${FT2_ROOT}; using committed snapshot in src/data/ (Option A fallback).`
+        `⚠ FT2 not present at ${ft2Root}; using committed snapshot in src/data/ (Option A fallback).`
       );
       return fallbackReport;
     }
     throw new Error(
-      `FitTracker2 repo not found at ${FT2_ROOT} AND no committed snapshot in src/data/. Locally: ensure FitTracker2 is cloned as a sibling of fitme-story. Vercel: configure vercel.json buildCommand to clone FitTracker2 first, OR commit src/data/ snapshot (Option A).`
+      `FitTracker2 repo not found at ${ft2Root} AND no committed snapshot in src/data/. Locally: ensure FitTracker2 is cloned as a sibling of fitme-story. Vercel: configure vercel.json buildCommand to clone FitTracker2 first, OR commit src/data/ snapshot (Option A).`
     );
   }
-  if (!existsSync(FT2_SHARED)) {
-    throw new Error(`FT2 shared dir missing: ${FT2_SHARED}`);
+  if (!existsSync(ft2Shared)) {
+    throw new Error(`FT2 shared dir missing: ${ft2Shared}`);
   }
-  if (!existsSync(FT2_FEATURES)) {
-    throw new Error(`FT2 features dir missing: ${FT2_FEATURES}`);
+  if (!existsSync(ft2Features)) {
+    throw new Error(`FT2 features dir missing: ${ft2Features}`);
   }
 
   // Wipe + recreate target dirs to avoid stale leftovers when files are removed upstream.
-  if (existsSync(LOCAL_SHARED)) rmSync(LOCAL_SHARED, { recursive: true, force: true });
-  if (existsSync(LOCAL_FEATURES)) rmSync(LOCAL_FEATURES, { recursive: true, force: true });
-  mkdirSync(LOCAL_SHARED, { recursive: true });
-  mkdirSync(LOCAL_FEATURES, { recursive: true });
+  if (existsSync(localShared)) rmSync(localShared, { recursive: true, force: true });
+  if (existsSync(localFeatures)) rmSync(localFeatures, { recursive: true, force: true });
+  mkdirSync(localShared, { recursive: true });
+  mkdirSync(localFeatures, { recursive: true });
 
   let bytesTotal = 0;
   const checked: string[] = [];
 
   // Sync .claude/shared/*.json (top-level; recurse into immediate subdirs).
-  for (const entry of readdirSync(FT2_SHARED)) {
-    const src = join(FT2_SHARED, entry);
+  for (const entry of readdirSync(ft2Shared)) {
+    const src = join(ft2Shared, entry);
     const stat = statSync(src);
     if (stat.isFile() && entry.endsWith('.json')) {
-      const { bytes } = copyJsonFile(src, join(LOCAL_SHARED, entry));
+      const { bytes } = copyJsonFile(src, join(localShared, entry));
       bytesTotal += bytes;
       checked.push(`shared/${entry}`);
     } else if (stat.isDirectory()) {
@@ -125,7 +142,7 @@ async function syncDashboardData(): Promise<FreshnessReport> {
       for (const sub of readdirSync(src)) {
         if (sub.endsWith('.json')) {
           const subSrc = join(src, sub);
-          const subDst = join(LOCAL_SHARED, entry, sub);
+          const subDst = join(localShared, entry, sub);
           const { bytes } = copyJsonFile(subSrc, subDst);
           bytesTotal += bytes;
           checked.push(`shared/${entry}/${sub}`);
@@ -135,12 +152,12 @@ async function syncDashboardData(): Promise<FreshnessReport> {
   }
 
   // Sync per-feature state.json — one file per feature directory.
-  for (const feature of readdirSync(FT2_FEATURES)) {
-    const featureDir = join(FT2_FEATURES, feature);
+  for (const feature of readdirSync(ft2Features)) {
+    const featureDir = join(ft2Features, feature);
     if (!statSync(featureDir).isDirectory()) continue;
     const stateSrc = join(featureDir, 'state.json');
     if (!existsSync(stateSrc)) continue;
-    const stateDst = join(LOCAL_FEATURES, `${feature}.json`);
+    const stateDst = join(localFeatures, `${feature}.json`);
     const { bytes } = copyJsonFile(stateSrc, stateDst);
     bytesTotal += bytes;
     checked.push(`features/${feature}.json`);
@@ -152,12 +169,12 @@ async function syncDashboardData(): Promise<FreshnessReport> {
   const report: FreshnessReport = {
     syncedAt: new Date().toISOString(),
     durationMs: Date.now() - startedAt,
-    source: FT2_ROOT,
+    source: ft2Root,
     counts: { sharedFiles, featureFiles, bytesTotal },
     checkedFiles: checked,
   };
 
-  writeFileSync(FRESHNESS_PATH, JSON.stringify(report, null, 2) + '\n');
+  writeFileSync(freshnessPath, JSON.stringify(report, null, 2) + '\n');
   return report;
 }
 
@@ -168,7 +185,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.log(
         `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
       );
-      console.log(`  freshness: ${FRESHNESS_PATH}`);
+      console.log(`  freshness: ${DEFAULT_PATHS.freshnessPath}`);
     })
     .catch((err) => {
       console.error('✗ sync failed:', err.message);
@@ -176,5 +193,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     });
 }
 
-export { syncDashboardData };
+export { syncDashboardData, DEFAULT_PATHS };
+export type { SyncPaths };
 export type { FreshnessReport };

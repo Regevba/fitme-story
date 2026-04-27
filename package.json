@@ -11,7 +11,8 @@
     "sync-content": "tsx scripts/sync-content.ts",
     "sync-from-fittracker2": "tsx scripts/sync-from-fittracker2.ts",
     "test": "tsx --test 'scripts/*.test.ts' 'src/**/*.test.ts'",
-    "validate-content": "tsx scripts/validate-frontmatter.ts"
+    "validate-content": "tsx scripts/validate-frontmatter.ts",
+    "verify-blind-switch": "bash scripts/verify-blind-switch.sh"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
@@ -27,10 +28,11 @@
     "next-mdx-remote": "^6.0.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "reading-time": "^1.5.0"
+    "reading-time": "^1.5.0",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "20.19.39",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -40,6 +42,6 @@
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "5.9.3",
-    "zod": "^4.3.6"
+    "zod": "4.3.6"
   }
 }
