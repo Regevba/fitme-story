@@ -11,7 +11,8 @@
     "sync-content": "tsx scripts/sync-content.ts",
     "sync-from-fittracker2": "tsx scripts/sync-from-fittracker2.ts",
     "test": "tsx --test 'scripts/*.test.ts' 'src/**/*.test.ts'",
-    "validate-content": "tsx scripts/validate-frontmatter.ts"
+    "validate-content": "tsx scripts/validate-frontmatter.ts",
+    "verify-blind-switch": "bash scripts/verify-blind-switch.sh"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

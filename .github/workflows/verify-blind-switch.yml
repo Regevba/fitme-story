@@ -1,0 +1,71 @@
+# .github/workflows/verify-blind-switch.yml
+#
+# Task T12 — runs scripts/verify-blind-switch.sh against the Vercel preview
+# deployment whenever a PR touches files that could break the
+# unified-control-center blind-switch (proxy.ts, sitemap.ts, robots.ts,
+# next.config.ts, the verify script itself, or this workflow).
+#
+# Listens for `deployment_status` events fired by Vercel's GitHub integration
+# when a preview build finishes. When a successful deploy lands and the PR
+# touches a relevant file, the workflow probes the preview URL with the same
+# 5 assertions the script enforces locally.
+#
+# Why deployment_status (not pull_request): the blind-switch behavior is
+# environment-dependent — proxy.ts only fires through Vercel's edge, sitemap
+# is generated at build time. We can't probe these from a CI runner without
+# a real deployment. Using the existing Vercel preview avoids needing a
+# VERCEL_TOKEN secret in CI.
+#
+# Security: github.event.* values that flow into shell are routed via env:
+# vars and shell-quoted ($PREVIEW_URL). The deployment.sha used in
+# actions/checkout is a SHA (not free-form text) and is safely consumed by
+# the action.
+
+name: verify-blind-switch
+
+on:
+  deployment_status:
+
+jobs:
+  verify:
+    if: |
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'Preview'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+          fetch-depth: 2
+
+      - name: Detect whether this PR touches blind-switch files
+        id: filter
+        run: |
+          set -e
+          parent=$(git rev-parse HEAD~1 2>/dev/null || echo "")
+          if [ -z "$parent" ]; then
+            echo "  ⚠ Could not resolve parent commit — running verification anyway."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only "$parent" HEAD)
+          echo "Changed files since parent:"
+          echo "$changed" | sed 's/^/  /'
+          if echo "$changed" | grep -qE '^(src/proxy\.ts|src/app/sitemap\.ts|src/app/robots\.ts|next\.config\.ts|scripts/verify-blind-switch\.sh|\.github/workflows/verify-blind-switch\.yml)$'; then
+            echo "  → relevant file changed; will run verification."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "  → no blind-switch files changed; skipping."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run verify-blind-switch.sh against preview URL
+        if: steps.filter.outputs.should_run == 'true'
+        env:
+          PREVIEW_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          set -e
+          echo "Probing: $PREVIEW_URL"
+          chmod +x scripts/verify-blind-switch.sh
+          ./scripts/verify-blind-switch.sh "$PREVIEW_URL"
