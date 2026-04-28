@@ -11,6 +11,7 @@ import {
   DeferredItemsList,
   SectionDivider,
   SwitchAlternativeBar,
+  DataKey,
 } from '../_components';
 import {
   v75Meta,
@@ -48,6 +49,11 @@ export default function AlternativeAPreview() {
           showDisclosuresInline={true}
           honestDisclosures={v75HonestDisclosures}
         />
+
+        {/* Reader's key — collapsed by default; explains conventions */}
+        <div className="mt-4">
+          <DataKey />
+        </div>
 
         <div className="mt-6 space-y-4">
           <KeyNumbersStrip numbers={v75KeyNumbers} />

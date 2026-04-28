@@ -366,6 +366,92 @@ function TierBadge({ tier }: { tier: 'T1' | 'T2' | 'T3' }) {
 }
 
 // =============================================================================
+// DataKey — explains the conventions readers will encounter (T1/T2/T3 tier
+// badges, "ledger:" pointers, kill-criterion semantics, Deferred status).
+// Used by Alternative A to make the chrome self-explanatory at a glance.
+// =============================================================================
+export function DataKey() {
+  return (
+    <details className="rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-900)] group">
+      <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+        <span className="flex items-center gap-2">
+          <span className="font-semibold">How to read this case study</span>
+          <span className="text-[var(--color-neutral-500)] normal-case tracking-normal text-[11px]">
+            T1/T2/T3 · ledger · kill criterion
+          </span>
+        </span>
+        <span className="text-[var(--color-neutral-500)] group-open:rotate-180 transition-transform">
+          ▾
+        </span>
+      </summary>
+      <div className="px-4 pb-4 pt-2 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]">
+        <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 font-sans text-xs">
+          <div>
+            <dt className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                T1
+              </span>
+              <span className="font-semibold">Instrumented</span>
+            </dt>
+            <dd className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
+              Numbers come from a machine-generated ledger or commit. Reproducible.
+              Highest reader trust.
+            </dd>
+          </div>
+          <div>
+            <dt className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                T2
+              </span>
+              <span className="font-semibold">Declared</span>
+            </dt>
+            <dd className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
+              Numbers stated by a structured declaration (PRD, plan, frontmatter)
+              but not directly measured.
+            </dd>
+          </div>
+          <div>
+            <dt className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-stone-100 text-stone-700 dark:bg-stone-900 dark:text-stone-300">
+                T3
+              </span>
+              <span className="font-semibold">Narrative</span>
+            </dt>
+            <dd className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
+              Estimates and observations from session memory. Useful for context;
+              not citable as evidence.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold mb-1">Ledger</dt>
+            <dd className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
+              Where to verify the claim — a file path, GitHub issue, or backlog
+              entry. Anything labelled <code className="text-[0.85em] px-1 py-0.5 rounded bg-[var(--color-neutral-200)] dark:bg-[var(--color-neutral-800)]">ledger:</code>{' '}
+              is the audit trail.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold mb-1">Kill criterion</dt>
+            <dd className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
+              The pre-registered threshold under which this work would have been
+              killed mid-flight. <strong>Not fired</strong> = work shipped without
+              hitting the threshold.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold mb-1">Deferred</dt>
+            <dd className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
+              Items intentionally not closed in this version. Each cites the
+              ledger that tracks remaining work.
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </details>
+  );
+}
+
+// =============================================================================
 // PreviewBanner — shown at top of every preview page so it's clear this is a demo.
 // =============================================================================
 export function PreviewBanner({ alt }: { alt: 'A' | 'B' }) {

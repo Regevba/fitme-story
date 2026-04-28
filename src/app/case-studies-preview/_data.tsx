@@ -272,6 +272,58 @@ export function LongFormBody() {
         independent — they compose a single data-integrity surface.
       </p>
 
+      <table>
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th>v7.1</th>
+            <th>v7.5</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>state.json schema enforced</td>
+            <td>Post-hoc (cycle)</td>
+            <td>Pre-commit hook + cycle</td>
+          </tr>
+          <tr>
+            <td>PR citations validated</td>
+            <td>Post-hoc (cycle)</td>
+            <td>Pre-commit hook + cycle</td>
+          </tr>
+          <tr>
+            <td>Auditor Agent check codes</td>
+            <td>8</td>
+            <td>11</td>
+          </tr>
+          <tr>
+            <td>Runtime verification</td>
+            <td>None</td>
+            <td>5 smoke profiles + staging harness</td>
+          </tr>
+          <tr>
+            <td>Feature logs</td>
+            <td>None</td>
+            <td>5 active (pilot)</td>
+          </tr>
+          <tr>
+            <td>Data provenance</td>
+            <td>Implicit</td>
+            <td>T1/T2/T3 labels mandatory</td>
+          </tr>
+          <tr>
+            <td>Docs-debt dashboard</td>
+            <td>None</td>
+            <td>Baseline ledger published</td>
+          </tr>
+          <tr>
+            <td>Measurement adoption ledger</td>
+            <td>None</td>
+            <td>Published with honest delta</td>
+          </tr>
+        </tbody>
+      </table>
+
       <h2>5. Lessons</h2>
       <h3>5.1 An independent audit that propagates an error from its input is still valuable</h3>
       <p>

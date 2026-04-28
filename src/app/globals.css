@@ -75,3 +75,49 @@ html.dark {
     scroll-behavior: auto !important;
   }
 }
+
+/* Editorial table styling for prose-rendered case-study tables.
+   Tailwind typography ships defaults; we override for tighter cells,
+   warmer borders, and a clear header band so per-row data is scannable. */
+.prose table {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5em 0;
+}
+.prose thead {
+  background: var(--color-neutral-100);
+  border-bottom: 2px solid var(--color-neutral-300);
+}
+html.dark .prose thead {
+  background: var(--color-neutral-900);
+  border-bottom-color: var(--color-neutral-700);
+}
+.prose th {
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5em 0.75em;
+  color: var(--color-neutral-700);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.prose td {
+  padding: 0.55em 0.75em;
+  border-bottom: 1px solid var(--color-neutral-200);
+  vertical-align: top;
+}
+html.dark .prose td {
+  border-bottom-color: var(--color-neutral-700);
+}
+.prose tbody tr:last-child td {
+  border-bottom: none;
+}
+.prose tbody tr:hover {
+  background: var(--color-neutral-50);
+}
+html.dark .prose tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
