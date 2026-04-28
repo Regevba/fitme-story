@@ -43,8 +43,20 @@ const DEFAULT_PATHS: SyncPaths = {
   ft2Features:    resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'features'),
   localShared:    resolve(FITME_STORY_ROOT, 'src', 'data', 'shared'),
   localFeatures:  resolve(FITME_STORY_ROOT, 'src', 'data', 'features'),
+  localDocs:      resolve(FITME_STORY_ROOT, 'src', 'data', 'docs'),
   freshnessPath:  resolve(FITME_STORY_ROOT, 'src', 'data', 'freshness.json'),
 };
+
+// Source markdowns the control-room parsers consume. Paths are relative to
+// FT2 root and the same relative structure is preserved under src/data/docs/
+// so parsers can use a single repoRoot variable that points at either FT2 or
+// the synced snapshot.
+const FT2_DOC_PATHS: readonly string[] = [
+  'docs/product/backlog.md',
+  'docs/product/PRD.md',
+  'docs/product/metrics-framework.md',
+  'docs/master-plan/master-backlog-roadmap.md',
+];
 
 interface SyncPaths {
   ft2Root: string;
@@ -52,6 +64,7 @@ interface SyncPaths {
   ft2Features: string;
   localShared: string;
   localFeatures: string;
+  localDocs: string;
   freshnessPath: string;
 }
 
@@ -62,6 +75,7 @@ interface FreshnessReport {
   counts: {
     sharedFiles: number;
     featureFiles: number;
+    docFiles: number;
     bytesTotal: number;
   };
   checkedFiles: string[];
@@ -80,9 +94,16 @@ function copyJsonFile(srcPath: string, dstPath: string): { bytes: number } {
   return { bytes: Buffer.byteLength(raw, 'utf8') };
 }
 
+function copyTextFile(srcPath: string, dstPath: string): { bytes: number } {
+  const raw = readFileSync(srcPath, 'utf8');
+  mkdirSync(resolve(dstPath, '..'), { recursive: true });
+  writeFileSync(dstPath, raw);
+  return { bytes: Buffer.byteLength(raw, 'utf8') };
+}
+
 async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<FreshnessReport> {
   const startedAt = Date.now();
-  const { ft2Root, ft2Shared, ft2Features, localShared, localFeatures, freshnessPath } = paths;
+  const { ft2Root, ft2Shared, ft2Features, localShared, localFeatures, localDocs, freshnessPath } = paths;
 
   if (!existsSync(ft2Root)) {
     // Option A fallback: when FT2 isn't on disk (e.g. Vercel builders, fresh
@@ -96,7 +117,7 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
         syncedAt: new Date(0).toISOString(),
         durationMs: 0,
         source: 'committed-snapshot (FT2 not present at build time)',
-        counts: { sharedFiles: 0, featureFiles: 0, bytesTotal: 0 },
+        counts: { sharedFiles: 0, featureFiles: 0, docFiles: 0, bytesTotal: 0 },
         checkedFiles: [],
       };
       // Don't overwrite an existing freshness.json — preserve the
@@ -123,8 +144,10 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
   // Wipe + recreate target dirs to avoid stale leftovers when files are removed upstream.
   if (existsSync(localShared)) rmSync(localShared, { recursive: true, force: true });
   if (existsSync(localFeatures)) rmSync(localFeatures, { recursive: true, force: true });
+  if (existsSync(localDocs)) rmSync(localDocs, { recursive: true, force: true });
   mkdirSync(localShared, { recursive: true });
   mkdirSync(localFeatures, { recursive: true });
+  mkdirSync(localDocs, { recursive: true });
 
   let bytesTotal = 0;
   const checked: string[] = [];
@@ -163,14 +186,29 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     checked.push(`features/${feature}.json`);
   }
 
+  // Sync the four source markdowns the control-room parsers consume.
+  // Relative paths from FT2 root are preserved under src/data/docs/ so a
+  // single repoRoot variable can point at either FT2 or the snapshot.
+  for (const docPath of FT2_DOC_PATHS) {
+    const docSrc = resolve(ft2Root, docPath);
+    if (!existsSync(docSrc)) {
+      throw new Error(`FT2 doc missing: ${docSrc}`);
+    }
+    const docDst = join(localDocs, docPath);
+    const { bytes } = copyTextFile(docSrc, docDst);
+    bytesTotal += bytes;
+    checked.push(`md/${docPath}`);
+  }
+
   const sharedFiles = checked.filter((c) => c.startsWith('shared/')).length;
   const featureFiles = checked.filter((c) => c.startsWith('features/')).length;
+  const docFiles = checked.filter((c) => c.startsWith('md/')).length;
 
   const report: FreshnessReport = {
     syncedAt: new Date().toISOString(),
     durationMs: Date.now() - startedAt,
     source: ft2Root,
-    counts: { sharedFiles, featureFiles, bytesTotal },
+    counts: { sharedFiles, featureFiles, docFiles, bytesTotal },
     checkedFiles: checked,
   };
 
@@ -183,7 +221,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   syncDashboardData()
     .then((r) => {
       console.log(
-        `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
+        `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features + ${r.counts.docFiles} docs (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
       );
       console.log(`  freshness: ${DEFAULT_PATHS.freshnessPath}`);
     })
