@@ -43,7 +43,14 @@ export const DeferredItemSchema = z.object({
   reason: z.string(),
 });
 
-export const FrontmatterSchema = z.object({
+// Built-time gate: every case study must declare either visual_aid (preferred,
+// renders the named component) OR a non-empty key_numbers array (renders the
+// fallback KeyNumbersChart). Enforced via .refine() below the object schema.
+//
+// Rationale: see Alternative A locked-design rule (2026-04-28) — "every case
+// study must carry a visual aid that serves the central claim". Catalog at
+// docs/design-system/case-study-visual-aid-catalog.md (FitTracker2).
+const FrontmatterShape = z.object({
   title: z.string(),
   slug: z.string(),
   upstream_path: z.string().optional(),
@@ -81,6 +88,22 @@ export const FrontmatterSchema = z.object({
   deferred_items: z.array(DeferredItemSchema).optional(),
   visual_aid: VisualAidSchema.optional(),
 });
+
+export const FrontmatterSchema = FrontmatterShape.refine(
+  (fm) => Boolean(fm.visual_aid) || (Array.isArray(fm.key_numbers) && fm.key_numbers.length > 0),
+  {
+    message:
+      'Every case study must declare either `visual_aid: { component, data }` (preferred) or a non-empty `key_numbers: [...]` array (renders KeyNumbersChart fallback). See docs/design-system/case-study-visual-aid-catalog.md',
+    path: ['visual_aid'],
+  },
+).refine(
+  (fm) => Boolean(fm.tldr) || fm.tier === 'unassigned',
+  {
+    message:
+      'Every case study (other than tier=unassigned) must declare `tldr: "..."` for the SummaryCard headline.',
+    path: ['tldr'],
+  },
+);
 
 export type Frontmatter = z.infer<typeof FrontmatterSchema>;
 export type KeyNumber = z.infer<typeof KeyNumberSchema>;

@@ -9,6 +9,23 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-16'
+tldr: 'Raw metrics like wall time and file count are meaningless without normalization. The Complexity Unit (CU) model — additive factors for tasks, types, views, design iterations, architectural novelty — makes 16 different features comparable.'
+key_numbers:
+  - label: 'Features normalised under CU model'
+    value: '16'
+    tier: T1
+  - label: 'Continuous CU factors (v2)'
+    value: 'tasks · types · views · design · novelty'
+    tier: T1
+  - label: 'Pre-CU baseline'
+    value: 'binary "has UI" / "new model"'
+    tier: T2
+honest_disclosures:
+  - 'CU magnitudes are judgment-based; v7.6 mechanical enforcement validates schema (presence + ranges + total) but not whether a number is the right number for a feature.'
+  - 'The 16-feature corpus is the whole project, not a controlled sample. Generalisation outside FitMe is unproven.'
+visual_aid:
+  component: KeyNumbersChart
 ---
 # How We Normalized Complexity Across 16 Different Features
 
