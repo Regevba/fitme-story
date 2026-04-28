@@ -13,6 +13,24 @@ persona_emphasis:
   academic: measurement
 hero_component: ChipAffinityMap
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-17'
+tldr: 'V7.0 HADF asks whether passive hardware fingerprinting can improve dispatch routing without requiring provider cooperation. 5-layer architecture (device → 17 static profiles → 7-signature cloud fingerprinting via Mahalanobis distance → dynamic adaptation → evolutionary learning). Confidence-gated to be ignored below 0.4 — zero-regression shipping.'
+key_numbers:
+  - label: 'Static chip profiles'
+    value: '17'
+    tier: T1
+  - label: 'Cloud provider signatures (published-benchmark derived)'
+    value: '7'
+    tier: T1
+  - label: 'Confidence-gated advisory band'
+    value: '0.4 → 0.7'
+    tier: T2
+honest_disclosures:
+  - 'Cloud fingerprinting uses 7 published-benchmark signatures, not direct provider API queries — provider cooperation does not exist today (Option B was rejected on this basis).'
+  - 'Below 0.4 confidence, V7.0 HADF is ignored entirely; the framework reverts to v5.2 dispatch. Between 0.4 and 0.7, suggestions are advisory only.'
+  - 'Evolutionary learning is per-session EMA over a chip affinity map — cross-user generalisation requires the framework deployed independently elsewhere (still Tier 3.3 backlog).'
+visual_aid:
+  component: ChipAffinityMap
 ---
 # <Term slug="hadf">V7.0 HADF (Hardware-Aware Dispatch Framework)</Term> — Teaching the Framework to Detect Chip Architecture
 

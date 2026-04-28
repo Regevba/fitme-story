@@ -12,6 +12,36 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-18'
+tldr: 'The same AI that built the framework audited its own work across 22 features and 6 framework versions, using a 4-layer methodology (parallel surface sweep → risk-weighted deep dive → historical cross-reference → external validation). 185 raw findings compressed to 20 thematic clusters and ultimately 3 root causes.'
+key_numbers:
+  - label: 'Total findings surfaced'
+    value: '185'
+    tier: T1
+  - label: 'Critical findings'
+    value: '12 of 185'
+    tier: T1
+  - label: 'Externally validated (build/tests/line-counts/tokens)'
+    value: '21 of 185'
+    tier: T1
+honest_disclosures:
+  - 'Audit is self-referential — same AI that built the framework. Bias implications are documented in the dedicated section of the case study.'
+  - 'Layer 4 external validation covers 21 of 185 findings; the remaining 164 carry only AI-author signal. External replication remains a Tier 3.3 backlog item.'
+  - "Two findings are regressions of prior 'fixed' issues — session-restore timeout (incomplete fix) and color-token migration (66 deprecated calls remained)."
+visual_aid:
+  component: AuditFunnel
+  data:
+    caption: 'The 4-layer methodology compressed 185 raw findings into 20 thematic clusters and ultimately 3 root causes.'
+    tiers:
+      - label: 'Raw findings'
+        count: 185
+        colorVar: 'var(--skill-qa)'
+      - label: 'Clusters'
+        count: 20
+        colorVar: 'var(--skill-analytics)'
+      - label: 'Root causes'
+        count: 3
+        colorVar: 'var(--color-brand-coral)'
 ---
 # 185 Findings, 12 Critical — What a Full-System Audit Revealed
 

@@ -12,6 +12,32 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-15'
+tldr: 'A 4-feature parallel stress test exposed two bottlenecks (52% permission-routing denial, 23× agent variance) — context window pressure was *not* among them. v5.2 Dispatch Intelligence (complexity scoring → capability probing → tool budgets) cut tool usage 48% and variance 84%.'
+key_numbers:
+  - label: 'Tool-use reduction with dispatch intelligence'
+    value: '48%'
+    tier: T1
+  - label: 'Variance reduction (43s–987s spread → tighter band)'
+    value: '84%'
+    tier: T1
+  - label: 'Stress-test conflicts across 31 dispatches'
+    value: '0 across 31'
+    tier: T1
+honest_disclosures:
+  - 'v5.1 zero-conflict result was probabilistic, not structural — agents happened to edit non-overlapping regions. Parallel Write Safety (v5.2 sub-project B) made it structural.'
+  - 'Context-window pressure was the expected constraint and was not the bottleneck — skill-on-demand loading kept irrelevant context out. The actual bottlenecks were permission routing and agent execution variance.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'v5.1 stress test'
+    beforeValue: '52% / 23×'
+    beforeSubtitle: 'permission-routing denial rate · execution-time variance across similar tasks'
+    afterLabel: 'v5.2 dispatch intelligence'
+    afterValue: '48% / 84%'
+    afterSubtitle: 'tool-use reduction · variance reduction (3-stage pipeline: score → probe → budget)'
+    delta: '2 bottlenecks closed'
+    afterAccentVar: 'var(--skill-qa)'
 ---
 # What Breaks When You Run 4 Features at Once — And How to Fix It
 
