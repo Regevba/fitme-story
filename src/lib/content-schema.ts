@@ -34,7 +34,7 @@ export const VisualAidSchema = z.object({
   component: VisualAidComponentEnum,
   // Component-specific props. Validated at the component layer; we accept
   // record(unknown) here to keep the schema flexible across 18 component shapes.
-  data: z.record(z.unknown()).optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const DeferredItemSchema = z.object({
