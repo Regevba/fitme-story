@@ -76,6 +76,41 @@ html.dark {
   }
 }
 
+/* Native Safari quirk fixes (added 2026-04-28 with the case-study
+   presentation refactor). Apply to all browsers — no harm to others. */
+
+/* 1. Hide the default Safari/Chrome <details> disclosure triangle so our
+   custom rotating chevron in the summary button is the only marker. */
+details > summary {
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* 2. Kill the iOS Safari blue tap-highlight on interactive shells. Buttons
+   and links get focus rings via Tailwind; the platform highlight is noise. */
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 3. Smooth iOS overflow scrolling for prose + horizontal scroll containers. */
+.prose,
+[data-scrollable] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 4. Antialias rendering — Safari subpixel default renders thinner than
+   other browsers. Match the editorial weight everywhere. */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Editorial table styling for prose-rendered case-study tables.
    Tailwind typography ships defaults; we override for tighter cells,
    warmer borders, and a clear header band so per-row data is scannable. */

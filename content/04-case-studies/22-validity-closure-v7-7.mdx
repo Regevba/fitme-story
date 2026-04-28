@@ -11,6 +11,53 @@ persona_emphasis:
   pm: lifecycle
   dev: architecture
   academic: measurement
+date: '2026-04-28'
+tldr: 'v7.7 closes A1–A5 + B1–B2 + C1 from the post-v7.6 gap inventory: 5 new gates (4 write-time pre-commit hooks + 1 cycle-time check + 1 advisory), bulk frontmatter backfill on 32 case studies, and timing backfill on 3 paused features. Framework reaches 25 mechanical gates + 1 advisory.'
+key_numbers:
+  - label: 'Post-v6 fully-adopted features'
+    value: '2 of 9'
+    tier: T1
+  - label: 'Mechanical gates'
+    value: '11 → 25'
+    tier: T1
+  - label: 'state ↔ case-study linkage'
+    value: '95.5 → 100'
+    tier: T1
+honest_disclosures:
+  - '`cache_hits[]` post-v6 writer-path lifted to 100% gating; existing zero-adopted features intentionally untouched (no source data; impartiality rule).'
+  - 'Tier 1.1 trend mode unlocks at 3 history snapshots — earliest 2026-05-04 (Monday cron appends snapshot #3).'
+  - 'Tier 3.2 trend mode unlocks at 3 cycle snapshots — earliest 2026-05-03 to 2026-05-06 (72h cycle accumulates).'
+  - 'Tier 3.3 external replication remains backlog; cannot be self-executed.'
+kill_criteria:
+  - 'Cache-hits writer-path proves un-instrumentable (>5 distinct call sites with no shared loader).'
+  - 'Tier-tag checker false-positive rate stays >25% after 2 weeks.'
+  - 'PR-1 instrumentation introduces >100ms latency to skill loading.'
+  - 'Pre-commit hook FP rate >10% on legitimate commits in week-1 dogfooding.'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'Tier 1.1 trend mode'
+    ledger: 'cron snapshot history at .claude/shared/measurement-adoption-history.json'
+    reason: 'Wall-clock — needs 3 scheduled snapshots; earliest 2026-05-04.'
+  - title: 'Tier 3.2 trend mode'
+    ledger: '.claude/integrity/snapshots/'
+    reason: 'Wall-clock — needs 3 scheduled 72h cycle snapshots.'
+  - title: 'Tier 3.3 external replication'
+    ledger: 'GitHub issue #142'
+    reason: 'Cannot be self-executed; needs independent operator.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'v7.6'
+    before:
+      label: 'v7.6 (mechanical enforcement)'
+      value: '11 gates'
+      subtitle: '4 write-time + 7 cycle-time. cache_hits ungated. cu_v2 unchecked. linkage 95.5%.'
+    afterLabel: 'v7.7'
+    after:
+      label: 'v7.7 (validity closure)'
+      value: '25 gates + 1 advisory'
+      subtitle: '4 new write-time + 1 cycle + 1 advisory. cache_hits gated. cu_v2 schema-validated. linkage 100%.'
+    delta: 'A1-A5 + B1-B2 + C1 closed'
 ---
 # Validity Closure — How v7.7 Closed the Last Closable Class B Gap
 

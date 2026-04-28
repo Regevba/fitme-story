@@ -11,6 +11,45 @@ persona_emphasis:
   pm: lifecycle
   dev: architecture
   academic: measurement
+date: '2026-04-25'
+tldr: 'v7.6 promoted four agent-attention checks into pre-commit failures and added two recurring CI defenses, closing the remaining Class B → Class A gap left by the 2026-04-21 Gemini audit.'
+key_numbers:
+  - label: 'Class B → A promotions'
+    value: '7 of 7'
+    tier: T1
+  - label: 'Mechanical gates'
+    value: '8 → 11'
+    tier: T1
+  - label: 'Documented Class B gaps remaining'
+    value: '0 across mechanical surface'
+    tier: T1
+honest_disclosures:
+  - 'Five gaps remain mechanically unclosable (cache_hits writer, T1/T2/T3 correctness, real-provider auth, external replication, cu_v2 magnitude). Catalogued at `docs/case-studies/meta-analysis/unclosable-gaps.md`.'
+  - 'Per-PR review bot status `pm-framework/pr-integrity` is enforced. Rendered fitme-story homepage was hardcoded React (not the README.mdx) at ship time — copy updates were GitHub-visible only.'
+kill_criteria:
+  - 'Any new Class B finding from a future independent audit triggers a mechanical-enforcement extension PR.'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'Tier 3.3 external replication'
+    ledger: 'GitHub issue #142'
+    reason: 'Cannot be self-executed; needs independent operator. Pinned invitation issue.'
+  - title: 'Real-provider auth checklist'
+    ledger: 'docs/setup/auth-runtime-verification-playbook.md'
+    reason: '7-step manual checklist requires a human at a simulator.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'v7.5'
+    before:
+      label: 'v7.5 (data-integrity framework)'
+      value: '4 silent + 8 mechanical'
+      subtitle: '4 agent-attention checks (skipped under load), 8 pre-commit/cycle gates'
+    afterLabel: 'v7.6'
+    after:
+      label: 'v7.6 (mechanical enforcement)'
+      value: '0 silent + 11 mechanical + 2 CI'
+      subtitle: '4 promoted to pre-commit, 11 mechanical gates, per-PR bot + weekly cron'
+    delta: 'Class B → A gap closed'
 ---
 # Mechanical Enforcement — How v7.6 Closed the Class B Gap
 
