@@ -12,6 +12,44 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-10'
+tldr: 'First greenfield feature under v4.4 — new tab, new data model, 9 eval definitions, 5 views. Shipped in 2 hours end-to-end. Stress-tested whether prior velocity gains were pattern-memorisation or framework-real.'
+key_numbers:
+  - label: 'Wall time (research → Figma screen)'
+    value: '~2 hours'
+    tier: T2
+  - label: 'Tests green (7 analytics + 9 evals)'
+    value: '16 of 16'
+    tier: T1
+  - label: 'Tasks across 4 dependency layers'
+    value: '13'
+    tier: T1
+honest_disclosures:
+  - 'Greenfield case, but several patterns reused from prior 6 refactors (data-model conventions, accessibility checklist, test scaffolding) — partial cache hit, not pure greenfield.'
+  - '9 evals passed first run because views were built bottom-up from the eval criteria (co-authored, not independently validated).'
+visual_aid:
+  component: DurationStack
+  data:
+    caption: 'The complexity shape: 60 of 120 minutes was implementation. Upstream phases ate 40 minutes combined despite this being a greenfield feature with new data model + new tab + 9 eval definitions.'
+    segments:
+      - label: 'Research'
+        minutes: 15
+        colorVar: 'var(--skill-research)'
+      - label: 'PRD'
+        minutes: 15
+        colorVar: 'var(--skill-pm-workflow)'
+      - label: 'Tasks'
+        minutes: 10
+        colorVar: 'var(--skill-pm-workflow)'
+      - label: 'Implementation'
+        minutes: 60
+        colorVar: 'var(--skill-dev)'
+      - label: 'Testing'
+        minutes: 15
+        colorVar: 'var(--skill-qa)'
+      - label: 'Accessibility'
+        minutes: 5
+        colorVar: 'var(--skill-design)'
 ---
 # The Most Complex Feature Completed at Refactor Speed
 

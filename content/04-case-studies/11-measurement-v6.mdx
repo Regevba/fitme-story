@@ -12,6 +12,33 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-16'
+tldr: 'Through 16 features, every velocity claim rested on ±15–30 min wall-time estimates and narrative-inferred cache hit rates. v6.0 instrumented 7 of 9 dependent variables — phase timing from commit timestamps, deterministic cache tracking, continuous CU factors. The measurement infrastructure measured itself being built.'
+key_numbers:
+  - label: 'Measurement DVs now deterministic'
+    value: '7 of 9'
+    tier: T1
+  - label: 'Framework token count (first measurement)'
+    value: '79,138'
+    tier: T1
+  - label: 'Pre-v6 cumulative wall-time uncertainty'
+    value: '±5.25h across 16 features'
+    tier: T2
+honest_disclosures:
+  - 'This was the first feature to use the infrastructure it was building. Self-referential bootstrap is both the hardest and most honest test of an instrumentation system.'
+  - 'Eval coverage gate was deployed but not stress-tested by this feature (which is framework infrastructure, not AI). First real test came in subsequent AI-touching features.'
+  - 'Pre-v6 cache hit rates were narrative-inferred ("~45%") — possibly biased upward because we assumed the cache helped where features were faster.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before v6.0'
+    beforeValue: 'T3 narrative'
+    beforeSubtitle: '± 15–30 min estimates · narrative cache hits · binary complexity factors'
+    afterLabel: 'After v6.0'
+    afterValue: 'T1 instrumented'
+    afterSubtitle: 'commit-timestamp phase timing · cache-hits.json L1/L2/L3 · 0.0–1.0 continuous CU factors'
+    delta: '7 of 9 DVs'
+    afterAccentVar: 'var(--skill-analytics)'
 ---
 # When We Stopped Estimating and Started Measuring
 

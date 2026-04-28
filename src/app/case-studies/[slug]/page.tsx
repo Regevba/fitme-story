@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { compileMDX } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
 import type { Metadata } from 'next';
 import { getAllCaseStudies, getCaseStudyBySlug } from '@/lib/content';
 import { useMDXComponents } from '@/mdx-components';
@@ -33,7 +34,10 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
   const { content } = await compileMDX({
     source: entry.body,
     components,
-    options: { parseFrontmatter: false },
+    options: {
+      parseFrontmatter: false,
+      mdxOptions: { remarkPlugins: [remarkGfm] },
+    },
   });
 
   switch (entry.frontmatter.tier) {

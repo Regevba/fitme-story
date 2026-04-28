@@ -13,6 +13,48 @@ persona_emphasis:
   academic: measurement
 hero_component: ParallelGantt
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-14'
+tldr: '4 features advanced through 8 lifecycle phases concurrently in 54 minutes. 0 build failures, 0 test failures, 0 merge conflicts across 31 subagent dispatches. The single bottleneck was infrastructure (write permissions), not architecture.'
+key_numbers:
+  - label: 'Parallel throughput vs baseline'
+    value: '12.4×'
+    tier: T1
+  - label: 'Conflicts across 31 dispatches / 15 same-file edits'
+    value: '0 across 31 + 15'
+    tier: T1
+  - label: 'Wall time'
+    value: '54 minutes'
+    tier: T1
+honest_disclosures:
+  - 'Zero-conflict result was probabilistic in v5.1 — agents happened to edit non-overlapping regions. v5.2 Parallel Write Safety made it structural.'
+  - 'Context-window pressure was expected as the bottleneck and wasn’t — but the test had only 4 features. Higher-N parallel runs may shift the answer.'
+  - 'Permission routing (52% denial rate on framework state writes) ate ~10 min of overhead — fixed in v5.2 sub-project C.'
+visual_aid:
+  component: ParallelGantt
+  data:
+    totalMinutes: 54
+    caption: 'Four features advanced concurrently through eight lifecycle phases. All four landed at minute 54.'
+    lanes:
+      - feature: 'Push Notifications'
+        complexity: 'Medium · permission handling'
+        endedAt: 54
+        colorVar: 'var(--skill-research)'
+        phaseMark: 'Testing 10/12'
+      - feature: 'App Store Assets'
+        complexity: 'Low · visual assets, config'
+        endedAt: 54
+        colorVar: 'var(--skill-marketing)'
+        phaseMark: 'Impl 5/10'
+      - feature: 'Import Training Plan'
+        complexity: 'High · multi-source parser, UI'
+        endedAt: 54
+        colorVar: 'var(--skill-dev)'
+        phaseMark: 'Testing 8/13'
+      - feature: 'Smart Reminders'
+        complexity: 'High · AI-powered, 5 types'
+        endedAt: 54
+        colorVar: 'var(--skill-analytics)'
+        phaseMark: 'Testing 7/14'
 ---
 # Shipping 4 Features in 54 Minutes — The Parallel Stress Test
 

@@ -9,6 +9,32 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: 053411bd6618fbc8e2bd44278acfe664b39db921
+date: '2026-04-20'
+tldr: 'Production site shipped 251 bytes of HTML per page across 48 routes. Suspense + useSearchParams in the root layout suspended the entire children tree to null during static generation. HTTP 200 lied; curl found it.'
+key_numbers:
+  - label: 'Bytes per page across 48 routes'
+    value: '251'
+    tier: T1
+  - label: 'Bytes after the fix'
+    value: '~25 KB'
+    tier: T1
+  - label: 'Commits in / out (scoped Suspense fix)'
+    value: '1 / 1'
+    tier: T1
+honest_disclosures:
+  - 'Browsers, Lighthouse, and click-through review all reported the page as fine. Only crawlers, social-link previews, screen-readers, and curl saw the actual SSR output.'
+  - 'Root cause was a Suspense + useSearchParams + static-generation interaction specific to Next.js 16; not a generic SSR pattern.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before commit ab68987'
+    beforeValue: '251 bytes'
+    beforeSubtitle: 'nav + footer only · 40+ blank pages · HTTP 200 across the board'
+    afterLabel: 'After the fix'
+    afterValue: '~25 KB'
+    afterSubtitle: 'full hero, origin, timeline, CTA — all crawler-visible'
+    delta: 'scoped Suspense to inner component'
+    afterAccentVar: 'var(--skill-qa)'
 ---
 
 

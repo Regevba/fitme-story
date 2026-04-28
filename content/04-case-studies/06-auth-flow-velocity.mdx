@@ -12,6 +12,53 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-13'
+tldr: 'Auth embedded into onboarding mid-flow (vs separate hub). Full PM lifecycle plus 3 design iterations in a single 100-min session — first feature where post-merge runtime testing surfaced a critical bug invisible to the test suite.'
+key_numbers:
+  - label: 'Velocity vs baseline'
+    value: '86% (2.1 min/CU)'
+    tier: T1
+  - label: 'Pre-merge phases / post-merge work'
+    value: '38 min / 60 min'
+    tier: T1
+  - label: 'Issues found in post-merge manual testing'
+    value: '6'
+    tier: T1
+honest_disclosures:
+  - '60 of 100 minutes was post-merge manual testing + design iterations (NOT planned). Pre-merge phases cleared in 38 minutes.'
+  - 'First feature where a critical bug was invisible to unit tests, design-system gates, and CI. Lesson absorbed into the runtime-smoke checklist (Tier 2.1) introduced post-Gemini audit.'
+visual_aid:
+  component: DurationStack
+  data:
+    caption: 'The planned 9 phases cleared in 38 minutes. The unplanned post-merge manual testing + design iterations took 60 minutes — 60% of the total.'
+    segments:
+      - label: 'Research'
+        minutes: 5
+        colorVar: 'var(--skill-research)'
+      - label: 'PRD'
+        minutes: 5
+        colorVar: 'var(--skill-pm-workflow)'
+      - label: 'Tasks'
+        minutes: 3
+        colorVar: 'var(--skill-pm-workflow)'
+      - label: 'UX Spec'
+        minutes: 5
+        colorVar: 'var(--skill-ux)'
+      - label: 'Implementation'
+        minutes: 15
+        colorVar: 'var(--skill-dev)'
+      - label: 'Testing'
+        minutes: 3
+        colorVar: 'var(--skill-qa)'
+      - label: 'Review+Merge'
+        minutes: 2
+        colorVar: 'var(--skill-release)'
+      - label: 'Manual testing'
+        minutes: 30
+        colorVar: 'var(--skill-cx)'
+      - label: 'Design iterations'
+        minutes: 30
+        colorVar: 'var(--skill-design)'
 ---
 # The Fastest Feature — 86% Velocity Improvement on Auth Flow
 

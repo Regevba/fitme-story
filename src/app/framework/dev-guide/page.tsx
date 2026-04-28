@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { compileMDX } from 'next-mdx-remote/rsc';
+import remarkGfm from 'remark-gfm';
 import { useMDXComponents } from '@/mdx-components';
 
 export const metadata: Metadata = {
@@ -24,7 +25,10 @@ export default async function DevGuidePage() {
   const { content } = await compileMDX({
     source: raw,
     components,
-    options: { parseFrontmatter: false },
+    options: {
+      parseFrontmatter: false,
+      mdxOptions: { remarkPlugins: [remarkGfm] },
+    },
   });
 
   return (

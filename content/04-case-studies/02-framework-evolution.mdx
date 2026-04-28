@@ -12,6 +12,51 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-10'
+tldr: 'Six identical-scope screen refactors across four framework versions isolated framework improvement from practitioner learning. Wall time fell from 6.5h (v2.0 onboarding) to 1h (v4.1 settings) — a 6.5× speedup that survived as a controlled natural experiment.'
+key_numbers:
+  - label: 'Speedup across 6 refactors'
+    value: '6.5×'
+    tier: T2
+  - label: 'UX audit throughput (findings/hr)'
+    value: '13.5 → 46.0'
+    tier: T1
+  - label: 'Commits per refactor (Onboarding → Settings)'
+    value: '20 → 3'
+    tier: T1
+honest_disclosures:
+  - 'Home (v3.0) is a documented 36h outlier — established the v2 file convention plus 3 sub-features. Excluded from curve fits, retained as a labeled data point.'
+  - '6.5× headline conflates framework improvement with practitioner learning even with the controlled-scope design. Tagged T2 Declared, not T1 Instrumented.'
+visual_aid:
+  component: RankedBars
+  data:
+    title: 'Wall time per refactor — sorted (Home outlier flagged)'
+    caption: "Home's 36h includes establishing the v2 convention + 3 sub-features. Refactoring-only time was ~4–5h, consistent with the trend."
+    items:
+      - label: 'Home (v3.0, outlier)'
+        value: 36
+        colorVar: 'var(--color-neutral-500)'
+        valueSuffix: 'h'
+      - label: 'Onboarding (v2.0)'
+        value: 6.5
+        colorVar: 'var(--color-neutral-500)'
+        valueSuffix: 'h'
+      - label: 'Training (v4.0)'
+        value: 5
+        colorVar: 'var(--skill-dev)'
+        valueSuffix: 'h'
+      - label: 'Nutrition (v4.1)'
+        value: 2
+        colorVar: 'var(--color-brand-indigo)'
+        valueSuffix: 'h'
+      - label: 'Stats (v4.1)'
+        value: 1.5
+        colorVar: 'var(--color-brand-indigo)'
+        valueSuffix: 'h'
+      - label: 'Settings (v4.1)'
+        value: 1
+        colorVar: 'var(--color-brand-indigo)'
+        valueSuffix: 'h'
 ---
 # How 6 Screen Refactors Proved a 6.5x Speedup
 

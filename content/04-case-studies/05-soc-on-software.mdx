@@ -13,6 +13,24 @@ persona_emphasis:
   academic: measurement
 hero_component: BlueprintOverlay
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-12'
+tldr: '7 hardware architecture principles applied to a PM framework — LoRA hot-swap, palettization, weight-stationary, UMA zero-copy, mixed precision, branch prediction, big.LITTLE. Framework overhead fell 63%; free context nearly doubled.'
+key_numbers:
+  - label: 'Framework overhead tokens'
+    value: '121,714 → 45,125'
+    tier: T1
+  - label: 'Free context (of 200K window)'
+    value: '78,286 → 154,875'
+    tier: T1
+  - label: 'Chip-principle adaptations shipped'
+    value: '7 of 7'
+    tier: T1
+honest_disclosures:
+  - 'Token measurements use a tokenizer pipeline added in v6.0; the v4.4 baseline numbers are word-count-derived with ~15% error.'
+  - '82% LoRA hot-swap savings only land for skills with high per-phase variance; cache-stable phases see closer to 35% savings.'
+  - "The 7 chip principles were chosen to fit the framework's known shape — not all hardware ideas mapped, and the case study leaves room for failed analogies."
+visual_aid:
+  component: BlueprintOverlay
 ---
 # What If You Designed Software Like a Chip?
 
