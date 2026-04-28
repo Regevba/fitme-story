@@ -90,10 +90,13 @@ const FrontmatterShape = z.object({
 });
 
 export const FrontmatterSchema = FrontmatterShape.refine(
-  (fm) => Boolean(fm.visual_aid) || (Array.isArray(fm.key_numbers) && fm.key_numbers.length > 0),
+  (fm) =>
+    fm.tier === 'unassigned' ||
+    Boolean(fm.visual_aid) ||
+    (Array.isArray(fm.key_numbers) && fm.key_numbers.length > 0),
   {
     message:
-      'Every case study must declare either `visual_aid: { component, data }` (preferred) or a non-empty `key_numbers: [...]` array (renders KeyNumbersChart fallback). See docs/design-system/case-study-visual-aid-catalog.md',
+      'Every case study must declare either `visual_aid: { component, data }` (preferred) or a non-empty `key_numbers: [...]` array (renders KeyNumbersChart fallback). Use `tier: unassigned` to opt out for non-case-study content (READMEs, design-system docs, research notes). See docs/design-system/case-study-visual-aid-catalog.md',
     path: ['visual_aid'],
   },
 ).refine(
