@@ -1,11 +1,12 @@
 {
-  "syncedAt": "2026-04-27T05:15:45.999Z",
-  "durationMs": 338,
+  "syncedAt": "2026-04-28T14:33:09.143Z",
+  "durationMs": 275,
   "source": "/Volumes/DevSSD/FitTracker2",
   "counts": {
     "sharedFiles": 33,
-    "featureFiles": 44,
-    "bytesTotal": 744683
+    "featureFiles": 45,
+    "docFiles": 4,
+    "bytesTotal": 856719
   },
   "checkedFiles": [
     "shared/audit-findings.json",
@@ -57,6 +58,7 @@
     "features/dispatch-intelligence-v5.2.json",
     "features/framework-measurement-v6.json",
     "features/framework-story-site.json",
+    "features/framework-v7-7-validity-closure.json",
     "features/gdpr-compliance.json",
     "features/google-analytics.json",
     "features/hadf-infrastructure.json",
@@ -84,6 +86,10 @@
     "features/training-tracking.json",
     "features/ui-audit-baseline-burndown.json",
     "features/unified-control-center.json",
-    "features/user-profile-settings.json"
+    "features/user-profile-settings.json",
+    "md/docs/product/backlog.md",
+    "md/docs/product/PRD.md",
+    "md/docs/product/metrics-framework.md",
+    "md/docs/master-plan/master-backlog-roadmap.md"
   ]
 }
