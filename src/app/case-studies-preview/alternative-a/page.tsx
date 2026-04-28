@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import {
   PreviewBanner,
   SummaryCard,
-  KeyNumbersStrip,
+  KeyNumbersChart,
   KillCriterionBanner,
   DeferredItemsList,
   SectionDivider,
@@ -56,7 +56,7 @@ export default function AlternativeAPreview() {
         </div>
 
         <div className="mt-6 space-y-4">
-          <KeyNumbersStrip numbers={v75KeyNumbers} />
+          <KeyNumbersChart numbers={v75KeyNumbers} />
           <KillCriterionBanner
             threshold={v75KillCriteria.threshold}
             fired={v75KillCriteria.fired}

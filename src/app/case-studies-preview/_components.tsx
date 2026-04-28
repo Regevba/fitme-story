@@ -116,7 +116,166 @@ export function SummaryCard({
 }
 
 // =============================================================================
-// KeyNumbersStrip — three pills inline (Alternative A).
+// KeyNumbersChart — visual aid required on every case study (Alt A locked).
+// Auto-parses common value shapes:
+//   "X of Y"          → progress bar with X/Y fill
+//   "X → Y" / "X -> Y" → delta indicator with arrow
+//   "0 across N + M"   → all-clear badge
+//   anything else     → big-number display
+// =============================================================================
+type ParsedNumber =
+  | { kind: 'progress'; numerator: number; denominator: number; raw: string }
+  | { kind: 'delta'; from: number; to: number; raw: string }
+  | { kind: 'all-clear'; total: string; raw: string }
+  | { kind: 'plain'; raw: string };
+
+function parseKeyNumber(value: string): ParsedNumber {
+  const progress = value.match(/^(\d+(?:\.\d+)?)\s+of\s+(\d+(?:\.\d+)?)/i);
+  if (progress) {
+    return {
+      kind: 'progress',
+      numerator: parseFloat(progress[1]),
+      denominator: parseFloat(progress[2]),
+      raw: value,
+    };
+  }
+  const delta = value.match(/^(\d+(?:\.\d+)?)\s*(?:→|->)\s*(\d+(?:\.\d+)?)/);
+  if (delta) {
+    return {
+      kind: 'delta',
+      from: parseFloat(delta[1]),
+      to: parseFloat(delta[2]),
+      raw: value,
+    };
+  }
+  const allClear = value.match(/^0\s+across\s+(.+)$/i);
+  if (allClear) {
+    return { kind: 'all-clear', total: allClear[1], raw: value };
+  }
+  return { kind: 'plain', raw: value };
+}
+
+function NumberVisual({ parsed }: { parsed: ParsedNumber }) {
+  if (parsed.kind === 'progress') {
+    const pct = Math.round((parsed.numerator / parsed.denominator) * 100);
+    return (
+      <div className="mt-2">
+        <div className="flex items-baseline justify-between mb-1.5">
+          <span className="font-serif text-2xl text-[var(--color-brand-indigo)]">
+            {parsed.numerator}
+          </span>
+          <span className="font-sans text-xs text-[var(--color-neutral-500)]">
+            of {parsed.denominator} · {pct}%
+          </span>
+        </div>
+        <div
+          className="h-1.5 rounded-full bg-[var(--color-neutral-200)] dark:bg-[var(--color-neutral-700)] overflow-hidden"
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div
+            className="h-full bg-[var(--color-brand-indigo)]"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
+  if (parsed.kind === 'delta') {
+    const up = parsed.to > parsed.from;
+    const arrow = up ? '↑' : parsed.to < parsed.from ? '↓' : '→';
+    const colorClass = up
+      ? 'text-emerald-600 dark:text-emerald-400'
+      : parsed.to < parsed.from
+        ? 'text-[var(--color-brand-coral)]'
+        : 'text-[var(--color-neutral-500)]';
+    return (
+      <div className="mt-2 flex items-center gap-3">
+        <span className="font-serif text-xl text-[var(--color-neutral-500)] line-through decoration-1">
+          {parsed.from}
+        </span>
+        <span className={`font-mono text-xl ${colorClass}`} aria-hidden="true">
+          {arrow}
+        </span>
+        <span className="font-serif text-2xl text-[var(--color-brand-indigo)]">
+          {parsed.to}
+        </span>
+      </div>
+    );
+  }
+  if (parsed.kind === 'all-clear') {
+    return (
+      <div className="mt-2 flex items-center gap-2">
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+          <CheckCircle2 width={16} height={16} strokeWidth={2.25} />
+        </span>
+        <span className="font-serif text-xl text-[var(--color-brand-indigo)]">
+          0
+        </span>
+        <span className="font-sans text-xs text-[var(--color-neutral-500)]">
+          across {parsed.total}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-2 font-serif text-2xl leading-tight text-[var(--color-brand-indigo)]">
+      {parsed.raw}
+    </div>
+  );
+}
+
+export function KeyNumbersChart({ numbers }: { numbers: KeyNumber[] }) {
+  return (
+    <section
+      aria-labelledby="visual-aid-heading"
+      className="rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-white dark:bg-[var(--color-neutral-800)] p-5 sm:p-6"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h2
+          id="visual-aid-heading"
+          className="font-sans text-xs uppercase tracking-wider text-[var(--color-brand-indigo)]"
+        >
+          Visual aid · key numbers at a glance
+        </h2>
+        <span className="font-sans text-[10px] text-[var(--color-neutral-500)] uppercase tracking-wider">
+          Required on every case study
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
+        {numbers.map((n, i) => {
+          const parsed = parseKeyNumber(n.value);
+          return (
+            <div key={i}>
+              <div className="flex items-center gap-2">
+                <span className="font-sans text-[11px] uppercase tracking-wider text-[var(--color-neutral-500)] flex-1 leading-snug">
+                  {n.label}
+                </span>
+                <span
+                  className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${
+                    n.tier === 'T1'
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                      : n.tier === 'T2'
+                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+                        : 'bg-stone-100 text-stone-700 dark:bg-stone-900 dark:text-stone-300'
+                  }`}
+                >
+                  {n.tier}
+                </span>
+              </div>
+              <NumberVisual parsed={parsed} />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// =============================================================================
+// KeyNumbersStrip — three pills inline (Alternative A — legacy, kept for B compare).
 // =============================================================================
 export function KeyNumbersStrip({ numbers }: { numbers: KeyNumber[] }) {
   return (
