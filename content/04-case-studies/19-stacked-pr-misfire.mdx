@@ -11,6 +11,46 @@ persona_emphasis:
   pm: lifecycle
   dev: architecture
   academic: measurement
+date: '2026-04-19'
+tldr: '3 stacked PRs (M-2a → M-2c → M-2b). All marked "Merged" by GitHub. Main only got M-2a — downstream PRs merged into their stacked parents, not main, when those parents had already landed. ~80% of the decomposition was missing on main.'
+key_numbers:
+  - label: 'PRs claimed merged / actually on main'
+    value: '3 / 1'
+    tier: T1
+  - label: 'Diagnosis time + recovery PR'
+    value: '~20 min + 1 PR'
+    tier: T1
+  - label: 'Commits lost'
+    value: '0 (chain preserved them)'
+    tier: T1
+honest_disclosures:
+  - 'GitHub UI did not warn that the base branch was about to be deleted. The "Merged" status was technically correct — into the wrong target.'
+  - 'Recovery was cheap because the chained branches had bundled all commits. If the stacks had been independent, lost commits would have been the actual outcome.'
+  - "Methodology rule adopted: don't stack unless explicitly retargeting; M-4 used option 1 (independent PRs) and had no issues."
+visual_aid:
+  component: PRStackDiagram
+  data:
+    caption: 'GitHub showed all three PRs as merged. Main only received #126 — #127 and #128 merged into their stacked parents, not main.'
+    nodes:
+      - id: 'main'
+        label: 'main'
+        base: null
+        highlight: 'intended'
+      - id: 'm2a'
+        label: 'feature/m2a-leaf-types'
+        title: 'PR #126 — base: main'
+        base: 'main'
+        highlight: 'ok'
+      - id: 'm2c'
+        label: 'feature/m2c-view-model'
+        title: 'PR #127 — base: m2a'
+        base: 'm2a'
+        highlight: 'wrong'
+      - id: 'm2b'
+        label: 'feature/m2b-tab-views'
+        title: 'PR #128 — base: m2c'
+        base: 'm2c'
+        highlight: 'wrong'
 ---
 # The Stacked-PR Misfire — When "Merged" Didn't Mean "On Main"
 

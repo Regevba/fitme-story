@@ -9,6 +9,27 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: 82712a7c4073f303b19f3e126ac5a6f667130314
+date: '2026-04-21'
+tldr: "Static blueprint diagrams tell you what a system is, not whether it's running. DispatchReplay plays a recorded trace of a real feature flowing through six framework floors, beat by beat. Two traces — Sprint I (mechanical work) and the meta-recursive fitme-story build itself."
+key_numbers:
+  - label: 'Live traces'
+    value: '2 (Sprint I + fitme-story meta)'
+    tier: T1
+  - label: 'fitme-story trace dispatches (vs estimated 111)'
+    value: '23'
+    tier: T1
+  - label: 'Beats per trace / floors per beat'
+    value: '7 / 6'
+    tier: T1
+honest_disclosures:
+  - 'Replay, not simulator — the trace is recorded and deterministic. Live re-execution would require running the framework against shared/JSON configs.'
+  - 'The fitme-story meta-trace shows the framework building this site — recursion is intentional, not staged for the demo.'
+  - 'Three interactivity tiers debated (replay / interactive / live simulator); replay won on cost-to-value — the other two are not built.'
+visual_aid:
+  component: DispatchReplay
+  data:
+    traceId: 'sprint-i'
+    allowTraceSwitch: true
 ---
 
 

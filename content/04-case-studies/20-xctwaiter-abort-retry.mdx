@@ -11,6 +11,32 @@ persona_emphasis:
   pm: lifecycle
   dev: architecture
   academic: measurement
+date: '2026-04-20'
+tldr: "First M-series attempt-1 failure. XCTWaiter.wait(for: [a, b, c]) is wait-for-ALL, not wait-for-ANY — but the test code reads like 'any'. App can only be on one surface, so 2 of 3 expectations always time out. Stop + rollback was honoured literally instead of fix-in-place."
+key_numbers:
+  - label: 'Attempts to ship'
+    value: '2 (attempt 1 aborted, attempt 2 passed)'
+    tier: T1
+  - label: 'pbxproj edits across sections'
+    value: '12 across 11'
+    tier: T1
+  - label: 'Partial commits left in main'
+    value: '0'
+    tier: T1
+honest_disclosures:
+  - "User instruction at start was 'if anything fails, stop and rollback' — methodology adopted because of the explicit instruction, not derived from intuition."
+  - 'XCTWaiter ALL semantics is documented; the bug is in human reading habits, not the API. The catch was retrospective.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Attempt 1 — the gotcha'
+    beforeValue: 'wait ALL'
+    beforeSubtitle: 'XCTWaiter.wait(for: [signIn, onboarding, home]) — app can only be on one surface, so 2 of 3 always time out'
+    afterLabel: 'Attempt 2 — the fix'
+    afterValue: 'wait ANY'
+    afterSubtitle: 'app.wait(for: .runningForeground, timeout: 10) — one predicate on app state, decoupled from which surface loaded'
+    delta: 'ALL → ANY'
+    afterAccentVar: 'var(--skill-qa)'
 ---
 # The XCTWaiter Abort — Learning to Stop, Rollback, and Retry
 

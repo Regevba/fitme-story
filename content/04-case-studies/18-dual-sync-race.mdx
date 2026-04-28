@@ -11,6 +11,49 @@ persona_emphasis:
   pm: lifecycle
   dev: architecture
   academic: measurement
+date: '2026-04-18'
+tldr: "v7.0 audit's top backend finding — two sync paths (CloudKit + Supabase) both pull on login with no merge coordination. Last writer wins. Non-deterministic data loss in production for ~4 months."
+key_numbers:
+  - label: 'Sync findings / critical'
+    value: '13 / 3'
+    tier: T1
+  - label: 'Time in production before discovery'
+    value: '~4 months'
+    tier: T2
+  - label: 'Coexisting root-cause findings'
+    value: '3 (DEEP-SYNC-001/002/003)'
+    tier: T1
+honest_disclosures:
+  - 'Found by structural audit, not by user report. Non-deterministic by nature — a user editing on two devices during a sync window is the trigger.'
+  - 'All three findings (race + lastPull-on-decryption-fail + needsSync-flag-ignored) coexist in the same code path. Fixing one without the others does not close the exposure.'
+visual_aid:
+  component: RaceTimeline
+  data:
+    collisionAt: 310
+    collisionLabel: 'persistToDisk(B) overwrites (A) — silent data loss'
+    maxMs: 400
+    caption: 'Both services pull independently on login. The last write wins. No merge, no warning, no log.'
+    lanes:
+      - label: 'CloudKit sync'
+        colorVar: 'var(--skill-design)'
+        events:
+          - t: 0
+            label: 'login'
+          - t: 120
+            label: 'pull remote'
+            detail: 'iCloud state A'
+          - t: 260
+            label: 'persistToDisk(A)'
+      - label: 'Supabase sync'
+        colorVar: 'var(--skill-dev)'
+        events:
+          - t: 0
+            label: 'login'
+          - t: 90
+            label: 'pull remote'
+            detail: 'DB state B'
+          - t: 310
+            label: 'persistToDisk(B)'
 ---
 # The Dual-Sync Race — Two Backends, One Last-Writer-Wins Silence
 

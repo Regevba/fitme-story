@@ -12,6 +12,44 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-09'
+tldr: 'AI-output quality treated as a testable property. 2-layer eval design (golden I/O + heuristic XCTest evals + monitoring schema) and a lifecycle expansion from 5 to 6 phases — Eval inserted between Implementation and Review.'
+key_numbers:
+  - label: 'Eval cases green on first run'
+    value: '29 of 29'
+    tier: T1
+  - label: 'Velocity vs baseline'
+    value: '4.37 min/CU (+71%)'
+    tier: T2
+  - label: 'Subsystems with zero eval coverage identified'
+    value: '3'
+    tier: T1
+honest_disclosures:
+  - 'Three of four eval files were authored alongside the components they test — co-authoring removes some of the catch surface that independent evaluation would expose.'
+  - '+71% velocity is computed against a pre-v6.0 baseline; the baseline itself carries ±15% measurement uncertainty (closed in v6.0).'
+visual_aid:
+  component: FlowDiagram
+  data:
+    caption: 'The new 6-phase lifecycle. Eval slots between Implementation and Review — criteria defined at Plan, run at Eval, analysed at Learn.'
+    nodes:
+      - label: 'Plan'
+        sublabel: 'define eval criteria'
+        colorVar: 'var(--skill-pm-workflow)'
+      - label: 'Implement'
+        sublabel: 'build the feature'
+        colorVar: 'var(--skill-dev)'
+      - label: 'Eval (new)'
+        sublabel: 'golden I/O + heuristics'
+        colorVar: 'var(--skill-qa)'
+      - label: 'Review'
+        sublabel: 'spec compliance'
+        colorVar: 'var(--skill-design)'
+      - label: 'Merge'
+        sublabel: 'ship it'
+        colorVar: 'var(--skill-release)'
+      - label: 'Learn'
+        sublabel: 'eval trends in monitoring'
+        colorVar: 'var(--skill-cx)'
 ---
 # Can You Test AI Output Quality the Same Way You Test Code?
 

@@ -12,6 +12,44 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 upstream_sha: a70b0fd6bb3e66e85a6f0b0941bfbdd739fb361a
+date: '2026-04-13'
+tldr: "First feature where 'how we build' and 'what we build' used the same architectural principles. Adapter protocol, validation gate, analytics naming, goal-aware weights ported PM-framework → AI engine. 45% L2 cache hit rate."
+key_numbers:
+  - label: 'Cache hit rate (framework → product transfer)'
+    value: '45%'
+    tier: T1
+  - label: 'Tasks / files / insertions'
+    value: '13 / 17 / 986'
+    tier: T1
+  - label: 'Tests pass (1 parameter fix)'
+    value: '197 of 197'
+    tier: T1
+honest_disclosures:
+  - 'Cache-hit rate is from the L1/L2 lookup ledger introduced in v4.4 — pre-v6.0 instrumentation, denominator counts may understate misses.'
+  - "Pattern transfer cleared research in 15 minutes because every architectural layer had a proven analog in the framework — direct reuse, not novel design."
+visual_aid:
+  component: DurationStack
+  data:
+    caption: '13 tasks, 17 files, 986 insertions — delivered in 90 minutes end-to-end. Implementation was the longest phase at 39% of total time.'
+    segments:
+      - label: 'Research'
+        minutes: 15
+        colorVar: 'var(--skill-research)'
+      - label: 'PRD'
+        minutes: 15
+        colorVar: 'var(--skill-pm-workflow)'
+      - label: 'Tasks'
+        minutes: 10
+        colorVar: 'var(--skill-pm-workflow)'
+      - label: 'Implementation'
+        minutes: 35
+        colorVar: 'var(--skill-dev)'
+      - label: 'Testing'
+        minutes: 10
+        colorVar: 'var(--skill-qa)'
+      - label: 'Review+Merge'
+        minutes: 5
+        colorVar: 'var(--skill-release)'
 ---
 # First Feature Under the New Architecture — AI Engine Adaptation
 
