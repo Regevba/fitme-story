@@ -1,0 +1,126 @@
+---
+title: Validity Closure — How v7.7 Closed the Last Closable Class B Gap
+slug: framework-v7-7-validity-closure
+upstream_path: docs/case-studies/framework-v7-7-validity-closure-case-study.md
+tier: light
+timeline_position:
+  version: '7.7'
+  order: 22
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+---
+# Validity Closure — How v7.7 Closed the Last Closable Class B Gap
+
+> v7.6 (Mechanical Enforcement, shipped 2026-04-25) closed seven Class B → Class A gaps and explicitly enumerated five that **could not** be promoted because mechanizing them would require lying about what the framework can verify. A 2026-04-27 ledger pull surfaced that **three of those five were still mechanically or heuristically closable** if the right write-time hooks were added. v7.7 closed them. One of those three (`cache_hits` writer-path adoption) shipped fully gated. One (`cu_v2` schema) shipped schema-validated. One (T1/T2/T3 tag *correctness*) shipped as a heuristic advisory — and **kill criterion 2 fired honestly at baseline**, so the advisory ships permanent rather than promoting to a gate. Two original gaps remain genuinely human-required (auth simulator, external replication). The Class B inventory went from 5 to 4. This case study is the framework's full validity-closure pass, published verbatim per the publish-then-remediate policy.
+
+## Read this first — outlier flag (carries forward from v7.6)
+
+This case study is **itself an outlier in the corpus** — the same three biases as v7.6 stack here:
+
+1. **Single-session execution** — v7.7 shipped in a single ~6-hour working session on 2026-04-27 (brainstorming spec → 32 commits + 7 fitme-story commits → 2 PRs merged). No organic cadence; phases ran sequentially in one sitting.
+2. **Dogfooded data collection** — the author of the framework rework also wrote the data and reads it. Same-author confound.
+3. **Retroactive v6.0 application** — v7.7's own state.json is instrumented end-to-end with v6.0 protocol, but it's a single feature; the bulk-backfill of 32 case-study frontmatters in M2 was retroactive, not organic adoption.
+
+The full upstream case study labels these limits in Section 99.7 *Pre-mortem honesty re-statement* and applies them to every published number.
+
+## Trust-page connection
+
+This case study is the **detailed validity-closure answer** to the residual Class B gaps documented in v7.6's `unclosable-gaps.md`. Together with v7.5 (policy) + v7.6 (mechanical) + v7.7 (validity closure), the framework's full reply to the 9 Tier 1/2/3 recommendations from the 2026-04-21 Gemini audit is now complete. The trust page Gemini-audit subroute links to all three. Per the publish-verbatim policy: the original audit text remains unchanged on `/trust`; corrections and responses are appended.
+
+- **Audit (verbatim):** [/trust/audits/2026-04-21-gemini](/trust/audits/2026-04-21-gemini)
+- **v7.5 policy response:** the eight cooperating defenses (write-time + cycle-time + readout-time)
+- **v7.6 mechanical response:** seven Class B → Class A promotions + five Class B gaps documented as `unclosable-gaps.md`
+- **v7.7 validity-closure response:** four new write-time check codes + one cycle-time advisory permanent + cache_hits writer-path closed (5 → 4 unclosable). This case study.
+
+## Summary card (T1 unless noted)
+
+- **Framework version:** v7.6 → **v7.7**
+- **Trigger:** 2026-04-27 ledger pull surfaced that three of v7.6's documented Class B gaps were still mechanically or heuristically closable; user declared full-priority freeze to ship the closure pass
+- **Wall time:** ~6 hours (single session, brainstorm → spec → plan → execution → ship)
+- **Total commits:** 39 (32 FitTracker2 + 7 fitme-story)
+- **Pull requests:** 2 (FitTracker2 #144, fitme-story #7)
+- **Unit tests added:** 29 across 4 new test files
+- **New check codes:** 5 (4 gating + 1 advisory permanent)
+
+## What v7.7 actually closed (and what it didn't)
+
+### 4 new gating write-time check codes
+1. `CACHE_HITS_EMPTY_POST_V6` — pairs with `scripts/log-cache-hit.py` wrapper that auto-discovers the active feature and dual-writes `state.json.cache_hits[]` + the events log. Closes the v6.0 writer-path adoption gap (GitHub issue #140).
+2. `CU_V2_INVALID` — schema validator (factor presence + range [0,1] + total tolerance + tier_class enum). Validates STRUCTURE only — magnitude correctness stays a documented Class B gap (judgment-based).
+3. `STATE_NO_CASE_STUDY_LINK` — write-time mirror of the cycle-time `NO_CS_LINK`; rejects `current_phase=complete` without `case_study` link OR `parent_case_study` link OR exempt tag.
+4. `CASE_STUDY_MISSING_FIELDS` — forward-only ≥ 2026-04-28; rejects case studies missing `work_type`, `success_metrics`, `kill_criteria`, or `dispatch_pattern` in frontmatter.
+
+### 1 cycle-time advisory permanent — kill criterion 2 fired
+5. `TIER_TAG_LIKELY_INCORRECT` — heuristic checker that extracts T1-tagged quantitative claims and cross-references against ledger numbers within 5% relative tolerance. **Pre-registered kill criterion 2: FP rate >25% after baseline → ship advisory permanent.** Baseline scan: 1 finding total, 1 false positive (regex matched section identifier "Tier 3.2" plus the next word "documentation"). FP rate = 100% n=1. Kill-2 fired honestly. Root cause: regex pattern designed for `**T1**:` prefix style; live corpus uses `| value | T1 |` table-column format. Ships advisory permanent. v7.8 redesign documented at [`tier-tag-checker-baseline.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/meta-analysis/tier-tag-checker-baseline.md).
+
+### Validity gates closed (delta vs v7.6)
+- **State↔case-study linkage:** 95.5% → **100%** (mechanically gated)
+- **Doc-debt fields populated** (work_type / success_metrics / kill_criteria / dispatch_pattern): 4–61% → **95.7–100%** (gated forward; 33 TODO markers reflect genuinely-absent pre-PRD-structure data, not heuristic failure)
+- **`cache_hits[]` post-v6 adoption:** 33.3% → gated to 100% on next post-v6 `complete` write
+- **`cu_v2` schema:** unchecked → schema-validated on every write
+- **Total framework mechanisms:** 18 (12 cycle + 6 write-time) → **25 gates + 1 advisory**
+
+### Framework-health dashboard live
+fitme-story PR #7 added `/control-room/framework` — surfaces all 19+ check codes, the human-action checklist (D1+D2 deferred items), and Tier 1.1/3.2 trend charts (charts unlock as cron snapshots accumulate post-merge).
+
+### What still remains Class B (4 unclosable gaps, was 5)
+1. **`cu_v2` factor magnitude correctness** — schema-validated by v7.7, magnitude judgment unchanged. Class B by judgment necessity.
+2. **T1/T2/T3 tag correctness on novel claims** — advisory checker shipped (kill-2 fired). Class B by heuristic-correctness necessity.
+3. **Tier 2.1 real-provider auth simulator runs (D1)** — still human-required. Surfaced on dashboard.
+4. **Tier 3.3 external replication (D2, GitHub issue #142)** — still external-required by definition. Surfaced on dashboard.
+
+The fifth (cache_hits writer-path adoption) was **closed** by v7.7 M1.
+
+## Single-session timeline (frozen 2026-04-27)
+
+```
+14:00 UTC — Genesis & spec approval (commit 1057144)
+14:42 UTC — M0 complete: 5 commits + Linear FIT-49 + 8 sub-issues + Notion v7.7 sub-page
+17:50 UTC — PR-1 opened (cache_hits writer-path closure)
+18:35 UTC — PR-2 milestone (cu_v2 schema validator) merged into train
+19:30 UTC — M2 complete: linkage + doc-debt + active backfill
+20:30 UTC — M3 complete: tier-tag heuristic shipped (advisory permanent — kill criterion 2 fired)
+21:30 UTC — M5 complete: v7.7 ready for merge
+17:18 UTC (next day) — fitme-story PR #7 merged
+17:39 UTC (next day) — FitTracker2 PR #144 merged
+```
+
+Two cron-gated verifications remain (auto-handled by a scheduled remote agent on 2026-05-04):
+- **B1** (Tier 1.1 trend mode) unlocks at 3 history snapshots — earliest 2026-05-04 (Monday weekly cron #3)
+- **B2** (Tier 3.2 trend mode) unlocks at 3 cycle snapshots — earliest ~2026-05-03 to -06 (72h cycle)
+
+## Tooling attribution (honest)
+
+- **Claude Opus 4.7 (1M context)** — all v7.7 framework commits carry the `Co-Authored-By` tag.
+- **Google Gemini 2.5 Pro** — original 2026-04-21 audit triggered the v7.5 → v7.6 → v7.7 chain. No new Gemini work in the v7.7 window itself.
+- **Human (Regev)** — trigger decisions, the multi-part approval gate (scope of v7.7 = A+B+C1; defer D), Vercel token rotation enabling fitme-story PR #7 build, the merge confirmations.
+
+## What earned the v7.6 → v7.7 framework bump
+
+1. **A new structural capability** — validity closure is a layer that did not exist in v7.6. v7.6 enforced *what* could be mechanically gated; v7.7 closes *what was still gateable* by adding the writer-path instrumentation, the schema validator, and the linkage-gate write-time mirror. Plus the heuristic advisory class.
+2. **Propagation across surfaces** — manifest, CLAUDE.md, master plan, evolution doc, integrity README, dev-guide rename (v1-to-v7-6 → v1-to-v7-7), this MDX case study, framework-health dashboard live at fitme-story.
+3. **An honest kill-criterion outcome** — TIER_TAG_LIKELY_INCORRECT shipped advisory rather than promoting to gate, *because the data said so at baseline*. Pre-registered thresholds + measurement is what makes the kill outcome honest rather than a failure.
+
+## Lessons (excerpts — see upstream Section 99 for the full synthesis)
+
+- **A framework that knows what it cannot check is more trustworthy than one that pretends every check is a check.** v7.7 proved this twice: (a) by closing 1 of v7.6's documented "unclosable" gaps when re-examination showed it was actually closable, and (b) by honestly shipping the tier-tag heuristic as advisory permanent when its baseline FP rate fired the pre-registered kill criterion.
+- **Pre-registered kill criteria turn potential failures into honest outcomes.** Without the pre-registered threshold (FP > 25% → advisory permanent), the tier-tag checker's 100%-FP baseline could have been rationalized into "ship it as a gate, fix later." The threshold made the choice mechanical.
+- **Write-time mirrors of cycle-time checks need symmetry audits.** The new `STATE_NO_CASE_STUDY_LINK` write-time hook initially missed the `parent_case_study` field that the cycle-time `NO_CS_LINK` accepts. Caught at live-tree scan when 5 features tripped the new gate. Fixed via mirror-the-cycle-time-logic correction. Lesson: when promoting a cycle-time check to write-time, audit the cycle-time check for special cases first.
+- **post-v6 metric ratios uplift on future natural usage, not historical retroactive data.** v7.7's primary metric (post-v6 fully-adopted ratio: baseline 2/9 = 22.2%, target ≥8/11 = 72.7%) stayed at 2/9 at synthesis time. The gates are in place; the metric uplifts as features actually `complete` post-merge. Spec §6 pre-registered this measurement timing — it's not a missed target, it's a measurement that's forward-only by definition.
+
+## Links
+
+- Full upstream case study (Section 99 synthesis + 8-entry live journal): [`docs/case-studies/framework-v7-7-validity-closure-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/framework-v7-7-validity-closure-case-study.md)
+- Spec: [`docs/superpowers/specs/2026-04-27-framework-v7-7-validity-closure-design.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/specs/2026-04-27-framework-v7-7-validity-closure-design.md)
+- Plan: [`docs/superpowers/plans/2026-04-27-framework-v7-7-validity-closure.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/plans/2026-04-27-framework-v7-7-validity-closure.md)
+- v7.6 predecessor case study: [Mechanical Enforcement (slot 21)](/case-studies/mechanical-enforcement-v7-6)
+- v7.5 companion: [data-integrity-framework-v7.5-case-study.md](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/data-integrity-framework-v7.5-case-study.md)
+- Updated Class B gap inventory (4 remain after v7.7): [`unclosable-gaps.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/meta-analysis/unclosable-gaps.md)
+- Tier-tag checker FP-rate baseline (kill-2 fire): [`tier-tag-checker-baseline.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/meta-analysis/tier-tag-checker-baseline.md)
+- Framework-health dashboard (live): [/control-room/framework](/control-room/framework)
+- Trust-page audit subroute: [/trust/audits/2026-04-21-gemini](/trust/audits/2026-04-21-gemini)
+- GitHub issue #140 — `cache_hits` writer-path (CLOSED by v7.7 M1): [github.com/Regevba/FitTracker2/issues/140](https://github.com/Regevba/FitTracker2/issues/140)
+- GitHub issue #142 — Tier 3.3 external-replication invitation (still open by design): [github.com/Regevba/FitTracker2/issues/142](https://github.com/Regevba/FitTracker2/issues/142)
