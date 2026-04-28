@@ -18,7 +18,7 @@ const NUMBERS: { value: string; labels: Record<PersonaKey, string> }[] = [
     },
   },
   {
-    value: '7',
+    value: '8',
     labels: {
       default: 'framework versions',
       hr: 'capability levels',

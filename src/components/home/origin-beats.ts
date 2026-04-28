@@ -36,7 +36,7 @@ export const ORIGIN_BEATS: OriginBeat[] = [
   {
     title: 'Then the workflow itself started evolving.',
     body: "Each feature ran through it. Each run exposed gaps. The framework grew to close them: caches, evals, dispatch intelligence, measurement.",
-    visual: { kind: 'metric', value: '7', label: 'framework versions' },
+    visual: { kind: 'metric', value: '8', label: 'framework versions' },
   },
   {
     title: 'By V7.0 it was measuring itself and routing to hardware-aware models.',

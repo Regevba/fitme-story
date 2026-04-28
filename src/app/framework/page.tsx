@@ -54,10 +54,10 @@ export default function FrameworkPage() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
-                Developer guide (v1.0 → v7.6) →
+                Developer guide (v1.0 → v7.7) →
               </h2>
               <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 12 integrity check codes, 3 operational walkthroughs, compressed v1.0 → v7.6 timeline.
+                Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 13 integrity check codes + 1 advisory, 3 operational walkthroughs, compressed v1.0 → v7.7 timeline.
               </p>
             </div>
             <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />

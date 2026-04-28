@@ -833,11 +833,11 @@ export default function GeminiAudit20260421Page() {
               Developer guide (technical, dev-only) — fitme-story / framework / dev-guide
             </a>{' '}
             — 4 enforcement layers, <code>state.json</code> schema, phase lifecycle,
-            dispatch model, cache architecture, measurement protocol, 12 integrity
-            check codes, 3 operational walkthroughs, compressed v1.0 → v7.6 timeline.
+            dispatch model, cache architecture, measurement protocol, 13 integrity
+            check codes + 1 advisory, 3 operational walkthroughs, compressed v1.0 → v7.7 timeline.
             Mirrors the canonical{' '}
-            <a href="https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/dev-guide-v1-to-v7-6.md">
-              docs/architecture/dev-guide-v1-to-v7-6.md
+            <a href="https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/dev-guide-v1-to-v7-7.md">
+              docs/architecture/dev-guide-v1-to-v7-7.md
             </a>{' '}
             on GitHub.
           </li>
