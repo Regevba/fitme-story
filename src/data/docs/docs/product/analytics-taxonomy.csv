@@ -1,0 +1,109 @@
+# ANALYTICS NAMING CONVENTION (project rule, established 2026-04-08)
+# Every event tied to a specific screen MUST start with that screen's prefix:
+#   home_*, nutrition_*, training_*, stats_*, settings_*, onboarding_*, auth_*
+# Cross-screen lifecycle events stay unprefixed: app_open, session_start, sign_in, sign_up
+# GA4 recommended events keep their dictated names: tutorial_begin, select_content, share, login
+# Full rule: CLAUDE.md → "Analytics Naming Convention"
+# Validated by /analytics spec (Phase 1 PRD gate) and /analytics validate (periodic audit)
+Category,Event Name,GA4 Type,Screen/Trigger,Parameter 1,Parameter 2,Parameter 3,Parameter 4,Parameter 5,Conversion,Scope,Notes
+Auth,login,Recommended,Sign In Screen,method (apple/email/passkey/biometric),,,,,,event,GA4 recommended event (unprefixed — GA4 dictated)
+Auth,sign_up,Recommended,Sign Up Screen,method (apple/email),,,,,,event,GA4 recommended event. Mark as conversion. (unprefixed — GA4 dictated)
+Onboarding,tutorial_begin,Recommended,Onboarding Step 1,,,,,,,event,GA4 recommended event
+Onboarding,tutorial_complete,Recommended,Onboarding Final Step,,,,,,Yes,event,GA4 recommended event. Mark as conversion.
+Workout,workout_start,Custom,Active Workout,workout_type (push/pull/legs/cardio/rest),day_number (1-6),,,,,event,
+Workout,workout_complete,Custom,Workout Save,duration_seconds (int),exercise_count (int),set_count (int),,,Yes,event,Mark as conversion. SI unit: seconds.
+Workout,exercise_log,Custom,Exercise Detail,exercise_name (string),muscle_group (string),sets (int),reps (int),weight (float kg),,event,Weight always in kg (SI). No unit suffix.
+Workout,pr_achieved,Custom,PR Detection,exercise_name (string),pr_type (weight/reps/volume),,,,,event,System-detected event
+Nutrition,meal_log,Custom,Meal Entry Save,meal_type (breakfast/lunch/dinner/snack),entry_method (manual/template/photo/barcode),,,,Yes,event,LEGACY — aliased to nutrition_meal_logged in v2
+Nutrition,supplement_log,Custom,Supplement Tracker,time_of_day (am/pm),count (int),,,,,event,LEGACY — aliased to nutrition_supplement_logged in v2
+Nutrition,nutrition_meal_logged,Custom,Nutrition Screen,meal_type (breakfast/lunch/dinner/snack),entry_method (manual/template),calories (int),,,Yes,nutrition,v2 screen-prefixed replacement for meal_log
+Nutrition,nutrition_supplement_logged,Custom,Nutrition Screen,time_of_day (morning/evening),supplement_count (int),,,,No,nutrition,v2 screen-prefixed replacement for supplement_log
+Nutrition,nutrition_hydration_updated,Custom,Nutrition Screen,water_ml (int),target_ml (int),,,,No,nutrition,New in v2 — tracks water logging
+Nutrition,nutrition_date_changed,Custom,Nutrition Screen,direction (forward/backward),,,,,No,nutrition,New in v2 — tracks date navigation
+Nutrition,nutrition_empty_state_shown,Custom,Nutrition Screen,section (meals/supplements/hydration),,,,,No,nutrition,New in v2 — tracks empty state visibility
+Recovery,biometric_log,Custom,Biometrics Entry,metric_type (weight/hrv/rhr/sleep/body_fat),source (manual/healthkit),,,,,event,
+Engagement,stats_view,Custom,Stats Screen,stat_type (string),time_period (week/month/quarter/year/all),,,,,event,
+Engagement,share,Recommended,Workout/Stats,content_type (workout/stats/achievement),item_id (string),,,,,event,GA4 recommended event
+Engagement,select_content,Recommended,Filter/Search,content_type (exercise/stat/meal),item_id (string),,,,,event,GA4 recommended event
+Engagement,streak_maintained,Custom,Daily Check,streak_length (int days),,,,,,event,Fitness industry standard
+Engagement,goal_reached,Custom,Goal Detection,goal_type (weight/strength/nutrition),,,,,,event,Fitness industry standard
+Engagement,cross_feature_engagement,Custom,Cross-Feature Detection,features_used (comma-separated list),,,,,,event,North Star proxy. Mark as conversion.
+Consent,consent_granted,Custom,Consent View / Settings,consent_type (gdpr/att),,,,,,event,Always logged (bypasses consent gate)
+Consent,consent_denied,Custom,Consent View / Settings,consent_type (gdpr/att),,,,,,event,Always logged (bypasses consent gate)
+Settings,settings_changed,Custom,Settings Screen,setting_name (string),setting_value (string),,,,,event,
+Onboarding,onboarding_step_viewed,Custom,Each onboarding screen,step_index (0-5),step_name (welcome/goals/profile/healthkit/consent/first_action),,,,,event,Funnel drop-off per step (v2)
+Onboarding,onboarding_step_completed,Custom,User taps Continue,step_index (0-5),step_name,,,,,event,Per-step completion (v2)
+Onboarding,onboarding_skipped,Custom,User taps Skip,step_index (0-5),step_name,,,,,event,Skip rate per step (v2)
+Onboarding,onboarding_goal_selected,Custom,Goals screen selection,goal_value (build_muscle/lose_fat/maintain/general_fitness),,,,,,event,Most popular goal (v2)
+Onboarding,permission_result,Custom,HealthKit auth response,permission_type (healthkit/notifications),permission_granted (true/false),,,,,event,Auth grant/deny rate (v2)
+Training,training_session_viewed,Custom,Active Training Screen,workout_type (push/pull/legs/cardio/rest),,,,,,event,Session screen impression
+Training,training_exercise_started,Custom,Active Training Screen,exercise_name (string),muscle_group (string),,,,,event,Exercise begin signal
+Training,training_exercise_completed,Custom,Active Training Screen,exercise_name (string),sets (int),,,,,event,All sets done for exercise
+Training,training_set_logged,Custom,Active Training Screen,exercise_name (string),set_index (int),reps (int),weight (float kg),,,event,Individual set completion
+Training,training_set_copied,Custom,Active Training Screen,exercise_name (string),set_index (int),,,,,event,Previous-set copy shortcut usage
+Training,training_weight_changed,Custom,Active Training Screen,exercise_name (string),weight (float kg),,,,,event,Weight adjustment signal
+Training,training_rest_timer_started,Custom,Active Training Screen,rest_duration_seconds (int),,,,,,event,Rest timer engagement
+Training,training_rest_timer_skipped,Custom,Active Training Screen,rest_duration_seconds (int),,,,,,event,Rest timer skip rate
+Training,training_activity_switched,Custom,Active Training Screen,activity_type (string),,,,,,event,Activity tab switch
+Training,training_session_completed,Custom,Active Training Screen,session_duration_seconds (int),total_sets (int),exercise_count (int),,,Yes,event,Mark as conversion. Full session completion.
+Training,training_focus_mode_entered,Custom,Active Training Screen,,,,,,,event,Focus mode adoption
+Training,training_camera_opened,Custom,Active Training Screen,exercise_name (string),,,,,,event,Form-check camera usage
+Home,home_action_tap,Custom,Home Screen,action_type (start_workout/log_meal),day_type (push/pull/legs/etc),has_recommendation (true/false),,,No,event,Primary engagement signal
+Home,home_action_completed,Custom,Home Screen,action_type (start_workout/log_meal),duration_seconds (int),source (home),,,Yes,event,Mark as conversion. Measures follow-through.
+Home,home_empty_state_shown,Custom,Home Screen,empty_reason (no_healthkit/no_data/first_launch),cta_shown (connect_health/log_manually/both),,,,No,event,Monitors data availability
+Home,home_body_comp_tap,Custom,Home Screen,has_weight (true/false),has_body_fat (true/false),progress_percent (0-100),,,No,event,Body comp card drill-down signal
+Home,home_body_comp_period_changed,Custom,Home Screen,period (week/month/quarter/year),,,,,,No,event,Tracks preferred time-range
+Home,home_body_comp_log_tap,Custom,Home Screen,,,,,,,No,event,Log CTA engagement on body comp card
+Home,home_metric_tile_tap,Custom,Home Screen,metric_type (hrv/resting_heart_rate/sleep/steps),has_value (true/false),,,,No,event,Metric tile deep-link to Stats tab
+,,,,,,,,,,
+Screen Name,View Name,SwiftUI View,Category,,,,,,,,
+Home / Today,home,MainScreenView,core,,,,,,,,
+Training Plan,training_plan,TrainingPlanView,workout,,,,,,,,
+Active Workout,active_workout,ActiveWorkoutView,workout,,,,,,,,
+Exercise Detail,exercise_detail,ExerciseDetailView,workout,,,,,,,,
+Nutrition,nutrition,NutritionView,nutrition,,,,,,,,
+Meal Entry,meal_entry,MealEntrySheet,nutrition,,,,,,,,
+Supplements,supplements,SupplementView,nutrition,,,,,,,,
+Recovery,recovery,RecoveryView,recovery,,,,,,,,
+Biometrics Entry,biometrics_entry,BiometricsEntryView,recovery,,,,,,,,
+Stats / Progress,stats,StatsView,engagement,,,,,,,,
+Chart Detail,chart_detail,ChartDetailView,engagement,,,,,,,,
+PR Records,pr_records,PRRecordsView,engagement,,,,,,,,
+Settings,settings,SettingsView,settings,,,,,,,,
+Account Settings,settings_account,AccountSettingsView,settings,,,,,,,,
+Data Settings,settings_data,DataSettingsView,settings,,,,,,,,
+Appearance,settings_appearance,AppearanceSettingsView,settings,,,,,,,,
+Notifications,settings_notifications,NotificationSettingsView,settings,,,,,,,,
+About,settings_about,AboutView,settings,,,,,,,,
+Sign In,sign_in,SignInView,auth,,,,,,,,
+Sign Up,sign_up,SignUpView,auth,,,,,,,,
+Profile,profile,ProfileView,core,,,,,,,,
+Readiness,readiness,ReadinessCard,core,,,,,,,,
+Body Comp Detail,body_comp_detail,BodyCompDetailView,core,,,,,,,,
+Consent,consent,ConsentView,consent,,,,,,,,
+Onboarding,onboarding,OnboardingView,onboarding,,,,,,,,
+Onboarding Welcome,onboarding_welcome,OnboardingWelcomeView,onboarding,,,,,,,,
+Onboarding Goals,onboarding_goals,OnboardingGoalsView,onboarding,,,,,,,,
+Onboarding Profile,onboarding_profile,OnboardingProfileView,onboarding,,,,,,,,
+Onboarding HealthKit,onboarding_healthkit,OnboardingHealthKitView,onboarding,,,,,,,,
+Onboarding First Action,onboarding_first_action,OnboardingFirstActionView,onboarding,,,,,,,,
+,,,,,,,,,,
+User Property,Type,Values,Auto-Collected,Notes,,,,,,,
+training_level,string,beginner/intermediate/advanced,No,Set after profile setup,,,,,,,
+has_healthkit,string,true/false,No,Set after HealthKit auth,,,,,,,
+consent_status,string,granted/denied/pending,No,Updated on consent change,,,,,,,
+goal_type,string,weight_loss/strength/endurance/general,No,Set after profile setup,,,,,,,
+workout_frequency,string,1-7,No,Updated weekly based on actual usage,,,,,,,
+subscription_status,string,free/premium/trial,No,Future: after StoreKit integration,,,,,,,
+app_version,string,(auto),Yes,Do NOT set manually — Firebase auto-collects,,,,,,,
+device_model,string,(auto),Yes,Do NOT set manually — Firebase auto-collects,,,,,,,
+os_version,string,(auto),Yes,Do NOT set manually — Firebase auto-collects,,,,,,,
+,,,,,,,,,,
+Conversion Event,Funnel,Purpose,,,,,,,,
+sign_up,Onboarding,Activation rate,,,,,,,,
+tutorial_complete,Onboarding,Onboarding completion rate,,,,,,,,
+workout_complete,First Workout,Training adoption,,,,,,,,
+meal_log,First Meal,Nutrition adoption,,,,,,,,
+cross_feature_engagement,Weekly Engagement,North Star metric proxy,,,,,,,,
+home_action_completed,Home Engagement,Home-to-action follow-through,,,,,,,,
+training_session_completed,Training,Full training session completion,,,,,,,,

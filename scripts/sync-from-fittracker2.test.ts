@@ -195,6 +195,57 @@ test('syncDashboardData throws when an FT2 source markdown is missing', async ()
   }
 });
 
+// ── Test 4c: knowledge-hub tree + root files are mirrored ────────────
+test('syncDashboardData mirrors the full FT2 docs tree and root READMEs into the kb lane', async () => {
+  const { paths, cleanup } = makePaths();
+  try {
+    writeJson(join(paths.ft2Shared, 'a.json'), {});
+    writeJson(join(paths.ft2Features, 'a', 'state.json'), {});
+    writeFt2Docs(paths.ft2Root);
+
+    // Extra knowledge-hub files at various depths inside docs/.
+    writeText(join(paths.ft2Root, 'docs/case-studies/example.md'), '# Example');
+    writeText(join(paths.ft2Root, 'docs/skills/README.md'), '# Skills');
+    writeText(join(paths.ft2Root, 'docs/skills/sub/nested.md'), '# Nested');
+    writeText(join(paths.ft2Root, 'docs/product/analytics-taxonomy.csv'), 'event,scope\nfoo,bar');
+    writeText(join(paths.ft2Root, 'docs/.DS_Store'), 'noise'); // should be skipped
+    writeText(join(paths.ft2Root, 'docs/skills/foo.txt'), 'wrong ext'); // should be skipped
+
+    // Root-level files the builder explicitly references.
+    writeText(join(paths.ft2Root, 'README.md'), '# Root README');
+    writeText(join(paths.ft2Root, 'CLAUDE.md'), '# CLAUDE');
+    // ai-engine/README.md and backend/README.md deliberately missing —
+    // soft-skip should not fail the run.
+
+    const report = await syncDashboardData(paths);
+
+    // Required parser-input docs counted under docFiles (4).
+    assert.equal(report.counts.docFiles, 4);
+
+    // Optional kb files: 4 walked into docs subtree + 2 root files = 6.
+    // (.DS_Store skipped, .txt skipped, ai-engine/backend READMEs absent.)
+    assert.equal(report.counts.kbFiles, 6);
+
+    // Files actually exist on disk under the localDocs lane.
+    assert.ok(existsSync(join(paths.localDocs, 'docs/case-studies/example.md')));
+    assert.ok(existsSync(join(paths.localDocs, 'docs/skills/README.md')));
+    assert.ok(existsSync(join(paths.localDocs, 'docs/skills/sub/nested.md')));
+    assert.ok(existsSync(join(paths.localDocs, 'docs/product/analytics-taxonomy.csv')));
+    assert.ok(existsSync(join(paths.localDocs, 'README.md')));
+    assert.ok(existsSync(join(paths.localDocs, 'CLAUDE.md')));
+
+    // Noise filtered out.
+    assert.ok(!existsSync(join(paths.localDocs, 'docs/.DS_Store')));
+    assert.ok(!existsSync(join(paths.localDocs, 'docs/skills/foo.txt')));
+
+    // checkedFiles uses the `kb/` lane prefix for these.
+    assert.ok(report.checkedFiles.includes('kb/docs/case-studies/example.md'));
+    assert.ok(report.checkedFiles.includes('kb/README.md'));
+  } finally {
+    cleanup();
+  }
+});
+
 // ── Test 5: Option A fallback ────────────────────────────────────────
 test('syncDashboardData falls back to committed snapshot when FT2 is absent', async () => {
   const { paths, cleanup } = makePaths();
@@ -211,6 +262,7 @@ test('syncDashboardData falls back to committed snapshot when FT2 is absent', as
     assert.equal(report.counts.sharedFiles, 0);
     assert.equal(report.counts.featureFiles, 0);
     assert.equal(report.counts.docFiles, 0);
+    assert.equal(report.counts.kbFiles, 0);
     assert.equal(report.syncedAt, new Date(0).toISOString(),
       'fallback report uses epoch timestamp to signal "no fresh sync"');
     // Freshness file written when none existed before.
