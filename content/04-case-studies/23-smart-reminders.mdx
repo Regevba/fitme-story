@@ -1,0 +1,115 @@
+---
+title: Smart Reminders — Six Reminder Types Designed and Shipped Inside a 12-Hour Stress Test
+slug: smart-reminders
+upstream_path: docs/case-studies/smart-reminders-case-study.md
+tier: light
+timeline_position:
+  version: '5.1'
+  order: 23
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-04-20'
+tldr: 'Six reminder types, a reusable guest-lock overlay, and a frequency-cap engine — all designed, specified, implemented, and test-covered during a v5.1 parallel stress test that advanced four features simultaneously. No dedicated PR or feature branch: the work landed through stress-test phase commits. Published retroactively because the v5.1 batch optimized for "BUILD SUCCEEDED" as the phase-completion signal and skipped the PM testing/review/merge advance steps for every feature in the batch.'
+key_numbers:
+  - label: 'Wall-clock from init to complete'
+    value: '~12h'
+    tier: T1
+  - label: 'Reminder types shipped'
+    value: '6 (PRD listed 5; enum split type 4 into trainingDay + restDay)'
+    tier: T1
+  - label: 'Production files / LOC'
+    value: '4 / 432'
+    tier: T1
+  - label: 'Tests added (PR #98, T+2 days)'
+    value: '17 (10 enum + 7 scheduler)'
+    tier: T1
+  - label: 'Generic analytics events'
+    value: '6 of 21 declared (per-type 12 + locked-feature 3 not yet wired)'
+    tier: T1
+honest_disclosures:
+  - 'No dedicated feature branch or PR. The PM state file advanced init → complete in 12 hours, but four phases (testing, review, merge, documentation) stayed marked `pending` even after the feature shipped — a stress-test hygiene gap discussed in the lessons section.'
+  - 'Tests landed two days after the state file said `complete`, via PR #98 (Sprint J). The test author explicitly documented what was not testable without a mock UNUserNotificationCenter rather than fake green tests.'
+  - 'Per-type analytics (12 events) and locked-feature analytics (3 events) declared in the PRD were not shipped with the feature. The 6 generic lifecycle events were wired in PR #158 on 2026-04-30, ten days after the feature closed.'
+  - 'Primary metric (reminder tap-through rate ≥ 25%) cannot be evaluated yet — feature is shipped but not yet live with users.'
+  - 'This case study was written 2026-04-20 (T+4 days) and published to the showcase 2026-04-30 (T+14 days). The 10-day publication gap reflects a missing slot assignment, not a content problem.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Pre Smart Reminders'
+    before:
+      label: 'Passive posture'
+      value: 'no proactive nudges'
+      subtitle: 'User must open the app to discover value. No state-aware outreach. No frequency caps because there is nothing to cap.'
+    afterLabel: 'Smart Reminders shipped'
+    after:
+      label: 'State-aware layer'
+      value: '6 types · 3/day · 4h min'
+      subtitle: 'Six reminder types with per-type and global caps, quiet hours (22:00-07:00), 4-hour minimum interval, and a reusable LockedFeatureOverlay for guest conversion.'
+    delta: 'no nudges → governed nudge layer'
+    afterAccentVar: 'var(--skill-pm)'
+---
+# Smart Reminders — Six Reminder Types Designed and Shipped Inside a 12-Hour Stress Test
+
+> Smart Reminders never existed as a standalone branch or PR. It was one of four features pushed through the v5.1 Adaptive Batch stress test concurrently, landing through commits like `feat: v5.1 stress test phase 6 — UI views + orchestrator + triggers, BUILD SUCCEEDED`. The state file advanced init → complete in 12 hours, but no standalone PR description exists to harvest into a case study. This document reconstructs the feature from primary evidence: state transitions, the PRD, the UX spec, the commit graph, and the shipped source files.
+
+<HeroMetric value="~12h" label="wall-clock from init to complete inside a multi-feature stress test" />
+
+<BeforeAfter
+  beforeLabel="Pre Smart Reminders"
+  beforeValue="no proactive nudges"
+  beforeSubtitle="User must open the app to discover value. No state-aware outreach. No frequency caps because there is nothing to cap."
+  afterLabel="Smart Reminders shipped"
+  afterValue="6 types · 3/day · 4h min"
+  afterSubtitle="Six reminder types with per-type and global caps, quiet hours (22:00-07:00), 4-hour minimum interval, and a reusable LockedFeatureOverlay for guest conversion."
+  delta="no nudges → governed nudge layer"
+  afterAccentVar="var(--skill-pm)"
+/>
+
+## What shipped
+
+Four production files, 432 LOC total:
+
+- `ReminderType.swift` (53 LOC) — Enum with six cases, display titles, per-type `maxPerDay` (all = 1), per-type `maxLifetime` (3 for `healthKitConnect` / `accountRegistration` / `engagement`, `nil` for the other three), deep-link destinations.
+- `ReminderScheduler.swift` (192 LOC) — `@MainActor` singleton. Enforces quiet hours (22:00–07:00), global daily cap (3), per-type daily cap, per-type lifetime cap, and a 4-hour minimum interval between any two reminders. Persists state via `UserDefaults` with date-scoped keys. Wraps `UNUserNotificationCenter.add` with silent failure (notifications are best-effort).
+- `ReminderTriggers.swift` (127 LOC) — `ReminderTriggerEvaluator` with five `evaluate*` methods (one per type) and an `evaluateAll(...)` that calls them in phase order. Each evaluator is a pure condition check → `scheduler.scheduleIfAllowed(type:body:)` call.
+- `LockedFeatureOverlay.swift` (60 LOC) — SwiftUI overlay with `AppColor.Overlay.scrim` backdrop, card with SF Symbol icon, "Unlock {feature}" title, benefit body, full-width CTA at `AppSize.ctaHeight`, and a "Maybe later" caption-style dismiss. Uses tokens throughout — zero raw literals.
+
+Tests landed via PR #98 (T+2 days):
+
+- `ReminderTests.swift` — 10 cases. Locks the enum contract: 6 cases exist, all have non-empty titles, all deep links are `fitme://`, lifetime caps are exactly 3 for the three attention-bounded types and `nil` for the other three, raw values are snake_case, Codable round-trips preserve identity.
+- `ReminderSchedulerTests.swift` — 7 cases. Singleton identity, `cancelAll` idempotence, UserDefaults key contract (`ft.reminder.dailyCount.YYYY-MM-DD`, `ft.reminder.{type}.sentCount`), quiet-hours boundary math, per-type `maxPerDay` ≥ 1.
+
+## The six reminder types
+
+| ID | Type | Trigger | Caps |
+|---|---|---|---|
+| 1 | HealthKit Connect | HealthKit not authorized, day 2/5/10 post-onboarding | 1/day, 3 lifetime |
+| 2 | Account Registration | Guest user, day 3/7/14 post-onboarding | 1/day, 3 lifetime |
+| 3 | Goal-Gap Nutrition | Protein < 50% target after 4 PM | 1/day (unlimited lifetime) |
+| 4a | Training Day | Training day, no workout logged by 10 AM | 1/day |
+| 4b | Rest Day | Readiness < 40, confidence-gated (≥ 2 HealthKit signals, < 12h stale) | 1/day |
+| 5 | Engagement | 3+ days since last open, copy escalates across day 3/5/7 | 3 per lapse, resets on open |
+
+The shipped enum split type 4 into `.trainingDay` and `.restDay` for a total of six cases. The split lets the scheduler treat each trigger as its own lifetime-capped series and lets the UI render distinct titles ("Time to train 💪" vs "Rest day — recover well 🧘") without branching inside the same case. It also made the caps test a flat table instead of a nested conditional.
+
+## Lessons
+
+**Stress-test velocity traded PM hygiene for throughput.** The state file shows six clean transitions from init to complete in 12 hours. But four phases (`testing`, `review`, `merge`, `documentation`) stayed marked `pending` in the state file even though the work landed. The v5.1 stress test optimized for "four features advanced simultaneously, BUILD SUCCEEDED" as the phase-completion signal, and that signal does not carry the explicit phase-advance approval the state machine expects. Future stress-test phases should include a closing pass that advances the state machine through every phase it touched — or the PM dashboard will keep showing tests/review/merge as pending for features that are fully shipped.
+
+**Testing arrived two days late and documented its own gap.** PR #98 (Sprint J) added `ReminderSchedulerTests.swift` two days after the feature closed. The test author was honest about what could not be tested: "The full scheduling path goes through `UNUserNotificationCenter`, which is not reliably testable without a mock. Where the production code's effect is observable through state/defaults, we test it directly; where it is not, we document the gap rather than fake it." This is the right pattern — a coverage note inside the test file is more useful than fake green tests, and it turned into a backlog item (a mock `UNUserNotificationCenter` protocol) rather than a hidden liability.
+
+**Locked Feature Overlay generalized beyond Smart Reminders.** The overlay was specified inside the Smart Reminders PRD as a guest-conversion component, but the shipped file (`Views/Shared/LockedFeatureOverlay.swift`) is a generic reusable view: `featureIcon`, `featureTitle`, `benefitText`, `onCreateAccount`, `onDismiss`. Any future gated surface (monetization, entitlements) can mount it. This is a good outcome — the Smart Reminders PRD happened to be where it got specified, but the component has no coupling to reminders.
+
+**Stress-test commits do not produce PR-linkable case-study evidence.** Three of the four load-bearing commits landed under stress-test phase labels, not `feat(smart-reminders)`. Reconstructing this case study required pattern-matching on file paths (`--follow` on `ReminderScheduler.swift` plus a grep for `LockedFeatureOverlay`) rather than reading a PR thread. For future stress tests, each per-feature commit inside the phase should keep its `feat({feature-name})` prefix even when it ships under a phase banner — the two mechanisms compose cleanly.
+
+## Links
+
+- Source case study: [`docs/case-studies/smart-reminders-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/smart-reminders-case-study.md)
+- PRD: [`docs/product/prd/smart-reminders.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/product/prd/smart-reminders.md)
+- State file: [`.claude/features/smart-reminders/state.json`](https://github.com/Regevba/FitTracker2/blob/main/.claude/features/smart-reminders/state.json)
+- Tests: PR [#98](https://github.com/Regevba/FitTracker2/pull/98)
+- Lifecycle analytics wiring: PR [#158](https://github.com/Regevba/FitTracker2/pull/158)
+- Load-bearing commits: `bbbcd66`, `d62741c`, `fe1295a`, `33b4e72`, `2910762`, `3bc960c`
