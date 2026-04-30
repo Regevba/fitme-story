@@ -81,20 +81,31 @@ const META_ANALYSIS_SLUGS = new Set([
   'full-system-audit',
 ]);
 
-// Each milestone owns the version range (prev_milestone_version, this_milestone_version].
-// The last milestone (hadf) is open-ended on the upper side so v7.x case studies
-// land under it. Versions are parsed off the `v` prefix (e.g. 'v5.2' → 5.2).
+// Each milestone owns the version range [its_era_start, next_era_start).
+// Boundaries are explicit (not derived from MILESTONES[].version) so that the
+// user-facing milestone label can lag behind the case-study frontmatter version
+// without breaking the era grouping. Concretely: the hadf milestone is labeled
+// v7.0 even though its case-study frontmatter is v6.1, and parallel-stress-test
+// is labeled v5.2 though its frontmatter is v5.1 — using these labels as bucket
+// boundaries miscategorized v5.0/v5.1 case studies (under eval-driven instead
+// of parallel-stress-test) and v6.1 case studies (under hadf instead of
+// measurement-v6). Explicit thresholds tied to era starts fix both at once.
+//
+// Order matches MILESTONES (onboarding-pilot, framework-evolution, eval-driven,
+// parallel-stress-test, measurement-v6, hadf).
+const ERA_LOWER_BOUNDS = [-Infinity, 4.0, 4.4, 5.0, 6.0, 7.0];
+
 function parseVersion(raw: string): number {
   return parseFloat(raw.replace(/^v/, ''));
 }
 
-function bucketIndex(version: number, milestoneVersions: number[]): number {
-  for (let i = 0; i < milestoneVersions.length; i++) {
-    const upper = i === milestoneVersions.length - 1 ? Infinity : milestoneVersions[i];
-    const lower = i === 0 ? -Infinity : milestoneVersions[i - 1];
-    if (version > lower && version <= upper) return i;
+// Find the latest milestone whose era_lower_bound is ≤ version. Each milestone
+// owns [its_lower_bound, next_lower_bound), with the last open-ended.
+function bucketIndex(version: number): number {
+  for (let i = ERA_LOWER_BOUNDS.length - 1; i >= 0; i--) {
+    if (version >= ERA_LOWER_BOUNDS[i]) return i;
   }
-  return milestoneVersions.length - 1;
+  return 0;
 }
 
 export default async function CaseStudiesIndex() {
@@ -118,12 +129,11 @@ export default async function CaseStudiesIndex() {
       c.frontmatter.timeline_position?.version,
   );
 
-  const milestoneVersions = MILESTONES.map((m) => parseVersion(m.version));
   const secondariesByMilestone: ContentEntry[][] = MILESTONES.map(() => []);
   for (const c of eraSecondaries) {
     const v = parseVersion(String(c.frontmatter.timeline_position!.version));
     if (Number.isNaN(v)) continue;
-    secondariesByMilestone[bucketIndex(v, milestoneVersions)].push(c);
+    secondariesByMilestone[bucketIndex(v)].push(c);
   }
   for (const bucket of secondariesByMilestone) {
     bucket.sort(
