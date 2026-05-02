@@ -1,0 +1,164 @@
+---
+title: When the Gate Read One Field and the Data Lived in Another
+slug: framework-honesty-fixes-2026-05-01
+upstream_path: docs/case-studies/framework-honesty-fixes-2026-05-01-case-study.md
+tier: light
+timeline_position:
+  version: '7.7'
+  order: 22.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-05-01'
+parent_slug: framework-v7-7-validity-closure
+tldr: 'The v7.7 case study claimed cache_hits was "100% gated on next write." A 2026-04-30 sweep found 43 of 46 state.json files used the legacy `created` key while the gate read `created_at`. Effective coverage at the time of the claim: 0 of 46 features. This PR migrates the schema, adds a SCHEMA_DRIFT regression check, fixes one downstream consumer that the rename silently broke, and documents three near-misses caught only because the user said "run it against the entire gating system."'
+key_numbers:
+  - label: 'state.json files migrated'
+    value: '43'
+    tier: T1
+  - label: 'Effective gate coverage (pre → post)'
+    value: '0/46 → 1/8'
+    tier: T1
+  - label: 'Near-misses caught by user-requested verification'
+    value: '3'
+    tier: T1
+  - label: 'Schema check tests'
+    value: '12 → 19'
+    tier: T1
+  - label: 'v7.5 pipeline regression tests'
+    value: '14/15 → 15/15'
+    tier: T1
+honest_disclosures:
+  - 'Gate is NOT now "100% effective" — fires on 1 of 8 post-v6-complete features (hadf-infrastructure). 3 still bypass via the residual `cache_hits is None` exemption surface, which this PR does not close.'
+  - '`framework_version` field is NOT now reliable — 39 of 46 features still have no value. Format-only check ships; presence-required deferred until backfill PR can map each feature to a real framework version without manufacturing history.'
+  - 'CI failed on PR #169 by design — `pm-framework/pr-integrity` reports `schema=1` because the now-effective gate caught hadf-infrastructure (the gate''s first real finding). Build-and-Test also failed on the known macOS-15 parallel-clone simulator hang gremlin (PR #166 backlog task), unrelated to this PR.'
+  - 'The migration was a near-miss: v1 used `json.dumps()` and corrupted Unicode em-dashes + expanded inline arrays across 45 files (96-line diffs vs the intended 1-line rename). Caught by `git diff --stat` before commit.'
+  - 'A downstream consumer (`measurement-adoption-report.py`) silently broke — read the legacy `created` field, returned `post-v6: 0` instead of 11. Caught by running `make measurement-adoption` mid-session because the user explicitly asked.'
+  - 'A pre-existing v7.5 pipeline test fixture had been broken since v7.7 shipped (verified via stash-and-rerun on origin/main). Fixed in this PR as a bonus.'
+kill_criteria:
+  - 'The migration corrupts content beyond the intended `created` rename (semantic-equivalence check fails on any of 46 files).'
+  - 'A new schema gate produces a false-positive on any current state.json (would block legitimate commits).'
+  - 'A downstream consumer of state.json data silently breaks and is missed by the verification sweep.'
+kill_criterion_fired: false
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Pre-fix (origin/main)'
+    before:
+      label: 'v7.7 gate (as-shipped)'
+      value: '0/46'
+      subtitle: '43 files used legacy `created`; gate read `created_at`. Silent-pass on every feature.'
+    afterLabel: 'Post-fix (PR #169)'
+    after:
+      label: 'v7.7 gate (effective)'
+      value: '1/8'
+      subtitle: 'Fires on 1 of 8 post-v6-complete features. 3 bypass via residual `is None` surface (out of scope).'
+    delta: 'Schema migration + SCHEMA_DRIFT check + 3 near-misses disclosed'
+---
+
+# When the Gate Read One Field and the Data Lived in Another
+
+> This is a v7.7 expansion. The parent case study ([Validity Closure — v7.7](/case-studies/22-validity-closure-v7-7)) is left unchanged per the publish-verbatim rule; a Section 99B "Correction Note" was appended in the upstream FitTracker2 source.
+>
+> **What this expansion adds:** the empirical follow-up to v7.7's "100% gated" claim. The audit, the migration, the near-misses, and the gate's first real catch.
+
+## The setup
+
+v7.7 shipped four new write-time gates on 2026-04-27 and the case study claimed:
+
+| Dimension | Pre-v7.7 | Post-v7.7 |
+|---|---|---|
+| `cache_hits[]` post-v6 | 33.3% | **gated to 100% on next write (issue #140 closed)** |
+
+A 2026-04-30 audit ran a Python sweep against `.claude/features/*/state.json` to verify the claim. The gate's read path:
+
+```python
+def check_cache_hits_empty_post_v6(state: dict):
+    created = state.get("created_at", "")
+    current_phase = state.get("current_phase", "")
+    cache_hits = state.get("cache_hits", None)
+    if not created or created < V6_SHIP_DATE:
+        return findings  # early return, no finding
+    ...
+```
+
+The sweep found:
+- **43 of 46 features (93%)** stored the timestamp under the field name `created`, not `created_at`
+- The gate's first conditional evaluated `"" < "2026-04-16"` → `True` → **early return without finding** for those 43
+- The remaining 3 features either weren't yet at `current_phase=complete` or had no `cache_hits` key at all
+
+**Effective coverage at the time the v7.7 case study was published: 0 of 46 features.** The gate was implemented, the pre-commit hook invoked it, the integrity-check workflow ran it on the 72h cycle. The plumbing was real. The data the gate would read existed in a schema the gate didn't know about.
+
+## What shipped (PR #169)
+
+| Closure | What it does |
+|---|---|
+| **Schema migration** | 43 simple renames + 2 duplicate-drops, regex-on-source so whitespace/Unicode/inline-arrays are byte-preserved. Round-trip semantic check confirms 0 anomalies on all 46 files. |
+| **`SCHEMA_DRIFT` regression check** | Parallel to the existing legacy-`phase` check; rejects future regression to `created`. |
+| **`FRAMEWORK_VERSION_FORMAT` check** | When set, requires canonical `(pre-)?vX.Y` form. 6 unprefixed values backfilled. Presence-required deferred — 39 features have no value, and setting them without timeline research would be manufacturing history. |
+| **Section 99B correction** | Appended to v7.7's case study per the publish-verbatim rule. Original §99 untouched. |
+| **Pre-commit hook header rewrite** | Declares the v7.7 + 2026-05-01 gates (D-4 from the bug retrospective). |
+| **Pre-existing pipeline test fixture fix** | `test-v7-5-pipeline.sh` Defense 1 had been broken since v7.7 shipped — its synthetic fixture lacked the case_study link the new gate required. Fixed as a bonus. |
+
+7 new schema-check tests cover the SCHEMA_DRIFT and FRAMEWORK_VERSION_FORMAT additions. 19/19 pass.
+
+## The designed finding (kept, not silently closed)
+
+After the migration, the gate now fires on **one feature**: `hadf-infrastructure` (post-v6, complete, `cache_hits: []`). This is the gate's first real catch.
+
+**It is kept as a violation, not silently fixed.** Manufacturing back-dated `cache_hits[]` entries to make the gate green would be the precise failure mode v7.5 was created to prevent. The hadf-infrastructure migration commit explicitly uses `git commit --no-verify` with the bypass rationale documented in the commit message. The PR-integrity bot reports the finding as a NEW finding vs main — which is the correct CI behavior.
+
+The case study's Section 6 ("what is not claimed") is explicit:
+
+- The gate is NOT now "100% effective." Fires on 1 of 8 post-v6-complete features. Three more bypass via the `cache_hits is None` exemption surface, which this PR does not close.
+- The `framework_version` field is NOT now reliable. Format-only enforcement ships; presence-required is deferred.
+
+## Three near-misses
+
+The strongest evidence for what the framework is missing is what *almost happened*. Three issues would have shipped silently if the user had not interrupted the migration with one specific instruction: *"run the new changes against the entire gating system to make sure that all data aligns and that we are not breaking or corrupting any existing information by overriding it."*
+
+### Near-miss 1: `json.dumps()` corrupted formatting on 45 files
+
+The first migration script parsed each state.json, modified keys in the dict, and wrote back via `json.dumps(d, indent=2)`. Observed effects on `training-plan-v2/state.json`:
+
+- Inline arrays expanded to multi-line
+- Literal Unicode em-dashes (—) escaped to `—`
+- Diff stat: **+81 / −15** for what should have been a 1-line rename
+
+Caught by `git diff --stat` showing 96 changed lines on the canary file. Rewrote the migration as a regex-on-source. Post-fix every changed file shows exactly `+1 / −1` (rename) or `0 / −1` (duplicate drop).
+
+**Lesson:** when migrating one field across many JSON files in a codebase whose JSON style is non-canonical, regex on the source string is safer than parse-and-reformat. Parse-and-reformat is sound only if the codebase already canonicalizes its JSON style — most don't.
+
+### Near-miss 2: `measurement-adoption-report.py` silently broke
+
+After the rename, `make measurement-adoption` reported `Features: 46 (post-v6: 0, pre-v6: 46)` — down from `post-v6: 11` on origin/main. The report still ran, exited 0, and wrote its JSON output. The bug was that line 116 read `d.get("created")`. After the rename, that returned `None` for all 43 migrated files. The post-v6 categorization silently flipped to "everyone is pre-v6."
+
+Fixed with a safety-net fallback (`d.get("created_at") or d.get("created") or ""`). Post-fix the report correctly identifies 11 post-v6 features, matching the 2026-04-30 audit memo.
+
+**Lesson:** schema migrations need a consumer-search step. A `grep -rn '\.get("created")'` across `*.py *.ts *.tsx *.js` would have caught this in seconds. This is the v7.8 thread — the framework currently has no model for "Agent A is renaming a schema field that Agent B's script depends on." Today's near-miss is exactly the kind of cross-agent silent-break that an action-manifest layer (declaring `reads:[paths]` per agent task) would surface at write-time.
+
+### Near-miss 3: pre-existing pipeline test regression
+
+The `bash scripts/test-v7-5-pipeline.sh` regression suite reported `Pass: 14  Fail: 1` after the new schema gates landed. Initial reading: a new check has a false-positive. **Wrong.**
+
+Reproduction with the synthetic fixture showed Defense 1 was failing because the v7.7 `STATE_NO_CASE_STUDY_LINK` check rejects a minimal `{"current_phase":"complete","status":"complete"}` fixture. Stash-and-rerun against origin/main: identical `Pass: 14  Fail: 1`. The test had been **broken since v7.7 shipped** — the fixture wasn't updated when the new gate was added.
+
+Fixed by adding `case_study_type: "no_case_study_required"` to the fixture. Post-fix: `Pass: 15  Fail: 0`.
+
+**Lesson:** the v7.5 pipeline regression test is supposed to be the framework's safety net, but the safety net itself decayed silently when v7.7 added gates without updating the fixtures. v7.8's research plan now includes "Topic 8: make `test-v7-5-pipeline.sh` part of CI so future framework expansions update fixtures in the same PR."
+
+## Reading this against v7.7
+
+v7.7 was a real shipped milestone. Its plumbing was correct, its tests passed, its dashboard wiring worked. What this expansion adds is the answer to a question v7.7 didn't ask itself: *did the data the gate would read live in the schema the gate expected?*
+
+The answer for cache_hits was no. It is now yes for 1 of 8 post-v6-complete features. For 3 it remains no via the `cache_hits is None` exemption surface, which is its own next chapter.
+
+The framework's trajectory remains: each version closes a class of silent-pass surface, then the next version's audit finds the next class. v7.5 closed the cycle-time audit gap. v7.6 promoted seven Class B gaps to Class A. v7.7 added four new write-time gates. **2026-05-01 closes the silent-pass surface that hid v7.7's effective coverage.** The unclosable-gaps inventory drops from 5 to 4. The next layer (`cache_hits is None` bypass + invariant-bearing-document conflict detection) becomes v7.8's input.
+
+## What's next
+
+`memory: project_framework_v7_8_research_plan.md` Topic 7 was added 2026-05-01: a research note on **branch-isolation membrane for parallel agents**. The full prior-art survey + design analysis lives at `docs/research/2026-05-01-framework-v7-8-branch-isolation-survey.md` in the FitTracker2 repo. The recommendation, in one line: build the CRDT layer for append-mostly ledgers when issue #140 closure becomes necessary; build action-manifests only after parallel dispatch (F6-F9) unblocks and the empirical conflict rate justifies it.
+
+**Trust-page connection:** this expansion is published unedited per the [publish-verbatim, append-corrections rule](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md#analytics-naming-convention). The v7.7 case study at slot 22 carries the upstream §99B correction with the same numbers. The audit memo, the bug retrospective, and the v7.8 research note are all in `.claude/projects/-Volumes-DevSSD-FitTracker2/memory/` for the next session to pick up cold.
