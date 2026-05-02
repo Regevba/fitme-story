@@ -1,0 +1,118 @@
+---
+title: HADF Phase 2 — Cloud Fingerprinting Measurement
+slug: hadf-phase2-cloud-fingerprinting
+upstream_path: docs/case-studies/hadf-phase2-cloud-fingerprinting-case-study.md
+tier: light
+timeline_position:
+  version: '7.7'
+  order: 22.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: measurement
+  academic: measurement
+date: '2026-05-01'
+external_audit_status: pending
+tldr: 'Pre-registered measurement experiment to test whether cloud inference endpoints cluster naturally by hardware class via TTFT/TPS alone. Pre-registered threshold: max silhouette score across k > 0.5. Observed: silhouette 0.5566 at k=5 over 700 valid records (350 openai + 350 anthropic). Verdict: clusters_found=true; Path B (dispatch-layer HADF) green-lit. Campaign closed early on day 2 of 3 due to a local-environment incident; pre-registered validity floor (600 records) met; no kill criterion fired. Pending external audit.'
+key_numbers:
+  - label: 'Silhouette score (max across k=2..6)'
+    value: '0.5566'
+    tier: T1
+  - label: 'Pre-registered threshold'
+    value: '> 0.5'
+    tier: T1
+  - label: 'Best k'
+    value: '5'
+    tier: T1
+  - label: 'Valid records collected'
+    value: '700'
+    tier: T1
+  - label: 'Validity floor (pre-registered)'
+    value: '600'
+    tier: T1
+  - label: 'Endpoints included'
+    value: '2 of 3 (openai + anthropic)'
+    tier: T1
+  - label: 'Calendar days collected'
+    value: '2 of 3 (early closure)'
+    tier: T1
+  - label: 'Cluster endpoint purity (top-2 clusters at k=5)'
+    value: '0.972 / 0.921'
+    tier: T1
+  - label: 'Contaminated records (segregated, excluded)'
+    value: '200'
+    tier: T1
+honest_disclosures:
+  - 'Pending external audit. Verdict is mechanical (pure function of pre-registration JSON + analyzer summary JSON), but methodology, dataset, and conclusions have not been independently reassessed.'
+  - 'Local endpoint (Ollama on a MacBook Air) was deliberately excluded at deploy time on grounds that llama3.2:3b at ~0.7 tps falls below the harness 60s urllib timeout. Pre-registration permits exclusion if total >= 600 across remaining endpoints.'
+  - 'Campaign closed on day 2 of 3 after a local-environment incident broke 2 fires. Validity floor was met before closure (700 ≥ 600). Dataset published is dataset collected; pre-registration was not extended.'
+  - 'Two fires (200 records) were contaminated by environment failures (broken venv binary directory; missing API-key file). Records segregated into incident files, excluded from analysis by the pre-registered ok=true filter.'
+  - 'Per pre-registration `case_study_constraints.banned_practices`: no speculation about Path B implementation, no comparison to other case studies'' numbers, no qualitative interpretation in the Framework Signal section.'
+kill_criteria:
+  - 'fewer than 600 total data points across all endpoints after the 3-day window'
+  - 'all endpoints simultaneously rate-limited (cannot collect)'
+  - 'any endpoint changes streaming protocol or model id mid-collection (invalidates control)'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'External audit'
+    ledger: 'pending; preregistration + summary artifact + segregated contaminated files + backups all preserved on disk and in git'
+    reason: 'Independent operator required.'
+  - title: 'Path B implementation (dispatch-layer HADF)'
+    ledger: 'spec at docs/superpowers/specs/2026-04-16-hadf-hardware-aware-dispatch-design.md'
+    reason: 'Out of scope for this study; gated by this verdict (now green-lit).'
+  - title: 'Local endpoint inclusion'
+    ledger: 'plist EnvironmentVariables HADF_ENDPOINTS'
+    reason: 'Requires faster local model or larger urllib timeout; not addressed in this study.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Pre-registered (2026-04-29)'
+    before:
+      label: 'Threshold'
+      value: 'silhouette > 0.5'
+      subtitle: 'Pre-committed before any data collection. Immutable.'
+    afterLabel: 'Observed (2026-05-01)'
+    after:
+      label: 'Verdict'
+      value: 'silhouette 0.5566'
+      subtitle: 'Clusters found. Path B green-lit. 700 valid records, 2 endpoints.'
+    delta: 'threshold met by 0.0566 over 0.5 floor'
+---
+
+# HADF Phase 2 — Cloud Fingerprinting Measurement
+
+> **Pending external audit.** This case study reports the mechanical verdict from the analyzer; an independent assessment of the methodology, dataset, and conclusions has not yet been completed. The pre-registration (committed 2026-04-29 and immutable since) and the summary artifact (committed 2026-05-01 as `61964d3`) are the assessable inputs. The full upstream case study at [`docs/case-studies/hadf-phase2-cloud-fingerprinting-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/hadf-phase2-cloud-fingerprinting-case-study.md) carries every quantitative claim back to one of those two files per the pre-registration's raw_data_citation_rule.
+
+## What was tested
+
+A pre-registered measurement question: *Do cloud inference endpoints cluster naturally by hardware class when measured via TTFT/TPS alone, without provider cooperation?*
+
+The harness made fixed-shape API calls (50 calls × 5 time-of-day windows × 3 calendar days × N endpoints) with a random English word per call to defeat provider response caching while keeping prompt structure identical. Each call recorded `ttft_ms` (time to first streamed token) and `tps` (output tokens per second from stream timestamps). The analyzer ran k-means clustering on the (ttft_ms, tps) joint space with z-score standardization, k tested across {2, 3, 4, 5, 6}, scikit-learn `random_state=42`, `n_init=10`. The verdict function was a pure inequality: `if max_silhouette_score_across_k > 0.5: clusters_found = true`.
+
+## What was observed
+
+700 valid records. 2 endpoints (openai 350 records + anthropic 350 records; local was disabled at deploy on grounds that Ollama llama3.2:3b at ~0.7 tps falls below the harness's 60s timeout). Best k = 5, silhouette = 0.5566. The two largest clusters (681 of 700 records) had >92% endpoint purity, supporting the hardware-class hypothesis at the pre-registered secondary-reporting threshold (purity > 0.8).
+
+## What this means for HADF
+
+Per the pre-registered verdict function: `clusters_found = true → Path B (dispatch-layer HADF) green-lit`. The HADF Phase 1 schema (chip-profiles.json, hardware-signature-table.json, dispatch-intelligence.json::hardware_context) remains unchanged by this study; `enabled: false` remains the current value pending Path B work, which is out of scope for this case study and explicitly listed in the pre-registration's `non_scope` section.
+
+Banned by pre-registration §case_study_constraints: speculation about Path B implementation details, qualitative interpretation in the Framework Signal section, comparison to other case studies' numbers. Per that constraint, this section ends here.
+
+## Mid-campaign incident (full disclosure)
+
+The campaign was scheduled for 3 calendar days (2026-04-30 through 2026-05-03) but was closed on day 2 (2026-05-01 evening) after a local-environment incident broke two fires.
+
+At 2026-05-01 07:17 IDT, two gitignored files were deleted from the main repo: `.venv-hadf-phase2/bin/` (the Python venv binary directory the wrapper used) and `.env.local` (the API-key file). Surviving: the venv's `include/`, `lib/`, and site-packages directories. Forensic evidence (zsh history, mtime alignment) is consistent with either a partial venv-rebuild script or a `git clean -fdx`-class operation; definitive identification was not possible without OS-level process logs.
+
+The 21:00 IDT scheduled fire ran with the broken venv (system python fallback, no SDKs) and wrote 100 records all with `ok=false`. A manual recovery kickstart at 22:38 IDT, after recreating the venv, wrote 100 more records all with `ok=false` for a different reason (missing `.env.local` → no API keys exported → harness errored before any network call). Both contaminated batches were segregated into incident files. The locked-700 dataset (rows 1–700, all `ok=true` from fires 1 through 7) was preserved. The campaign was closed cleanly: launchd service unloaded, caffeinate process killed, runtime plist removed, macOS Full Disk Access for /bin/bash revoked.
+
+Per `kill_criteria.abort_action`: *"Document the abort condition in the case study Methodology Notes section and publish the partial data. Do NOT silently extend or restart collection."* The dataset was not extended; the pre-registration was not modified; the verdict was computed on the locked-700 file alone via the analyzer's `--raw` flag.
+
+None of the three pre-registered abort conditions fired: total record count stayed above the 600 floor, no endpoints were rate-limited, and no model ids changed mid-campaign. The full forensic timeline is in the upstream case study under §Methodology Notes → Mid-Campaign Incident Disclosure.
+
+## Why "pending external audit" is part of this case study
+
+This is a measurement experiment, not an opinion piece. The pre-registration was committed and hashed before any data was collected. The analyzer is mechanical (a pure function of the pre-registration plus the summary JSON). The contamination is bounded and segregated. The 700 valid records and the 200 contaminated records are both preserved on disk. An independent operator with access to the locked-700 file and the analyzer script should reproduce silhouette = 0.5566 at k=5 deterministically (`random_state=42`, `n_init=10`).
+
+What an external audit can challenge: the choice to exclude the local endpoint at deploy; the acceptable-loss reasoning behind closing on day 2 of 3; the forensic identification of the 07:17 IDT trigger; the choice of k range; the choice of (ttft_ms, tps) as the clustering features. None of these challenges, if successful, would alter the silhouette number itself — they would alter the interpretation. That distinction is what makes the "pending external audit" label load-bearing rather than performative.
