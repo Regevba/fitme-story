@@ -75,6 +75,38 @@ const MILESTONES: Array<{
 
 const MILESTONE_SLUGS = new Set(MILESTONES.map((m) => m.slug));
 const DEVELOPER_SLUGS = new Set(['ssr-regression', 'dispatchreplay', 'lego-pmflow']);
+const META_ANALYSIS_SLUGS = new Set([
+  'meta-analysis',
+  'meta-analysis-validation',
+  'full-system-audit',
+]);
+
+// Each milestone owns the version range [its_era_start, next_era_start).
+// Boundaries are explicit (not derived from MILESTONES[].version) so that the
+// user-facing milestone label can lag behind the case-study frontmatter version
+// without breaking the era grouping. Concretely: the hadf milestone is labeled
+// v7.0 even though its case-study frontmatter is v6.1, and parallel-stress-test
+// is labeled v5.2 though its frontmatter is v5.1 — using these labels as bucket
+// boundaries miscategorized v5.0/v5.1 case studies (under eval-driven instead
+// of parallel-stress-test) and v6.1 case studies (under hadf instead of
+// measurement-v6). Explicit thresholds tied to era starts fix both at once.
+//
+// Order matches MILESTONES (onboarding-pilot, framework-evolution, eval-driven,
+// parallel-stress-test, measurement-v6, hadf).
+const ERA_LOWER_BOUNDS = [-Infinity, 4.0, 4.4, 5.0, 6.0, 7.0];
+
+function parseVersion(raw: string): number {
+  return parseFloat(raw.replace(/^v/, ''));
+}
+
+// Find the latest milestone whose era_lower_bound is ≤ version. Each milestone
+// owns [its_lower_bound, next_lower_bound), with the last open-ended.
+function bucketIndex(version: number): number {
+  for (let i = ERA_LOWER_BOUNDS.length - 1; i >= 0; i--) {
+    if (version >= ERA_LOWER_BOUNDS[i]) return i;
+  }
+  return 0;
+}
 
 export default async function CaseStudiesIndex() {
   const all = await getAllCaseStudies();
@@ -84,11 +116,38 @@ export default async function CaseStudiesIndex() {
     entry: entryBySlug.get(m.slug),
   })).filter((m) => m.entry) as Array<(typeof MILESTONES)[number] & { entry: ContentEntry }>;
 
-  const secondary = all.filter(
+  // "Era secondaries" — case studies that ran under the same framework version
+  // as a milestone, presented inline under that milestone so a reader interested
+  // in v5.x can see all v5.x studies in one place. Excludes milestones themselves,
+  // developer deep-dives, meta-analysis studies, and unassigned tier.
+  const eraSecondaries = all.filter(
     (c) =>
       !MILESTONE_SLUGS.has(c.frontmatter.slug) &&
       !DEVELOPER_SLUGS.has(c.frontmatter.slug) &&
-      c.frontmatter.tier !== 'unassigned',
+      !META_ANALYSIS_SLUGS.has(c.frontmatter.slug) &&
+      c.frontmatter.tier !== 'unassigned' &&
+      c.frontmatter.timeline_position?.version,
+  );
+
+  const secondariesByMilestone: ContentEntry[][] = MILESTONES.map(() => []);
+  for (const c of eraSecondaries) {
+    const v = parseVersion(String(c.frontmatter.timeline_position!.version));
+    if (Number.isNaN(v)) continue;
+    secondariesByMilestone[bucketIndex(v)].push(c);
+  }
+  for (const bucket of secondariesByMilestone) {
+    bucket.sort(
+      (a, b) =>
+        (a.frontmatter.timeline_position?.order ?? 999) -
+        (b.frontmatter.timeline_position?.order ?? 999),
+    );
+  }
+
+  const metaAnalysisEntries = all.filter((c) => META_ANALYSIS_SLUGS.has(c.frontmatter.slug));
+  metaAnalysisEntries.sort(
+    (a, b) =>
+      (a.frontmatter.timeline_position?.order ?? 999) -
+      (b.frontmatter.timeline_position?.order ?? 999),
   );
 
   const developer = all.filter((c) => DEVELOPER_SLUGS.has(c.frontmatter.slug));
@@ -290,85 +349,135 @@ export default async function CaseStudiesIndex() {
             className="hidden sm:block absolute left-[11px] top-3 bottom-3 w-0.5 bg-gradient-to-b from-[var(--color-brand-indigo)] via-[var(--color-brand-indigo)] to-[var(--color-brand-coral)] opacity-60"
           />
 
-          {milestoneEntries.map((m, idx) => (
-            <li
-              key={m.slug}
-              id={`milestone-${m.slug}`}
-              className="relative sm:pl-12 scroll-mt-24"
-            >
-              {/* Milestone dot — colored to match the card's accent and the
-                  infographic pin above, completing the visual thread. */}
-              <span
-                aria-hidden="true"
-                className="hidden sm:block absolute left-0 top-3 w-6 h-6 rounded-full ring-4 ring-[var(--color-neutral-50)] dark:ring-[var(--color-neutral-900)]"
-                style={{ backgroundColor: m.colorVar }}
-              />
-              <span
-                aria-hidden="true"
-                className="hidden sm:block absolute left-[7px] top-[18px] w-3 h-3 rounded-full bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)]"
-              />
-
-              <Link
-                href={`/case-studies/${m.slug}`}
-                className="block group rounded-xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] overflow-hidden hover:border-[var(--color-brand-indigo)] hover:shadow-lg transition-all"
+          {milestoneEntries.map((m, idx) => {
+            const eraStudies = secondariesByMilestone[idx] ?? [];
+            return (
+              <li
+                key={m.slug}
+                id={`milestone-${m.slug}`}
+                className="relative sm:pl-12 scroll-mt-24"
               >
-                {/* Color strip "at the tip" — matches the infographic pin */}
-                <div
-                  className="h-1.5"
-                  style={{ backgroundColor: m.colorVar }}
+                {/* Milestone dot — colored to match the card's accent and the
+                    infographic pin above, completing the visual thread. */}
+                <span
                   aria-hidden="true"
+                  className="hidden sm:block absolute left-0 top-3 w-6 h-6 rounded-full ring-4 ring-[var(--color-neutral-50)] dark:ring-[var(--color-neutral-900)]"
+                  style={{ backgroundColor: m.colorVar }}
+                />
+                <span
+                  aria-hidden="true"
+                  className="hidden sm:block absolute left-[7px] top-[18px] w-3 h-3 rounded-full bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)]"
                 />
 
-                <div className="p-6 sm:p-7">
-                  <div className="flex flex-wrap items-center gap-3 mb-3 font-sans">
-                    <span className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)]">
+                <Link
+                  href={`/case-studies/${m.slug}`}
+                  className="block group rounded-xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] overflow-hidden hover:border-[var(--color-brand-indigo)] hover:shadow-lg transition-all"
+                >
+                  {/* Color strip "at the tip" — matches the infographic pin */}
+                  <div
+                    className="h-1.5"
+                    style={{ backgroundColor: m.colorVar }}
+                    aria-hidden="true"
+                  />
+
+                  <div className="p-6 sm:p-7">
+                    <div className="flex flex-wrap items-center gap-3 mb-3 font-sans">
+                      <span className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)]">
+                        <span
+                          aria-hidden="true"
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ backgroundColor: m.colorVar }}
+                        />
+                        Milestone {idx + 1} · {m.version} · {m.shortLabel}
+                      </span>
+                      <span className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
+                        {m.entry.readingTimeMin} min read
+                      </span>
+                    </div>
+
+                    <h3 className="font-serif text-xl sm:text-2xl leading-tight mb-3 group-hover:text-[var(--color-brand-indigo)]">
+                      {m.entry.frontmatter.title}
+                    </h3>
+
+                    <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed mb-4 max-w-[var(--measure-body)]">
+                      {m.hook}
+                    </p>
+
+                    <div className="inline-flex items-center gap-2 font-sans text-sm">
+                      <span className="font-semibold text-[var(--color-brand-coral)] uppercase tracking-wider text-xs">
+                        Impact
+                      </span>
+                      <span className="text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] font-medium">
+                        {m.impact}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Era secondaries — case studies that ran during the same
+                    framework version range as this milestone. Empty buckets
+                    are omitted entirely (per UI choice 2: keeps the page
+                    clean instead of rendering "no supporting studies"). */}
+                {eraStudies.length > 0 && (
+                  <div className="mt-4 sm:ml-1">
+                    <h4
+                      className="font-sans text-xs uppercase tracking-wider font-semibold text-[var(--color-neutral-500)] mb-2 flex items-center gap-2"
+                    >
                       <span
                         aria-hidden="true"
-                        className="w-2.5 h-2.5 rounded-full"
+                        className="w-1.5 h-1.5 rounded-full"
                         style={{ backgroundColor: m.colorVar }}
                       />
-                      Milestone {idx + 1} · {m.version} · {m.shortLabel}
-                    </span>
-                    <span className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
-                      {m.entry.readingTimeMin} min read
-                    </span>
+                      Also from this era
+                    </h4>
+                    <ul className="divide-y divide-[var(--color-neutral-200)] dark:divide-[var(--color-neutral-800)] border-y border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)]">
+                      {eraStudies.map((c) => (
+                        <li key={c.frontmatter.slug}>
+                          <Link
+                            href={`/case-studies/${c.frontmatter.slug}`}
+                            className="block group py-3 px-2 -mx-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors"
+                          >
+                            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                              <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
+                                v{c.frontmatter.timeline_position?.version}
+                              </span>
+                              <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
+                                {c.frontmatter.title}
+                              </span>
+                              <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
+                                {c.readingTimeMin} min
+                              </span>
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-
-                  <h3 className="font-serif text-xl sm:text-2xl leading-tight mb-3 group-hover:text-[var(--color-brand-indigo)]">
-                    {m.entry.frontmatter.title}
-                  </h3>
-
-                  <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed mb-4 max-w-[var(--measure-body)]">
-                    {m.hook}
-                  </p>
-
-                  <div className="inline-flex items-center gap-2 font-sans text-sm">
-                    <span className="font-semibold text-[var(--color-brand-coral)] uppercase tracking-wider text-xs">
-                      Impact
-                    </span>
-                    <span className="text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] font-medium">
-                      {m.impact}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            </li>
-          ))}
+                )}
+              </li>
+            );
+          })}
         </ol>
       </section>
 
-      {/* ============ MORE STUDIES — compact list ============ */}
-      <section className="mb-20" aria-labelledby="more-heading">
-        <h2 id="more-heading" className="font-serif text-[length:var(--text-display-md)] mb-2">
-          More case studies
+      {/* ============ META-ANALYSIS & METHODOLOGY ============
+          Studies that audit or validate the framework itself — the
+          full-system audit (185 findings), the meta-analysis retrospective,
+          the external Gemini validation, and the operations-layer practice
+          notes. Pulled out of the milestone groups so a reader looking for
+          "how was the framework evaluated" finds it in one place. */}
+      <section className="mb-20" aria-labelledby="meta-heading">
+        <h2 id="meta-heading" className="font-serif text-[length:var(--text-display-md)] mb-2">
+          Meta-analysis &amp; methodology
         </h2>
         <p className="font-sans text-sm text-[var(--color-neutral-500)] mb-6 max-w-[var(--measure-body)]">
-          Supporting studies and methodology notes — the work that validates, extends, or explains
-          the milestones above.
+          Studies that audit or validate the framework itself — full-system audits, normalized
+          retrospectives, external validation, and operations-layer notes. Read these to see how
+          the framework holds up under scrutiny.
         </p>
 
         <ul className="divide-y divide-[var(--color-neutral-200)] dark:divide-[var(--color-neutral-800)]">
-          {secondary.map((c) => (
+          {metaAnalysisEntries.map((c) => (
             <li key={c.frontmatter.slug}>
               <Link
                 href={`/case-studies/${c.frontmatter.slug}`}
@@ -378,7 +487,7 @@ export default async function CaseStudiesIndex() {
                   <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
                     {c.frontmatter.timeline_position
                       ? `v${c.frontmatter.timeline_position.version}`
-                      : 'supporting'}
+                      : 'meta'}
                   </span>
                   <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
                     {c.frontmatter.title}
@@ -397,7 +506,7 @@ export default async function CaseStudiesIndex() {
             >
               <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                 <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
-                  supporting
+                  meta
                 </span>
                 <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
                   The operations layer in practice
