@@ -1,0 +1,107 @@
+---
+title: UI-Audit Baseline Burndown — P0 27 → 0 and a Hard Gate
+slug: ui-audit-baseline-burndown
+upstream_path: docs/case-studies/ui-audit-baseline-burndown.md
+tier: light
+timeline_position:
+  version: '7.1'
+  order: 20.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-04-24'
+tldr: 'The make ui-audit scanner had been running advisory-only since shipping — 27 P0 + 103 P1 across 44 files. This burndown migrated 12 view files in 12 atomic per-file commits, declared 5 new AppMotion tokens BEFORE migrating so swaps were 1:1 semantic, and promoted ui-audit into verify-local as a hard gate (commit cf8e09c). Any future PR introducing a raw color literal, raw animation, raw Font.system, or a Color("name") without a backing colorset now fails locally and on CI.'
+key_numbers:
+  - label: 'P0 findings'
+    value: '27 → 0'
+    tier: T1
+  - label: 'P1 findings (deferred)'
+    value: '103 (unchanged)'
+    tier: T1
+  - label: 'AppMotion tokens added'
+    value: '5'
+    tier: T1
+  - label: 'Files migrated'
+    value: '13 (12 views + AppMotion.swift)'
+    tier: T1
+  - label: 'Commits on burndown branch'
+    value: '20 + 1 orphan-cleanup branch'
+    tier: T1
+  - label: 'Scanner rules added'
+    value: '1 (RE_RAW_ANIMATION_BARE)'
+    tier: T1
+honest_disclosures:
+  - 'Mirror diffs (24 simulator screenshots = 2 modes × 12 files) PENDING user verification — execution environment did not have a booted simulator. Each commit annotates "Mirror diff: PENDING user verification" so any regression can be reverted surgically once mirrors are reviewed.'
+  - 'Phase 4.1 scope narrowed from the plan. The plan proposed 3 new scanner rules; a grep survey showed the interpolated pattern has zero findings in-codebase and the ternary/positional patterns would false-positive on enum cases like ASAuthorizationAppleIDButtonStyle.white. Shipped only the bare-animation rule; deferred the rest.'
+  - 'Env friction: SSD-hosted BUILD_HOME broke actool / SimDeviceSet on both main and this branch before Phase 0. verify-ios was unreachable throughout. Used xcrun swift-frontend -parse as a per-file syntax substitute.'
+  - 'P1 findings (103) unchanged and deferred to a follow-on plan: DS-MAGIC-FRAME (71), DS-RAW-FONT-SHORTHAND (23), DS-A11Y-BUTTON (5), DS-MAGIC-PADDING (4).'
+  - 'state.json retroactively closed 2026-04-27 (commit a8e3f2f) per v7.6 schema — feature shipped 2026-04-24 but the state ledger was reconciled three days later as part of the v7.7 schema sweep.'
+kill_criteria:
+  - 'Visual regression detected post-merge in 7-day review window → revert per-file commit, gate stays advisory until file remediated.'
+kill_criterion_fired: false
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Pre-burndown'
+    before:
+      label: 'Pre-burndown (advisory)'
+      value: '27 P0 + 103 P1'
+      subtitle: 'ui-audit scanner ran as advisory step only. Any PR could introduce a new P0 — scanner reported it but nothing stopped the merge. Historical drift produced 27 findings that had never been rejected.'
+    afterLabel: 'Post Phase 3.2'
+    after:
+      label: 'Post Phase 3.2 (hard gate)'
+      value: '0 P0 + verify-local gate'
+      subtitle: 'ui-audit promoted into verify-local depchain. Any future raw Color literal, raw animation, raw Font.system, or Color("name") without a backing colorset fails the local + CI gate.'
+    delta: 'observability → enforcement'
+---
+# UI-Audit Baseline Burndown — P0 27 → 0 and a Hard Gate
+
+> The `make ui-audit` scanner shipped on branch `claude/review-ui-consistency-zSkvJ` and established a per-view design-system compliance contract: raw Color literals, raw animations, raw fonts, magic numbers, missing a11y, and — crucially — the silent fallback bug where `Color("name")` references a non-existent colorset. At rest, 27 P0 + 103 P1 across 44 files. Because baseline P0 ≠ 0, the scanner could only run as advisory, not as a `verify-local` gate. This burndown closed the gap.
+
+## Three-layer safety model
+
+1. **Mirror layer** — every file-task captured before/after simulator screenshots into `.build/mirrors/` (gitignored). Catches silent pixel changes from token swaps. _Mirrors PENDING user verification this run; per-file atomic commits make any regression surgically revertible._
+2. **Rollback layer** — one file per commit + semantic-tagged baseline. Any file revertible; whole burndown reset to `573fe8a` without losing the verification layer.
+3. **Motion-tokens-first** — Task 0.1 added 5 motion tokens (`AppSpring.hero`, `AppSpring.stepAdvance`, `AppSpring.dialPulse`, `AppEasing.heroEntry`, `AppLoadingAnimation.fastShimmer`) with values *identical* to the raw call sites BEFORE Phase 2 migrated anything. All 6 animation swaps were literal substitutions with zero feel change.
+
+## Phase ledger
+
+| Phase | What | P0 closed | Wall time |
+|---|---|---|---|
+| Phase 0.1 | 5 new AppMotion tokens declared | 0 | — |
+| Phase 1 | 8 color-cluster files migrated (1 commit each) | 21 | per-file atomic |
+| Phase 2 | 4 animation-cluster files migrated | 6 | per-file atomic |
+| Phase 3.1 | Freeze verification (full-tree exit 0) | 0 | checkpoint |
+| Phase 3.2 | Gate promotion — `cf8e09c` | gate live | one-line Makefile change |
+| Phase 4 | Scanner hardening (`RE_RAW_ANIMATION_BARE`) + drift target + pbxproj orphan cleanup | 2 surfaced + closed | scoped |
+
+Three distinct color patterns emerged in Phase 1: standard inverse-primary (17 of 21 sites, `.white` text on colored surfaces → `AppColor.Text.inversePrimary`), Google-brand pure white (4 sites, dark-mode breaks `Surface.elevated`'s 20%-alpha shift; rediscovered the dormant `AppPalette.white` token), and semantic blue (1 site, the email icon → `AppColor.Brand.secondary`).
+
+## Final metrics
+
+- **P0**: 27 → **0** [T1] (hard gate active in `verify-local`)
+- **P1**: 103 [T1] (deferred to follow-on)
+- **AppMotion tokens added**: 5
+- **Scanner rules added**: 1 (`RE_RAW_ANIMATION_BARE`)
+- **Scanner flags added**: 1 (`--file PATH`)
+- **Makefile targets added**: 1 (`ui-audit-drift`)
+- **Visual regressions post-merge**: target 0 (7-day review)
+
+## Lessons
+
+- **Tokens-first beats best-fit-mapping later.** Five motion tokens with values identical to raw call sites — declared in their own commit before Phase 2 — enabled 1:1 semantic swaps with zero feel change. The alternative ("migrate to the closest existing preset") would have shifted every animation slightly. When a migration requires new tokens, declare them as their own commit *before* migrating.
+- **Context-read beats mechanical replacement.** 4 of 21 Phase 1 sites were Google-brand pure white, not standard inverse-primary. `Surface.elevated` shifts to 20%-alpha in dark mode and would have broken Google brand identity. `AppPalette.white` (declared but unused in view code) was the right answer. A grep + mechanical swap on `.white` would have silently regressed.
+- **An observability layer without a gate is hope.** The `ui-audit` scanner lived advisory-only for multiple days before this plan. No PR was rejected by it. Real enforcement happened in **one Makefile line** (Phase 3.2) once P0 reached 0.
+- **One commit per file is the rollback contract.** 12 file migrations = 12 atomic commits. If mirror verification surfaces a regression on one file, `git revert <sha>` touches only that file. Bundled "fix-all-p0" would have been amputation, not surgery.
+- **Orthogonal cleanups ship on their own branch.** The pbxproj orphan cleanup touched project config, not view code — different reviewer attention, different rollback story. Landed on `chore/pbxproj-orphan-cleanup` off `origin/main`, not bundled into the burndown branch.
+- **Gate activation is a revertible one-liner.** Phase 3.2 promoted `ui-audit` into `verify-local`. Reverting the Makefile commit drops the gate back to advisory while file-level reverts remain independent — two-dimensional rollback.
+
+## Links
+
+- Full upstream case study: [`docs/case-studies/ui-audit-baseline-burndown.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/ui-audit-baseline-burndown.md)
+- Plan: [`docs/superpowers/plans/2026-04-20-ui-audit-baseline-burndown.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/plans/2026-04-20-ui-audit-baseline-burndown.md)
+- PR #139 (merge `c4b78931`): [github.com/Regevba/FitTracker2/pull/139](https://github.com/Regevba/FitTracker2/pull/139)
+- Scanner: [`scripts/ui-audit.py`](https://github.com/Regevba/FitTracker2/blob/main/scripts/ui-audit.py)
+- Baseline: [`docs/design-system/ui-audit-baseline.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/design-system/ui-audit-baseline.md)

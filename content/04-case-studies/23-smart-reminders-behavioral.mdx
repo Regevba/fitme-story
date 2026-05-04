@@ -1,0 +1,143 @@
+---
+title: Smart Reminders Behavioral Learning — PR-1 Shipped Across iOS + Backend
+slug: smart-reminders-behavioral-learning
+upstream_path: docs/case-studies/smart-reminders-behavioral-learning-case-study.md
+tier: light
+timeline_position:
+  version: '7.8'
+  order: 23
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-05-04'
+tldr: 'Sub-feature of Smart Reminders. PR-1 shipped fully on 2026-05-04 in two halves — FT2 PR #190 (iOS data layer + Settings toggle-off, squash 516eef0) and FT2 PR #198 (backend AI-engine endpoints + retention migration 000009, squash 04eeac6). 23 XCTests + 19 pytests pass. All 15 PR-1 tasks complete. Bayesian per-user posterior + Supabase server-cohort prior using existing `cohort_stats` table. PR-2 (SmartTimingResolver + A/B test, toggle default flips ON) starts after ~5-7 days of cohort data accumulation — earliest 2026-05-09.'
+key_numbers:
+  - label: 'PR-1 tasks: planned / complete'
+    value: '15 / 15'
+    tier: T1
+  - label: 'XCTests / pytests passing'
+    value: '23 / 19'
+    tier: T1
+  - label: 'Personalisable reminder types'
+    value: '3 of 6 (Nutrition Gap, Training Day, Rest Day)'
+    tier: T1
+  - label: 'PRs shipped (PR-1)'
+    value: '2 (#190 iOS half · #198 backend half)'
+    tier: T1
+  - label: 'Cache hits logged'
+    value: '2 (L1 PRD-Phase-3 frame + L2 cohort_stats discovery)'
+    tier: T1
+  - label: 'cu_v2 total / tier_class'
+    value: '2.15 / B_medium'
+    tier: T1
+honest_disclosures:
+  - 'PR-1 ships zero new UX beyond a single Settings toggle row (BehavioralLearningSettingsView) reusing existing v2 design-system tokens. Per-type "Why this time?" affordance is PR-3 work — that ux_or_integration phase belongs to PR-3 not PR-1.'
+  - 'Migration 000009 is no-op-but-documented. Migration 000004 (retention) is already segment-agnostic, so no schema change was actually required — the migration exists as a versioned acknowledgement that the retention rule applies to the new segment values, not to introduce a new table.'
+  - 'PRD phase was skipped — the PRD-equivalent work was captured in the 2026-04-30 brainstorm session (OQ-1..OQ-5 locked) and the design spec at `docs/superpowers/specs/2026-05-01-smart-reminders-behavioral-learning-design.md`. The spec covers all PRD requirements: success_metrics, kill_criteria, dispatch_pattern, scope, sequencing. Sub-feature of smart-reminders parent (which has its own PRD); brainstorm+spec is the appropriate granularity here. Recorded in state.json `phases.prd.skipped_reason`.'
+  - 'Only 3 of 6 ReminderTypes are personalisable in this layer (Nutrition Gap, Training Day, Rest Day). HealthKit Connect / Account Registration / Engagement keep static defaults due to lifetime caps — re-firing them at a "personalised" moment would not move the metric meaningfully against a 3-fire-lifetime ceiling.'
+  - 'PR-2 (SmartTimingResolver consumer + A/B test arm + toggle default flips ON) requires ~5-7 days of cohort data accumulation in `cohort_stats` before the per-segment baselines are stable enough for the A/B comparison. Earliest start 2026-05-09. PR-1 ships the data collection layer with the toggle defaulting OFF.'
+  - 'Aggregate tap-through lift target (≥ +5 pp at p < 0.05) cannot be evaluated until PR-2 ships and runs through its 14-day ± 4 readout window. PR-1 success is "the data layer collects, the toggle works, no regression in static-default behavior".'
+kill_criteria:
+  - 'Aggregate tap-through lift < +0 pp at end of per-user readout window AND post-population aggregate also fails.'
+  - 'Any single personalised type regresses by >= -3 pp vs its static baseline → per-type rollback to static fire time.'
+  - 'Disable rate increases >= +3 pp from baseline OR dismiss rate increases >= +5 pp from baseline (advisory composite; parent PRD already gates disable rate at +25 pp/month).'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'PR-2 — SmartTimingResolver consumer + A/B test arm + toggle default ON'
+    ledger: 'docs/superpowers/plans/smart-reminders-behavioral-learning-pr-2.md (PR #199)'
+    reason: 'Requires ~5-7 days of cohort data accumulation in `cohort_stats`. Earliest start 2026-05-09.'
+  - title: 'PR-3 — Per-type "Why this time?" affordance (AIIntelligenceSheet pattern)'
+    ledger: 'state.json `phases.ux_or_integration.skipped_reason`'
+    reason: 'New UX surface; ships after PR-2 A/B test settles and personalisation rationale becomes user-visible.'
+  - title: 'Aggregate tap-through readout (primary success metric)'
+    ledger: 'state.json `success_metrics[0]`'
+    reason: '14 ± 4 day per-user window starts collecting only after PR-2 ships. Cannot yet claim metric movement.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Pre PR-1 (Smart Reminders v1)'
+    before:
+      label: 'Pre PR-1'
+      value: 'Static fire times'
+      subtitle: 'All 6 reminder types fire at hard-coded times. No per-user adaptation. No cohort prior. PRD §SR-17 ("data collection only, no UI") + §SR-18 ("smart timing optimization") deferred since 2026-04-15.'
+    afterLabel: 'Post PR-1'
+    after:
+      label: 'Post PR-1 (data layer live, toggle OFF)'
+      value: '23 XCTests + 19 pytests'
+      subtitle: 'BehavioralLearningStore (per-user Bayesian posterior) + CohortPriorCache (7-day TTL) + CohortPriorClient (no-PII payload) + AI-engine endpoints + retention migration. Single global Settings toggle (Smart timing — defaults OFF in PR-1).'
+    delta: 'Static defaults → personalisation infrastructure (default-off)'
+---
+# Smart Reminders Behavioral Learning — PR-1 Shipped Across iOS + Backend
+
+> Sub-feature of [Smart Reminders](/case-studies/smart-reminders) (parent shipped 2026-04-15 → 2026-04-16 inside the v5.1 stress test). The parent PRD deferred SR-17 ("data collection only, no UI") and SR-18 ("smart timing optimization") as P2 items. Behavioral Learning is the sub-feature that closes both: SR-17 data layer + SR-18 timing automation, sequenced as three PRs (PR-1 data layer + toggle-off, PR-2 resolver + A/B test + toggle-on, PR-3 per-type rationale UX). PR-1 fully shipped 2026-05-04.
+
+## Architecture (locked at brainstorm 2026-04-30)
+
+OQ-1 through OQ-5 locked at the brainstorm session:
+
+1. **Scope** — v1 = SR-17 data layer + SR-18 timing automation (skip non-PRD automation for now)
+2. **Bayesian update** — static-default fire-time prior, no count-threshold cliff
+3. **Hybrid backend architecture** — server cohort prior via existing Supabase `cohort_stats` table + on-device per-user posterior + new backend writer hook + retention extension
+4. **Settings UX** — single global "Smart timing" toggle in Settings → Notifications (defaults ON in PR-2, OFF in PR-1) PLUS per-type "Why this time?" affordance reusing AIIntelligenceSheet pattern (PR-3)
+5. **Success metric** — aggregate tap-through lift ≥ +5 pp at p < 0.05 with per-type kill at -3 pp; readout window 14 ± 4 days flexible per-user, plus post-population aggregation later for stable per-segment baselines
+
+A constraint surfaced during brainstorm: only **3 of 6 ReminderTypes are personalisable** (Nutrition Gap, Training Day, Rest Day). HealthKit Connect / Account Registration / Engagement keep static defaults due to lifetime caps.
+
+Two cache hits logged on the brainstorm path, both load-bearing for the architecture decision:
+
+- **L1 cache hit** — reused the parent PRD's existing Phase-3 wording ("SR-17 data collection only, no UI; begin collecting data for SR-18") as the OQ-1 frame, narrowing the brainstorm from generic "what does it adapt" to a concrete pick between SR-17 alone, SR-17+SR-18, or SR-17 + non-PRD automation.
+- **L2 cache hit** — discovered existing Supabase `cohort_stats` table + `increment_cohort_frequency` RPC (migrations 000001-000003) used by the AI engine for cohort intelligence. OQ-3 "hybrid backend" shrunk from "new schema + new endpoint" to "reuse table with new segment values + +1 read RPC + AI-engine writer hook".
+
+## What shipped (PR-1)
+
+**iOS half — FT2 PR #190 (squash 516eef0)**:
+
+- `BehavioralLearningStore` — per-user posterior + GDPR Article 17 wipe (commits `c5c3c14`, `e90704f`)
+- `CohortPriorCache` — 7-day TTL + graceful JSON recovery (`23c1a66`)
+- `CohortPriorClient` — POST/GET with no-PII payload (`7a11d40`)
+- Wiring into the existing reminder delegate (`599b1e1`)
+- Bootstrap path on app launch (`4a5706c`)
+- Global "Smart Timing" Settings toggle, defaults OFF — no consumer wired in PR-1 (`5bcd614`)
+
+**Backend half — FT2 PR #198 (squash 04eeac6)**:
+
+- AI-engine endpoints (POST cohort write hook + GET cohort prior read)
+- Retention migration `000009` — segment-agnostic acknowledgement (no schema change required; 000004 already covers the retention rule)
+
+23 XCTests + 19 pytests pass on both halves.
+
+## Why two halves
+
+iOS PR-1 (PR #190) shipped first (2026-05-03 → squash-merged) with the Settings toggle defaulting OFF — so the data layer was live and the GDPR wipe path worked, but no behavioral data was being uploaded to the backend yet. Backend PR-1 (PR #198) shipped 2026-05-04 with the AI-engine endpoints + retention migration. With both halves in, the data collection loop is closed end-to-end: iOS posts (no-PII) cohort data → AI engine writes to `cohort_stats` → iOS reads back the cohort prior on next reminder evaluation → on-device Bayesian posterior updates per-user.
+
+The toggle staying OFF in PR-1 is deliberate: it lets us verify the data collection loop works in production without committing to the personalisation behavior. PR-2 flips the toggle default to ON and adds the consumer (`SmartTimingResolver`) that actually uses the posterior to shift fire times.
+
+## What earned a separate sub-feature case study
+
+The parent Smart Reminders feature shipped retroactively-documented inside a v5.1 stress test — no dedicated PR, no concurrent case study tracking. Behavioral Learning corrects that pattern at the sub-feature layer: dedicated state.json from inception, dedicated branch (`feature/smart-reminders-behavioral-learning`), dedicated case study, contemporaneous log appending, full v7.7 dogfood instrumentation.
+
+It also dogfoods the v7.8 mechanisms shipping in the same window:
+
+- **Mechanism A coverage gates** — PR-1 commits passed all coverage-asserting gates including the new `CACHE_HITS_EMPTY_POST_V6` enforcement (state.json carries 2 logged cache hits before `current_phase: complete`)
+- **Mechanism C session attribution** — the `PostToolUse:Read` hook auto-captured Read events during PR-1 work; session events ledgered to `.claude/logs/_session-<id>.events.jsonl`
+- **Mechanism E ledger merge driver** — when state.json updates raced with main during the merge marathon, the dedup-by-key driver auto-resolved the append-only ledger conflicts
+
+## Lessons
+
+- **Sub-features can correct hygiene gaps in their parents.** Smart Reminders parent shipped retroactively-documented inside a stress test. Behavioral Learning ships with full v7.7+v7.8 dogfood instrumentation from inception — it's a chance to do the parent's PM hygiene right at the sub-feature scale.
+- **Sequencing personalisation behind data collection prevents an A/B test with no baseline.** PR-1 ships the data layer with toggle-off; PR-2 ships the consumer with toggle-on. The 5-7 day gap between PRs is not a delay — it's the time required for `cohort_stats` to accumulate stable per-segment baselines so the A/B comparison has signal.
+- **Skipping PRD is OK when the brainstorm + spec covers all PRD requirements.** state.json explicitly records `phases.prd.skipped_reason` pointing at the brainstorm session + spec doc. The framework allows skipped phases as long as the audit trail captures *why* — and the alternative (rewriting the brainstorm into PRD format) would have been ceremony, not signal.
+- **Reusing existing infrastructure shrinks scope.** OQ-3's "hybrid backend" originally meant "new schema + new endpoint". The L2 cache hit on `cohort_stats` discovery shrunk it to "reuse table with new segment values + +1 read RPC + AI-engine writer hook" — which is what shipped.
+
+## Links
+
+- Full upstream case study: [`docs/case-studies/smart-reminders-behavioral-learning-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/smart-reminders-behavioral-learning-case-study.md) _(scaffold; populates as PR-2/PR-3 ship)_
+- Spec: [`docs/superpowers/specs/2026-05-01-smart-reminders-behavioral-learning-design.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/specs/2026-05-01-smart-reminders-behavioral-learning-design.md)
+- PR-2 implementation plan (PR #199): [github.com/Regevba/FitTracker2/pull/199](https://github.com/Regevba/FitTracker2/pull/199)
+- State.json: [`.claude/features/smart-reminders-behavioral-learning/state.json`](https://github.com/Regevba/FitTracker2/blob/main/.claude/features/smart-reminders-behavioral-learning/state.json)
+- Parent feature showcase: [Smart Reminders](/case-studies/smart-reminders) (slot 08a)
+- iOS half: PR [#190](https://github.com/Regevba/FitTracker2/pull/190) (squash `516eef0`)
+- Backend half: PR [#198](https://github.com/Regevba/FitTracker2/pull/198) (squash `04eeac6`)
+- v7.8 bridge companion: [Framework v7.8 Bridge case study](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/framework-v7-8-bridge-case-study.md)

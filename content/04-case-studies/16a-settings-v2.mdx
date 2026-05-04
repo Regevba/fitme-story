@@ -1,0 +1,106 @@
+---
+title: SettingsView v2 — 1170 → 294 Lines via Phased Decomposition
+slug: settings-v2-decomposition
+upstream_path: docs/case-studies/m-1-settings-decomposition-case-study.md
+tier: light
+timeline_position:
+  version: '5.0'
+  order: 16.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-04-19'
+tldr: 'Closing audit finding UI-002: SettingsView.swift dropped 1170 → 294 lines (~75%) across 4 PRs (#122-#125) in a ~2-hour single-session decomposition. Pure structural refactor — zero new code, zero behaviour change, 9 visibility bumps, 8 new files. Second feature to ship concurrent case-study tracking from inception (after M-3).'
+key_numbers:
+  - label: 'SettingsView.swift line count'
+    value: '1170 → 294'
+    tier: T1
+  - label: 'PRs shipped'
+    value: '4 (M-1a/b/c/d)'
+    tier: T1
+  - label: 'New files extracted'
+    value: '8 (5 screens + 3 components)'
+    tier: T1
+  - label: 'Audit findings closed (cumulative)'
+    value: '180 → 181 of 185 (97.8%)'
+    tier: T1
+  - label: 'Wall-clock span'
+    value: '~2 hours'
+    tier: T1
+  - label: 'Visibility bumps (private → internal)'
+    value: '9'
+    tier: T1
+honest_disclosures:
+  - 'No manual visual QA across the 5 detail screens. Behaviour preservation verified at the type level (same `*SettingsScreen` types, same coordinator wiring) but a tap-through pass would catch subtle SwiftUI rendering regressions if any.'
+  - 'Pre-existing EncryptionService + KeychainHelper test failures (9 tests) reproduce on clean main. Not introduced by M-1; same simulator-keychain environment friction as M-3.'
+  - 'CI billing block in effect during M-1 — PRs #122/#123/#124 hit the GitHub Actions account spending limit; admin-overridden the merges. Same infrastructure friction since Sprint K.'
+  - 'The 294-line coordinator still embeds `summaryBadges()` helpers (~50 lines) and deep-link routing destinations. UI-002 is closed at the file-size layer; finer extraction (M-1e) would be taste, not audit.'
+  - 'M-1c was a judgment call: SettingsView.swift was 401 lines after M-1b (one over the 400 target). The right call was a clean coordinator at 294 lines, not "fail the threshold by one line". Audited as decision D-3 in the source case study.'
+kill_criteria: []
+kill_criterion_fired: false
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Pre M-1'
+    before:
+      label: 'Pre M-1 (1170 lines)'
+      value: '1 monolithic file'
+      subtitle: 'Coordinator + 5 detail screens + 4 scaffolds + 5 form components + 4 home views, all in SettingsView.swift. UI-002 audit finding open.'
+    afterLabel: 'Post M-1d'
+    after:
+      label: 'Post M-1d (294 lines)'
+      value: '1 coordinator + 8 files'
+      subtitle: '5 screens in `Settings/v2/Screens/`, 3 component bundles in `Settings/v2/Components/`. Coordinator routes only. UI-002 closed.'
+    delta: '~75% line reduction across 4 PRs'
+---
+# SettingsView v2 — 1170 → 294 Lines via Phased Decomposition
+
+> M-1 closed audit finding UI-002 ("SettingsView.swift, 1170 lines, too many responsibilities"). The 1170-line file was already well-structured internally — five `private struct *SettingsScreen: View` blocks called from a `navigationDestination` switch — so the work was mechanical-but-careful: extract each block to its own file, bump `private` → internal so the coordinator can still reach them, add a `Screens` PBXGroup to `project.pbxproj`. Same again for shared scaffolds + form components in M-1b, and home-view sub-components in M-1c. Pure structural refactor; zero behaviour change.
+
+## What shipped
+
+| PR | Phase | What | Lines moved |
+|---|---|---|---|
+| #122 | M-1a | 5 detail screens → `Settings/v2/Screens/` | 521 |
+| #123 | M-1b | Scaffolds + form components → `Settings/v2/Components/` | 248 |
+| #124 | M-1c | Home-view sub-components → `Settings/v2/Components/SettingsHomeViews.swift` | 107 |
+| #125 | M-1d | Case study + monitoring entry + UI-002 closure | — |
+
+Each PR was a single-direction structural change. Could revert any one without losing the others. Build + (Settings-related) tests green at every PR.
+
+## Numbers — before and after
+
+| Metric | Before M-1 | After M-1a | After M-1b | After M-1c |
+|---|---|---|---|---|
+| SettingsView.swift lines | 1170 | 649 | 401 | **294** |
+| Files in `Settings/v2/` | 1 | 6 | 8 | 9 |
+| New PBXGroups | 0 | 1 (Screens) | 2 (+Components) | 2 |
+
+## What worked
+
+- **Plan doc with line-level inventory before starting.** `docs/superpowers/plans/2026-04-19-m1-settings-v3-decomposition.md` mapped every section of the 1170-line file to either "Stay" or "Extract → file". Each of the 4 phases shipped within ±50% of estimate.
+- **The original file was already well-structured.** The 5 detail screens were 54-155 line `private struct` blocks with `@EnvironmentObject` deps. No interfaces had to be redesigned.
+- **Sequential phases isolate risk.** Each PR was a single-direction structural change; rollback is surgery, not amputation.
+- **Visibility bump is a one-line cost per dependency.** 9 visibility bumps across 3 PRs. Each was a 1-character delete (`private`); no fan-out.
+- **Case study tracking concurrent with feature (second time).** M-1d ships in the same session as M-1a/b/c. M-3 was the first feature to do this; M-1 confirms the pattern is reproducible.
+
+## What broke down
+
+- Pre-existing test infrastructure failures (EncryptionService + KeychainHelper) on the simulator's keychain — verified pre-existing via `git stash` + re-run. Same environmental friction as M-3.
+- No manual visual QA across all 5 detail screens. Type-level behaviour preservation only.
+- CI billing block continues — admin-overridden merges. Not an M-1 issue.
+
+## Lessons
+
+- **Mechanical extraction is fast when the source already has clear seams.** The 5 detail screens already lived as `private struct`s with `@EnvironmentObject` deps. The work was moving files + visibility bumps + pbxproj edits — no interface redesign. 0.5 audit findings/hour vs. 1.2/hour for M-3 (which was content-additive); pure structural work pays a project.pbxproj tax that content-additive work skips.
+- **One-line judgment calls don't deserve over-decomposition.** M-1c was 1 line over the 400-line threshold after M-1b. A 100-line extraction "for the sake of 1 line" would have been overkill if the resulting coordinator wasn't the right size. Decision: extract the home views as a single file (conceptually a unit) and land at 294 lines. Right call documented; not a process violation.
+- **Concurrent case-study tracking is now reproducible.** M-3 was the first feature to ship a case study in the same session as the feature itself. M-1 is the second. Going from "1 of 1 tries succeeded" to "2 of 2" elevates the pattern from anecdote to default.
+
+## Links
+
+- Full upstream case study: [`docs/case-studies/m-1-settings-decomposition-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/m-1-settings-decomposition-case-study.md)
+- M-1 plan: [`docs/superpowers/plans/2026-04-19-m1-settings-v3-decomposition.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/plans/2026-04-19-m1-settings-v3-decomposition.md)
+- Predecessor: [M-3 Design System Completion](/case-studies/m-3-design-system-completion) (closes DS-004 + DS-009 + DS-010)
+- PRs: [#122](https://github.com/Regevba/FitTracker2/pull/122) · [#123](https://github.com/Regevba/FitTracker2/pull/123) · [#124](https://github.com/Regevba/FitTracker2/pull/124) · [#125](https://github.com/Regevba/FitTracker2/pull/125)

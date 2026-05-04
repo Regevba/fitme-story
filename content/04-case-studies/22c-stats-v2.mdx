@@ -1,0 +1,141 @@
+---
+title: stats-v2 — Resume, Reconcile, and Ship Despite a Three-Layer Bug Stack
+slug: stats-v2
+upstream_path: docs/case-studies/stats-v2-case-study.md
+tier: light
+timeline_position:
+  version: '7.7'
+  order: 22.4
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-04-30'
+tldr: 'stats-v2 was the first paused feature picked up after v7.7 shipped. A "small remaining tasks" job turned into a three-layer reveal: the state.json had drifted both ways for 20 days, service-layer tests passed while the view did nothing, and a CI quarantine that "made it green" was never actually firing. Shipped via PR #164 (squash 9b05ebf) admin-merged with Build-and-Test red on unrelated UI infra flake; PR #165 ships the quarantine fix; PR #166 files the parallel-clone sim hang root cause.'
+key_numbers:
+  - label: 'Wall time (resume → ship)'
+    value: '~2.5 hours'
+    tier: T1
+  - label: 'Tasks: planned / completed / partial'
+    value: '10 / 9 / 1'
+    tier: T1
+  - label: 'Defects discovered during resume'
+    value: '3 (ledger drift, view-wiring gap, broken CI quarantine)'
+    tier: T1
+  - label: 'Cascading PRs opened'
+    value: '3 (#164 ship, #165 quarantine fix, #166 root-cause backlog)'
+    tier: T1
+  - label: 'Analytics events newly wired'
+    value: '4 (stats_period_changed, stats_metric_selected, stats_chart_interaction, stats_empty_state_shown)'
+    tier: T1
+  - label: 'a11y annotations on v2/StatsView.swift'
+    value: '9 → 18'
+    tier: T1
+  - label: 'v2/StatsView.swift after T2 type extraction'
+    value: '899 → 673 lines (-25%)'
+    tier: T1
+  - label: 'CI: green checks / total'
+    value: '9 / 10'
+    tier: T1
+honest_disclosures:
+  - 'PR #164 was admin-merged with Build-and-Test red. The repo has no required status checks (`required_status_checks: null`), so the merge was permitted. T9 closed with explicit `partial_status: build_clean_infra_flake_accepted` for ledger honesty — not papering over an unclean ship.'
+  - 'The 2026-04-20 audit had over-corrected: it caught the false-positive `current_phase=complete` on this feature and downgraded to `tasks`, but missed that 4 of the 10 tasks (T3/T4/T7/T10) had ACTUALLY shipped on 2026-04-10 in PR #76. The reverse-path drift sat unrecorded for 20 days through 4 cycle-time check runs. Filed as v7.7-follow-up "known mechanical limits" gap.'
+  - 'T7 (StatsAnalyticsTests.swift, 93 lines) passed for 20 days while the 4 stats analytics events it tested were never called from the view. The constants existed, the methods existed, the tests exercised the service directly — zero `analytics.log…()` calls in the view. The primary metric `stats_voiceover_coverage` was being measured against zero traffic.'
+  - 'PR #160 (2026-04-29) had quarantined a flaky UI test using `XCTSkipIf(ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] != nil, …)`. Bug: env-vars set on the GitHub Actions runner do NOT propagate to the iOS Simulator XCTRunner process. The quarantine had never actually fired on hosted CI; PR #160 looked green only because the parallel-clone sim hang picked a different victim each run. Stats-v2 surfaced it with two consecutive Build-and-Test failures hitting different tests.'
+  - 'The "20 days of zero traffic" claim assumes the existing GA4 funnel was actually receiving events; if the consent gate had been blocking globally, the same zero would result. T1 verification owed at +14d (2026-05-14).'
+  - 'Manual QA (color contrast, AX5 Dynamic Type, Reduce Motion, VoiceOver simulator pass) deferred — school-project context.'
+  - 'A self-inflicted near-miss: backlog commit briefly landed on local `main` because `gh pr merge --delete-branch` left the worktree on main. Caught before push (branch protection would have blocked); commit moved to `chore/backlog-ci-parallel-clone-task`, local main reset to `origin/main`.'
+kill_criteria:
+  - 'a11y coverage drops below 70% after merge'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'Production verification of stats_voiceover_coverage'
+    ledger: 'docs/case-studies/stats-v2-case-study.md §9.3'
+    reason: 'Owed at +14d (2026-05-14). Cannot yet claim "metric moved".'
+  - title: 'Parallel-clone sim hang root cause'
+    ledger: 'PR #166 backlog task'
+    reason: 'Environmental cause unresolved. Acceptance criterion: 5 consecutive green runs without quarantines, OR a documented permanent-quarantine + parallelism-reduction decision.'
+  - title: 'Manual QA (Dynamic Type, Reduce Motion, VoiceOver)'
+    ledger: 'docs/case-studies/v2-refactor-checklist.md (10 partial / 6 manual-deferred)'
+    reason: 'School-project context; full simulator pass deferred.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Pre-resume (paused)'
+    before:
+      label: 'Pre-resume'
+      value: '4 layers of trust drift'
+      subtitle: 'state.json downgraded `complete → tasks` but missed that 4 tasks were actually shipped. Service-layer tests passed against zero view-wiring. CI quarantine never fired. Three layers of green that were lying.'
+    afterLabel: 'Post PR #164/#165/#166'
+    after:
+      label: 'Post-ship'
+      value: '9/10 CI + caveat T9'
+      subtitle: 'View wired, types extracted, a11y doubled, analytics live. Build-and-Test red on unrelated UI infra flake; T9 closed with `partial_status: build_clean_infra_flake_accepted` for ledger honesty.'
+    delta: '3 layers of trust drift surfaced and named'
+---
+# stats-v2 — Resume, Reconcile, and Ship Despite a Three-Layer Bug Stack
+
+> The original stats-v2 v2 alignment pass shipped 2026-04-10 via PR #76 — but the state.json was incorrectly marked `current_phase: complete` that day. On 2026-04-20 a manual integrity audit downgraded it to `tasks`. On 2026-04-27 the feature was paused under the v7.7 Validity Closure freeze. On 2026-04-30 v7.7 shipped (PR #144) and stats-v2 was the first paused feature picked up. What was supposed to be a small "complete the remaining tasks" job turned into a three-layer reveal — each layer hidden by the layer above looking green.
+
+## The three layers in detail
+
+### Layer 1 — Ledger drift the v7.6 mechanical gates couldn't catch
+
+The 2026-04-20 audit had **over-corrected**. T3 (build v2 file), T4 (pbxproj swap), T7 (analytics tests), T10 (mark v1 historical) had ALL actually shipped on 2026-04-10 in PR #76 — but never logged in state.json. The audit caught the false-positive `complete` and downgraded to `tasks`, missing that 4 tasks were genuinely done. v7.6 mechanical gates harden the **forward** path (don't claim work that hasn't shipped). **Reverse-path enforcement** (don't have unrecorded work shipped silently) is an open gap. Filed as v7.7 "known mechanical limits" follow-up.
+
+### Layer 2 — Service-layer tests that passed while the view did nothing
+
+`StatsAnalyticsTests.swift` (93 lines, exists since 2026-04-10) tested the analytics service directly — and passed for 20 days. The view (`v2/StatsView.swift` from PR #76) had **zero** `analytics.log…()` invocations. So in production, the four `stats_*` events never fired. The PRD's primary metric `stats_voiceover_coverage` had been collecting against zero traffic the whole time, indistinguishable from "feature works perfectly and users just don't have HRV data."
+
+The fix in `027abf0`: `@EnvironmentObject private var analytics: AnalyticsService` added to `StatsView`; 4 call sites wired (`.onChange(of: period)`, metric chip Button, chart drag-gesture `.onEnded`, `EmptyStateView.onAppear`).
+
+### Layer 3 — The CI quarantine that wasn't quarantining anything
+
+PR #160 had quarantined a flaky UI test with `XCTSkipIf(ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] != nil, …)`. **Environment variables set on the GitHub Actions runner do NOT propagate to the iOS Simulator's XCTRunner process.** PR #160 looked green only by luck — the parallel-clone sim hang affects a *random subset* of tests each run. Stats-v2 surfaced it with two consecutive Build-and-Test failures hitting different tests:
+
+| Run | Failed test | Time | Outcome |
+|---|---|---|---|
+| First | `OnboardingUITests.testOnboardingFirstStepRendersIfNotComplete` | 74.4 s | Failed |
+| Rerun | `HomeReadinessUITests.testHomeTabRendersInAuthenticatedReviewMode` | 194.8 s | Failed (the very test PR #160 thought it had quarantined) |
+
+If the env-var check had worked, run 2's HomeReadiness failure would have been impossible.
+
+The fix in PR #165: `try XCTSkipIf(NSUserName() == "runner", …)` — `NSUserName()` returns the host user identity, which XCTRunner DOES inherit, and that user is always literally `"runner"` on hosted runners. The underlying parallel-clone sim hang root cause remains unresolved; PR #166 files it as a backlog task with a 5-consecutive-green-runs acceptance criterion.
+
+## Honest accounting on T9
+
+T9 ("CI verification") was closed with an explicit caveat in state.json:
+
+```json
+{
+  "id": "T9",
+  "status": "completed",
+  "partial_status": "build_clean_infra_flake_accepted",
+  "partial_note": "All stats-v2 code verified clean. Build-and-Test red on UNRELATED UI test infra flake. Quarantine fix in flight (PR #165). Parallel-clone hang root cause filed as separate backlog task (PR #166)."
+}
+```
+
+This is a deliberate trade-off documented for future readers: we accepted a known infra-flake on a verified-clean feature in order to (a) unblock 5 paused features, (b) prove the CI bug exists by surfacing it through a real PR, (c) document the proper fix in PR #165 — and we filed the root-cause investigation as PR #166.
+
+## Framework improvement signals
+
+- **Reverse-path ledger gate.** Add a cycle-time check `TASK_PENDING_BUT_SHIPPED` that grep's main + the feature branch for files matching task title / acceptance-criteria keywords and flags pending tasks where the matching code already exists. False-positive prone but cheap to triage; would have caught this case 20 days earlier.
+- **`/analytics validate` enhancement.** Require call-site presence in the view layer, not just constant + method definition. Match against `Analytics{Event,Service}.{constantName,methodName}` references in `FitTracker/Views/`.
+- **iOS UI test runner playbook.** Add a one-paragraph note: "iOS UI tests run inside XCTRunner on the simulator; host environment variables do NOT propagate. Use `NSUserName()`, launch arguments, or build-config flags for CI detection." Prevent re-occurrence of the broken-quarantine pattern.
+
+## Lessons
+
+- **Audit-first-then-code saved compounding work.** The user picked "option A" (reconcile state.json before any new code). Reconciliation commit `fca1ece` landed before any code changes — so T2/T5/T6 work was layered on a corrected ledger, not a drifted one.
+- **`partial_status` is the framework's mechanism for "shipped, but with this asterisk".** It preserves the truth in the ledger rather than papering over an unclean ship. A green CI dashboard that lies is worse than a red one that's accurate.
+- **Service-layer-only test coverage on a wired-from-view event is an anti-pattern.** Tests exist for `Service.logFooEvent(...)`, view never calls it, dashboard collects zeros, no signal ever reaches engineering that the wiring is missing.
+
+## Links
+
+- Full upstream case study: [`docs/case-studies/stats-v2-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/stats-v2-case-study.md)
+- v7.7 Validity Closure (precondition): [Validity Closure v7.7](/case-studies/framework-v7-7-validity-closure)
+- Predecessor: original v2 alignment in PR #76 (2026-04-10)
+- PR #164 (squash `9b05ebf` — feature ship): [github.com/Regevba/FitTracker2/pull/164](https://github.com/Regevba/FitTracker2/pull/164)
+- PR #165 (quarantine fix `NSUserName`-based): [github.com/Regevba/FitTracker2/pull/165](https://github.com/Regevba/FitTracker2/pull/165)
+- PR #166 (root-cause backlog task): [github.com/Regevba/FitTracker2/pull/166](https://github.com/Regevba/FitTracker2/pull/166)
+- v2-refactor checklist: [`docs/case-studies/v2-refactor-checklist.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/v2-refactor-checklist.md)

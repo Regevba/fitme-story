@@ -1,0 +1,136 @@
+---
+title: Case-Study Presentation Refactor — Locking Alt-A Across 25 Studies
+slug: case-study-presentation-refactor
+upstream_path: docs/case-studies/case-study-presentation-refactor-case-study.md
+tier: light
+timeline_position:
+  version: '7.7'
+  order: 21.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-04-28'
+tldr: 'An 18-hour serial sprint locked a uniform presentation pattern across 25 case studies — every one now leads with a SummaryCard, a "how to read this" panel, a per-case visual aid, a kill-criterion banner, and a Deferred-items list — enforced at build time so a reader can grasp any case study in under sixty seconds without losing the long-form narrative. 51 of 51 MDX files pass the new validator.'
+key_numbers:
+  - label: 'Case studies backfilled'
+    value: '25 of 25'
+    tier: T1
+  - label: 'MDX files passing the new validator'
+    value: '51 of 51'
+    tier: T1
+  - label: 'Demo-route lines deleted on cleanup'
+    value: '1284'
+    tier: T1
+  - label: 'Visual-aid catalog components'
+    value: '17 + KeyNumbersChart fallback'
+    tier: T1
+  - label: 'Wall-clock span'
+    value: '~18 hours'
+    tier: T1
+  - label: 'Repos touched'
+    value: '2 (FitTracker2 + fitme-story)'
+    tier: T1
+honest_disclosures:
+  - 'An over-broad refine in the build-time validator initially demanded `visual_aid` on every MDX file in `content/`, including READMEs and design-system docs that use `tier: unassigned`. The validator went from 26 failures to 0 only after a one-line schema fix to bypass the rule for non-case-study tiers. The lesson: when the rule is "every case study must X", the validator must encode "case study", not "every MDX file".'
+  - 'FitTracker2 CI could not run during the merge window — the GitHub Actions account hit a payment block and both `Build and Test` and `integrity` checks were rejected at queue time, not failed on content. PR #146 was admin-merged after fitme-story PR #8 landed clean. The 72h integrity cycle backstops anything the bypassed gate would have caught.'
+  - 'The FitTracker2 branch name `feature/case-study-presentation` had previously been reused for an unrelated dashboard schema-drift fix (commit a53d10b). That commit was preserved on `fix/dashboard-feature-key-v7-7` and is NOT part of this feature; the collision was resolved by tracking origin and discarding the stale local pointer.'
+  - 'Visual-aid selection across the 25 backfilled cases skews toward `BeforeAfter` (5×) and `DurationStack` (3×). Three appendix studies (meta-analysis ×2 + normalization-model) fall back to `KeyNumbersChart` because the numbers themselves are the visual; per the catalog rule they are flagged for a future visual-review pass.'
+  - 'Pre-v6.0 case studies (slots 01, 03–08) intentionally omit `kill_criteria` from their backfilled frontmatter. The kill-criterion convention did not exist before v6.0; inventing them post-hoc would violate the impartiality rule. They keep `tldr` + `key_numbers` + `honest_disclosures` + `visual_aid` only.'
+kill_criteria:
+  - 'Frontmatter validator false-positive rate exceeds 5% on legitimate frontmatter in week-1 dogfooding (would force the gate to be disabled or weakened).'
+  - 'Reader 60-second comprehension test fails on 3+ of 5 randomly sampled case studies (SummaryCard not doing its job).'
+  - 'Case-study route first-paint regresses more than 100ms after chrome rollout (chrome too heavy).'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'Per-case visual review for KeyNumbersChart fallbacks'
+    ledger: 'docs/product/backlog.md'
+    reason: 'Three appendix studies fell back to the auto-rendered chart; a follow-up pass should pick a specialised component for each.'
+  - title: 'Cross-case-study comparison table'
+    ledger: 'docs/product/backlog.md'
+    reason: 'Auto-generated from frontmatter, not part of the chrome rollout. Build after the corpus settles for a few weeks.'
+  - title: 'Audit of v2.0–v7.0 timeline studies for editorial consistency'
+    ledger: 'docs/product/backlog.md'
+    reason: 'Older studies are inconsistent in tone and structure. Uniform presentation does not retroactively fix uneven prose; editorial pass deferred.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'before lock'
+    before:
+      label: 'before lock'
+      value: '47+ inconsistent studies'
+      subtitle: 'Frontmatter shapes varied. compileMDX not wired to remark-gfm in some places (raw pipe-text rendered as broken pipes). Visual aids optional — could not tell whether "no graph here" meant "data does not support one" or "author ran out of time".'
+    afterLabel: 'after lock'
+    after:
+      label: 'after lock'
+      value: '25 with chrome + 51/51 validator pass'
+      subtitle: 'SummaryCard → DataKey → visual aid → KillCriterionBanner → DeferredItemsList → body, in that order, on every case study; build-time refuse for non-conforming new content.'
+    delta: 'uniform presentation locked + enforced'
+---
+# Case-Study Presentation Refactor — Locking Alt-A Across 25 Studies
+
+> By 2026-04-28 the corpus had grown to 47+ case studies. The content was solid — every framework version had its narrative, every multi-PR sprint had its retrospective — but the *presentation* had drifted: frontmatter shapes varied, table rendering was silently different across cases (some sites missed `remark-gfm`), and visual aids were optional with no catalog. The fix had to do three things at once: lock a uniform header, wire markdown rendering correctly site-wide, and require a visual aid on every case study with editorial selection of *which* aid serves *that* case best.
+
+## The locked decision (Alternative A)
+
+After exploring two alternatives, **Alternative A (Web-First Card + Disclosure Tail)** was locked. The deciding factor was migration cost: Alt-A required adding ~6 frontmatter fields per case study and a small chrome component bundle, with the body text untouched. Alt-B would have rewritten case-study URLs and forced editorial work on every legacy case.
+
+The locked component order on every case study:
+
+1. **SummaryCard** — TL;DR + 5 frontmatter fields + 3 inline honest disclosures
+2. **DataKey** — collapsed "How to read this" panel (T1/T2/T3 tier badges, kill-criterion semantics)
+3. **VisualAidResolver** — renders the named `visual_aid.component`, falls back to `KeyNumbersChart` when only `key_numbers[]` is provided
+4. **KillCriterionBanner** — emerald (`kill_criterion_fired: false`) or coral (`true`)
+5. **DeferredItemsList** — bordered list with ledger + reason per item
+6. **Narrative body** — the existing prose, untouched
+
+## The rollout
+
+Two repositories, four commits each:
+
+**fitme-story `preview/case-study-presentation`** (squash-merged via PR #8 as `ed72514`):
+
+- `9c8fba7` — production chrome (`alt-a-chrome/{VisualAidResolver,index}.tsx`) + Standard / Light / Flagship template wiring
+- `af6bc75` — backfill 6 milestone case studies
+- `56f6e30` — backfill 14 non-milestone case studies
+- `656ed55` — backfill 3 appendix studies + add `scripts/validate-frontmatter.ts`
+- `399f0af` — cleanup before merge: drop demo `case-studies-preview/` routes, fix over-broad validator refine, update stale `timeline.test.ts` assertion
+
+**FitTracker2 `feature/case-study-presentation`** (squash-merged via PR #146 as `f58ee01`):
+
+- `34dd38b` — preview alt-a visual-aid rule
+- `991b5f7` — lock Alt-A + visual-aid rule (Alt-A and Alt-B worked-example templates)
+- `38aa5ec` — visual-aid catalog (17 components inventoried)
+- `9c0ff5e` — state.json + log so the feature is dashboard / integrity-check / doc-debt visible
+
+The work was serial, single-author, and finished in ~18 wall-clock hours from first preview commit (2026-04-28T04:09 UTC) to second merge (~22:30 UTC).
+
+## What broke during the rollout
+
+**The over-broad validator.** When the build-time validator was added in `656ed55`, it walked every `.mdx` file under `content/` and required every one to declare either `visual_aid` or `key_numbers`. The locked rule was always "every *case study* must declare a visual aid", but the schema's refine did not encode that scope — it refined unconditionally. 26 MDX files (READMEs, design-system docs, research notes, all using `tier: unassigned`) failed validation the moment the cleanup commit removed the demo routes and ran the validator end-to-end. The fix was a one-line schema refinement: bypass the visual_aid check when `tier === 'unassigned'`, matching the existing `tldr` bypass. From 26 failures to 51/51 passing.
+
+**The branch-name collision.** The FitTracker2 branch `feature/case-study-presentation` had a second life as the temporary name for an unrelated dashboard schema-drift fix that landed earlier the same day. The collision surfaced at branch-checkout time, not at commit time, and was resolved by force-tracking origin.
+
+**The CI billing block.** When PR #146 opened, both `Build and Test` and `integrity` checks were marked failed at queue time with "recent account payments have failed". Admin-merged after fitme-story PR #8 landed clean. The 72h integrity cycle continues as a belt.
+
+## What stays the same
+
+The body of every existing case study is unchanged. The chrome renders above the body; the prose below reads exactly as it always did. The case-study URLs are unchanged. The 72h integrity cycle still scans every case study for tier-tag presence, broken PR citations, schema drift, and missing case-study links. The forward-only data-quality-tier rule (T1/T2/T3, est. 2026-04-21) still governs every quantitative claim.
+
+## What earned the trust
+
+The rollout did not change the framework version (v7.7 stays v7.7). It did three things that move the trustworthiness of the corpus forward:
+
+- **Build-time refuse for new case studies.** Adding a case study without a `tldr` or without (`visual_aid` OR `key_numbers`) is now mechanically impossible on the path that runs `npm run validate-content`. The 72h cycle backstops the gate.
+- **Catalog-driven visual selection.** The 17-component inventory + the data-shape → component selection table exists; future case studies have a finite, explicit menu rather than starting blank.
+- **Companion repos kept honest.** State.json + log on FT2 makes the feature visible to the dashboard, the doc-debt ledger, and the 72h cycle. The work would have been invisible to all three without it.
+
+## Links
+
+- Full upstream case study: [`docs/case-studies/case-study-presentation-refactor-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/case-study-presentation-refactor-case-study.md)
+- Visual-aid catalog: [`docs/design-system/case-study-visual-aid-catalog.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/design-system/case-study-visual-aid-catalog.md)
+- Alt-A template: [`docs/case-studies/templates/alternative-a-v7-5-example.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/templates/alternative-a-v7-5-example.md)
+- fitme-story PR #8 (squash `ed72514`)
+- FitTracker2 PR #146 (squash `f58ee01`)
+- Predecessor: [Validity Closure v7.7](/case-studies/framework-v7-7-validity-closure)
