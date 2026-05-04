@@ -1,0 +1,150 @@
+---
+title: auth-polish-v2 — Three Workstreams Bundled, 18/18 Tasks Shipped
+slug: auth-polish-v2
+upstream_path: docs/case-studies/auth-polish-v2-case-study.md
+tier: light
+timeline_position:
+  version: '7.6'
+  order: 22.7
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-05-01'
+tldr: 'auth-polish-v2 bundled three auth workstreams — forgot-password, biometric activation refinement, Google Sign-In SDK activation — into one feature/PRD/branch because they shared files, review surface, and QA scope. 18/18 PRD tasks shipped via PR #163 (squash 4f6c4cc) on 2026-05-01 in the framework-honesty-fixes merge marathon. Build-and-Test red on env-flake (parallel-clone sim gremlin per PR #166); pm-framework/pr-integrity passed.'
+key_numbers:
+  - label: 'PRD tasks: planned / shipped'
+    value: '18 / 18'
+    tier: T1
+  - label: 'Workstreams bundled'
+    value: '3 (forgot-password + biometric + Google Sign-In)'
+    tier: T1
+  - label: 'New screens proposed'
+    value: '5'
+    tier: T1
+  - label: 'New external dependencies'
+    value: '1 (GoogleSignIn-iOS SDK 8.x)'
+    tier: T1
+  - label: 'Analytics events specified'
+    value: '9 new + reused'
+    tier: T1
+  - label: 'Files touched (PRD estimate)'
+    value: '26'
+    tier: T1
+  - label: 'PRD size'
+    value: '31KB / 473 lines / 21 sections'
+    tier: T1
+  - label: 'Phase 0 Research duration'
+    value: '8.6 minutes'
+    tier: T1
+honest_disclosures:
+  - 'Build-and-Test red at merge time on an env-flake unrelated to auth-polish-v2 (parallel-clone sim gremlin documented in PR #166 backlog task). pm-framework/pr-integrity passed clean. Admin-merged in the framework-honesty-fixes session because the failure was infrastructural, not behavioural.'
+  - 'state.json was reconciled retroactively on 2026-05-02 via PR #174, alongside framework-honesty-fixes and stats-v2. Three "silent-pass" features (auth-polish-v2 + framework-honesty-fixes + stats-v2) were brought to `current_phase: complete` with full timing/log/PR-number backfill in one ledger pass.'
+  - 'Phase 0 Research surfaced 1 existing-code finding (`ColorAppColor` typos in `AuthHubView.swift:635` and `AuthHubView.swift:825`) — a silent build break dormant in the auth surface. Mitigated by starting Phase 4 with `xcodebuild build` before any UI work.'
+  - 'Apple Sign In Services-ID setup deferred (out-of-repo Apple Developer console action). AI smart reminder UI deferred (separate enhancement). Sentry MCP wiring deferred (Gate C peer).'
+  - 'cu_v2 populated on resume after v7.7 freeze: factors 0.6 / 0.7 / 0.4 / 0.6 → total 2.3, tier_class A_high. Auth = high-risk per CLAUDE.md. v7.7 dogfood instrumentation activated on the resume commit.'
+  - 'v7.7 freeze paused the PRD between 2026-04-27 14:00 UTC (substantively complete) and 2026-04-28 17:00 UTC (resumed). Wall-time gap: ~36 hours calendar; ~8.6 min of actual research+draft work.'
+kill_criteria:
+  - 'auth_biometric_activated < 5% by day 14 → iterate copy/timing once. Second miss → kill activation sheet, move to Settings-only.'
+  - 'Google Sign-In > 0.5% crash/hang rate → flip GoogleRuntimeConfiguration.isConfigured = false via remote config.'
+  - 'Forgot-password deep-link return < 90% success → regress to status-banner-only mode.'
+  - 'Overall auth_signin_completed rate drops > 5% week-over-week → halt rollout; investigate SDK conflict.'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'Apple Sign In Services-ID setup'
+    ledger: 'docs/setup/auth-runtime-verification-playbook.md'
+    reason: 'Out-of-repo Apple Developer console action; cannot be self-executed.'
+  - title: 'AI smart reminder UI on auth surfaces'
+    ledger: 'docs/product/backlog.md'
+    reason: 'Separate enhancement; out of scope for v2 polish.'
+  - title: 'Sentry MCP wiring'
+    ledger: 'project_sentry_integration_in_progress.md'
+    reason: 'Gate C peer feature; awaits user-paste DSN + /mcp OAuth.'
+  - title: 'Day-90 metrics review'
+    ledger: 'state.json (target 2026-07-26 if shipped 2026-04-27)'
+    reason: 'Post-launch review cadence per PRD; primary metric is auth recovery success rate composite.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Pre auth-polish-v2'
+    before:
+      label: 'Pre auth-polish-v2'
+      value: 'Three workstreams, three branches?'
+      subtitle: 'Forgot-password missing. Biometric activation copy unrefined. Google Sign-In SDK declared but not activated. Splitting across 3 branches = 3× merge conflicts + 3× review overhead on a shared file surface.'
+    afterLabel: 'Post PR #163'
+    after:
+      label: 'Post PR #163 (squash 4f6c4cc)'
+      value: '18/18 tasks · 1 bundled feature'
+      subtitle: 'Forgot-password deep-link (`fitme://reset-password`). Biometric activation sheet (immediate post-sign-in). GoogleSignIn-iOS 8.x activated via vertical-slice gate. 9 analytics events specified. 4 kill criteria armed.'
+    delta: 'Three workstreams shipped as one — 18/18'
+---
+# auth-polish-v2 — Three Workstreams Bundled, 18/18 Tasks Shipped
+
+> auth-polish-v2 bundled three auth workstreams — **forgot-password recovery**, **biometric activation refinement**, **Google Sign-In SDK activation** — into one feature/PRD/branch because they shared files, review surface, and QA scope. Splitting them into three branches would have multiplied merge conflicts and review overhead. The bundling decision is the operative choice of this case study.
+
+## Why bundle three workstreams
+
+Auth surfaces in FitTracker2 are concentrated in a handful of files: `AuthHubView.swift`, `SignInView.swift`, `SignInService.swift`, `AuthManager.swift`. Three workstreams that all touch the same files share three things that argue against splitting:
+
+1. **Shared review surface** — same files; same security review attention; one reviewer pass instead of three.
+2. **Shared QA scope** — biometric + Google sign-in flows interleave with the same fallback paths; testing them together catches integration bugs that testing them separately would hide.
+3. **Shared external dependencies** — `GoogleSignIn-iOS` introduces nonce handling that the biometric-unlock fallback path also needs to be aware of.
+
+The bundling is documented in PRD §1.2 as the explicit decision; the alternative (three sub-branches) was considered and rejected.
+
+## What shipped (18/18 PRD tasks)
+
+| Workstream | Functional requirements | PR-1 outcome |
+|---|---|---|
+| Forgot-password | 6 (deep-link scheme, cooldown, status banner, return flow) | Shipped — `fitme://reset-password` URL scheme reserved |
+| Biometric refinement | 6 (activation sheet timing, decline path, unlock UX, fallback) | Shipped — immediate-post-sign-in activation per OQ-1 lock |
+| Google Sign-In | 6 (SDK 8.x install, nonce flow, Supabase exchange, `GIDClientID` source) | Shipped — `GoogleService-Info.plist` shared with Firebase analytics |
+
+8 user flows documented end-to-end (A–H: forgot-password happy/cooldown, biometric activation/decline/unlock/fallback, Google new/returning). 9 analytics events specified. 4 kill criteria armed (see frontmatter).
+
+## v7.7 dogfood instrumentation activated on the resume commit
+
+auth-polish-v2 is one of the first features to dogfood the v7.7 Validity Closure write-time gates from day one:
+
+- `cache_hits[]` gated by `CACHE_HITS_EMPTY_POST_V6` — empty array OK during work; required non-empty by `current_phase=complete`
+- `cu_v2` schema validated by `CU_V2_INVALID` — passes (factors 0.6/0.7/0.4/0.6, total 2.3, tier_class A_high)
+- `case_study` link present in state.json (gates `STATE_NO_CASE_STUDY_LINK`)
+- This file's frontmatter satisfies `CASE_STUDY_MISSING_FIELDS` (forward-only ≥ 2026-04-28; this is the first new case study after the cutoff)
+
+Live verification at PRD approval: 45 state.json files pass v7.6 + v7.7 hooks before the auth-polish-v2 entry was committed.
+
+## Open questions resolved at PRD time
+
+| OQ | Decision | Rationale |
+|---|---|---|
+| OQ-1: Activation-prompt timing | Immediate after first sign-in | Strava/Whoop pattern; receptiveness peaks at credential-entry moment |
+| OQ-2: Forgot-password URL scheme | `fitme://reset-password` | Brand prefix, future-extensible |
+| OQ-3: `GIDClientID` source | `GoogleService-Info.plist` (shared with Firebase analytics) | Single source for Gate C config |
+
+## Risks (declared)
+
+| Risk | Severity | Mitigation |
+|---|---|---|
+| GoogleSignIn 8.x nonce shift breaks Supabase exchange | High | Phase 4 vertical slice gate before UI work |
+| Deep-link URL scheme conflict with future deep links | Medium | Reserve scheme + write `docs/architecture/deep-linking.md` |
+| `ColorAppColor` typos hide a silent build break | Medium | Phase 4 starts with `xcodebuild build` |
+| Activation copy fails to drive ≥ 25% conversion | Medium | Day-14 review checkpoint; iterate; kill criteria documented |
+
+## Lessons
+
+- **Bundling shared-surface workstreams is cheaper than splitting.** Three workstreams sharing four auth files = one PRD, one review pass, one QA scope. The "three sub-branches" alternative would have multiplied merge conflicts on `SignInService.swift` and split security-review attention three ways. Documented as the operative choice in PRD §1.2.
+- **Existing-code findings surfaced during research are as valuable as new spec work.** Phase 0 Research found `ColorAppColor` typos in `AuthHubView.swift:635/825` — silent build breaks dormant on main. The mitigation (Phase 4 starts with `xcodebuild build`) was added to the plan as a result.
+- **CI red on env-flake is not the same as CI red on content.** PR #163 merged with Build-and-Test red on the parallel-clone sim gremlin (documented in PR #166 backlog). pm-framework/pr-integrity passed clean. Admin-merged in the framework-honesty-fixes session — the alternative (block until CI is fixed) would have rolled the broken-quarantine cost onto every other PR until the root-cause was resolved.
+- **state.json reconciliation in batches is OK if it's deliberate and ledgered.** PR #174 (2026-05-02) brought three "silent-pass" features to `current_phase: complete` in one pass. The framework prefers contemporaneous ledgering (write-as-you-go), but a deliberate batched-reconciliation pass — with full timing/log/PR-number backfill — is honest if the ledger captures the lag.
+
+## Links
+
+- Full upstream case study: [`docs/case-studies/auth-polish-v2-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/auth-polish-v2-case-study.md)
+- PRD: [`docs/product/prd/auth-polish-v2.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/product/prd/auth-polish-v2.md)
+- State.json: [`.claude/features/auth-polish-v2/state.json`](https://github.com/Regevba/FitTracker2/blob/main/.claude/features/auth-polish-v2/state.json)
+- PR #163 (squash `4f6c4cc`): [github.com/Regevba/FitTracker2/pull/163](https://github.com/Regevba/FitTracker2/pull/163)
+- PR #174 (state.json reconciliation): [github.com/Regevba/FitTracker2/pull/174](https://github.com/Regevba/FitTracker2/pull/174)
+- GitHub Issue [#143](https://github.com/Regevba/FitTracker2/issues/143)
+- Predecessor: [`onboarding-v2-auth-flow-v5.1-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/onboarding-v2-auth-flow-v5.1-case-study.md)
+- Companion at v7.6 mechanical layer: [Mechanical Enforcement v7.6](/case-studies/mechanical-enforcement-v7-6)
