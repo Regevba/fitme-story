@@ -1,0 +1,206 @@
+---
+title: Bridge to v7.9 — How v7.8 Closed the v7.7 Silent-Pass
+slug: framework-v7-8-bridge
+upstream_path: docs/case-studies/framework-v7-8-bridge-case-study.md
+tier: light
+timeline_position:
+  version: '7.8'
+  order: 23
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-05-03'
+external_audit_status: pending
+tldr: 'v7.7 shipped a gate (CACHE_HITS_EMPTY_POST_V6) that ran on every commit but exercised data on 0 of 46 features — a textbook silent-pass. The framework asserted gate *implementation*; it never asserted gate *execution*. v7.8 ships the meta-fix: Mechanism A coverage-asserting gates (every gate emits {candidates, checked, skipped, skip_reasons} per run, captured in .claude/logs/gate-coverage.jsonl), Mechanism B dual-read + canonical framework_version on 46/46 features, Mechanism C session-event auto-instrumentation with active-feature attribution wired through /pm-workflow, Mechanism D pre-commit-self-test for header drift, Mechanism E git merge driver that auto-resolves append-only ledger conflicts, and Mechanism F advisory membrane-status smartlog. M3 schema bridge fields populated on 47/47 features. M4 ships the cold-start entrypoint + framework-honesty-ledger first entry FT2-FH-001. 9 PRs across 2 days (#173 + #185–#189 + #192–#194). 27 mechanical gates + 2 advisories + the Mechanism A coverage observability layer.'
+key_numbers:
+  - label: 'CACHE_HITS_EMPTY_POST_V6 effective coverage at v7.7 ship'
+    value: '0/46 (silent-pass)'
+    tier: T1
+  - label: 'framework_version canonical (vX.Y) at v7.8 ship'
+    value: '46/46'
+    tier: T1
+  - label: 'Write-time gates instrumented with coverage tracking'
+    value: '10'
+    tier: T1
+  - label: 'Cycle-time check codes'
+    value: '14 → 15 (+1 advisory)'
+    tier: T1
+  - label: 'Total mechanical gates + advisories'
+    value: '25+1 → 27+2 (plus Mechanism A coverage layer + Mechanism E merge driver)'
+    tier: T1
+  - label: 'PRs shipped (Claude-supervised across 2 sessions)'
+    value: '8 (#185, #186, #187, #188, #189, #192, #193, #194)'
+    tier: T1
+  - label: 'PRs shipped (predecessor — Regev direct)'
+    value: '1 (#173)'
+    tier: T1
+  - label: 'Schema bridge fields populated (M3)'
+    value: '47/47 features'
+    tier: T1
+  - label: 'Mechanism C session attribution before #188'
+    value: '0% (lockfile not written)'
+    tier: T1
+  - label: 'Pre-existing test failures fixed fix-as-you-touch'
+    value: '1 (test_cache_hits_empty_post_v6_blocks_when_complete fixture)'
+    tier: T1
+honest_disclosures:
+  - 'Mechanism A coverage ledger captures the silent-pass evidence (CACHE_HITS_EMPTY_POST_V6 candidates=47, checked=0) but does NOT yet enforce — the GATE_COVERAGE_ZERO meta-check is deferred to v7.9 once ≥7 days of stats accumulate to calibrate the threshold.'
+  - 'Mechanism C v7.8 only writes the session ledger; observe-cache-hit.py does NOT yet dual-write to state.json::cache_hits[] (that promotion is the v7.9 ratification step).'
+  - 'M3 PR-5 (#192) populates schema bridge fields (agent_manifest, _meta.deprecation_warnings, path-reducers.json, agent-leases.json) but does NOT enforce them — every entry in path-reducers.json ships mode: advisory; agent_manifest.writes is empty for every existing feature. v7.9 promotes to enforced.'
+  - 'M3 PR-6 (#193) ships Mechanism F as read-only advisory smartlog. No /pm-workflow gate consumes agent-leases.json yet; v7.9 wires lease acquisition at session start. UCC dashboard panel deferred to a subsequent fitme-story PR.'
+  - 'M4 PR-7 (#194) ships the cold-start entrypoint + first honesty-ledger entry FT2-FH-001 documenting the v7.7 silent-pass + v7.8 closure path. Case study (T22) lands on FT2 main via PR #191; this showcase MDX (T24) is in PR #13.'
+  - 'PR #187 (Mechanism A) hit the known parallel-clone macOS-15 simulator hang in CI (`MealLogUITests.testNutritionTabOpensMealEntryPath`). The PR touched 0 Swift code; failure is environmental + matches PR #166 backlog. Held for admin-merge call.'
+  - 'Memory drift surfaced at session start: the 2026-04-30 audit memo was 2 days stale. Several "open" gaps had been closed by predecessor PRs (#169, #173). Verifying memory against current code BEFORE work avoided ~2 hours of duplicated effort. Saved as a reusable lesson in Section 8.0.'
+kill_criteria:
+  - 'Mechanism A ledger writes break under concurrent runs (file corruption, race conditions in append path).'
+  - 'Mechanism C active-feature attribution mis-attributes >10% of session events.'
+  - 'Mechanism E merge driver introduces semantic regressions (data loss observed in either ledger after a real branch merge).'
+  - 'Pre-existing Build and Test parallel-clone simulator hang blocks v7.8 PRs >50% of the time.'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'UCC dashboard Mechanism F panel'
+    ledger: '/control-room/framework §7'
+    reason: 'Requires reading membrane-status.py JSON output at build time + new component. Subsequent fitme-story PR.'
+  - title: 'GATE_COVERAGE_ZERO meta-check enforcement'
+    ledger: '.claude/logs/gate-coverage.jsonl'
+    reason: 'v7.9 promotion. Needs ≥7 days of stats to calibrate threshold.'
+  - title: 'agent_manifest.writes enforcement'
+    ledger: '.claude/shared/agent-leases.json + state.json::agent_manifest'
+    reason: 'v7.9 Mechanism G validates staged_paths ⊆ writes at /pm-workflow lease acquisition.'
+  - title: 'path-reducers.json mode advisory → enforced'
+    ledger: '.claude/shared/path-reducers.json'
+    reason: 'v7.9 flips entries to enforced after demonstrating zero false-positives over the +7d measurement window.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'v7.7 (validity closure)'
+    before:
+      label: 'v7.7 ship state'
+      value: '25 gates + 1 advisory'
+      subtitle: 'CACHE_HITS_EMPTY_POST_V6 silent-pass: 0/46 effective coverage. framework_version: 6/46 unprefixed numeric, 39/46 missing.'
+    afterLabel: 'v7.8 (bridge to v7.9)'
+    after:
+      label: 'v7.8 ship (M1+M2+M3+M4)'
+      value: '27 gates + 2 advisories + coverage layer + merge driver + schema bridges + smartlog + honesty ledger'
+      subtitle: 'Coverage observability for every gate. framework_version 46/46 canonical. Mechanism C attribution wired. Ledger conflicts auto-resolve. Schema bridge fields populated 47/47. Membrane-status smartlog read-only advisory. First honesty-ledger entry FT2-FH-001 published.'
+    delta: 'M1+M2+M3+M4 shipped across 9 PRs in 2 days. v7.9 ratification waits for the +7d measurement window (zero false-positives in path-reducers + gate-coverage + Mechanism C attribution).'
+---
+
+# Bridge to v7.9 — How v7.8 Closed the v7.7 Silent-Pass
+
+> v7.7 (Validity Closure, shipped 2026-04-27) closed three of five Class B gaps and was published with the kill criterion 2 fire honestly disclosed. **Three days later, a routine Tier 1.1 measurement check surfaced a deeper problem: one of v7.7's headline gates (`CACHE_HITS_EMPTY_POST_V6`) was a silent-pass — it ran on every commit but exercised data on 0 of 46 features.** 43 state.json files used the legacy `created` key while the gate read `created_at`, so the gate's first conditional always evaluated `"" < "2026-04-16"` → `True` → early return without finding. Issue #140 was closed in spec, open in practice. v7.8 closes the meta-gap (the framework asserted gate implementation, never gate execution) via two surfaces specified jointly with v7.9. M1 (coverage + dual-read + framework_version backfill) + M2 (Mechanism C wiring + Mechanism E merge driver) shipped 2026-05-02 to 2026-05-03 across 6 PRs. M3 + M4 deferred.
+
+## Read this first — outlier flags
+
+This case study inherits the v7.6 → v7.7 outlier biases (single-session execution, dogfooded data collection, retroactive instrumentation) AND adds two new ones:
+
+1. **Predecessor-PR confound** — PR #173 (M1 PR-1, the schema fix + Mechanism C scaffolding) shipped a day before this run, authored by the framework operator (Regev, direct). The remaining 5 PRs (#185–#189) were Claude-supervised completions of the bridge design's queued work. Same-author confound at the design layer.
+2. **Stale-memory startup** — agent memory at session start was 2 days old. Two of the listed "open gaps" (Gap A schema field drift, Mechanism C scaffolding) had already shipped in PRs #169 + #173. Verifying memory against current code BEFORE starting work was load-bearing — without it, the first 4 PRs would have duplicated already-merged work.
+
+## Trust-page connection
+
+This case study is the **silent-pass closure response** to the residual risk surfaced by the v7.7 case study's own Section 99B (post-merge correction note appended 2026-05-01). Together with v7.5 (policy) + v7.6 (mechanical) + v7.7 (validity closure) + v7.8 (silent-pass prevention + inter-agent awareness), the framework's reply to the 2026-04-21 Gemini audit + the 2026-04-30 internal audit is now complete at the *implementation* layer. v7.9 is the ratification (advisory → enforced flips, dual-write contract activation, schema deprecation envelope promotion).
+
+## Summary card (T1 unless noted)
+
+- **Framework version:** v7.7 → **v7.8** (M1 + M2 of bridge design § 7.1; M3 + M4 deferred)
+- **Trigger:** 2026-04-30 routine Tier 1.1 audit surfaced 0/46 effective coverage on `CACHE_HITS_EMPTY_POST_V6`. Bridge spec written 2026-05-02. PR-1 shipped 2026-05-02.
+- **Wall time (this run):** ~5 hours (5 PRs prepared + opened + merged in single session, plus docs + case study + showcase)
+- **PRs shipped (Claude-supervised, this session):** #185, #186, #187, #188, #189 — backfills + Mechanism A + Mechanism C wiring + Mechanism E
+- **Predecessor PR (Regev direct):** #173 — Mechanism C scaffolding + dual-read + gate predicate fix
+- **New constants:** `MECHANISM_C_SHIP_DATE = "2026-05-02"`, `_FRAMEWORK_VERSION_RE`, `LEDGER_CONFIG`
+- **New scripts:** `gate_coverage.py` (~110 lines) + `merge-driver-dedup.py` (~140 lines) + `install-merge-drivers.sh` + `set-active-feature.sh`
+- **New check codes:** 1 advisory (`CACHE_HITS_AUTO_INSTRUMENTATION_INACTIVE`) + 1 ADVISORY-deferred-to-v7.9 (`GATE_COVERAGE_ZERO`)
+- **Unit tests added:** 26 (13 gate_coverage + 13 merge_driver_dedup) — bringing the schema-check + merge-driver suite to 68 passing tests
+
+## What v7.8 actually closed (and what it didn't)
+
+### Surface 1 — Silent-pass prevention
+
+**Mechanism A — Coverage-asserting gates** (PR #187 / `scripts/gate_coverage.py`)
+
+Every write-time gate now emits a structured event per run:
+
+```json
+{"timestamp":"2026-05-03T...","gate":"CACHE_HITS_EMPTY_POST_V6",
+ "candidates":47,"checked":0,"skipped":47,
+ "skip_reasons":{"pre_v6":34,"pre_mechanism_c":12,"no_created_at":1}}
+```
+
+This is **the silent-pass evidence captured at the source**: the gate ran, evaluated 47 candidates, and short-circuited on every one. The gate is correct (no post-Mechanism-C feature has reached `complete` yet); the *measurement* of correctness now exists. v7.9's `GATE_COVERAGE_ZERO` meta-check will fire enforced when a gate has `checked == 0` for ≥3 consecutive cycles — the data path is what's load-bearing here, not the meta-check itself.
+
+10 gates instrumented: 5 inline checks in `validate_file` (SCHEMA_DRIFT_LEGACY_PHASE/CREATED, FRAMEWORK_VERSION_FORMAT, PR_NUMBER_UNRESOLVED, PHASE_TRANSITION_NO_LOG/TIMING) + 3 standalone fns now accepting `coverage` kwarg (CACHE_HITS_EMPTY_POST_V6, STATE_NO_CASE_STUDY_LINK, CU_V2_INVALID).
+
+**Mechanism B — Schema field-rename detection + dual-read** (PRs #173 + #185 + #186)
+
+Three layers ship together:
+
+- Dual-read parser (`state.get("created_at") or state.get("created", "")`) for the migration window — drops in v7.9.
+- Canonical `framework_version` field on **46/46 features** (vs 8/46 at v7.7 ship). Hits validation criterion 3 from spec §9.
+- Idempotent migration scripts as a pattern for future schema renames (Postgres `ALTER EXTENSION` style).
+
+**Mechanism C — PostToolUse:Read auto-instrumentation** (PRs #173 + #188)
+
+End-to-end attribution wiring:
+
+1. `/pm-workflow` Setup Step 2 writes `$0 > .claude/active-feature` on entry.
+2. SessionStart hook surfaces `## Active Feature (Mechanism C attribution): <name>` so a fresh agent session knows what its Reads will attribute to.
+3. PostToolUse:Read invokes `scripts/observe-cache-hit.py`, which reads the lockfile and tags every Read event with `active_feature` in `.claude/logs/_session-<id>.events.jsonl`.
+4. `CACHE_HITS_AUTO_INSTRUMENTATION_INACTIVE` advisory (15th cycle-time check code) flags features where session events show ≥1 attributed Read but `state.json::cache_hits[]` is empty.
+
+**Mechanism D — Pre-commit hook header self-audit** — DEFERRED to M3 PR-6.
+
+### Surface 2 — Inter-agent awareness
+
+**Mechanism E — Custom git merge driver** (PR #189 / `scripts/merge-driver-dedup.py`)
+
+`union-dedup-by-key` driver auto-resolves merge conflicts on `measurement-adoption-history.json` (snapshots[], by date) and `documentation-debt.json` (debt_items[], by id). End-to-end smoke test in throwaway repo: two branches each add a unique snapshot date, `git merge` produces the union (sorted, no conflict markers), 0 manual intervention. Eliminates the HADF Phase 2 collision class.
+
+**Mechanism F — Membrane status advisory** — DEFERRED to M3 PR-6.
+
+## What this case study is NOT
+
+- **Not the v7.9 ratification.** Mechanism A's `GATE_COVERAGE_ZERO` meta-check is implemented but not enforced. Mechanism C's dual-write contract (observe-cache-hit.py also calls log-cache-hit.py) is the v7.9 promotion. Schema deprecation envelope flips advisory → SCHEMA_LEGACY_FIELD failure code in v7.9.
+- **Not final.** This document is a **live append-only journal** (per the publish-then-remediate rule). M3 PR-5 + PR-6 + M4 PR-7 will append. Section 99 final synthesis lands when M4 ships. v7.9 enforcement-flip becomes its own case study.
+- **Not externally replicated.** No external operator has run the corpus through Mechanism A's coverage ledger to verify the silent-pass evidence independently. Same constraint as v7.7 (Tier 3.3 deferred to backlog).
+
+## Reproducibility (for future external auditors)
+
+To reproduce the silent-pass evidence:
+
+```bash
+git checkout main && python3 scripts/check-state-schema.py
+cat .claude/logs/gate-coverage.jsonl | grep CACHE_HITS_EMPTY_POST_V6
+```
+
+Expected output:
+
+```json
+{"gate":"CACHE_HITS_EMPTY_POST_V6","candidates":47,"checked":0,"skipped":47,
+ "skip_reasons":{"pre_v6":34,"pre_mechanism_c":12,"no_created_at":1}}
+```
+
+To verify Mechanism C attribution end-to-end:
+
+```bash
+./scripts/set-active-feature.sh <some-feature>
+# then trigger any Read tool call in Claude Code
+cat .claude/logs/_session-*.events.jsonl | grep active_feature
+```
+
+Expected: at least one event with `"active_feature": "<some-feature>"`.
+
+## Predecessors + cross-references
+
+- **Spec:** [`docs/superpowers/specs/2026-05-02-framework-v7-8-and-v7-9-bridge-design.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/specs/2026-05-02-framework-v7-8-and-v7-9-bridge-design.md)
+- **Upstream case study (live journal):** [`docs/case-studies/framework-v7-8-bridge-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/framework-v7-8-bridge-case-study.md)
+- **Predecessor case study (v7.7):** [22 — Validity Closure](22-validity-closure-v7-7.md)
+- **Predecessor case study (v7.6):** [21 — Mechanical Enforcement](21-mechanical-enforcement-v7-6.md)
+- **Audit memo (2026-04-30) that triggered v7.8:** memory `project_framework_gaps_audit_2026_04_30.md`
+- **Tier-tag convention:** [data-quality-tiers](/case-studies/data-quality-tiers)
+
+---
+
+> Updated 2026-05-03 with PR #185–#189 entries (M1+M2 of bridge design). Next entry: M3 PR-5 schema bridge fields. Final synthesis when M4 PR-7 ships.
