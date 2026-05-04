@@ -1,13 +1,16 @@
 /**
  * /control-room/framework — Framework-Health Dashboard
  *
- * v7.7 M4 / PR-7. Server component. Loads FitTracker2 ledgers via
- * lib/framework-health/load-ledgers.ts and renders:
+ * v7.7 M4 / PR-7 + v7.8 T19 (Mechanism F panel). Server component. Loads
+ * FitTracker2 ledgers via lib/framework-health/load-ledgers.ts and the
+ * v7.8 membrane-status JSON via lib/framework-health/load-membrane-status.ts.
+ * Renders:
  *  - Tier 1.1 adoption trend (AdoptionTrendChart)
  *  - Documentation-debt coverage (DocDebtTrendChart)
  *  - Automation map of all 20 check codes (AutomationMap)
  *  - Mechanically-unclosable deferred items D1+D2 (HumanActionPanel)
  *  - Latest 72h integrity cycle snapshot (CycleSnapshotPanel)
+ *  - v7.8 Mechanism F membrane status — advisory smartlog (MembraneStatusPanel)
  *  - Predecessor cross-links footer (T26)
  *
  * Gated by proxy.ts basic-auth on /control-room/*.
@@ -18,18 +21,20 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
 import { loadFrameworkLedgers } from '@/lib/framework-health/load-ledgers';
+import { loadMembraneStatus } from '@/lib/framework-health/load-membrane-status';
 import { AdoptionTrendChart } from '@/components/framework-health/AdoptionTrendChart';
 import { DocDebtTrendChart } from '@/components/framework-health/DocDebtTrendChart';
 import { AutomationMap } from '@/components/framework-health/AutomationMap';
 import { HumanActionPanel } from '@/components/framework-health/HumanActionPanel';
 import { CycleSnapshotPanel } from '@/components/framework-health/CycleSnapshotPanel';
+import { MembraneStatusPanel } from '@/components/framework-health/MembraneStatusPanel';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
   description:
-    'Live dashboard for the FitMe PM framework v7.7: Tier 1.1 adoption trends, documentation-debt coverage, automation map, and 72h integrity cycle snapshot.',
+    'Live dashboard for the FitMe PM framework v7.8: Tier 1.1 adoption trends, documentation-debt coverage, automation map, 72h integrity cycle snapshot, and v7.8 Mechanism F membrane status.',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -96,10 +101,19 @@ const PREDECESSOR_LINKS = [
     label: 'v7.7 — Validity Closure',
     version: 'v7.7',
     date: '2026-04-27',
-    href: 'https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/',
-    external: true,
+    href: '/case-studies/validity-closure-v7-7',
+    external: false,
+    current: false,
+    description: '4 new write-time gates + TIER_TAG_LIKELY_INCORRECT advisory. Shipped with the silent-pass that v7.8 closed.',
+  },
+  {
+    label: 'v7.8 — Bridge to v7.9',
+    version: 'v7.8',
+    date: '2026-05-04',
+    href: '/case-studies/framework-v7-8-bridge',
+    external: false,
     current: true,
-    description: 'This dashboard. 4 new write-time gates + TIER_TAG_LIKELY_INCORRECT advisory. M4/PR-7.',
+    description: 'This dashboard. Mechanisms A-F (advisory). First honesty-ledger entry FT2-FH-001. 9 PRs in 2 days.',
   },
 ];
 
@@ -186,7 +200,10 @@ function PredecessorFooter() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default async function FrameworkHealthPage() {
-  const ledgers = await loadFrameworkLedgers();
+  const [ledgers, membraneStatus] = await Promise.all([
+    loadFrameworkLedgers(),
+    loadMembraneStatus(),
+  ]);
 
   const snapshots = ledgers.adoptionHistory?.snapshots ?? [];
   const currentAdoption = ledgers.adoptionCurrent;
@@ -210,13 +227,13 @@ export default async function FrameworkHealthPage() {
         </div>
         <h1 className="font-serif text-[length:var(--text-display-lg)]">Framework Health</h1>
         <p className="mt-3 text-lg text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-2xl font-sans">
-          v7.7 live dashboard — Tier 1.1 measurement adoption, documentation-debt coverage, full
-          automation map, and last 72h integrity cycle snapshot.
+          v7.8 live dashboard — Tier 1.1 measurement adoption, documentation-debt coverage, full
+          automation map, last 72h integrity cycle snapshot, and Mechanism F membrane status.
         </p>
         <div className="mt-4 flex flex-wrap gap-3 text-xs font-sans">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-            v7.7 — Validity Closure
+            v7.8 — Bridge to v7.9
           </span>
           {currentAdoption && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
@@ -322,6 +339,15 @@ export default async function FrameworkHealthPage() {
         subtitle="Generated every 72h by the GitHub Actions framework-status workflow. Run make integrity-snapshot locally to force a new snapshot."
       >
         <CycleSnapshotPanel snapshot={ledgers.latestIntegritySnapshot} />
+      </Section>
+
+      {/* ── v7.8 T19 — Mechanism F membrane status ── */}
+      <Section
+        id="membrane-status"
+        title="Mechanism F — membrane status (v7.8 advisory)"
+        subtitle="Read-only smartlog of in-flight feature work. Joins state.json + agent-leases.json + open-branch reflog. v7.8 ships advisory; v7.9 wires /pm-workflow lease acquisition. Pattern: Sapling smartlog (Meta), Jujutsu op-log."
+      >
+        <MembraneStatusPanel status={membraneStatus} />
       </Section>
 
       {/* ── T26 — Predecessor cross-links ── */}
