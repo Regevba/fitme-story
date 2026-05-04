@@ -14,14 +14,14 @@ export default function FrameworkPage() {
       <header className="mb-10">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">The framework</h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          Six floors. Hover to explore how each layer contributes.
+          Seven floors. Hover to explore how each layer contributes.
         </p>
       </header>
       <BlueprintOverlay interactive />
       <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-16">
         <h2>How the floors cooperate</h2>
         <p>
-          The framework is organized as six floors stacked on a shared slab. Floor 1 holds the source-of-truth state. Floor 2 is the hub-and-spoke of skills and their cache tiers. Floors 3–5 add successive SoC-inspired primitives — skill-on-demand loading, batch dispatch, dispatch intelligence. Floor 6 observes everything else via the v6.0 measurement overlay.
+          The framework is organized as seven floors stacked on a shared slab. Floor 1 holds the source-of-truth state. Floor 2 is the hub-and-spoke of skills and their cache tiers. Floors 3–5 add successive SoC-inspired primitives — skill-on-demand loading, batch dispatch, dispatch intelligence. Floor 6 observes the lower floors via the v6.0 measurement overlay. Floor 7 promotes that observation into mechanical enforcement: 25 gates + 1 advisory split across write-time pre-commit hooks, the 72h integrity cycle, a per-PR review bot, a weekly framework-status cron, and the Tier 1/2/3 readout dashboards. v7.8 is in progress on a bridge branch (schema validation + concurrent-dispatch defenses).
         </p>
         <p>
           For the full worked example of a single sprint flowing through these floors, see the{' '}
