@@ -124,7 +124,7 @@ export default function ControlRoomPage() {
   // The seeds group features by status bucket (shipped/planned/backlog) but
   // the summary needs phase-level grouping per ControlRoom.jsx logic. Combine
   // and re-bucket.
-  const seed = featuresData as FeaturesSeedFile;
+  const seed = featuresData as unknown as FeaturesSeedFile;
   const allFeatures: FeatureSeed[] = [...(seed.shipped ?? []), ...(seed.planned ?? []), ...(seed.backlog ?? [])];
   const summary = summarizeFeatures(allFeatures);
   const riskCount = summary.critical + summary.high;
