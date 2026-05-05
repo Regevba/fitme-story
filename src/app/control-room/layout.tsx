@@ -26,6 +26,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
+import { DataFreshnessFooter } from '@/components/control-room/DataFreshnessFooter';
+
 export const metadata: Metadata = {
   title: 'Control room — fitme-story',
   description: 'Internal dashboard for FitMe framework operations. Gated access.',
@@ -49,6 +51,7 @@ const PRIMARY_NAV: NavItem[] = [
 
 const SECONDARY_NAV: NavItem[] = [
   { href: '/control-room/framework', label: 'Framework Health', built: true },
+  { href: '/case-studies', label: 'Case studies →', built: true },
 ];
 
 // TODO(T20): replace hardcoded version with server-loaded value from builder.ts
@@ -157,6 +160,11 @@ export default function ControlRoomLayout({ children }: { children: ReactNode })
 
       {/* Page content */}
       {children}
+
+      {/* Data freshness footer (UCC T25) — surfaces last sync timestamp +
+          counts on every control-room page; turns red after 6h of staleness.
+          Reads request-time clock internally; no props needed. */}
+      <DataFreshnessFooter />
     </div>
   );
 }

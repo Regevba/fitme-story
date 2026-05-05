@@ -25,6 +25,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import featuresData from '@/data/control-room-seeds/features.json';
+import { PhaseLegendAndActivity } from '@/components/control-room/PhaseLegendAndActivity';
 
 export const metadata: Metadata = {
   title: 'Overview — Control room',
@@ -225,6 +226,14 @@ export default function ControlRoomPage() {
             />
           </div>
         </Link>
+      </section>
+
+      {/* ───────────────────────────────────────────────────────── */}
+      {/* Phase legend + recent activity (UCC T27) — replaces the     */}
+      {/* dashboard's PipelineOverview with a simpler operator view.  */}
+      {/* ───────────────────────────────────────────────────────── */}
+      <section className="mt-8">
+        <PhaseLegendAndActivity activityLimit={5} />
       </section>
 
       <p className="mt-10 font-sans text-xs text-[var(--color-neutral-400)]">
