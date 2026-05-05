@@ -27,6 +27,29 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { DataFreshnessFooter } from '@/components/control-room/DataFreshnessFooter';
+import { CommandPalette } from '@/components/control-room/CommandPalette';
+import featuresData from '@/data/control-room-seeds/features.json';
+
+interface FeatureSeedRow {
+  name: string;
+  slug: string;
+}
+
+interface FeaturesSeedFile {
+  shipped: FeatureSeedRow[];
+  planned: FeatureSeedRow[];
+  backlog: FeatureSeedRow[];
+}
+
+function paletteFeatureSeed(): { name: string; slug: string }[] {
+  const seed = featuresData as unknown as FeaturesSeedFile;
+  const all = [
+    ...(seed.shipped ?? []),
+    ...(seed.planned ?? []),
+    ...(seed.backlog ?? []),
+  ];
+  return all.map((f) => ({ name: f.name, slug: f.slug }));
+}
 
 export const metadata: Metadata = {
   title: 'Control room — fitme-story',
@@ -165,6 +188,12 @@ export default function ControlRoomLayout({ children }: { children: ReactNode })
           counts on every control-room page; turns red after 6h of staleness.
           Reads request-time clock internally; no props needed. */}
       <DataFreshnessFooter />
+
+      {/* Command palette (UCC T30.5) — Cmd/Ctrl+K opens a Linear-style
+          search overlay with navigation + actions + per-feature shortcuts.
+          Mounted once at layout level so the hotkey works on every
+          /control-room/* route. */}
+      <CommandPalette features={paletteFeatureSeed()} />
     </div>
   );
 }
