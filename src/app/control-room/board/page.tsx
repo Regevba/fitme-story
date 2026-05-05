@@ -161,7 +161,7 @@ function Column({ column, features }: { column: ColumnDef; features: FeatureSeed
 // ────────────────────────────────────────────────────────────────────────────
 
 export default function ControlRoomBoardPage() {
-  const seed = featuresData as FeaturesSeedFile;
+  const seed = featuresData as unknown as FeaturesSeedFile;
   const allFeatures: FeatureSeed[] = [
     ...(seed.shipped ?? []),
     ...(seed.planned ?? []),
