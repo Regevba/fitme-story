@@ -44,7 +44,7 @@ const PRIMARY_NAV: NavItem[] = [
   { href: '/control-room/board', label: 'Board', built: true },
   { href: '/control-room/table', label: 'Table', built: true },
   { href: '/control-room/tasks', label: 'Tasks', built: false },
-  { href: '/control-room/knowledge', label: 'Knowledge', built: false },
+  { href: '/control-room/knowledge', label: 'Knowledge', built: true },
 ];
 
 const SECONDARY_NAV: NavItem[] = [
