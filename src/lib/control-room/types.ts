@@ -9,7 +9,8 @@
  */
 
 import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export interface StateFileTask {
   id: string;
@@ -37,10 +38,17 @@ export interface StateFile {
  * fitme-story root, computed once from the location of this file.
  * `src/lib/control-room/` is 3 levels below the repo root.
  *
- * Uses `import.meta.url` (works under both ESM and tsx's CJS transpile)
- * rather than `import.meta.dirname` (ESM-only).
+ * Uses `fileURLToPath(import.meta.url)` rather than
+ * `new URL('.', import.meta.url).pathname` because Turbopack treats the
+ * first argument of `new URL(...)` as a static module specifier and tries
+ * to resolve `'.'` at build time, which fails with
+ * `Module not found: Can't resolve '.'`. Surfaced when UCC T26 (#29)
+ * imported `parsers/state.ts` from a route — every prior consumer ran
+ * via tsx (CJS) where the URL idiom worked. Avoiding `import.meta.dirname`
+ * (ESM-only) for the same tsx-CJS-compat reason that motivated the
+ * original idiom; `fileURLToPath` works in both ESM and tsx CJS transpile.
  */
-const THIS_DIR = new URL('.', import.meta.url).pathname;
+const THIS_DIR = dirname(fileURLToPath(import.meta.url));
 export const FITME_STORY_ROOT = resolve(THIS_DIR, '../../..');
 
 /**
