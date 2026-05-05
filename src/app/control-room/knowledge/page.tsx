@@ -31,6 +31,7 @@ import {
 } from '@/components/control-room/primitives';
 import caseStudiesData from '@/data/control-room-seeds/caseStudies.json';
 import featuresData from '@/data/control-room-seeds/features.json';
+import { TrackPageView } from '@/components/control-room/TrackPageView';
 
 export const metadata: Metadata = {
   title: 'Knowledge — Control room',
@@ -190,6 +191,9 @@ function CaseStudyCard({ caseStudy }: { caseStudy: CaseStudyCardData }) {
 export default function ControlRoomKnowledgePage() {
   return (
     <article className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
+      {/* GA4: dashboard_load + dashboard_sync_warning_shown (UCC T36) */}
+      <TrackPageView route="knowledge" />
+
       <div className="space-y-6">
         {/* ───── Knowledge summary ───── */}
         <Panel
@@ -290,7 +294,7 @@ export default function ControlRoomKnowledgePage() {
       <p className="mt-10 font-sans text-xs text-[var(--color-neutral-400)]">
         UCC migration in progress (T23 shipped {new Date().toISOString().slice(0, 10)}). Source:
         dashboard/src/components/KnowledgeHub.jsx. Featured references + Document Index seed
-        wiring deferred — fitme-story doesn't yet sync the dashboard's knowledge-feed equivalent.
+        wiring deferred &mdash; fitme-story doesn&rsquo;t yet sync the dashboard&rsquo;s knowledge-feed equivalent.
       </p>
     </article>
   );
