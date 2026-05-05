@@ -1,0 +1,110 @@
+---
+title: Google Analytics — The Substrate Every Downstream Feature Depends On
+slug: google-analytics
+upstream_path: docs/case-studies/google-analytics-case-study.md
+tier: light
+timeline_position:
+  version: 'pre-v5.0'
+  order: 24.3
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-04-04'
+parent_slug: six-features-roundup
+tldr: 'The feature that went from "11 shipped features, 40 defined metrics, zero analytics instrumentation" to a working GA4 pipeline with protocol abstraction, consent gating, and screen tracking — and unblocked every metric target in the project. Merged 2026-04-04, +1970 lines / 22 files. Implicitly set the stage for the 2026-04-08 screen-prefixed-analytics rule.'
+key_numbers:
+  - label: 'Files / lines (merge ac85c73)'
+    value: '22 files / +1970 −39'
+    tier: T1
+  - label: 'Wall time (calendar / active)'
+    value: '~39h calendar / ~19h active'
+    tier: T2
+  - label: 'Tests added'
+    value: '17 unit tests (AnalyticsTests.swift +297 lines)'
+    tier: T1
+  - label: 'Events instrumented at merge'
+    value: '14 of 40 (35%)'
+    tier: T1
+  - label: 'Phases executed'
+    value: '10 of 10 (full lifecycle)'
+    tier: T1
+  - label: 'Providers evaluated in research'
+    value: '5 (GA4+Firebase chosen over TelemetryDeck, Mixpanel, Amplitude, PostHog)'
+    tier: T1
+  - label: 'High-risk files touched'
+    value: '0'
+    tier: T1
+  - label: 'Downstream features unblocked'
+    value: '11 (every prior feature gained measurable kill criteria)'
+    tier: T2
+honest_disclosures:
+  - '14/40 instrumented at merge (35%) — not the full set, by design. Remaining events get instrumented as the features that emit them land.'
+  - '`GoogleService-Info.plist` contains the API key — never committed to git, local-only. App Store submission requires this file in the build artifact, not the repo.'
+  - 'Firebase adapter stubbed until SPM added in Xcode. Runtime gate, not a regression — flagged at review.'
+  - 'Xcode build requires paid Apple Developer account for device testing. No CI device-test path exists for this feature.'
+  - 'The protocol abstraction (`AnalyticsProvider` interface + `MockAnalyticsAdapter` test double) is load-bearing for every downstream feature''s tests. Without it, the project would have either no analytics tests or fake ones.'
+  - 'Originally consolidated into the six-features roundup (2026-04-20). Split into a dedicated case study on 2026-05-05 as part of the chain-of-custody initiative — this case study is a backfill (case_study_type: pre_pm_workflow_backfill); not retroactively claiming live PM workflow tracking.'
+kill_criteria:
+  - 'Data-driven foundation — cannot be killed. If consent rate < 5%, simplify the consent flow rather than removing analytics.'
+kill_criterion_fired: false
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before this feature'
+    before:
+      label: 'No instrumentation'
+      value: '11 features · 40 metrics · 0 events'
+      subtitle: '11 shipped features defining 40 success/kill metrics, zero of them measurable. Every kill-criteria threshold ("X% by Y days") was vaporware. Funnel analysis impossible.'
+    afterLabel: 'After this feature'
+    after:
+      label: 'Substrate live'
+      value: '7 components · 17 tests · 14/40 events'
+      subtitle: '`AnalyticsProvider` protocol + `AnalyticsService` singleton + `ConsentManager` (ATT + GDPR) + `FirebaseAnalyticsAdapter` + `MockAnalyticsAdapter` + `AnalyticsScreenModifier` + `ConsentView`. 24 screen tracks, 15 custom events. GA4 2025 naming conventions.'
+---
+
+## Why "substrate features" matter
+
+Most features add a vertical slice — a screen, a service, a flow. **Substrate features add a layer everything else operates on top of.** Their cost is paid up-front; their value is paid by every downstream feature that lands after them.
+
+Google Analytics is the project's clearest substrate feature in the first two weeks. Three downstream patterns fall out of it existing:
+
+1. **Every PRD now has a Phase-1 Analytics Spec gate.** Not because someone added a rule — because there's now a real surface for events to land on. PRDs that don't define events get rejected at the gate.
+2. **`MockAnalyticsAdapter` is a real type.** Every downstream feature's tests can verify event delivery without firing real events. Without the protocol abstraction, those tests would be either absent or flaky.
+3. **The 2026-04-08 screen-prefixed-analytics rule** (codified by Home v2, see [CLAUDE.md "Analytics Naming Convention"](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md)) was technically possible because the protocol's strict event-name contract enabled it.
+
+## What shipped
+
+| Component | Lines | Role |
+|---|---|---|
+| `AnalyticsProvider.swift` | 195 | Protocol — the type contract every event must satisfy |
+| `AnalyticsService.swift` | 243 | Singleton façade |
+| `ConsentManager.swift` | 106 | ATT + GDPR consent gating |
+| `FirebaseAnalyticsAdapter.swift` | 40 | Production adapter |
+| `MockAnalyticsAdapter.swift` | 47 | Test double — the reason every downstream test passes |
+| `AnalyticsScreenModifier.swift` | 23 | SwiftUI view modifier for per-screen tracking |
+| `ConsentView.swift` | 113 | User-facing consent screen |
+
+Plus `firebase-setup-guide.md` (361 lines), `analytics-taxonomy.csv` (65+ lines), `metrics-framework.md` updates (22 lines).
+
+Merge: `ac85c73` (22 files, +1970 −39). Ordered chain across 13 commits. Mid-sprint refactor (`48d1dd3`, "GA4 2025 naming") shows the taxonomy was being shaped during the feature itself, not just after.
+
+## Why this case study exists
+
+The original six-features-roundup (2026-04-20) consolidated 6 pre-rule features into one document. GA was kept in the roundup at the time because three of the six were thin and consolidating was cleaner than mixing formats.
+
+On 2026-05-05, the chain-of-custody initiative (full-repair-mode plan, Decision 3 + Q1 = Option 3 hybrid split) re-evaluated. GA was reclassified as warranting a dedicated case study — its substrate-feature shape is project-novel and load-bearing for every downstream feature. If one of the six features in the original roundup deserved its own case study at ship time, it was this one.
+
+## Cross-feature lesson
+
+**A measurement substrate built early sets the constraint envelope every downstream feature operates inside.** GA's protocol abstraction is the reason features 2026-04-04 onward could test analytics without firing real events, the reason `MockAnalyticsAdapter` is a real type, and the reason the 2026-04-08 screen-prefix rule was technically possible. Substrate features have outsized leverage; if the measurement layer is missing or weak, downstream features inherit the weakness.
+
+## Links
+
+- **FT2 case study (source):** [`docs/case-studies/google-analytics-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/google-analytics-case-study.md)
+- **Source PRD/research/tasks/ux-spec:** `.claude/features/google-analytics/` (FT2)
+- **Setup guide:** [`docs/project/firebase-setup-guide.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/project/firebase-setup-guide.md)
+- **Companion split-out case studies:** [`24a-android-design-system`](./24a-android-design-system), [`24b-gdpr-compliance`](./24b-gdpr-compliance)
+- **Original roundup parent:** `docs/case-studies/six-features-roundup-case-study.md` (FT2)
+- **Downstream rule:** [CLAUDE.md "Analytics Naming Convention"](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md)

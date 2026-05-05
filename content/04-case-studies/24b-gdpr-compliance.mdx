@@ -1,0 +1,107 @@
+---
+title: GDPR Compliance — Two Hours End-to-End on a Legal-Blocker Feature
+slug: gdpr-compliance
+upstream_path: docs/case-studies/gdpr-compliance-case-study.md
+tier: light
+timeline_position:
+  version: 'pre-v5.0'
+  order: 24.2
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: lifecycle
+date: '2026-04-04'
+parent_slug: six-features-roundup
+tldr: 'The first feature in the project where kill criteria read "Legal requirement — cannot be killed." Shipped 8 files, +711 lines, full 10-phase lifecycle in 2 hours. Account deletion (GDPR Art 17) + JSON export (Art 20) + 30-day grace period across 9 data stores. The shape of "well-scoped legal feature with no design ambiguity."'
+key_numbers:
+  - label: 'Wall time (init → complete)'
+    value: '2 hours'
+    tier: T2
+  - label: 'Phases executed'
+    value: '10 of 10 (full lifecycle)'
+    tier: T1
+  - label: 'Files shipped'
+    value: '8 (+711 lines)'
+    tier: T1
+  - label: 'Data stores audited for deletion'
+    value: '9 (device, Keychain, UserDefaults, CloudKit, 3× Supabase, AI cohort, Firebase Analytics)'
+    tier: T1
+  - label: 'GDPR analytics events added'
+    value: '5'
+    tier: T1
+  - label: 'Tests added'
+    value: '6 GDPR analytics tests (+23 events covered)'
+    tier: T1
+  - label: 'High-risk files touched'
+    value: '0'
+    tier: T1
+honest_disclosures:
+  - 'Atomic rollback NOT implemented for partial deletion failures. The service composes 9 store-clears and if the 7th fails, the first 6 don''t roll back. Logged at review as a known gap, not an undiscovered one.'
+  - 'Real Supabase/CloudKit runtime verification requires credentials that were unavailable at merge. Runtime path tested via mocks; real-credentials runbook deferred (gated on Supabase MCP / staging env).'
+  - 'The 2-hour wall time is a marker, not a record to be chased. It reflects "well-scoped, zero-design-ambiguity, zero-high-risk-files" — features with genuine design ambiguity correctly take longer.'
+  - 'Originally consolidated into the six-features roundup (2026-04-20). Split into a dedicated case study on 2026-05-05 as part of the chain-of-custody initiative — this case study is a backfill (case_study_type: pre_pm_workflow_backfill); not retroactively claiming live PM workflow tracking.'
+kill_criteria:
+  - 'Legal requirement — cannot be killed. If implementation surfaces a 9-store-clear failure mode under load, downgrade to a synchronous-with-rollback design rather than removing the feature.'
+kill_criterion_fired: false
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before this feature'
+    before:
+      label: 'No in-app deletion'
+      value: 'Email-request workflow only'
+      subtitle: 'GDPR Art 17 + 20 obligations existed but no in-app surface. Account deletion required emailing support; data export had no path. App Store submission blocked.'
+    afterLabel: 'After this feature'
+    after:
+      label: 'Full lifecycle in 2 hours'
+      value: '8 files · +711 lines · 9 stores audited'
+      subtitle: '`AccountDeletionService` + `DataExportService` + 2 SwiftUI screens + Settings integration + 5 analytics events + 6 tests + 30-day grace period (cancellable). Re-auth required before deletion proceeds.'
+---
+
+## Why this is the cleanest example of "legal feature shape"
+
+Most features have growth-threshold kill criteria ("if acceptance < X% by month N, simplify"). GDPR is the first feature in the project where the kill criterion is **floor-only**: "Legal requirement — cannot be killed." That's not a flaw in the kill criterion — it's the feature's actual shape. Compliance features cannot be removed on a metric; they can only be re-architected if the implementation is unsafe.
+
+The 2-hour wall time is the second signal of feature shape. **Floor-only + zero-design-ambiguity + zero-high-risk-files = fast.** Compare against [google-analytics](./24c-google-analytics) (~19h active wall time, +1970 lines, cross-cutting) — same pre-rule era, dramatically different shape.
+
+## What shipped
+
+| File | Lines | Purpose |
+|---|---|---|
+| `AccountDeletionService.swift` | 162 | 9-store-clear orchestration + 30-day grace |
+| `DataExportService.swift` | 170 | JSON export via iOS share sheet |
+| `DeleteAccountView.swift` | 154 | User-facing delete flow + re-auth gate |
+| `ExportDataView.swift` | 76 | Export UI |
+| `SettingsView.swift` (delta) | +28 | Settings integration |
+| `AnalyticsProvider.swift` (delta) | +22 | 5 GDPR events |
+| `AnalyticsService.swift` (delta) | +31 | Event delivery |
+| `AnalyticsTests.swift` (delta) | +69 | 6 GDPR analytics tests |
+
+Merge: `2acd1d9` (8 files, +711 lines).
+
+## Scope decisions (from research.md)
+
+Three alternatives evaluated:
+1. ✓ **Full in-app deletion + JSON export + 30-day grace period** (chosen)
+2. ✗ Web portal redirect
+3. ✗ Email-request workflow
+
+The grace period is architectural — account is marked for deletion, user can cancel within 30 days, and a background job does the actual destructive work after expiry. Re-authentication (biometric or password) gate before deletion proceeds. Export is JSON via iOS share sheet (not PDF, not CSV, not email).
+
+## Why this case study exists
+
+The original six-features-roundup (2026-04-20) consolidated 6 pre-rule features. GDPR has the densest source material of any of them (PRD + research + tasks + ux-spec all present, dense PR). It was kept in the roundup at the time because three of the six were thin and consolidating was cleaner than mixing formats.
+
+On 2026-05-05, the chain-of-custody initiative (full-repair-mode plan, Decision 3 + Q1 = Option 3 hybrid split) re-evaluated. GDPR was reclassified as warranting a dedicated case study — the source artifacts are dense, the kill-criteria pattern is project-novel ("legal feature shape"), and the 2-hour wall time is a useful reference marker.
+
+## Cross-feature lesson
+
+**Kill criteria reveal feature shape.** Floor-only kill criteria correlate with stories about compliance and risk management; growth-threshold kill criteria correlate with stories about adoption and iteration. GDPR is Exhibit A for the floor-only pattern.
+
+## Links
+
+- **FT2 case study (source):** [`docs/case-studies/gdpr-compliance-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/gdpr-compliance-case-study.md)
+- **Source PRD/research/tasks/ux-spec:** `.claude/features/gdpr-compliance/` (FT2)
+- **Companion split-out case studies:** [`24a-android-design-system`](./24a-android-design-system), [`24c-google-analytics`](./24c-google-analytics)
+- **Original roundup parent:** `docs/case-studies/six-features-roundup-case-study.md` (FT2)

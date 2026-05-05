@@ -1,0 +1,107 @@
+---
+title: Training Plan v2 — Biggest Surface in the App, Stress-Test for the v4.0 Cache
+slug: training-plan-v2
+upstream_path: docs/case-studies/training-plan-v2-case-study.md
+tier: light
+timeline_position:
+  version: '5.0'
+  order: 19.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-04-10'
+parent_slug: null
+tldr: 'The biggest surface in the app — 2,135 lines, 13 nested types, 32 audit findings — broken into 6 extracted views via the V2 Rule. First v2 refactor to benefit from the v4.0 L1 cache; ~40% first-run cache hit rate. Complexity-normalized velocity dropped to 0.23 hours per 100 lines of v1, the best of any v2 pass before or since despite Training being the largest file.'
+key_numbers:
+  - label: 'v1 file size'
+    value: '2,135 lines (largest in app)'
+    tier: T1
+  - label: 'Nested types in v1'
+    value: '13 (highest coupling of any screen)'
+    tier: T1
+  - label: 'Audit findings closed'
+    value: '32 (most of any v2 refactor)'
+    tier: T1
+  - label: 'Analytics events touched'
+    value: '12 (highest event count of any screen)'
+    tier: T1
+  - label: 'Extracted views (decomposition)'
+    value: '6 + container (largest of any v2 pass)'
+    tier: T1
+  - label: 'v2 total footprint'
+    value: '1,819 lines across 7 files'
+    tier: T1
+  - label: 'Wall time (init → complete)'
+    value: '~5 hours'
+    tier: T2
+  - label: 'First-run L1 cache hit rate'
+    value: '~40%'
+    tier: T2
+  - label: 'Complexity-normalized velocity'
+    value: '0.23 h / 100 lines of v1 (best across v2 series)'
+    tier: T2
+  - label: 'PR / merge'
+    value: 'PR #74'
+    tier: T1
+honest_disclosures:
+  - 'Cache hit rate (~40%) is from session telemetry at the time of execution — not from the canonical `cache_hits[]` writer-path that was added later (v6.0+). Tier T2 because the source data is a session log, not the per-feature instrumentation that exists today.'
+  - '"Best velocity of any v2 pass" is a relative claim valid as of 2026-04-10. The metric (hours per 100 lines of v1) does not normalize for design ambiguity, audit-finding severity mix, or extraction complexity — it normalizes purely on volume.'
+  - 'The v4.0 L1 cache was introduced for this feature. Cache hit rate from the FIRST run with a cold-but-populated cache is not directly comparable to features that ran on warm caches. Subsequent v2 refactors (Settings v2, Stats v2) ran with warmer caches; their hit rates are not directly comparable to Training v2.'
+  - 'This showcase is being published 2026-05-05 (~25 days post-merge) as part of the chain-of-custody initiative (full-repair-mode plan, Decision 2 = publish). The case study itself was written 2026-04-10 at merge time; only the showcase MDX publication is new.'
+kill_criteria:
+  - 'Decomposition ratio: extracted views must reduce v1 line count by ≥ 10% net. Pre-extraction: 2,135 lines monolithic. Post-extraction: 1,819 lines distributed (~14.8% reduction).'
+  - 'V2 Rule compliance violations introduced (e.g., v1 file edited in place). Must remain HISTORICAL and untouched after v2 ships.'
+kill_criterion_fired: false
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Training v1 (pre-V2 Rule)'
+    before:
+      label: 'TrainingPlanView.swift'
+      value: '2,135 lines · 13 nested types'
+      subtitle: 'Single file containing the entire training plan UI: schedule, exercise lists, set tracking, plan editing, and rest-day handling — all coupled. 32 audit findings.'
+    afterLabel: 'Training v2 (V2 Rule applied)'
+    after:
+      label: 'v2/ + 6 extracted views'
+      value: '7 files · 1,819 lines · 32/32 closed'
+      subtitle: '`v2/TrainingPlanView.swift` (531 lines, container) + 6 extracted views. v1 annotated `HISTORICAL —` and dropped from Sources via project.pbxproj. First v2 refactor to benefit from the v4.0 L1 cache.'
+---
+
+## Why this is the v4.0 cache stress-test
+
+Training v2 was deliberately scheduled as the first v2 refactor under PM workflow v4.0, which introduced the **L1 learning cache** and the reactive data mesh. The brief was literal: "biggest surface in the app — stress-test the per-screen alignment process."
+
+| Surface | v1 lines | Audit findings | Extracted views | Position |
+|---|---|---|---|---|
+| Settings | 1,170 | ~20 | 8 (Screens/ + Components/) | Mid-cycle |
+| Stats | 899 | 9 | 0 (rewrite, not decomposition) | Late v2 series |
+| **Training** | **2,135** | **32** | **6 + container** | **First v4.0 stress-test** |
+| Home | 1,029 | 27 | 0 (single-file rewrite) | Pilot of V2 Rule |
+
+Training is the biggest in every dimension. **First-run L1 cache hit rate: ~40%**. Complexity-normalized velocity (hours per 100 lines of v1) was 0.23 — the best of any v2 pass before or since, despite Training being the largest file.
+
+## What got extracted
+
+| Extracted view | Purpose |
+|---|---|
+| `TrainingPlanView.swift` (531 lines) | Container + navigation |
+| `TrainingScheduleView.swift` | Weekly schedule grid |
+| `ExerciseListView.swift` | Per-day exercise list |
+| `SetTrackingView.swift` | In-workout set logging |
+| `PlanEditorView.swift` | Plan creation/editing |
+| `RestDayView.swift` | Rest-day rendering + advice |
+| `TrainingDayHeaderView.swift` | Day header (date + type indicator) |
+
+Each extracted view is independently rendered and testable. The container drops from 2,135 → 531 lines.
+
+## Cross-feature lesson
+
+**Cache benefit scales with refactor size.** The v4.0 L1 cache landed real value on Training v2 (40% hit rate, 0.23 h/100 lines normalized velocity) because the refactor was big enough to amortize the cache miss overhead. Smaller refactors (Stats v2: 899 lines → 9 findings) get less cache benefit because there's less to extract patterns from. **Cache value correlates with refactor surface area, not just feature importance.**
+
+## Links
+
+- **FT2 case study (source):** [`docs/case-studies/training-plan-v2-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/training-plan-v2-case-study.md)
+- **V2 Rule reference:** [CLAUDE.md "UI Refactoring & V2 Rule"](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md)
+- **Companion v2 case studies:** [`16a-settings-v2`](./16a-settings-v2), [`18a-home-today-screen`](./18a-home-today-screen), [`22c-stats-v2`](./22c-stats-v2)

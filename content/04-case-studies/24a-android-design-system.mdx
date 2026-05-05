@@ -1,0 +1,90 @@
+---
+title: Android Design System — A Documentation Deliverable That Skipped Six Phases on Purpose
+slug: android-design-system
+upstream_path: docs/case-studies/android-design-system-case-study.md
+tier: light
+timeline_position:
+  version: 'pre-v5.0'
+  order: 24.1
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: lifecycle
+date: '2026-04-04'
+parent_slug: six-features-roundup
+tldr: 'A 92-token iOS → Material Design 3 mapping that ships zero lines of Android code on purpose. Research + PRD execute normally; Tasks / UX / Implementation / Testing / Review all marked `skipped` with rationale on every skipped phase. The reference example for research-only deliverables in the PM workflow.'
+key_numbers:
+  - label: 'Tokens mapped (iOS → MD3)'
+    value: '92/92'
+    tier: T1
+  - label: 'Component parity audit'
+    value: '13/13'
+    tier: T1
+  - label: 'Phases executed vs skipped'
+    value: '3 of 9 (research, PRD, complete)'
+    tier: T1
+  - label: 'Files shipped'
+    value: '3 (config-android.json, android-token-mapping.md, research.md)'
+    tier: T1
+  - label: 'Wall time (init → complete)'
+    value: '~30 min'
+    tier: T2
+  - label: 'Lines of code shipped to users'
+    value: '0 (research-only by design)'
+    tier: T1
+honest_disclosures:
+  - 'No live user impact. Deliverable is documentation; the kill criterion ("Defer Android expansion if iOS core not stable") is the success state if Android port never starts. Cost: ~30 min of research time.'
+  - 'Tokens-mapped + component-parity-audit metrics are counts in research.md, not behavioral measurements. They verify "I made the mapping" not "the mapping is correct."'
+  - 'No ux-spec.md exists for this feature — research-only, no UX surface. UX phase was correctly skipped, not implicitly omitted.'
+  - 'Originally consolidated into the six-features roundup (2026-04-20). Split into a dedicated case study on 2026-05-05 as part of the chain-of-custody initiative — this case study is a backfill (case_study_type: pre_pm_workflow_backfill); not retroactively claiming live PM workflow tracking.'
+kill_criteria:
+  - 'Defer Android expansion if iOS core not stable. The kill criterion IS the deliverable disposition: documentation shipped, port deferred, artifact retained as reference material.'
+kill_criterion_fired: false
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before this feature'
+    before:
+      label: 'No Android mapping'
+      value: 'iOS-only token system'
+      subtitle: 'No documented relationship between iOS tokens and Material Design 3. Future Android port would have to re-derive every mapping decision from scratch.'
+    afterLabel: 'After this feature'
+    after:
+      label: '92 tokens mapped'
+      value: 'config-android.json + 310-line ref doc'
+      subtitle: '46 colors → MD3 role mapping with hex, 22 typography styles → MD3 type scale, 8 spacing tokens → 4pt grid, 6+ radius → MD3 shape categories, 2 shadow → tonal elevation, 4 motion → MD3 motion specs. Style Dictionary generates `.kt` from existing `tokens.json`.'
+---
+
+## Why this is the reference example for research-only deliverables
+
+The PM workflow has a phase model: Research → PRD → Tasks → UX → Implement → Test → Review → Merge → Documentation. Most features execute all 9. Some legitimately don't.
+
+The android-design-system feature shipped on 2026-04-04 with **3 phases executed and 6 phases skipped**, where every skipped phase carries an explicit `status: skipped` and a rationale. This is the difference between *implicit* skip ("Tasks never started") and *explicit* skip ("Tasks not applicable — research-only deliverable, no implementation"). The PM workflow already supports this; android-design-system is the worked example.
+
+## What shipped
+
+| File | Lines | Purpose |
+|---|---|---|
+| `design-tokens/config-android.json` | 47 | Style Dictionary's Android output config |
+| `docs/design-system/android-token-mapping.md` | 310 | iOS → MD3 mapping reference |
+| `.claude/features/android-design-system/research.md` | 201 | Decision record |
+
+`tokens_mapped: 92/92`, `component_parity_audit: 13/13`, `style_dictionary_config_ready: true`. The metrics target the deliverable, not user behavior — appropriate for a research artifact.
+
+## Why this case study exists
+
+The original six-features-roundup (2026-04-20) consolidated 6 pre-rule features into one document because three of them had material too thin to support a dedicated case study. Android DS was in the "thin" group not because the work was thin (it wasn't — 92 token mappings + 310-line reference doc) but because **a case study about a documentation deliverable would effectively be a doc about a doc**.
+
+On 2026-05-05, the chain-of-custody initiative (full-repair-mode plan, Decision 3 + Q1 = Option 3 hybrid split) re-evaluated each section. Android DS was reclassified as "dense enough" — its source artifacts (PRD + research + tasks + a 310-line deliverable doc) justify a dedicated record, primarily because it's the **PM workflow's worked example for research-only deliverables**. Other features will reach this shape; the precedent should be findable as its own case study, not buried in a roundup.
+
+## Cross-feature lesson
+
+**Research-only deliverables are a real work type, not a degenerate one.** The PM workflow accommodates them via explicit-skip + rationale on every skipped phase. The metrics target the deliverable (`tokens_mapped` 92/92), not user behavior. Kill criterion targets the disposition decision ("defer if iOS core not stable"), not adoption. Future research-only features should follow this template.
+
+## Links
+
+- **FT2 case study (source):** [`docs/case-studies/android-design-system-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/android-design-system-case-study.md)
+- **Token mapping deliverable:** [`docs/design-system/android-token-mapping.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/design-system/android-token-mapping.md)
+- **Companion split-out case studies:** [`24b-gdpr-compliance`](./24b-gdpr-compliance), [`24c-google-analytics`](./24c-google-analytics)
+- **Original roundup parent:** `docs/case-studies/six-features-roundup-case-study.md` (FT2)
