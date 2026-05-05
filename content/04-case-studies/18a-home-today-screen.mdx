@@ -1,0 +1,96 @@
+---
+title: Home Today Screen v2 — The V2 Rule Pilot and Birth of Screen-Prefixed Analytics
+slug: home-today-screen-v2
+upstream_path: docs/case-studies/home-today-screen-v2-case-study.md
+tier: light
+timeline_position:
+  version: 'pre-v5.0'
+  order: 18.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: lifecycle
+date: '2026-04-09'
+parent_slug: null
+tldr: 'The second screen to go through a full UX Foundations alignment pass, and the first under the now-codified V2 Rule. Home v2 produced two project-wide rules as side effects: screen-prefixed analytics naming (home_action_tap, etc.) and the pattern of spinning out P1 concerns (status+goal merged card, metric-tile deep-linking) into their own PM cycles rather than expanding scope mid-flight.'
+key_numbers:
+  - label: 'v1 → v2 line count'
+    value: '1029 → 703 lines (~32% reduction)'
+    tier: T1
+  - label: 'Audit findings closed'
+    value: '27 (8 P0 / 14 P1 / 4 P2 / 1 positive)'
+    tier: T1
+  - label: 'Tasks completed'
+    value: '17 (T1–T17 in 4 layers)'
+    tier: T1
+  - label: 'Parallel-dispatched tasks (foundation layer)'
+    value: '7 (T1–T7)'
+    tier: T1
+  - label: 'PR / merge'
+    value: 'PR #61 → main as bf3bd67'
+    tier: T1
+  - label: 'Wall time (Phases 1-4 active)'
+    value: '~1 day (after Phase 0 backfill)'
+    tier: T2
+  - label: 'Project-wide rules spawned as side effects'
+    value: '2 (screen-prefixed analytics, P1 spin-out pattern)'
+    tier: T2
+honest_disclosures:
+  - 'Phase 0 (audit + plan) was a backfill — the v1 file existed before the V2 Rule was codified. Phases 1–4 ran fresh under the codified rule, but the trigger (the audit finding 27 issues) was retrospective.'
+  - 'Two P1 concerns (status+goal merged card, metric-tile deep-linking) were deferred to their own PM cycles. This was a deliberate scope-control decision, not a deferral of the audit findings. Those features later shipped as `home-status-goal-card` and `metric-tile-deep-linking` (both `current_phase: complete` on main).'
+  - 'Wall time is "active execution after audit" — does not include the audit + planning phase or the backfill of v1 history.'
+  - 'This showcase is being published 2026-05-05 (~1 month post-merge) as part of the chain-of-custody initiative (full-repair-mode plan, Decision 2 = publish). The case study itself was written 2026-04-09 at merge time; only the showcase MDX publication is new.'
+kill_criteria:
+  - 'V2 alignment regresses any token compliance metric (font / color / spacing / radius). Pre-v2 baseline: 100% across all four. Post-v2: must remain 100%.'
+  - 'P0 findings reopen in a future audit pass. Each closed P0 must stay closed.'
+kill_criterion_fired: false
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Home v1 (pre-V2 Rule)'
+    before:
+      label: 'Single 1,029-line file'
+      value: '27 audit findings'
+      subtitle: '8 P0 (raw colors, hardcoded spacing, missing a11y), 14 P1 (component re-extractions), 4 P2 (analytics + minor cleanup). Patched in place would have been ~700 lines of incremental edits.'
+    afterLabel: 'Home v2 (V2 Rule pilot)'
+    after:
+      label: 'v2/ subdirectory · 703 lines'
+      value: '27/27 closed · 2 rules spawned'
+      subtitle: 'New file at `Views/Main/v2/MainScreenView.swift`, same Swift type name. project.pbxproj swap removes v1 from Sources, keeps file reference for history. v1 annotated `HISTORICAL —`. 17 tasks across 4 layers (foundation / assembly / post-assembly / verification).'
+---
+
+## What the V2 Rule formalizes
+
+Onboarding v2 (PR #59) shipped the *spirit* of the rule but predates its codification — it patched v1 in place. Home v2 (PR #61) is the first feature where **the rule existed on paper AND was the exit criterion for the refactor**:
+
+1. A `v2/` subdirectory created next to the v1 file.
+2. Same Swift type name on both sides (`MainScreenView`) so imports and parent call-sites are untouched.
+3. A single `project.pbxproj` commit that removes v1 from the Sources build phase while keeping it as a file reference for history.
+4. v1 annotated as `HISTORICAL —` in a header comment.
+
+This is the template that Settings v2, Stats v2, Training v2, and every subsequent v2 refactor would follow.
+
+## Side effects: two project-wide rules
+
+Home v2 surfaced two concerns mid-execution that became project-wide rules:
+
+### 1. Screen-prefixed analytics naming
+
+Established during OQ-9 of the audit Decisions Log. Every analytics event tied to a screen carries that screen as a prefix: `home_action_tap`, `home_empty_state_shown`, `home_metric_tile_tap`, etc. Now enforced by `/analytics spec` across the whole app and documented in [CLAUDE.md "Analytics Naming Convention"](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md). Cross-screen lifecycle events (`app_open`, `session_start`) stay unprefixed; GA4-recommended events (`tutorial_begin`, `select_content`) keep their dictated names.
+
+### 2. P1 spin-out pattern
+
+Two P1 concerns identified during the audit (`status+goal merged card`, `metric-tile deep-linking`) were deferred to their own PM cycles rather than expanding Home v2's scope. Both later shipped as dedicated features (`home-status-goal-card` and `metric-tile-deep-linking`, both `current_phase: complete` on main). This validates the "narrow scope, spin out" pattern as a project-wide refactor discipline.
+
+## Cross-feature lesson
+
+**v2 alignment passes can spawn project-wide rules as side effects.** The audit decisions log is where these surface — when an audit decision generalizes beyond the screen being refactored, capture it as a project-wide rule (CLAUDE.md or skill SKILL.md), not just a feature-local note. Home v2 is the worked example of this pattern.
+
+## Links
+
+- **FT2 case study (source):** [`docs/case-studies/home-today-screen-v2-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/home-today-screen-v2-case-study.md)
+- **Spawned features:** `home-status-goal-card`, `metric-tile-deep-linking` (both complete on main)
+- **Spawned project-wide rule:** [CLAUDE.md "Analytics Naming Convention"](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md)
+- **V2 Rule reference:** [CLAUDE.md "UI Refactoring & V2 Rule"](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md)
+- **Companion v2 case studies:** [`16a-settings-v2`](./16a-settings-v2), [`22c-stats-v2`](./22c-stats-v2)

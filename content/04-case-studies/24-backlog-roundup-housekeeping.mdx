@@ -1,0 +1,86 @@
+---
+title: Backlog Roundup — Two Pre-Rule Features That Stay Roundup-Only
+slug: backlog-roundup-housekeeping
+upstream_path: docs/case-studies/six-features-roundup-case-study.md
+tier: light
+timeline_position:
+  version: 'pre-v5.0'
+  order: 24
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: lifecycle
+date: '2026-04-20'
+parent_slug: null
+tldr: 'Roundup of two features that pre-date the 2026-04-13 "every feature gets a case study" rule and have source material too thin to support a dedicated case study. Honest accounting: state.json + commits exist; PRD/research/tasks do not. Writing dedicated case studies for these would require either fabrication or file-tour redundancy with the PR diff. Three sibling features (gdpr-compliance, google-analytics, android-design-system) split out into their own case studies on 2026-05-05 because their source material is dense.'
+key_numbers:
+  - label: 'Features in this housekeeping roundup'
+    value: '2 (development-dashboard, ai-cohort-intelligence)'
+    tier: T1
+  - label: 'Sibling features split out (dense source material)'
+    value: '3 (gdpr-compliance, google-analytics, android-design-system)'
+    tier: T1
+  - label: 'Source artifacts per feature'
+    value: 'state.json only (no PRD, no research, no tasks, no ux-spec)'
+    tier: T1
+  - label: 'Both features carry case_study_type'
+    value: 'pre_pm_workflow_backfill (existing exempt type)'
+    tier: T1
+honest_disclosures:
+  - 'These two features genuinely lack rich source material. The honest record is "shipped pre-rule, captured retroactively via state.json + PR." A dedicated case study would have to either fabricate PM decisions that weren''t made, or be a file-tour redundant with the PR diff.'
+  - '`development-dashboard` is the only feature in the project that''s a standalone Astro/React web app, not iOS code. Its rich material is post-merge stabilization (~10 follow-up commits made it useful) — but each individual fix is small, and "many small fixes stabilized the dashboard" is thin narrative.'
+  - '`ai-cohort-intelligence` (federated learning engine) has 1 transition (`init → complete` on 2026-04-06) and a backfill note. PR #12 + state.json + the file diff is the only historical artifact.'
+  - 'This roundup MDX is the housekeeping replacement for the original 6-feature roundup. The 3 dense siblings now have dedicated showcases at slot 24a/24b/24c. The 6th feature in the original roundup (`stats-v2`) had its own dedicated case study before this split.'
+  - 'Originally drafted 2026-04-20. Narrowed and republished 2026-05-05 as part of the chain-of-custody initiative (full-repair-mode plan, Decision 3 + Q1 = Option 3 hybrid split).'
+kill_criteria:
+  - 'Not applicable — these are roundup entries for shipped pre-rule features. They cannot be killed; they''re historical record.'
+kill_criterion_fired: false
+---
+
+## Why this roundup exists
+
+The project rule from 2026-04-13 says every feature gets a case study. Some features pre-date that rule and have source material too thin to honestly support a dedicated case study.
+
+The 2026-04-20 six-features-roundup acknowledged this with an explicit stratification: 3 dense + 3 thin. The 3 dense ones were kept in the roundup at the time because consolidation was cleaner than mixing formats with the dedicated case studies the project was writing for post-rule features.
+
+On 2026-05-05, the chain-of-custody initiative re-evaluated. The 3 dense ones (gdpr-compliance, google-analytics, android-design-system) were split into dedicated case studies because their source material justified it. The 2 thin ones (this roundup) stay roundup-only.
+
+## The two features
+
+### development-dashboard
+
+**One-line headline:** The only feature in the project that's a standalone Astro/React web app rather than iOS code, with a full 10-transition PM lifecycle recorded and a long tail of follow-up fixes.
+
+| Field | Value |
+|---|---|
+| Scope | `dashboard/` — Astro + React + Tailwind v4 web app deployed on Vercel |
+| Merge | `7f69d07` (`--no-ff`) + ~10 post-merge fixes |
+| Wall time | ~6 hours initial, ~weeks of stabilization |
+| Tests | 9/9 reconcile tests pass |
+| Why thin | Web app off the iOS platform; rich material is post-merge fixes which are individually small |
+
+### ai-cohort-intelligence
+
+**One-line headline:** A federated learning engine that shipped before the PM workflow existed, captured retroactively with a single state transition.
+
+| Field | Value |
+|---|---|
+| Scope | AI engine (Python FastAPI) + iOS AI orchestration layer |
+| PR | #12 (`32f27bf`) |
+| Files | ~30+ new files (`ai-engine/app/` tree + `FitTracker/AI/`) |
+| Transitions | 1 (`init → complete` on 2026-04-06) |
+| Why thin | No research.md, no tasks.md, no UX spec, no phase-by-phase log. State.json explicitly marks Research/Tasks/UX/Testing/Review as `pre-pm-workflow`. |
+
+## Cross-feature lesson
+
+**Pre-rule features should be backfilled honestly, not narratively.** Some features just have a state.json and a PR. That's the correct record. Writing a dedicated case study for them would require either inventing PM decisions that weren't made (fabrication) or producing a file-tour that's redundant with the PR diff. The roundup format handles this cleanly: acknowledge the feature exists, name what shipped from the PR stats, link the backfilled state.json, and stop. The `case_study_type: pre_pm_workflow_backfill` tag in state.json is the schema record of this exemption.
+
+## Links
+
+- **FT2 source:** [`docs/case-studies/six-features-roundup-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/six-features-roundup-case-study.md)
+- **Sibling split-out case studies (dense features from same roundup):**
+  - [`24a-android-design-system`](./24a-android-design-system)
+  - [`24b-gdpr-compliance`](./24b-gdpr-compliance)
+  - [`24c-google-analytics`](./24c-google-analytics)
+- **Sibling already-dedicated case study:** [`22c-stats-v2`](./22c-stats-v2)
