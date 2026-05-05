@@ -43,8 +43,40 @@ const DEFAULT_PATHS: SyncPaths = {
   ft2Features:    resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'features'),
   localShared:    resolve(FITME_STORY_ROOT, 'src', 'data', 'shared'),
   localFeatures:  resolve(FITME_STORY_ROOT, 'src', 'data', 'features'),
+  localDocs:      resolve(FITME_STORY_ROOT, 'src', 'data', 'docs'),
   freshnessPath:  resolve(FITME_STORY_ROOT, 'src', 'data', 'freshness.json'),
 };
+
+// Source markdowns the control-room parsers consume. Paths are relative to
+// FT2 root and the same relative structure is preserved under src/data/docs/
+// so parsers can use a single repoRoot variable that points at either FT2 or
+// the synced snapshot.
+//
+// FT2_DOC_PATHS is REQUIRED (sync fails fast if any are missing — these feed
+// the parsers directly). FT2_DOC_TREES + FT2_ROOT_DOCS are OPTIONAL (sync
+// includes whatever is present — these feed the knowledge-hub UI surface
+// only and gracefully degrade if missing).
+const FT2_DOC_PATHS: readonly string[] = [
+  'docs/product/backlog.md',
+  'docs/product/PRD.md',
+  'docs/product/metrics-framework.md',
+  'docs/master-plan/master-backlog-roadmap.md',
+];
+
+// Directory subtrees walked recursively for knowledge-hub content.
+const FT2_DOC_TREES: readonly string[] = [
+  'docs',
+];
+
+// Root-level files the builder references explicitly via buildMarkdownDoc.
+const FT2_ROOT_DOCS: readonly string[] = [
+  'README.md',
+  'CLAUDE.md',
+  'ai-engine/README.md',
+  'backend/README.md',
+];
+
+const KNOWLEDGE_HUB_EXTENSIONS = new Set(['.md', '.csv']);
 
 interface SyncPaths {
   ft2Root: string;
@@ -52,6 +84,7 @@ interface SyncPaths {
   ft2Features: string;
   localShared: string;
   localFeatures: string;
+  localDocs: string;
   freshnessPath: string;
 }
 
@@ -62,6 +95,10 @@ interface FreshnessReport {
   counts: {
     sharedFiles: number;
     featureFiles: number;
+    /** Required parser-input markdowns (FT2_DOC_PATHS). */
+    docFiles: number;
+    /** Optional knowledge-hub markdowns + root READMEs. */
+    kbFiles: number;
     bytesTotal: number;
   };
   checkedFiles: string[];
@@ -80,9 +117,29 @@ function copyJsonFile(srcPath: string, dstPath: string): { bytes: number } {
   return { bytes: Buffer.byteLength(raw, 'utf8') };
 }
 
+function copyTextFile(srcPath: string, dstPath: string): { bytes: number } {
+  const raw = readFileSync(srcPath, 'utf8');
+  mkdirSync(resolve(dstPath, '..'), { recursive: true });
+  writeFileSync(dstPath, raw);
+  return { bytes: Buffer.byteLength(raw, 'utf8') };
+}
+
+/**
+ * Recursively walk a directory and yield every file path.
+ * Skips .DS_Store and .gitkeep noise that the macOS filesystem leaves around.
+ */
+function walkDir(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    if (entry.name === '.DS_Store' || entry.name === '.gitkeep') return [];
+    const full = join(dir, entry.name);
+    return entry.isDirectory() ? walkDir(full) : [full];
+  });
+}
+
 async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<FreshnessReport> {
   const startedAt = Date.now();
-  const { ft2Root, ft2Shared, ft2Features, localShared, localFeatures, freshnessPath } = paths;
+  const { ft2Root, ft2Shared, ft2Features, localShared, localFeatures, localDocs, freshnessPath } = paths;
 
   if (!existsSync(ft2Root)) {
     // Option A fallback: when FT2 isn't on disk (e.g. Vercel builders, fresh
@@ -96,7 +153,7 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
         syncedAt: new Date(0).toISOString(),
         durationMs: 0,
         source: 'committed-snapshot (FT2 not present at build time)',
-        counts: { sharedFiles: 0, featureFiles: 0, bytesTotal: 0 },
+        counts: { sharedFiles: 0, featureFiles: 0, docFiles: 0, kbFiles: 0, bytesTotal: 0 },
         checkedFiles: [],
       };
       // Don't overwrite an existing freshness.json — preserve the
@@ -123,8 +180,10 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
   // Wipe + recreate target dirs to avoid stale leftovers when files are removed upstream.
   if (existsSync(localShared)) rmSync(localShared, { recursive: true, force: true });
   if (existsSync(localFeatures)) rmSync(localFeatures, { recursive: true, force: true });
+  if (existsSync(localDocs)) rmSync(localDocs, { recursive: true, force: true });
   mkdirSync(localShared, { recursive: true });
   mkdirSync(localFeatures, { recursive: true });
+  mkdirSync(localDocs, { recursive: true });
 
   let bytesTotal = 0;
   const checked: string[] = [];
@@ -163,14 +222,61 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     checked.push(`features/${feature}.json`);
   }
 
+  // Phase A: REQUIRED parser inputs. These four markdowns feed the
+  // control-room parsers directly; sync fails fast if any are missing.
+  // Tracked under the `md/` lane in checkedFiles.
+  for (const docPath of FT2_DOC_PATHS) {
+    const docSrc = resolve(ft2Root, docPath);
+    if (!existsSync(docSrc)) {
+      throw new Error(`FT2 doc missing: ${docSrc}`);
+    }
+    const docDst = join(localDocs, docPath);
+    const { bytes } = copyTextFile(docSrc, docDst);
+    bytesTotal += bytes;
+    checked.push(`md/${docPath}`);
+  }
+
+  // Phase B: OPTIONAL knowledge-hub content. Walks each configured tree
+  // recursively and copies every .md / .csv file. Files duplicated from
+  // Phase A are skipped (already copied + already counted under `md/`).
+  // Tracked under the `kb/` lane in checkedFiles to keep parser input
+  // counts clean.
+  const phaseAPathSet = new Set(FT2_DOC_PATHS);
+  for (const tree of FT2_DOC_TREES) {
+    const treeRoot = resolve(ft2Root, tree);
+    for (const fullPath of walkDir(treeRoot)) {
+      const ext = fullPath.slice(fullPath.lastIndexOf('.'));
+      if (!KNOWLEDGE_HUB_EXTENSIONS.has(ext)) continue;
+      const relPath = fullPath.slice(ft2Root.length + 1);
+      if (phaseAPathSet.has(relPath)) continue;
+      const docDst = join(localDocs, relPath);
+      const { bytes } = copyTextFile(fullPath, docDst);
+      bytesTotal += bytes;
+      checked.push(`kb/${relPath}`);
+    }
+  }
+
+  // Phase C: OPTIONAL root-level files the builder references explicitly
+  // (buildMarkdownDoc('README.md', ...) etc.). Soft-fail on missing.
+  for (const rootPath of FT2_ROOT_DOCS) {
+    const docSrc = resolve(ft2Root, rootPath);
+    if (!existsSync(docSrc)) continue;
+    const docDst = join(localDocs, rootPath);
+    const { bytes } = copyTextFile(docSrc, docDst);
+    bytesTotal += bytes;
+    checked.push(`kb/${rootPath}`);
+  }
+
   const sharedFiles = checked.filter((c) => c.startsWith('shared/')).length;
   const featureFiles = checked.filter((c) => c.startsWith('features/')).length;
+  const docFiles = checked.filter((c) => c.startsWith('md/')).length;
+  const kbFiles = checked.filter((c) => c.startsWith('kb/')).length;
 
   const report: FreshnessReport = {
     syncedAt: new Date().toISOString(),
     durationMs: Date.now() - startedAt,
     source: ft2Root,
-    counts: { sharedFiles, featureFiles, bytesTotal },
+    counts: { sharedFiles, featureFiles, docFiles, kbFiles, bytesTotal },
     checkedFiles: checked,
   };
 
@@ -183,7 +289,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   syncDashboardData()
     .then((r) => {
       console.log(
-        `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
+        `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features + ${r.counts.docFiles} parser docs + ${r.counts.kbFiles} kb docs (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
       );
       console.log(`  freshness: ${DEFAULT_PATHS.freshnessPath}`);
     })

@@ -30,6 +30,48 @@ Production deploys happen automatically on push to `main` via the Vercel Git int
 vercel --prod
 ```
 
+## Operations control room (`/control-room`)
+
+The site hosts an operator dashboard at [`/control-room`](https://fitme-story.vercel.app/control-room) alongside the public showcase. It surfaces every framework gate, every cycle snapshot, every measurement-adoption ledger, and the case-study feed. Code lives entirely under `src/{app,components,lib}/control-room/*` plus `scripts/sync-from-fittracker2.ts` plus `src/proxy.ts` plus `src/data/control-room-seeds/` — see [`EXTRACTION-RECIPE.md`](EXTRACTION-RECIPE.md) for the co-location rule and the 7-step playbook for breaking the dashboard out into its own repo.
+
+### Pre-build sync
+
+Before each `next build`, [`scripts/sync-from-fittracker2.ts`](scripts/sync-from-fittracker2.ts) mirrors data from the FitTracker2 repo into `src/data/`:
+
+- `.claude/shared/*.json` → `src/data/shared/`
+- `.claude/features/<name>/state.json` → `src/data/features/<name>.json`
+- 4 parser-required markdowns (PRD, backlog, metrics, master roadmap) → `src/data/docs/` (`md/` lane, fail-fast on missing)
+- ~270 knowledge-hub markdowns from FT2 `docs/` + 4 root READMEs → `src/data/docs/` (`kb/` lane, soft-skip on missing)
+
+Two source modes:
+
+1. **FT2 sibling on disk** (local dev) — clone FitTracker2 alongside fitme-story; `npm run prebuild` reads from there.
+2. **Vercel build clones FT2** (production) — `vercel.json` runs `git clone --depth=1 ... ../FitTracker2 && npm run build` using `FITTRACKER2_DEPLOY_TOKEN`.
+3. **Committed snapshot fallback** — if FT2 isn't present, the build uses whatever was last committed under `src/data/`. Build still succeeds; `freshness.json` flags the source as stale.
+
+### Blind-switch privacy gate (3 layers)
+
+The dashboard is gated by three independent layers so a single misconfiguration can't expose it:
+
+| Layer | Code | Behavior |
+|---|---|---|
+| **1 — basic-auth proxy** | [`src/proxy.ts`](src/proxy.ts) | Intercepts every request to `/control-room/*`. Requires `DASHBOARD_USER` + `DASHBOARD_PASS` env vars; rejects unauthenticated requests with HTTP 401. Override with `DASHBOARD_PUBLIC=true` to disable auth (e.g., for a temporary public-mode demo). |
+| **2 — crawler exclusion** | `app/sitemap.ts`, `app/robots.ts` | `/control-room/*` is excluded from the sitemap and disallowed in robots.txt. Crawlers and link-preview bots can't discover the routes even if the auth gate is up. |
+| **3 — build-time strip** | `next.config.ts` | When `DASHBOARD_BUILD=false`, every `/control-room/*` route rewrites to `/404` and the dashboard bundle is dropped via `webpack.IgnorePlugin`. Used for emergency takedowns or for staging environments that should never ship the dashboard at all. |
+
+[`scripts/verify-blind-switch.sh`](scripts/verify-blind-switch.sh) runs 5 acceptance assertions across all three layers against any deploy URL:
+
+```bash
+npm run verify-blind-switch                                # against production alias
+./scripts/verify-blind-switch.sh https://fitme-story-pr-X.vercel.app    # against a preview URL
+```
+
+CI runs it automatically on every PR touching `proxy.ts`, `sitemap.ts`, `robots.ts`, or `next.config.ts` via [`.github/workflows/verify-blind-switch.yml`](.github/workflows/verify-blind-switch.yml).
+
+### Required env vars
+
+See [`EXTRACTION-RECIPE.md`](EXTRACTION-RECIPE.md) `§ Vercel env-var setup` for the validated `vercel env add` recipe. Five vars: `DASHBOARD_PUBLIC`, `DASHBOARD_USER`, `DASHBOARD_PASS`, `DASHBOARD_BUILD`, `FITTRACKER2_DEPLOY_TOKEN`.
+
 ## Content model
 
 Case studies live in [content/04-case-studies/](content/04-case-studies). Each MDX declares tier (`flagship` | `standard` | `light` | `appendix`) and optional `timeline_position` + `upstream_path`. The `upstream_path` field points to the canonical long-form case study in the FitTracker2 repo, and the site renders a "Read the full case study on GitHub" CTA at the bottom of every article that sets it.

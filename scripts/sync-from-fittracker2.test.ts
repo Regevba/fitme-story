@@ -36,6 +36,7 @@ function makePaths(): { paths: SyncPaths; tmpRoot: string; cleanup: () => void }
     ft2Features:    join(tmpRoot, 'FitTracker2', '.claude', 'features'),
     localShared:    join(tmpRoot, 'fitme-story', 'src', 'data', 'shared'),
     localFeatures:  join(tmpRoot, 'fitme-story', 'src', 'data', 'features'),
+    localDocs:      join(tmpRoot, 'fitme-story', 'src', 'data', 'docs'),
     freshnessPath:  join(tmpRoot, 'fitme-story', 'src', 'data', 'freshness.json'),
   };
   // Pre-create the fitme-story output dir so sync can write into it.
@@ -52,16 +53,31 @@ function writeJson(path: string, obj: unknown) {
   writeFileSync(path, JSON.stringify(obj, null, 2));
 }
 
+function writeText(path: string, body: string) {
+  mkdirSync(join(path, '..'), { recursive: true });
+  writeFileSync(path, body);
+}
+
+// Create the four FT2 source markdowns the parsers (and sync) expect. Tests
+// that build a complete FT2 root must call this before invoking the sync.
+function writeFt2Docs(ft2Root: string) {
+  writeText(join(ft2Root, 'docs/product/backlog.md'), '# Backlog\n## Done\n');
+  writeText(join(ft2Root, 'docs/product/PRD.md'), '# PRD\n## 1.1 Problem\n');
+  writeText(join(ft2Root, 'docs/product/metrics-framework.md'), '# Metrics\n## 1. Core\n');
+  writeText(join(ft2Root, 'docs/master-plan/master-backlog-roadmap.md'), '# Roadmap\nRICE PRIORITIZATION MATRIX\n');
+}
+
 // ── Test 1: happy path ───────────────────────────────────────────────
-test('syncDashboardData copies shared + feature files and writes freshness.json', async () => {
+test('syncDashboardData copies shared + feature + doc files and writes freshness.json', async () => {
   const { paths, cleanup } = makePaths();
   try {
-    // Source layout: 2 top-level shared files + 1 feature with state.json
+    // Source layout: 2 top-level shared files + 1 feature with state.json + 4 docs
     writeJson(join(paths.ft2Shared, 'topology.json'), { count: 11 });
     writeJson(join(paths.ft2Shared, 'change-log.json'), [{ id: 1 }]);
     writeJson(join(paths.ft2Features, 'feature-a', 'state.json'), {
       current_phase: 'implementation',
     });
+    writeFt2Docs(paths.ft2Root);
 
     const report = await syncDashboardData(paths);
 
@@ -69,6 +85,10 @@ test('syncDashboardData copies shared + feature files and writes freshness.json'
     assert.ok(existsSync(join(paths.localShared, 'topology.json')), 'topology.json copied');
     assert.ok(existsSync(join(paths.localShared, 'change-log.json')), 'change-log.json copied');
     assert.ok(existsSync(join(paths.localFeatures, 'feature-a.json')), 'feature-a.json copied');
+    assert.ok(existsSync(join(paths.localDocs, 'docs/product/backlog.md')), 'backlog.md copied');
+    assert.ok(existsSync(join(paths.localDocs, 'docs/product/PRD.md')), 'PRD.md copied');
+    assert.ok(existsSync(join(paths.localDocs, 'docs/product/metrics-framework.md')), 'metrics-framework.md copied');
+    assert.ok(existsSync(join(paths.localDocs, 'docs/master-plan/master-backlog-roadmap.md')), 'roadmap copied');
 
     // Content roundtrips correctly.
     const copied = JSON.parse(readFileSync(join(paths.localShared, 'topology.json'), 'utf8'));
@@ -79,13 +99,16 @@ test('syncDashboardData copies shared + feature files and writes freshness.json'
     const fresh = JSON.parse(readFileSync(paths.freshnessPath, 'utf8'));
     assert.equal(fresh.counts.sharedFiles, 2);
     assert.equal(fresh.counts.featureFiles, 1);
+    assert.equal(fresh.counts.docFiles, 4);
     assert.ok(fresh.counts.bytesTotal > 0);
     assert.ok(fresh.checkedFiles.includes('shared/topology.json'));
     assert.ok(fresh.checkedFiles.includes('features/feature-a.json'));
+    assert.ok(fresh.checkedFiles.includes('md/docs/product/backlog.md'));
 
     // The returned report matches what was written.
     assert.equal(report.counts.sharedFiles, 2);
     assert.equal(report.counts.featureFiles, 1);
+    assert.equal(report.counts.docFiles, 4);
   } finally {
     cleanup();
   }
@@ -98,6 +121,7 @@ test('syncDashboardData recurses one level into shared/ subdirectories', async (
     writeJson(join(paths.ft2Shared, 'hadf', 'chip-profiles.json'), { v: 1 });
     writeJson(join(paths.ft2Shared, 'hadf', 'cloud-signatures.json'), { v: 2 });
     writeJson(join(paths.ft2Features, 'noop-feature', 'state.json'), {});
+    writeFt2Docs(paths.ft2Root);
 
     const report = await syncDashboardData(paths);
 
@@ -119,6 +143,7 @@ test('syncDashboardData skips feature directories without state.json', async () 
     // This feature dir has docs but no state.json — should be silently skipped.
     mkdirSync(join(paths.ft2Features, 'no-state'), { recursive: true });
     writeFileSync(join(paths.ft2Features, 'no-state', 'README.md'), '# nothing useful');
+    writeFt2Docs(paths.ft2Root);
 
     const report = await syncDashboardData(paths);
 
@@ -140,12 +165,82 @@ test('syncDashboardData throws when an upstream file contains invalid JSON', asy
     mkdirSync(paths.ft2Shared, { recursive: true });
     writeFileSync(join(paths.ft2Shared, 'bad.json'), '{ this is not json');
     writeJson(join(paths.ft2Features, 'a', 'state.json'), {});
+    writeFt2Docs(paths.ft2Root);
 
     await assert.rejects(
       () => syncDashboardData(paths),
       /Invalid JSON/,
       'sync must throw on invalid upstream JSON'
     );
+  } finally {
+    cleanup();
+  }
+});
+
+// ── Test 4b: missing FT2 source markdown fails fast ──────────────────
+test('syncDashboardData throws when an FT2 source markdown is missing', async () => {
+  const { paths, cleanup } = makePaths();
+  try {
+    writeJson(join(paths.ft2Shared, 'a.json'), {});
+    writeJson(join(paths.ft2Features, 'a', 'state.json'), {});
+    // Deliberately do not call writeFt2Docs — every doc is missing.
+
+    await assert.rejects(
+      () => syncDashboardData(paths),
+      /FT2 doc missing/,
+      'sync must throw when an expected source markdown is absent'
+    );
+  } finally {
+    cleanup();
+  }
+});
+
+// ── Test 4c: knowledge-hub tree + root files are mirrored ────────────
+test('syncDashboardData mirrors the full FT2 docs tree and root READMEs into the kb lane', async () => {
+  const { paths, cleanup } = makePaths();
+  try {
+    writeJson(join(paths.ft2Shared, 'a.json'), {});
+    writeJson(join(paths.ft2Features, 'a', 'state.json'), {});
+    writeFt2Docs(paths.ft2Root);
+
+    // Extra knowledge-hub files at various depths inside docs/.
+    writeText(join(paths.ft2Root, 'docs/case-studies/example.md'), '# Example');
+    writeText(join(paths.ft2Root, 'docs/skills/README.md'), '# Skills');
+    writeText(join(paths.ft2Root, 'docs/skills/sub/nested.md'), '# Nested');
+    writeText(join(paths.ft2Root, 'docs/product/analytics-taxonomy.csv'), 'event,scope\nfoo,bar');
+    writeText(join(paths.ft2Root, 'docs/.DS_Store'), 'noise'); // should be skipped
+    writeText(join(paths.ft2Root, 'docs/skills/foo.txt'), 'wrong ext'); // should be skipped
+
+    // Root-level files the builder explicitly references.
+    writeText(join(paths.ft2Root, 'README.md'), '# Root README');
+    writeText(join(paths.ft2Root, 'CLAUDE.md'), '# CLAUDE');
+    // ai-engine/README.md and backend/README.md deliberately missing —
+    // soft-skip should not fail the run.
+
+    const report = await syncDashboardData(paths);
+
+    // Required parser-input docs counted under docFiles (4).
+    assert.equal(report.counts.docFiles, 4);
+
+    // Optional kb files: 4 walked into docs subtree + 2 root files = 6.
+    // (.DS_Store skipped, .txt skipped, ai-engine/backend READMEs absent.)
+    assert.equal(report.counts.kbFiles, 6);
+
+    // Files actually exist on disk under the localDocs lane.
+    assert.ok(existsSync(join(paths.localDocs, 'docs/case-studies/example.md')));
+    assert.ok(existsSync(join(paths.localDocs, 'docs/skills/README.md')));
+    assert.ok(existsSync(join(paths.localDocs, 'docs/skills/sub/nested.md')));
+    assert.ok(existsSync(join(paths.localDocs, 'docs/product/analytics-taxonomy.csv')));
+    assert.ok(existsSync(join(paths.localDocs, 'README.md')));
+    assert.ok(existsSync(join(paths.localDocs, 'CLAUDE.md')));
+
+    // Noise filtered out.
+    assert.ok(!existsSync(join(paths.localDocs, 'docs/.DS_Store')));
+    assert.ok(!existsSync(join(paths.localDocs, 'docs/skills/foo.txt')));
+
+    // checkedFiles uses the `kb/` lane prefix for these.
+    assert.ok(report.checkedFiles.includes('kb/docs/case-studies/example.md'));
+    assert.ok(report.checkedFiles.includes('kb/README.md'));
   } finally {
     cleanup();
   }
@@ -166,6 +261,8 @@ test('syncDashboardData falls back to committed snapshot when FT2 is absent', as
     assert.equal(report.source, 'committed-snapshot (FT2 not present at build time)');
     assert.equal(report.counts.sharedFiles, 0);
     assert.equal(report.counts.featureFiles, 0);
+    assert.equal(report.counts.docFiles, 0);
+    assert.equal(report.counts.kbFiles, 0);
     assert.equal(report.syncedAt, new Date(0).toISOString(),
       'fallback report uses epoch timestamp to signal "no fresh sync"');
     // Freshness file written when none existed before.
