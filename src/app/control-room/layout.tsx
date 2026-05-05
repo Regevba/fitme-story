@@ -68,7 +68,7 @@ const PRIMARY_NAV: NavItem[] = [
   { href: '/control-room', label: 'Overview', built: true },
   { href: '/control-room/board', label: 'Board', built: true },
   { href: '/control-room/table', label: 'Table', built: true },
-  { href: '/control-room/tasks', label: 'Tasks', built: false },
+  { href: '/control-room/tasks', label: 'Tasks', built: true },
   { href: '/control-room/knowledge', label: 'Knowledge', built: true },
 ];
 
