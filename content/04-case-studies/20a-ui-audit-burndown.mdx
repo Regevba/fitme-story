@@ -56,7 +56,6 @@ visual_aid:
       subtitle: 'ui-audit promoted into verify-local depchain. Any future raw Color literal, raw animation, raw Font.system, or Color("name") without a backing colorset fails the local + CI gate.'
     delta: 'observability → enforcement'
 ---
-# UI-Audit Baseline Burndown — P0 27 → 0 and a Hard Gate
 
 > The `make ui-audit` scanner shipped on branch `claude/review-ui-consistency-zSkvJ` and established a per-view design-system compliance contract: raw Color literals, raw animations, raw fonts, magic numbers, missing a11y, and — crucially — the silent fallback bug where `Color("name")` references a non-existent colorset. At rest, 27 P0 + 103 P1 across 44 files. Because baseline P0 ≠ 0, the scanner could only run as advisory, not as a `verify-local` gate. This burndown closed the gap.
 

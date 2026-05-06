@@ -55,7 +55,6 @@ visual_aid:
           - t: 310
             label: 'persistToDisk(B)'
 ---
-# The Dual-Sync Race — Two Backends, One Last-Writer-Wins Silence
 
 > The audit's top backend finding: two sync paths that both pull on login with no coordination. Whichever one finishes last wins. This is the case study of how a structural audit surfaced a data-integrity bug that unit tests, manual QA, and day-to-day usage had all missed.
 

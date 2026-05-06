@@ -55,7 +55,6 @@ visual_aid:
       subtitle: '5 screens in `Settings/v2/Screens/`, 3 component bundles in `Settings/v2/Components/`. Coordinator routes only. UI-002 closed.'
     delta: '~75% line reduction across 4 PRs'
 ---
-# SettingsView v2 — 1170 → 294 Lines via Phased Decomposition
 
 > M-1 closed audit finding UI-002 ("SettingsView.swift, 1170 lines, too many responsibilities"). The 1170-line file was already well-structured internally — five `private struct *SettingsScreen: View` blocks called from a `navigationDestination` switch — so the work was mechanical-but-careful: extract each block to its own file, bump `private` → internal so the coordinator can still reach them, add a `Screens` PBXGroup to `project.pbxproj`. Same again for shared scaffolds + form components in M-1b, and home-view sub-components in M-1c. Pure structural refactor; zero behaviour change.
 
