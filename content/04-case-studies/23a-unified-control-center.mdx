@@ -1,0 +1,117 @@
+---
+title: "Unified Control Center — Migrating an Operator Dashboard Across Two Repos in 11 Days"
+slug: unified-control-center
+upstream_path: docs/case-studies/unified-control-center-case-study.md
+tier: light
+tldr: "Retired the legacy Astro operator dashboard, migrated it inside the public showcase as a basic-auth-gated /control-room route, instrumented all 8 GA4 events, killed the standalone Vercel project. 11 days, 42/44 tasks done + 1 deferred, 20 PRs across 2 repos, 0 showcase regressions. Pre-state TTC baseline unmeasurable; post-state establishes the production baseline."
+timeline_position:
+  version: '7.8'
+  order: 23.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-05-06'
+shipped_window: '2026-04-26 → 2026-05-06'
+work_type: feature
+external_audit_status: pending
+key_numbers:
+  - label: "Tasks done"
+    value: "42 / 44"
+    tier: T1
+    note: "1 deferred (T2.5 baseline upgrade) — documented reason"
+  - label: "Calendar window"
+    value: "11 days"
+    tier: T1
+    note: "research → formal close, 2026-04-26 → 2026-05-06"
+  - label: "PRs landed"
+    value: "20"
+    tier: T1
+    note: "across FitTracker2 + fitme-story repos"
+  - label: "GA4 events wired"
+    value: "8 / 8"
+    tier: T1
+    note: "all PRD §10.1 events instrumented + 13-test unit suite"
+  - label: "Showcase regressions"
+    value: "0"
+    tier: T2
+    note: "declared from build success across all PRs; no formal regression test wired"
+---
+
+# Unified Control Center
+
+## TL;DR
+
+The legacy Astro operator dashboard at `fit-tracker2.vercel.app` had drifted from the FitMe brand, maintained its own component library, and by the end of its life couldn't reliably emit the GA4 events its own measurement plan required. **UCC retired all of it.** The dashboard is now `fitme-story.vercel.app/control-room/*` — a basic-auth-gated route inside the public showcase, indigo/coral/warm-stone tokens shared with the rest of the site, all 8 PRD §10.1 GA4 events instrumented from day one, and the legacy Vercel project deleted post-verification.
+
+**11 days** from research to formal close · **42 of 44 implementation tasks done · 1 deferred (intentionally)** · **20 PRs across two repos** · **0 regressions** on the public showcase throughout.
+
+The honest disclosure up front: the case study's primary metric (Time-to-Confidence) does **not** have a clean before/after. Pre-migration baseline is **T2 Declared** with sample size 2 (the legacy dashboard's instrumentation broke before the 7-day window closed). Post-migration measurement is **T1 Instrumented** but pending — the new dashboard ships with all events wired; ≥7 days of operator traffic accrue before a meaningful read. **The "before" wasn't measurable, so the "after" establishes the baseline.** That's the most honest framing we could write.
+
+## Architecture decisions (locked, not re-litigated)
+
+1. **Arch A — same Vercel project, separate routes.** Dashboard code lives next to the showcase under `fitme-story/src/{app,components,lib}/control-room/*`. ESLint rule (T13) blocks reverse imports from showcase → control-room.
+2. **Pattern 4.b — pre-build sync.** `scripts/sync-from-fittracker2.ts` copies `.claude/shared/*.json` + per-feature `state.json` + `.claude/integrity/snapshots/*.json` + the FT2 docs tree into `src/data/` before `next build`. Vercel build clones FT2 (shallow, deploy key) before sync.
+3. **Blind-switch 3 layers** — `proxy.ts` basic-auth on `/control-room/*`, `sitemap.ts` + `robots.ts` exclude, `next.config.ts` `DASHBOARD_BUILD` flag.
+4. **Extraction-ready** — `EXTRACTION-RECIPE.md` (T39) documents the 7-step playbook to lift the dashboard back to a standalone project if needed.
+
+## What shipped
+
+| Surface | Source | Outcome |
+|---|---|---|
+| `/control-room` (Overview) | Hero + NumbersPanel + Phase legend + Recent activity + Framework Health card | Live, gated |
+| `/control-room/board` (Kanban) | Phase-bucketed cards · clickable to PRD on GitHub | Live |
+| `/control-room/table` | 6-column sortable + searchable + localStorage-persisted view | Live |
+| `/control-room/tasks` | Flat TaskCard grid grouped by status | Live |
+| `/control-room/knowledge` | Doc index + case-study cards with click-tracking | Live |
+| `/control-room/framework` | Tier 1.1 adoption trend + doc-debt coverage + 72h cycle snapshot + automation map | Live (data flowing after fitme-story #39 fixed the sync gap) |
+| Cmd+K command palette | Linear-style overlay · 60+ commands across Navigate / Actions / Features groups | Live |
+| Public showcase nav | "Control Center 🔒" entry · opens new tab · auth dialog appears only on click | Live |
+| Daily sync routine | `trig_01ThxQphvQQa8tyWMsxiyhdm` · fires 09:00 IDT · auto-attached Linear + Notion + 6 other MCPs | Live (first fire 2026-05-07) |
+
+## Outcomes (tier-tagged)
+
+| Dimension | Pre-UCC | Post-UCC | Tier |
+|---|---|---|---|
+| Operator dashboard host | Separate Vercel project | Same project as showcase, gated route | T1 |
+| Stack | Astro 6 + React 19 + Tailwind v3 | Next.js 16 + React 19 + Tailwind v4 | T1 |
+| Auth | None (URL was effectively obscure) | Basic-auth via `proxy.ts` Layer 1 | T1 |
+| GA4 instrumentation | 2 events broken at end of window | 8/8 events wired + 13-test unit suite | T1 |
+| TTC primary metric | T2 Declared ~8s, n=2 noisy | T1 Instrumented pending (≥7d post-launch) | T2 → deferred |
+| Showcase regression | n/a | 0 | T1 (build success across all PRs) |
+
+## Five honest disclosures
+
+1. **Pre-state baseline is unmeasurable.** Documented in `state.json::tasks[T2.5].status = "deferred"`. Post-launch GA4 establishes the production T1 baseline.
+2. **CI side-fix during the window.** Multi-week parallel-clone simulator hang env-flake (24+ failed runs) diagnosed and fixed mid-UCC via FT2 #225. Two-layer root cause: `FitTracker.xcscheme` `parallelizable=YES` overriding the CI's `-parallel-testing-enabled NO` flag, plus a secondary `AuthPolishV2UITests` zombie-app-instance bug surfaced after the scheme fix. Research at `docs/case-studies/meta-analysis/ci-env-flake-research-2026-05-05.md`.
+3. **Turbopack `new URL` regression.** UCC T26 was the first route to import the parser chain reaching `types.ts`; surfaced a Turbopack module-resolution bug. Fixed in fitme-story #34.
+4. **PR #37 → #38 squash-merge race.** First commit shipped with default `next/link` prefetch, which fired a background 401 from `proxy.ts` and surfaced an unexpected auth dialog. The follow-up commit (target=_blank, no prefetch) was orphaned by an early squash-merge; recovered in fitme-story #38.
+5. **PRD §13 30-day rollback window deviated.** Original plan kept the legacy dashboard alive 30 days as a safety net. User authorized immediate deletion 2026-05-06 because (a) new dashboard verified working, (b) legacy instrumentation already broken (no rollback value), (c) discovery preserved via showcase nav.
+
+## Lessons for future migrations
+
+1. **Measure pre-state instrumentation BEFORE committing to "before/after" framing.** UCC's TTC metric was right; the legacy surface couldn't reliably emit the events. Add a "measurement viability check" sub-task to the start of implementation; if pre-state can't be measured, switch to "post-state baseline" framing immediately.
+2. **For browser auth UX, prefer `target="_blank"` over inline navigation.** Cancel-on-401 strands users; a new tab preserves the originating context.
+3. **`vercel env add` interactive only.** No `echo`/`printf` pipes — they silently append `\n` and your auth gate becomes a debugging nightmare.
+4. **Squash-merge race is a real failure mode.** When iterating right before merge, double-check the branch HEAD.
+5. **`deferred` task status is honest, not failure.** Better than (a) faking the task done with a placeholder or (b) leaving it perpetually `pending` without explanation.
+
+## Where things go from here
+
+- **T2.5 follow-up** (non-blocking) — once ≥7 days of operator traffic accrue on the new dashboard, query GA4 for `dashboard_load` + `dashboard_blocker_acknowledged` sessions; compute TTC p50/p90; update `baseline-ttc.json` to T1 Instrumented.
+- **Drag-to-update on Kanban** — the Wave 1 Kanban port is status-only. `dashboard_kanban_drag` GA4 helper is shipped as a stub for when drag UX lands.
+- **Per-feature drill-down route** — `TaskTree` component is shipped as a reusable primitive without an immediate consumer. Natural future host.
+
+## Cross-cutting framework signals
+
+- **v7.5 data integrity** — All 4 paired write-time + cycle-time defenses applied to UCC's state.json across the implementation window. Zero gate violations.
+- **v7.6 mechanical enforcement** — All write-time gates fired correctly on every reconcile commit. Zero skirts.
+- **v7.7 validity closure** — `cu_v2` schema present; case-study tier tags present.
+- **v7.8 bridge** — Cache-hit logging captured ~6 events during the implementation window; honesty ledger entry pending.
+
+## Closing
+
+This is the first FitMe feature that spanned two repositories within a single 11-day window. Cross-repo overhead was real (2 PR queues, 2 CI pipelines, 2 Vercel projects → 1) but the architectural payoff (one design system, one deploy pipeline, one auth gate, one analytics surface) justified it. The pattern for future cross-repo migrations: Pattern 4.b sync + ESLint reverse-import lock + a single source-of-truth state.json + post-launch baseline measurement when pre-state instrumentation is unreliable.
+
+Full source case study with timeline detail, hard/easy retrospective, and per-task notes: [`docs/case-studies/unified-control-center-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/unified-control-center-case-study.md).
