@@ -13,8 +13,9 @@
  * this island re-orders + filters in place. No data fetch on the client.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useViewPrefs } from '@/lib/control-room/use-view-prefs';
+import { trackFilterApply } from '@/lib/control-room/analytics';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Domain types — duplicated minimally from page.tsx so the client island
@@ -235,21 +236,41 @@ export function TableViewClient({ features }: TableViewClientProps) {
 
   const rows = useMemo(() => applyPrefs(features, prefs), [features, prefs]);
 
+  // Debounce search-tracking so each keystroke doesn't fire GA. Sort fires
+  // immediately because each click is a distinct intentional action.
+  const searchTrackTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
   const handleSort = (key: SortKey) => {
+    let nextDir: SortDir = 'asc';
     setPrefs((prev) => {
       if (prev.sortKey === key) {
-        return { ...prev, sortDir: prev.sortDir === 'asc' ? 'desc' : 'asc' };
+        nextDir = prev.sortDir === 'asc' ? 'desc' : 'asc';
+        return { ...prev, sortDir: nextDir };
       }
       return { ...prev, sortKey: key, sortDir: 'asc' };
     });
+    // GA4 dashboard_filter_apply — fire one event per intentional sort change.
+    trackFilterApply({ filter_field: `sort:${key}:${nextDir}`, filter_value_count: 1 });
   };
 
   const handleSearch = (value: string) => {
     setPrefs((prev) => ({ ...prev, search: value }));
+    // Debounced GA4 dashboard_filter_apply — coalesce keystrokes into one event
+    // 500ms after the user stops typing. value.length=0 when search clears.
+    if (searchTrackTimerRef.current) clearTimeout(searchTrackTimerRef.current);
+    searchTrackTimerRef.current = setTimeout(() => {
+      const trimmed = value.trim();
+      trackFilterApply({
+        filter_field: 'search',
+        filter_value_count: trimmed.length > 0 ? trimmed.length : 0,
+      });
+    }, 500);
   };
 
   const handleResetPrefs = () => {
     setPrefs(DEFAULT_PREFS);
+    if (searchTrackTimerRef.current) clearTimeout(searchTrackTimerRef.current);
+    trackFilterApply({ filter_field: 'reset', filter_value_count: 0 });
   };
 
   const isCustomized =

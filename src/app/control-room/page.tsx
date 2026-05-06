@@ -27,6 +27,7 @@ import { ArrowRight } from 'lucide-react';
 import featuresData from '@/data/control-room-seeds/features.json';
 import { PhaseLegendAndActivity } from '@/components/control-room/PhaseLegendAndActivity';
 import { TrackPageView } from '@/components/control-room/TrackPageView';
+import { InstrumentedAlertsBanner } from '@/components/control-room/InstrumentedAlertsBanner';
 
 export const metadata: Metadata = {
   title: 'Overview — Control room',
@@ -135,6 +136,12 @@ export default function ControlRoomPage() {
     <article className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
       {/* GA4: dashboard_load + dashboard_sync_warning_shown (UCC T36) */}
       <TrackPageView route="overview" />
+
+      {/* GA4: dashboard_blocker_acknowledged (UCC T36 Phase 2) — instrumented
+          AlertsBanner. Currently passed alerts=[] so the banner short-circuits
+          to null; when an alerts seed wires in (separate task), the
+          onAcknowledge callback is already bound and the event will fire. */}
+      <InstrumentedAlertsBanner alerts={[]} />
 
       {/* ───────────────────────────────────────────────────────── */}
       {/* Hero — gradient background + title + version pills + Numbers grid */}

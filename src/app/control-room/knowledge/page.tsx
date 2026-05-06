@@ -32,6 +32,7 @@ import {
 import caseStudiesData from '@/data/control-room-seeds/caseStudies.json';
 import featuresData from '@/data/control-room-seeds/features.json';
 import { TrackPageView } from '@/components/control-room/TrackPageView';
+import { TrackedDocLink } from '@/components/control-room/TrackedDocLink';
 
 export const metadata: Metadata = {
   title: 'Knowledge — Control room',
@@ -175,9 +176,15 @@ function CaseStudyCard({ caseStudy }: { caseStudy: CaseStudyCardData }) {
 
   if (caseStudy.href) {
     return (
-      <a key={caseStudy.id} href={caseStudy.href} target="_blank" rel="noopener noreferrer" className={baseClass}>
+      <TrackedDocLink
+        key={caseStudy.id}
+        href={caseStudy.href}
+        docPath={caseStudy.id}
+        docGroup="case-studies"
+        className={baseClass}
+      >
         {inner}
-      </a>
+      </TrackedDocLink>
     );
   }
 
