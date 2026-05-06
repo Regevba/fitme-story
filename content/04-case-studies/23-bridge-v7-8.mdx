@@ -90,8 +90,6 @@ visual_aid:
 
 > v7.7 (Validity Closure, shipped 2026-04-27) closed three of five Class B gaps and was published with the kill criterion 2 fire honestly disclosed. **Three days later, a routine Tier 1.1 measurement check surfaced a deeper problem: one of v7.7's headline gates (`CACHE_HITS_EMPTY_POST_V6`) was a silent-pass — it ran on every commit but exercised data on 0 of 46 features.** 43 state.json files used the legacy `created` key while the gate read `created_at`, so the gate's first conditional always evaluated `"" < "2026-04-16"` → `True` → early return without finding. Issue #140 was closed in spec, open in practice. v7.8 closes the meta-gap (the framework asserted gate implementation, never gate execution) via two surfaces specified jointly with v7.9. M1 (coverage + dual-read + framework_version backfill) + M2 (Mechanism C wiring + Mechanism E merge driver) shipped 2026-05-02 to 2026-05-03 across 6 PRs. M3 + M4 deferred.
 
-<BlueprintOverlay interactive activeAsOf="7.8" />
-
 ## Read this first — outlier flags
 
 This case study inherits the v7.6 → v7.7 outlier biases (single-session execution, dogfooded data collection, retroactive instrumentation) AND adds two new ones:
