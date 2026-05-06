@@ -28,6 +28,18 @@
 import type { Metadata } from 'next';
 import featuresData from '@/data/control-room-seeds/features.json';
 import { TrackPageView } from '@/components/control-room/TrackPageView';
+import { TrackedExternalLink } from '@/components/control-room/TrackedExternalLink';
+
+const FT2_REPO_BLOB = 'https://github.com/Regevba/FitTracker2/blob/main';
+const FT2_REPO_TREE = 'https://github.com/Regevba/FitTracker2/tree/main';
+
+/** Resolve a clickable destination for a feature card.
+ *  Prefer the explicit PRD path on the seed; fall back to the feature's
+ *  `.claude/features/<slug>/` directory for features without a written PRD. */
+function featureHref(feature: FeatureSeed): string {
+  if (feature.prd) return `${FT2_REPO_BLOB}/${feature.prd.replace(/^\/+/, '')}`;
+  return `${FT2_REPO_TREE}/.claude/features/${feature.slug}`;
+}
 
 export const metadata: Metadata = {
   title: 'Board — Control room',
@@ -96,9 +108,26 @@ function FeatureCard({ feature }: { feature: FeatureSeed }) {
     low: 'border-slate-300 bg-slate-50 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-white/60',
   };
 
+  const href = featureHref(feature);
+  const targetLabel = feature.prd ? 'View PRD' : 'View feature directory';
+
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm shadow-slate-900/5 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none">
-      <div className="text-sm font-semibold text-slate-950 dark:text-white">{feature.name}</div>
+    <TrackedExternalLink
+      href={href}
+      linkType="github"
+      targetId={`prd:${feature.slug}`}
+      className="block rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm shadow-slate-900/5 transition-colors hover:border-[var(--color-brand-indigo)] hover:shadow-md dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none dark:hover:border-[var(--color-brand-indigo)]"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="text-sm font-semibold text-slate-950 dark:text-white">{feature.name}</div>
+        <span
+          className="shrink-0 font-mono text-[9px] uppercase tracking-wider text-slate-400 group-hover:text-[var(--color-brand-indigo)] dark:text-white/45"
+          aria-label={targetLabel}
+          title={targetLabel}
+        >
+          ↗
+        </span>
+      </div>
       <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide">
         {feature.priority && (
           <span
@@ -120,7 +149,7 @@ function FeatureCard({ feature }: { feature: FeatureSeed }) {
           </span>
         )}
       </div>
-    </div>
+    </TrackedExternalLink>
   );
 }
 
