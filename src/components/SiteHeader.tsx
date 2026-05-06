@@ -1,36 +1,76 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { useEffect, useSyncExternalStore } from 'react';
+import { Lock, Moon, Sun } from 'lucide-react';
 
-const NAV = [
+interface NavItem {
+  href: string;
+  label: string;
+  /** When true, renders a small lock icon next to the label as a hint that
+      the destination is auth-gated (the basic-auth dialog will appear on
+      navigation). */
+  gated?: boolean;
+}
+
+const NAV: NavItem[] = [
   { href: '/pm-flow', label: 'PM Flow' },
   { href: '/framework', label: 'Framework' },
   { href: '/design-system', label: 'Design System' },
   { href: '/case-studies', label: 'Case Studies' },
   { href: '/research', label: 'Research' },
   { href: '/about', label: 'About' },
+  { href: '/control-room', label: 'Control Center', gated: true },
 ];
 
 const STORAGE_KEY = 'fitme-story-theme';
+const STORAGE_EVENT = 'storage';
+const MEDIA_QUERY = '(prefers-color-scheme: dark)';
+
+// `useSyncExternalStore`-backed dark-mode read so we don't trip React 19's
+// `react-hooks/set-state-in-effect` rule. Same pattern as the control-room
+// ThemeToggle. Subscribes to localStorage cross-tab updates + the OS
+// prefers-color-scheme media query.
+
+function subscribeToTheme(callback: () => void): () => void {
+  window.addEventListener(STORAGE_EVENT, callback);
+  const mq = window.matchMedia(MEDIA_QUERY);
+  mq.addEventListener('change', callback);
+  return () => {
+    window.removeEventListener(STORAGE_EVENT, callback);
+    mq.removeEventListener('change', callback);
+  };
+}
+
+function getThemeSnapshot(): boolean {
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  if (stored === 'dark') return true;
+  if (stored === 'light') return false;
+  return window.matchMedia(MEDIA_QUERY).matches;
+}
+
+function getThemeServerSnapshot(): boolean {
+  return false;
+}
 
 export function SiteHeader() {
-  const [dark, setDark] = useState(false);
+  const dark = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeSnapshot,
+    getThemeServerSnapshot,
+  );
 
+  // DOM-mirror only — no setState in effect, satisfies the lint rule.
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    const prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const shouldBeDark = stored === 'dark' || (!stored && prefers);
-    document.documentElement.classList.toggle('dark', shouldBeDark);
-    setDark(shouldBeDark);
-  }, []);
+    document.documentElement.classList.toggle('dark', dark);
+  }, [dark]);
 
   const toggle = () => {
     const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle('dark', next);
     window.localStorage.setItem(STORAGE_KEY, next ? 'dark' : 'light');
+    // storage events don't fire in the originating tab; broadcast manually
+    // so useSyncExternalStore re-reads the snapshot.
+    window.dispatchEvent(new StorageEvent(STORAGE_EVENT, { key: STORAGE_KEY }));
   };
 
   return (
@@ -45,9 +85,13 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="inline-flex items-center min-h-[44px] hover:text-[var(--color-brand-indigo)]"
+                className="inline-flex items-center gap-1.5 min-h-[44px] hover:text-[var(--color-brand-indigo)]"
+                title={item.gated ? 'Gated: requires operator credentials' : undefined}
               >
                 {item.label}
+                {item.gated ? (
+                  <Lock size={12} className="opacity-60" aria-label="gated" />
+                ) : null}
               </Link>
             ))}
           </nav>
