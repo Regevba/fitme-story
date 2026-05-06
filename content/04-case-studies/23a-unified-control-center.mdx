@@ -39,10 +39,6 @@ key_numbers:
     note: "declared from build success across all PRs; no formal regression test wired"
 ---
 
-# Unified Control Center
-
-## TL;DR
-
 The legacy Astro operator dashboard at `fit-tracker2.vercel.app` had drifted from the FitMe brand, maintained its own component library, and by the end of its life couldn't reliably emit the GA4 events its own measurement plan required. **UCC retired all of it.** The dashboard is now `fitme-story.vercel.app/control-room/*` — a basic-auth-gated route inside the public showcase, indigo/coral/warm-stone tokens shared with the rest of the site, all 8 PRD §10.1 GA4 events instrumented from day one, and the legacy Vercel project deleted post-verification.
 
 **11 days** from research to formal close · **42 of 44 implementation tasks done · 1 deferred (intentionally)** · **20 PRs across two repos** · **0 regressions** on the public showcase throughout.
