@@ -51,7 +51,6 @@ visual_aid:
       subtitle: '4 promoted to pre-commit, 11 mechanical gates, per-PR bot + weekly cron'
     delta: 'Class B → A gap closed'
 ---
-# Mechanical Enforcement — How v7.6 Closed the Class B Gap
 
 > The 2026-04-21 Google Gemini 2.5 Pro independent audit triggered v7.5 (Data Integrity Framework, eight cooperating defenses, shipped 2026-04-24). v7.5 was a complete *policy* response — but most of its new defenses were Class B: they relied on the agent remembering to invoke them. v7.6 is the *mechanical* response. It promotes 4 silent agent-attention checks to write-time pre-commit failures, adds a per-PR review bot that fails the status check on new findings vs main, ships a weekly framework-status cron with a regression watcher, and explicitly enumerates the 5 gaps that **cannot** be promoted because pretending we could mechanize them would itself be a lie. This case study is the framework's full mechanical answer to the audit, published verbatim per the publish-then-remediate policy.
 
