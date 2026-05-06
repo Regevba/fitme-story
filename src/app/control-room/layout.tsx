@@ -22,13 +22,15 @@
  * framework_version from the builder.ts framework manifest.
  */
 
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { DataFreshnessFooter } from '@/components/control-room/DataFreshnessFooter';
 import { CommandPalette } from '@/components/control-room/CommandPalette';
+import { TrackedNavLink } from '@/components/control-room/TrackedNavLink';
+import { TrackedExternalLink } from '@/components/control-room/TrackedExternalLink';
 import featuresData from '@/data/control-room-seeds/features.json';
+import type { DashboardViewChangeEvent } from '@/lib/control-room/analytics';
 
 interface FeatureSeedRow {
   name: string;
@@ -62,19 +64,26 @@ interface NavItem {
   label: string;
   /** When true, this route is fully built; when false, link still works but page is a placeholder */
   built?: boolean;
+  /** GA4 dashboard_view_change `to_view` value. `'external'` for off-dashboard links. */
+  toView: DashboardViewChangeEvent['to_view'];
 }
 
 const PRIMARY_NAV: NavItem[] = [
-  { href: '/control-room', label: 'Overview', built: true },
-  { href: '/control-room/board', label: 'Board', built: true },
-  { href: '/control-room/table', label: 'Table', built: true },
-  { href: '/control-room/tasks', label: 'Tasks', built: true },
-  { href: '/control-room/knowledge', label: 'Knowledge', built: true },
+  { href: '/control-room', label: 'Overview', built: true, toView: 'overview' },
+  { href: '/control-room/board', label: 'Board', built: true, toView: 'board' },
+  { href: '/control-room/table', label: 'Table', built: true, toView: 'table' },
+  { href: '/control-room/tasks', label: 'Tasks', built: true, toView: 'tasks' },
+  { href: '/control-room/knowledge', label: 'Knowledge', built: true, toView: 'knowledge' },
 ];
 
 const SECONDARY_NAV: NavItem[] = [
-  { href: '/control-room/framework', label: 'Framework Health', built: true },
-  { href: '/case-studies', label: 'Case studies →', built: true },
+  {
+    href: '/control-room/framework',
+    label: 'Framework Health',
+    built: true,
+    toView: 'framework',
+  },
+  { href: '/case-studies', label: 'Case studies →', built: true, toView: 'external' },
 ];
 
 // TODO(T20): replace hardcoded version with server-loaded value from builder.ts
@@ -118,14 +127,14 @@ export default function ControlRoomLayout({ children }: { children: ReactNode })
 
             {/* Right: GitHub link (deferred: stat pills + theme toggle) */}
             <div className="flex flex-wrap items-center gap-2">
-              <a
+              <TrackedExternalLink
                 href="https://github.com/Regevba/FitTracker2"
-                target="_blank"
-                rel="noopener noreferrer"
+                linkType="github"
+                targetId="FitTracker2"
                 className="hidden rounded-full border border-slate-200 bg-white px-3 py-2 font-sans text-xs font-semibold text-slate-500 transition-colors hover:text-slate-800 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/55 dark:hover:text-white sm:block"
               >
                 GitHub
-              </a>
+              </TrackedExternalLink>
             </div>
           </div>
         </div>
@@ -141,9 +150,10 @@ export default function ControlRoomLayout({ children }: { children: ReactNode })
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-1 px-4 sm:px-6 lg:px-8">
           {/* Primary views */}
           {PRIMARY_NAV.map((item) => (
-            <Link
+            <TrackedNavLink
               key={item.href}
               href={item.built ? item.href : '#'}
+              toView={item.toView}
               className={`inline-flex min-h-[44px] items-center px-3 font-sans text-sm transition-colors ${
                 item.built
                   ? 'text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] hover:text-[var(--color-brand-indigo)] border-b-2 border-transparent hover:border-[var(--color-brand-indigo)]'
@@ -159,7 +169,7 @@ export default function ControlRoomLayout({ children }: { children: ReactNode })
                   soon
                 </span>
               )}
-            </Link>
+            </TrackedNavLink>
           ))}
 
           {/* Visual separator before secondary nav */}
@@ -170,13 +180,14 @@ export default function ControlRoomLayout({ children }: { children: ReactNode })
 
           {/* Secondary nav (Framework Health, etc.) */}
           {SECONDARY_NAV.map((item) => (
-            <Link
+            <TrackedNavLink
               key={item.href}
               href={item.href}
+              toView={item.toView}
               className="inline-flex min-h-[44px] items-center px-3 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] hover:text-[var(--color-brand-indigo)] border-b-2 border-transparent hover:border-[var(--color-brand-indigo)] transition-colors"
             >
               {item.label}
-            </Link>
+            </TrackedNavLink>
           ))}
         </div>
       </nav>

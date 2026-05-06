@@ -16,6 +16,7 @@
  */
 
 import type { ReactNode } from 'react';
+import { TrackedDocLink } from './TrackedDocLink';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Panel
@@ -217,14 +218,18 @@ export interface DocumentCardProps {
   doc: ControlRoomDocument;
   /** When true, drops the surrounding shadow (used inside grouped layouts). */
   compact?: boolean;
+  /** Group label forwarded to the GA4 `dashboard_knowledge_open` event.
+      Defaults to `'featured'` for top-level cards; DocumentGroupCard passes
+      its group title for nested cards. */
+  docGroup?: string;
 }
 
-export function DocumentCard({ doc, compact = false }: DocumentCardProps) {
+export function DocumentCard({ doc, compact = false, docGroup = 'featured' }: DocumentCardProps) {
   return (
-    <a
+    <TrackedDocLink
       href={doc.href}
-      target="_blank"
-      rel="noopener noreferrer"
+      docPath={doc.path}
+      docGroup={docGroup}
       className={`block rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition-colors hover:border-slate-300 hover:bg-white dark:border-white/8 dark:bg-black/15 dark:hover:border-white/15 dark:hover:bg-white/[0.04] ${
         compact ? '' : 'shadow-sm shadow-slate-900/5 dark:shadow-none'
       }`}
@@ -240,7 +245,7 @@ export function DocumentCard({ doc, compact = false }: DocumentCardProps) {
       </div>
       <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-white/62">{doc.preview}</p>
       <div className="mt-3 text-xs leading-5 text-slate-400 dark:text-white/38">{doc.path}</div>
-    </a>
+    </TrackedDocLink>
   );
 }
 
@@ -273,7 +278,7 @@ export function DocumentGroupCard({ group }: DocumentGroupCardProps) {
 
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         {group.docs.map((doc) => (
-          <DocumentCard key={doc.id} doc={doc} compact />
+          <DocumentCard key={doc.id} doc={doc} compact docGroup={group.title} />
         ))}
       </div>
     </details>

@@ -21,6 +21,7 @@ import type { Metadata } from 'next';
 import { parseStateFiles } from '@/lib/control-room/parsers/state';
 import { parseTasks, type Task } from '@/lib/control-room/parsers/tasks';
 import { TaskCard, type TaskStatus, type TaskSkill } from '@/components/control-room/TaskCard';
+import { TrackPageView } from '@/components/control-room/TrackPageView';
 
 export const metadata: Metadata = {
   title: 'Tasks — Control room',
@@ -123,6 +124,9 @@ export default function TasksPage() {
 
   return (
     <article className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
+      {/* GA4: dashboard_load + dashboard_sync_warning_shown (UCC T36 Phase 2) */}
+      <TrackPageView route="tasks" />
+
       <header className="mb-6">
         <h2 className="font-serif text-2xl font-semibold tracking-tight text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)]">
           Tasks

@@ -19,6 +19,8 @@
  * `src/components/control-room/CommandPalette.tsx`.
  */
 
+import { trackExternalLink } from './analytics';
+
 export type CommandRunContext = {
   push: (href: string) => void;
 };
@@ -74,8 +76,13 @@ function toggleDarkMode(): void {
   }
 }
 
-function openExternal(href: string): void {
+function openExternal(href: string, targetId: string): void {
   if (typeof window === 'undefined') return;
+  // GA4 dashboard_external_link (UCC T36 Phase 2). Every external command
+  // jumps to a github.com URL, so link_type='github' is the consistent value.
+  // If future external commands add Linear/Notion/Vercel destinations,
+  // accept a `linkType` parameter and pipe it from the Command.
+  trackExternalLink({ link_type: 'github', target_id: targetId });
   window.open(href, '_blank', 'noopener,noreferrer');
 }
 
@@ -159,7 +166,7 @@ const ACTION_COMMANDS: readonly Command[] = [
     group: 'Actions',
     keywords: ['source', 'code', 'repo'],
     hint: '↗',
-    run: () => openExternal('https://github.com/Regevba/FitTracker2'),
+    run: () => openExternal('https://github.com/Regevba/FitTracker2', 'FitTracker2'),
   },
 ];
 
@@ -170,7 +177,7 @@ function featureCommands(features: readonly CommandFeature[]): Command[] {
     group: 'Features',
     keywords: [f.slug],
     hint: '↗',
-    run: () => openExternal(FT2_STATE_URL(f.slug)),
+    run: () => openExternal(FT2_STATE_URL(f.slug), `feature:${f.slug}`),
   }));
 }
 
