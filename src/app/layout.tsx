@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { serif, sans } from './fonts';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PersonaProvider>{children}</PersonaProvider>
         </main>
         <SiteFooter />
+        <SpeedInsights />
       </body>
       {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
     </html>
