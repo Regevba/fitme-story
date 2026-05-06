@@ -1,18 +1,65 @@
 /**
  * load-ledgers.ts — server-side loader for FitTracker2 framework ledger files.
  *
- * Reads from FitTracker2's .claude/shared/ and .claude/integrity/snapshots/
- * directories. All paths are configurable via FITTRACKER_REPO_PATH env var
- * (default: /Volumes/DevSSD/FitTracker2).
+ * Path resolution (revised 2026-05-06 to fix dashboard "no snapshots yet" bug
+ * on Vercel):
+ *
+ *   1. PREFERRED: read from the synced snapshot at
+ *      `<fitme-story>/src/data/{shared,integrity/snapshots}/`. The
+ *      `npm run prebuild` step (sync-from-fittracker2.ts) populates these
+ *      directories at build time. This works on Vercel because the synced
+ *      data is committed/baked into the deployment.
+ *
+ *   2. FALLBACK: read from a sibling FitTracker2 clone at
+ *      `<FITTRACKER_REPO_PATH>/.claude/{shared,integrity/snapshots}/`,
+ *      defaulting to `/Volumes/DevSSD/FitTracker2`. This path is for local
+ *      dev only — Vercel builders never have FT2 mounted at this path.
+ *
+ *   The synced location is the SOURCE OF TRUTH at runtime; the FT2 sibling
+ *   is only consulted when a synced file is missing (e.g. local dev where
+ *   prebuild hasn't run yet).
  *
  * Designed to be called from server components only (uses fs, not fetch).
  */
 
+import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const FITME_STORY_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../../..',
+);
+const SYNCED_SHARED = path.join(FITME_STORY_ROOT, 'src', 'data', 'shared');
+const SYNCED_INTEGRITY_SNAPSHOTS = path.join(
+  FITME_STORY_ROOT,
+  'src',
+  'data',
+  'integrity',
+  'snapshots',
+);
 
 const REPO_ROOT =
   process.env.FITTRACKER_REPO_PATH ?? '/Volumes/DevSSD/FitTracker2';
+const FALLBACK_SHARED = path.join(REPO_ROOT, '.claude', 'shared');
+const FALLBACK_INTEGRITY_SNAPSHOTS = path.join(
+  REPO_ROOT,
+  '.claude',
+  'integrity',
+  'snapshots',
+);
+
+function pickSharedPath(filename: string): string {
+  const synced = path.join(SYNCED_SHARED, filename);
+  if (existsSync(synced)) return synced;
+  return path.join(FALLBACK_SHARED, filename);
+}
+
+function pickIntegritySnapshotsDir(): string {
+  if (existsSync(SYNCED_INTEGRITY_SNAPSHOTS)) return SYNCED_INTEGRITY_SNAPSHOTS;
+  return FALLBACK_INTEGRITY_SNAPSHOTS;
+}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -152,32 +199,29 @@ async function readLatestSnapshot(snapshotsDir: string): Promise<IntegritySnapsh
 // ── Main export ───────────────────────────────────────────────────────────────
 
 export async function loadFrameworkLedgers(): Promise<FrameworkLedgers> {
-  const sharedDir = path.join(REPO_ROOT, '.claude', 'shared');
-  const snapshotsDir = path.join(REPO_ROOT, '.claude', 'integrity', 'snapshots');
-
   const loadErrors: string[] = [];
 
   const [adoptionHistory, adoptionCurrent, documentationDebt, latestIntegritySnapshot] =
     await Promise.all([
       readJSON<MeasurementAdoptionHistory>(
-        path.join(sharedDir, 'measurement-adoption-history.json')
+        pickSharedPath('measurement-adoption-history.json'),
       ).catch((e) => {
         loadErrors.push(`adoptionHistory: ${e}`);
         return null;
       }),
       readJSON<MeasurementAdoptionCurrent>(
-        path.join(sharedDir, 'measurement-adoption.json')
+        pickSharedPath('measurement-adoption.json'),
       ).catch((e) => {
         loadErrors.push(`adoptionCurrent: ${e}`);
         return null;
       }),
       readJSON<DocumentationDebt>(
-        path.join(sharedDir, 'documentation-debt.json')
+        pickSharedPath('documentation-debt.json'),
       ).catch((e) => {
         loadErrors.push(`documentationDebt: ${e}`);
         return null;
       }),
-      readLatestSnapshot(snapshotsDir).catch((e) => {
+      readLatestSnapshot(pickIntegritySnapshotsDir()).catch((e) => {
         loadErrors.push(`latestSnapshot: ${e}`);
         return null;
       }),

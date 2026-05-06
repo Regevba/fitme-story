@@ -31,13 +31,15 @@ import { syncDashboardData, type SyncPaths } from './sync-from-fittracker2';
 function makePaths(): { paths: SyncPaths; tmpRoot: string; cleanup: () => void } {
   const tmpRoot = mkdtempSync(join(tmpdir(), 't6-sync-'));
   const paths: SyncPaths = {
-    ft2Root:        join(tmpRoot, 'FitTracker2'),
-    ft2Shared:      join(tmpRoot, 'FitTracker2', '.claude', 'shared'),
-    ft2Features:    join(tmpRoot, 'FitTracker2', '.claude', 'features'),
-    localShared:    join(tmpRoot, 'fitme-story', 'src', 'data', 'shared'),
-    localFeatures:  join(tmpRoot, 'fitme-story', 'src', 'data', 'features'),
-    localDocs:      join(tmpRoot, 'fitme-story', 'src', 'data', 'docs'),
-    freshnessPath:  join(tmpRoot, 'fitme-story', 'src', 'data', 'freshness.json'),
+    ft2Root:                join(tmpRoot, 'FitTracker2'),
+    ft2Shared:              join(tmpRoot, 'FitTracker2', '.claude', 'shared'),
+    ft2Features:            join(tmpRoot, 'FitTracker2', '.claude', 'features'),
+    ft2IntegritySnapshots:  join(tmpRoot, 'FitTracker2', '.claude', 'integrity', 'snapshots'),
+    localShared:            join(tmpRoot, 'fitme-story', 'src', 'data', 'shared'),
+    localFeatures:          join(tmpRoot, 'fitme-story', 'src', 'data', 'features'),
+    localDocs:              join(tmpRoot, 'fitme-story', 'src', 'data', 'docs'),
+    localIntegritySnapshots: join(tmpRoot, 'fitme-story', 'src', 'data', 'integrity', 'snapshots'),
+    freshnessPath:          join(tmpRoot, 'fitme-story', 'src', 'data', 'freshness.json'),
   };
   // Pre-create the fitme-story output dir so sync can write into it.
   mkdirSync(join(tmpRoot, 'fitme-story', 'src', 'data'), { recursive: true });
