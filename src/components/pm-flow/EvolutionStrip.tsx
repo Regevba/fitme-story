@@ -66,6 +66,14 @@ const MILESTONES: Milestone[] = [
     caseStudyHref: '/trust',
     tintVar: 'var(--skill-ops)',
   },
+  {
+    version: 'v4.X (skill)',
+    date: '2026-05-06',
+    headline: 'V4.X — UX/Design preflight + auto Figma build + pre-merge UI review',
+    what: '4 new sub-commands (/ux preflight, /ux pre-merge-review, /design preflight, /design pre-merge-review) + /design build auto-dispatch with Figma node ID write-back. Phase 3 chain extends 7→11 steps; Phase 6 chain 4→5 steps. Phase 7 BLOCKED unless both pre-merge reviews pass. Trigger: import-training-plan resume audit caught 4 P0 spec errors before any code was written.',
+    caseStudyHref: '/case-studies/import-training-plan',
+    tintVar: 'var(--skill-ux)',
+  },
 ];
 
 export function EvolutionStrip() {
