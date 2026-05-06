@@ -62,6 +62,8 @@ visual_aid:
 
 > v7.6 (Mechanical Enforcement, shipped 2026-04-25) closed seven Class B → Class A gaps and explicitly enumerated five that **could not** be promoted because mechanizing them would require lying about what the framework can verify. A 2026-04-27 ledger pull surfaced that **three of those five were still mechanically or heuristically closable** if the right write-time hooks were added. v7.7 closed them. One of those three (`cache_hits` writer-path adoption) shipped fully gated. One (`cu_v2` schema) shipped schema-validated. One (T1/T2/T3 tag *correctness*) shipped as a heuristic advisory — and **kill criterion 2 fired honestly at baseline**, so the advisory ships permanent rather than promoting to a gate. Two original gaps remain genuinely human-required (auth simulator, external replication). The Class B inventory went from 5 to 4. This case study is the framework's full validity-closure pass, published verbatim per the publish-then-remediate policy.
 
+<BlueprintOverlay interactive activeAsOf="7.7" />
+
 ## Read this first — outlier flag (carries forward from v7.6)
 
 This case study is **itself an outlier in the corpus** — the same three biases as v7.6 stack here:

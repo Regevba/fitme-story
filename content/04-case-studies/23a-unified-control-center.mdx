@@ -45,6 +45,8 @@ The legacy Astro operator dashboard at `fit-tracker2.vercel.app` had drifted fro
 
 The honest disclosure up front: the case study's primary metric (Time-to-Confidence) does **not** have a clean before/after. Pre-migration baseline is **T2 Declared** with sample size 2 (the legacy dashboard's instrumentation broke before the 7-day window closed). Post-migration measurement is **T1 Instrumented** but pending — the new dashboard ships with all events wired; ≥7 days of operator traffic accrue before a meaningful read. **The "before" wasn't measurable, so the "after" establishes the baseline.** That's the most honest framing we could write.
 
+<BlueprintOverlay interactive activeAsOf="7.8" />
+
 ## Architecture decisions (locked, not re-litigated)
 
 1. **Arch A — same Vercel project, separate routes.** Dashboard code lives next to the showcase under `fitme-story/src/{app,components,lib}/control-room/*`. ESLint rule (T13) blocks reverse imports from showcase → control-room.
