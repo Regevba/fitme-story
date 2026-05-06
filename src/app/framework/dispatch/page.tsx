@@ -13,7 +13,7 @@ export default function DispatchDemoPage() {
       <header className="mb-10 max-w-3xl">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">The framework in motion</h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          Two real feature traces walked through the 6-floor stack. Pick a trace, scroll to advance, or press play. Floors light up as they fire, dim when they stay dormant.
+          Four real feature traces walked through the 8-floor stack. Pick a trace, scroll to advance, or press play. Floors light up as they fire, dim when they stay dormant.
         </p>
       </header>
       <DispatchReplay />
