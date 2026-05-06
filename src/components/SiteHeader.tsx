@@ -81,19 +81,39 @@ export function SiteHeader() {
         </Link>
         <div className="flex items-center gap-6">
           <nav className="hidden md:flex gap-6 text-sm">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="inline-flex items-center gap-1.5 min-h-[44px] hover:text-[var(--color-brand-indigo)]"
-                title={item.gated ? 'Gated: requires operator credentials' : undefined}
-              >
-                {item.label}
-                {item.gated ? (
+            {NAV.map((item) =>
+              item.gated ? (
+                // Gated routes use a plain <a> with target="_blank" + rel,
+                // NOT next/link. Two reasons:
+                //   1. next/link auto-prefetches `/control-room` on viewport
+                //      visibility, which fires a background 401 from proxy.ts
+                //      that some browsers surface as an unexpected auth
+                //      dialog before the user has clicked anything.
+                //   2. Opening the auth flow in a NEW tab means cancelling
+                //      the basic-auth dialog just closes the tab — the
+                //      visitor stays on the showcase tab they came from
+                //      instead of being stranded on a 401 error page.
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex items-center gap-1.5 min-h-[44px] hover:text-[var(--color-brand-indigo)]"
+                  title="Gated: requires operator credentials. Opens in a new tab."
+                >
+                  {item.label}
                   <Lock size={12} className="opacity-60" aria-label="gated" />
-                ) : null}
-              </Link>
-            ))}
+                </a>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="inline-flex items-center min-h-[44px] hover:text-[var(--color-brand-indigo)]"
+                >
+                  {item.label}
+                </Link>
+              ),
+            )}
           </nav>
           <button
             onClick={toggle}
