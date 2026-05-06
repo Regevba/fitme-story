@@ -99,6 +99,34 @@ function parseVersion(raw: string): number {
   return parseFloat(raw.replace(/^v/, ''));
 }
 
+const MONTH_ABBR = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+function formatPublishedDate(iso: string | undefined): string | null {
+  if (!iso) return null;
+  const match = iso.match(/^(\d{4})-(\d{2})-\d{2}/);
+  if (!match) return null;
+  const month = MONTH_ABBR[parseInt(match[2], 10) - 1];
+  if (!month) return null;
+  return `${month} ${match[1]}`;
+}
+
+function dateSortKey(iso: string | undefined): string {
+  return iso ?? '9999-99-99';
+}
+
 // Find the latest milestone whose era_lower_bound is ≤ version. Each milestone
 // owns [its_lower_bound, next_lower_bound), with the last open-ended.
 function bucketIndex(version: number): number {
@@ -136,21 +164,21 @@ export default async function CaseStudiesIndex() {
     secondariesByMilestone[bucketIndex(v)].push(c);
   }
   for (const bucket of secondariesByMilestone) {
-    bucket.sort(
-      (a, b) =>
-        (a.frontmatter.timeline_position?.order ?? 999) -
-        (b.frontmatter.timeline_position?.order ?? 999),
+    bucket.sort((a, b) =>
+      dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
     );
   }
 
   const metaAnalysisEntries = all.filter((c) => META_ANALYSIS_SLUGS.has(c.frontmatter.slug));
-  metaAnalysisEntries.sort(
-    (a, b) =>
-      (a.frontmatter.timeline_position?.order ?? 999) -
-      (b.frontmatter.timeline_position?.order ?? 999),
+  metaAnalysisEntries.sort((a, b) =>
+    dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
   );
 
-  const developer = all.filter((c) => DEVELOPER_SLUGS.has(c.frontmatter.slug));
+  const developer = all
+    .filter((c) => DEVELOPER_SLUGS.has(c.frontmatter.slug))
+    .sort((a, b) =>
+      dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
+    );
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
@@ -444,6 +472,11 @@ export default async function CaseStudiesIndex() {
                               <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
                                 {c.frontmatter.title}
                               </span>
+                              {formatPublishedDate(c.frontmatter.date) && (
+                                <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
+                                  {formatPublishedDate(c.frontmatter.date)}
+                                </span>
+                              )}
                               <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
                                 {c.readingTimeMin} min
                               </span>
@@ -492,6 +525,11 @@ export default async function CaseStudiesIndex() {
                   <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
                     {c.frontmatter.title}
                   </span>
+                  {formatPublishedDate(c.frontmatter.date) && (
+                    <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
+                      {formatPublishedDate(c.frontmatter.date)}
+                    </span>
+                  )}
                   <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
                     {c.readingTimeMin} min
                   </span>
@@ -551,6 +589,11 @@ export default async function CaseStudiesIndex() {
                   <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
                     {c.frontmatter.title}
                   </span>
+                  {formatPublishedDate(c.frontmatter.date) && (
+                    <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
+                      {formatPublishedDate(c.frontmatter.date)}
+                    </span>
+                  )}
                   <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
                     {c.readingTimeMin} min
                   </span>
