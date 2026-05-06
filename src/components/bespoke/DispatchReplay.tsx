@@ -145,7 +145,7 @@ export function DispatchReplay({ traceId, allowTraceSwitch = true }: Props) {
                     : 'hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)]'
                 }`}
               >
-                {t.id === 'sprint-i' ? 'Sprint I' : 'fitme-story'}
+                {t.pillLabel}
               </button>
             ))}
           </div>

@@ -13,6 +13,7 @@ export interface Trace {
   id: string;
   title: string;
   subtitle: string;
+  pillLabel: string;
   sourceRef: { label: string; href: string };
   beats: TraceBeat[];
 }
@@ -21,6 +22,7 @@ const sprintI: Trace = {
   id: 'sprint-i',
   title: 'Sprint I — 10 UI/DS token migrations',
   subtitle: 'Low-risk mechanical work. Routed to a LITTLE core. Only 2 skills loaded. Floors 7–8 dormant — they did not exist yet.',
+  pillLabel: 'Design system review',
   sourceRef: {
     label: 'Full Sprint I methodology →',
     href: '/case-studies/soc-on-software',
@@ -82,6 +84,7 @@ const fitmeStoryBuild: Trace = {
   id: 'fitme-story',
   title: 'fitme-story — building the showcase site itself',
   subtitle: 'Medium complexity, 37 tasks, UI-heavy. Routes to big core. 5 skills dispatched in a batched chain. Floors 7–8 dormant — they did not exist yet.',
+  pillLabel: 'fitme-story site',
   sourceRef: {
     label: 'Full fitme-story case study →',
     href: '/case-studies/framework-story-site',
@@ -143,6 +146,7 @@ const validityClosureV77: Trace = {
   id: 'validity-closure-v7-7',
   title: 'v7.7 Validity Closure — the framework instrumenting itself',
   subtitle: 'The meta-feature that built floor 7. Watch the framework gain mechanical enforcement as it runs through itself.',
+  pillLabel: 'V7.7 Framework',
   sourceRef: {
     label: 'Full v7.7 case study →',
     href: '/case-studies/framework-v7-7-validity-closure',
@@ -206,6 +210,7 @@ const unifiedControlCenterV78: Trace = {
   id: 'unified-control-center',
   title: 'Unified Control Center — a real product feature on v7.8',
   subtitle: 'Migrate the legacy Astro dashboard into the public showcase under basic-auth. 22 PRs across 2 repos. Exercises every floor including the new advisory layer.',
+  pillLabel: 'Unified control center',
   sourceRef: {
     label: 'Full UCC case study →',
     href: '/case-studies/unified-control-center',
