@@ -1,0 +1,129 @@
+---
+title: "UCC Passkey Auth — Replacing basic-auth on the operator dashboard with WebAuthn"
+slug: ucc-passkey-auth
+upstream_path: docs/case-studies/ucc-passkey-auth-case-study.md
+tier: light
+tldr: "Two-PR cross-repo ship that replaces shared HTTP basic-auth on /control-room/* with WebAuthn passkeys. Per-operator identity, per-device credentials, server-side session allowlist (instant revoke), append-only audit log synced daily into FT2 framework-health. Migration is reversible at every step via UCC_AUTH_MODE env switch (basic / passkey / both). 5 screens · 5 API routes · 22 new files in fitme-story · 19/19 unit tests pass · tsc clean · next build clean. Second feature shipped via the v7.8.1 protocol (Mechanism C session attribution + isolated worktree from Phase 1 + Tier 2.2 logging + Mechanism A coverage telemetry). Structurally closes the asymmetry where iOS users had passkeys but operators had a shared phishable password."
+timeline_position:
+  version: '7.8.1'
+  order: 26
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-05-07'
+shipped_window: '2026-05-07 (single-session full PM cycle, ~115 min measured wall time)'
+work_type: feature
+external_audit_status: pending
+key_numbers:
+  - label: "PRs merged"
+    value: "fitme-story #55 + FT2 #248"
+    tier: T1
+    note: "fitme-story squash 5362f8f (WebAuthn gate code). FT2 squash e5a7c45 (cross-repo audit-log sync + protocol artifacts). Both auto-merged within seconds of each other."
+  - label: "Implementation tasks done"
+    value: "28 / 28"
+    tier: T1
+    note: "8 blocks (A auth-server lib, B KV store, C API routes, D sign-in/recover UI, E devices/audit admin UI, F panel + sync + CLI, G tests, H docs/glossary). Wave-classified as 16 E-core (sonnet-eligible) + 12 P-core (opus-eligible)."
+  - label: "Unit tests pass"
+    value: "19 / 19"
+    tier: T1
+    note: "5 test files: util · iron-session-config · audit-log · load-events · round-trip. tsc 0 errors on all 22 new feature files. next build clean."
+  - label: "Phase transitions in one session"
+    value: "9"
+    tier: T1
+    note: "Research → PRD → Tasks → UX/Integration → Implementation → Test → Review → Merge → Documentation. Each transition logged via append-feature-log.py before state.json mutation."
+  - label: "Measured wall time"
+    value: "~115 min"
+    tier: T1
+    note: "Sum of timing.phases.*.duration_minutes from state.json. Tier 2.2 instrumented (precise timestamps). Not a steady-state forecast."
+  - label: "Files added in fitme-story"
+    value: "22"
+    tier: T1
+    note: "8 in src/lib/auth/ + 1 helper util · 6 API routes · 4 page shells + 4 client shells · 4 components · 2 scripts · 1 cron route. Plus 4 modified (proxy.ts, package.json, vercel.json, framework page, analytics.ts, glossary.ts)."
+  - label: "Files added in FT2"
+    value: "2 + 1 dir of artifacts"
+    tier: T1
+    note: "GHA workflow + JSONL placeholder + .claude/features/ucc-passkey-auth/ (state, research, PRD, tasks, ux-spec, preflights, pre-merge reviews, risk audit) + docs/prompts/{ux,ui}/."
+  - label: "High-risk Swift files touched"
+    value: "0"
+    tier: T1
+    note: "DomainModels.swift, EncryptionService.swift, SupabaseSyncService.swift, CloudKitSyncService.swift, SignInService.swift, AuthManager.swift, AIOrchestrator.swift all unchanged. Pure web-side feature."
+  - label: "Lines added (fitme-story)"
+    value: "~2,650"
+    tier: T1
+    note: "git diff --stat HEAD on the merged PR. Excludes package-lock.json churn."
+primary_metric:
+  name: unauthenticated_dashboard_reads_per_day
+  target: 0
+  baseline_pending_post_cutover: true
+  tier: T1
+kill_criteria: "K1 — Registration ceremony fails on > 5% of attempted devices in week 1 → fall back to UCC_AUTH_MODE=basic. K2 — any counter_replay event = hard stop. K3 — Vercel function p50 > 500ms sustained 24h → fall back."
+kill_criteria_resolution: "Pending — week-1 telemetry gate. Resolution recorded in §99 of the source case study at T+7d post UCC_AUTH_MODE=both flip."
+dispatch_pattern: serial_full_pm_cycle_with_isolation
+work_subtype: cross_repo
+related_prs:
+  - "fitme-story#55"
+  - "FT2#248"
+---
+
+## Why this exists
+
+The Unified Control Center shipped on **2026-05-06** [T1] gating `/control-room/*` behind shared HTTP basic-auth. T2.5 — "passkey replacement for basic-auth" — was explicitly deferred because the Astro→Next.js migration was already a 22-PR effort across two repos.
+
+That deferral surfaced a structural asymmetry: the iOS app shipped passkeys for end users on **2026-05-01** via `auth-polish-v2` [T1]. The operator surface — which has access to every framework readout, ship event, ledger, and case study — was gated by a phishable shared credential. Operator security weaker than user security is exactly the wrong ratio.
+
+This feature closes that asymmetry one day after the v7.8.1 framework feature that introduced the protocol it followed.
+
+## What landed
+
+### fitme-story side — the actual gate (PR #55)
+
+Five screens, five API routes (Node.js runtime), four reusable components, one Vercel Cron route, and one extended `proxy.ts` switch. The gate matrix:
+
+| `UCC_AUTH_MODE` | Behavior |
+|---|---|
+| `basic` (default; pre-cutover) | Existing basic-auth path; no behavior change |
+| `both` (cutover window) | Accept either basic-auth OR passkey session cookie; log which path was used |
+| `passkey` (steady state) | Require iron-session cookie; redirect-to-sign-in on miss (NOT 401) |
+
+The cookie is `iron-session` AES-GCM-sealed (HttpOnly + Secure + SameSite=Strict, scoped to `/control-room`, 24h hard cap with 12h sliding refresh). Server-side `ucc:session:<sid>` allowlist in Upstash Redis enables **instant revoke** — flipping `revokedAt` on a credential bulk-clears every session for that operator on the next request.
+
+### FT2 side — cross-repo audit-log sync (PR #248)
+
+Daily GitHub Actions cron (05:17 UTC) pulls a Vercel Blob populated by the fitme-story Vercel Cron (05:13 UTC) and commits it to `.claude/logs/ucc-auth-events.jsonl`. The cross-repo workflow is **repo-variable gated** — absence of `UCC_AUDIT_BLOB_URL` is a no-op, not a failure. This matches the migration plan's reversibility property at the infrastructure layer.
+
+### Defenses
+
+- **Phishing** → WebAuthn binds assertion to RP-ID (`fitme-story.vercel.app`); browser refuses to sign for any other origin.
+- **Replay** → Per-ceremony challenge in Redis (60s TTL, single-use) + CAS counter check. Hardware authenticators that always report `counter=0` explicitly handled.
+- **Session theft** → HttpOnly + Secure + SameSite=Strict + server-side allowlist. Any compromised cookie is one revoke away from invalidation.
+- **PII in audit log** → SHA-256 hashes for credential IDs + session IDs; IPv4 truncated to /24, IPv6 to /48; UA stripped to family. Tests assert no raw value appears in the JSONL output.
+
+## How this got shipped — the v7.8.1 protocol
+
+**Second feature shipped via the v7.8 protocol** (after framework-v7-8.1 itself, the same-day morning ship). The protocol mandates:
+
+1. Isolated worktree from Phase 1 onward (Mode C of `BRANCH_ISOLATION_VIOLATION`)
+2. Mechanism C session attribution via `.claude/active-feature` lockfile
+3. Tier 2.2 contemporaneous logging on every phase transition
+4. v4.X preflight gates (`/ux preflight` + `/design preflight`) before Phase 4
+5. v4.X pre-merge-review gates (`/ux pre-merge-review` + `/design pre-merge-review`) before Phase 7
+6. `FEATURE_CLOSURE_COMPLETENESS` gate at Phase 8 (7 frontmatter fields + Q7 kill_criteria_resolution + Q6 PR parity)
+
+Compliance ledger on this ship: ✓ ✓ ✓ ✓ ✓ ✓ — the `kill_criteria_resolution` field is set to `Pending — week-1 telemetry gate` per the documented forward-only path.
+
+## Honest disclosures
+
+1. **One bug caught + fixed during Phase 5.** `iron-session.unsealData` returns `{}` on garbage input rather than throwing. My `unsealSession` wrapper would have returned an empty SessionPayload-shaped object (truthy, defensive checks pass). Caught by the "returns null on garbage input" test. Fix: explicit field-presence check on all 4 payload fields. The test asserts the bug stays dead.
+2. **4 modules refactored to lazy env reads.** Static reads at module-load time caused test isolation issues (env-var override after import had no effect because imports hoist). Refactored to read at call-time. This is also the right production behavior.
+3. **Figma node IDs are absent.** Per `state.json.figma_build_status: "deferred_to_prompt"`. The fitme-story dashboard has no Figma-file mapping by design — built code-first during the UCC migration. Portable build prompt at `docs/prompts/ui/2026-05-07-ucc-passkey-auth-design-build.md` is the v4.X documented escape hatch.
+4. **`kill_criteria_resolution` is "pending".** Time-deferred resolution (T+7d post-cutover). Frontmatter records the criteria + a placeholder; actual update lands in §99 after the cutover window.
+5. **Patterns ported, not extracted.** `auth-polish-v2`'s capability-detection + consent-sheet + inline-error-banner + mock-fixture-test patterns are mirrored web-side rather than extracted into a shared lib. Consolidation can happen if a third auth surface emerges.
+
+## Cross-references
+
+- Source case study: [`docs/case-studies/ucc-passkey-auth-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/ucc-passkey-auth-case-study.md)
+- Predecessor: [Unified Control Center](/case-studies/unified-control-center) — produced the T2.5 deferral
+- Sibling: [Auth Polish v2](/case-studies/auth-polish-v2) — iOS-side passkey patterns ported here
+- Protocol: [Framework v7.8.1 — Branch Isolation + Closure Completeness](/case-studies/framework-v7-8-1-branch-isolation) — the v7.8 protocol gated this ship
