@@ -58,13 +58,11 @@ primary_metric:
   target: 0
   baseline_pending_post_cutover: true
   tier: T1
-kill_criteria: "K1 — Registration ceremony fails on > 5% of attempted devices in week 1 → fall back to UCC_AUTH_MODE=basic. K2 — any counter_replay event = hard stop. K3 — Vercel function p50 > 500ms sustained 24h → fall back."
-kill_criteria_resolution: "Pending — week-1 telemetry gate. Resolution recorded in §99 of the source case study at T+7d post UCC_AUTH_MODE=both flip."
-dispatch_pattern: serial_full_pm_cycle_with_isolation
-work_subtype: cross_repo
-related_prs:
-  - "fitme-story#55"
-  - "FT2#248"
+kill_criteria:
+  - "K1 — Registration ceremony fails on > 5% of attempted devices in week 1 → fall back to UCC_AUTH_MODE=basic."
+  - "K2 — any counter_replay event = hard stop. Investigate before any further sign-ins."
+  - "K3 — Vercel function p50 on /api/auth/* > 500 ms sustained 24 h → fall back."
+kill_criterion_fired: false
 ---
 
 ## Why this exists
