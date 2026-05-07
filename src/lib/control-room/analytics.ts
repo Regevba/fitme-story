@@ -28,7 +28,11 @@ export type ControlRoomRoute =
   | 'table'
   | 'tasks'
   | 'knowledge'
-  | 'framework';
+  | 'framework'
+  | 'auth_passkey_signin'
+  | 'auth_passkey_recover'
+  | 'auth_passkey_devices'
+  | 'auth_passkey_audit';
 
 export type AlertSeverity = 'red' | 'amber' | 'blue' | 'purple' | 'info';
 
