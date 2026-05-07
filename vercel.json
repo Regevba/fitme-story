@@ -1,4 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "git clone --depth=1 --quiet https://oauth2:$FITTRACKER2_DEPLOY_TOKEN@github.com/Regevba/FitTracker2.git ../FitTracker2 && npm run build"
+  "buildCommand": "git clone --depth=1 --quiet https://oauth2:$FITTRACKER2_DEPLOY_TOKEN@github.com/Regevba/FitTracker2.git ../FitTracker2 && npm run build",
+  "crons": [
+    {
+      "path": "/api/cron/sync-audit-log",
+      "schedule": "13 5 * * *"
+    }
+  ]
 }

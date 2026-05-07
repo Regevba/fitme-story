@@ -28,6 +28,7 @@ import { AutomationMap } from '@/components/framework-health/AutomationMap';
 import { HumanActionPanel } from '@/components/framework-health/HumanActionPanel';
 import { CycleSnapshotPanel } from '@/components/framework-health/CycleSnapshotPanel';
 import { MembraneStatusPanel } from '@/components/framework-health/MembraneStatusPanel';
+import AuditLogPanel from '@/components/control-room/AuditLogPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -348,6 +349,15 @@ export default async function FrameworkHealthPage() {
         subtitle="Read-only smartlog of in-flight feature work. Joins state.json + agent-leases.json + open-branch reflog. v7.8 ships advisory; v7.9 wires /pm-workflow lease acquisition. Pattern: Sapling smartlog (Meta), Jujutsu op-log."
       >
         <MembraneStatusPanel status={membraneStatus} />
+      </Section>
+
+      {/* ── ucc-passkey-auth T19 — Auth surface telemetry ── */}
+      <Section
+        id="auth-surface"
+        title="Auth surface — passkey gate"
+        subtitle="Operator dashboard authentication telemetry. Sourced from .claude/logs/ucc-auth-events.jsonl (synced daily from fitme-story Vercel Blob)."
+      >
+        <AuditLogPanel />
       </Section>
 
       {/* ── T26 — Predecessor cross-links ── */}

@@ -11,35 +11,34 @@
 // accessible per user requirement 2026-04-26 ("only the dashboard is
 // protected; showcase stays publicly accessible").
 //
-// Toggle via Vercel env vars (no rebuild required to change DASHBOARD_PUBLIC):
-//   - DASHBOARD_PUBLIC = "true"  → no auth required (operator dev mode)
-//   - DASHBOARD_PUBLIC = anything else (default) → basic-auth required
-//   - DASHBOARD_USER + DASHBOARD_PASS → credentials for the basic-auth gate
+// Auth modes (UCC_AUTH_MODE):
+//   - "basic"   → existing HTTP basic-auth (legacy path, used for previews + rollback)
+//   - "passkey" → iron-session cookie required; redirect to /control-room/sign-in on miss
+//   - "both"    → accept either (cutover window — preserves both paths)
 //
-// Layer 2 (sitemap + robots) is unconditional — see src/app/sitemap.ts + robots.ts.
-// Layer 3 (build-time inclusion flag) — see next.config.ts DASHBOARD_BUILD.
-//
-// Auth posture (per vercel-plugin:auth skill): basic-auth in the network
-// proxy is appropriate as a single-operator internal-artifact gate. Full
-// auth providers (Clerk/Descope/Auth0) are intentionally NOT used —
-// overkill for single-operator scope; deferred to v2 if multi-operator
-// becomes real (see PRD §15 Q1).
+// DASHBOARD_PUBLIC=true is an operator-only override that bypasses ALL auth
+// (intended for local dev only).
 
 import { NextResponse, type NextRequest } from 'next/server';
+import { unsealSession, sessionConfig } from '@/lib/auth/iron-session-config';
+import { getSession } from '@/lib/auth/redis-ttl-store';
+import { logAuthEvent } from '@/lib/auth/audit-log';
 
 const REALM = 'control-room';
+
+type AuthMode = 'basic' | 'passkey' | 'both';
+
+function getAuthMode(): AuthMode {
+  const raw = (process.env.UCC_AUTH_MODE ?? 'basic').toLowerCase();
+  if (raw === 'passkey' || raw === 'both' || raw === 'basic') return raw;
+  return 'basic';
+}
 
 function isValidBasicAuth(authHeader: string | null): boolean {
   const expectedUser = process.env.DASHBOARD_USER;
   const expectedPass = process.env.DASHBOARD_PASS;
-
-  // Fail closed: if creds are not configured, reject all requests when
-  // DASHBOARD_PUBLIC is not "true". Prevents an accidental "no auth
-  // required because env vars never got set" deployment.
   if (!expectedUser || !expectedPass) return false;
-
   if (!authHeader || !authHeader.startsWith('Basic ')) return false;
-
   try {
     const encoded = authHeader.substring(6);
     const decoded = atob(encoded);
@@ -53,26 +52,81 @@ function isValidBasicAuth(authHeader: string | null): boolean {
   }
 }
 
-export function proxy(req: NextRequest) {
-  const dashboardPublic = process.env.DASHBOARD_PUBLIC === 'true';
-  if (dashboardPublic) return NextResponse.next();
+async function isValidPasskeySession(req: NextRequest): Promise<boolean> {
+  const cookie = req.cookies.get(sessionConfig.cookieName)?.value;
+  if (!cookie) return false;
+  const session = await unsealSession(cookie);
+  if (!session) return false;
+  // Server-side allowlist check — instant revoke.
+  const stored = await getSession(session.sid);
+  if (!stored) return false;
+  return true;
+}
 
-  if (!isValidBasicAuth(req.headers.get('authorization'))) {
-    return new NextResponse('Authentication required', {
-      status: 401,
-      headers: { 'WWW-Authenticate': `Basic realm="${REALM}"` },
-    });
+function challengeBasic(): NextResponse {
+  return new NextResponse('Authentication required', {
+    status: 401,
+    headers: { 'WWW-Authenticate': `Basic realm="${REALM}"` },
+  });
+}
+
+function redirectToSignIn(req: NextRequest): NextResponse {
+  const url = new URL('/control-room/sign-in', req.url);
+  url.searchParams.set('next', req.nextUrl.pathname + req.nextUrl.search);
+  return NextResponse.redirect(url);
+}
+
+export async function proxy(req: NextRequest) {
+  // Operator-only dev escape hatch.
+  if (process.env.DASHBOARD_PUBLIC === 'true') return NextResponse.next();
+
+  const mode = getAuthMode();
+
+  // Public sign-in endpoints must remain reachable while unauthenticated.
+  const path = req.nextUrl.pathname;
+  if (
+    path === '/control-room/sign-in' ||
+    path === '/control-room/sign-in/recover' ||
+    path.startsWith('/api/auth/') // WebAuthn ceremony endpoints
+  ) {
+    return NextResponse.next();
   }
 
-  return NextResponse.next();
+  if (mode === 'basic') {
+    if (!isValidBasicAuth(req.headers.get('authorization'))) {
+      return challengeBasic();
+    }
+    return NextResponse.next();
+  }
+
+  if (mode === 'passkey') {
+    if (!(await isValidPasskeySession(req))) {
+      return redirectToSignIn(req);
+    }
+    return NextResponse.next();
+  }
+
+  // mode === 'both' — accept either; log which path was used.
+  if (await isValidPasskeySession(req)) {
+    return NextResponse.next();
+  }
+  if (isValidBasicAuth(req.headers.get('authorization'))) {
+    // Best-effort audit log of the basic-auth path during cutover.
+    // Don't await — proxy must stay fast.
+    logAuthEvent({
+      event_type: 'auth_basic_authenticated',
+      operator_label: 'basic-auth-shared',
+      outcome: 'success',
+      ip: req.headers.get('x-forwarded-for') ?? undefined,
+      user_agent: req.headers.get('user-agent') ?? undefined,
+    }).catch(() => {});
+    return NextResponse.next();
+  }
+  // Both failed → prefer the redirect path (more user-friendly than 401).
+  return redirectToSignIn(req);
 }
 
 export const config = {
-  // Matcher scopes proxy to /control-room/* ONLY.
-  // This is THE rule that keeps the showcase public — do not broaden without
-  // explicit re-approval (see PRD §6.1 + user instruction 2026-04-26).
-  matcher: '/control-room/:path*',
-  // NOTE: do NOT declare `runtime`. Next.js 16 proxy.ts ALWAYS runs on
-  // the Node.js runtime; declaring it here is a build error
-  // (Route segment config is not allowed in Proxy file).
+  // Matcher scopes proxy to /control-room/* + /api/auth/*. Showcase stays public.
+  matcher: ['/control-room/:path*', '/api/auth/:path*'],
 };
