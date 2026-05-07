@@ -7,9 +7,9 @@ import remarkGfm from 'remark-gfm';
 import { useMDXComponents } from '@/mdx-components';
 
 export const metadata: Metadata = {
-  title: 'PM Framework — Developer Guide (v1.0 → v7.8) — fitme-story',
+  title: 'PM Framework — Developer Guide (v1.0 → v7.8.1) — fitme-story',
   description:
-    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema, phase lifecycle, dispatch, cache, measurement protocol, 12 write-time + 13 cycle-time + 3 advisory check codes, v7.8 bridge mechanisms (A–F), 3 operational walkthroughs, and the compressed v1.0 → v7.8 timeline. Mirrors docs/architecture/dev-guide-v1-to-v7-7.md (filename retained for ref-stability; content tracks v7.8).',
+    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema, phase lifecycle, dispatch, cache, measurement protocol, 15 write-time + 13 cycle-time + 6 advisory check codes (v7.8.1 adds BRANCH_ISOLATION_VIOLATION + FEATURE_CLOSURE_COMPLETENESS + ISOLATION_OPT_OUT_REASON_MISSING write-time gates + 3 cycle-time advisories), v7.8 bridge mechanisms (A–F), 3 operational walkthroughs, and the compressed v1.0 → v7.8.1 timeline. Mirrors docs/architecture/dev-guide-v1-to-v7-7.md (filename retained for ref-stability; content tracks v7.8.1).',
 };
 
 const UPSTREAM_URL =
@@ -46,7 +46,7 @@ export default async function DevGuidePage() {
           Developer guide
         </p>
         <h1 className="mt-2 font-serif text-[length:var(--text-display-lg)]">
-          PM Framework — Developer Guide (v1.0 → v7.8)
+          PM Framework — Developer Guide (v1.0 → v7.8.1)
         </h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Technical reference for developers onboarding to the framework. Not the
@@ -77,11 +77,11 @@ export default async function DevGuidePage() {
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Length:</dt>
-            <dd>~780 lines, 16 sections (incl. v7.8 §2.4 mechanism inventory)</dd>
+            <dd>~790 lines, 16 sections (incl. v7.8 §2.4 mechanism inventory + v7.8.1 gates in §10.1)</dd>
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Last updated:</dt>
-            <dd>2026-05-07 at v7.8 ship + lifecycle-catalog companion</dd>
+            <dd>2026-05-07 at v7.8.1 ship — branch-isolation + closure-completeness gates</dd>
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Canonical source:</dt>
@@ -90,7 +90,7 @@ export default async function DevGuidePage() {
                 docs/architecture/dev-guide-v1-to-v7-7.md
               </a>{' '}
               <span className="text-[var(--color-neutral-500)]">
-                (filename retained for ref-stability; content tracks v7.8)
+                (filename retained for ref-stability; content tracks v7.8.1)
               </span>
             </dd>
           </div>
