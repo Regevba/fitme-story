@@ -1,9 +1,15 @@
 {
   "feature": "app-store-assets",
-  "created": "2026-04-12T21:30:00Z",
-  "updated": "2026-04-20T00:00:00Z",
+  "created_at": "2026-04-12T21:30:00Z",
+  "updated": "2026-05-07T05:01:33Z",
   "branch": null,
   "current_phase": "implementation",
+  "framework_version": "v5.0",
+  "agent_manifest": {
+    "reads": [],
+    "writes": [],
+    "shared_writes": []
+  },
   "work_type": "feature",
   "has_ui": true,
   "requires_analytics": false,
@@ -119,6 +125,8 @@
     "at": "2026-04-27T14:00:00Z",
     "reason": "v7.7 Validity Closure full-priority freeze",
     "resume_signal": "framework-v7-7-validity-closure phase=complete",
+    "resolved_at": "2026-04-27T00:00:00Z",
+    "resolved_note": "Resume signal fired 2026-04-27 when framework-v7-7-validity-closure shipped (PR #144 merge 01b9e11). Feature is unblocked but has not yet been picked back up; current_phase remains 'implementation' awaiting user-initiated resume.",
     "snapshot": {
       "current_phase": "implementation",
       "next_action_when_resumed": "Resume implementation; case_study link already resolved by v7.7 T9 (exempt tag applied during v7.7)",
@@ -128,5 +136,8 @@
         "~/.claude/projects/-Volumes-DevSSD-FitTracker2/memory/paused_app_store_assets.md"
       ]
     }
+  },
+  "_meta": {
+    "deprecation_warnings": []
   }
 }
