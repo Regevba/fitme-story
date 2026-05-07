@@ -189,6 +189,15 @@ export default async function CaseStudiesIndex() {
           engineering deep-dives. Read top to bottom for the chronological story, or jump to any
           milestone.
         </p>
+        <p className="mt-4 font-sans text-sm">
+          <Link
+            href="/case-studies/compare"
+            className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
+            style={{ color: 'var(--color-brand-indigo)' }}
+          >
+            Compare every case study at a glance →
+          </Link>
+        </p>
       </header>
 
       {/* ============ METHODOLOGY — how we measured ============
