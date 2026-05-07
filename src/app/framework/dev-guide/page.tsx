@@ -7,13 +7,15 @@ import remarkGfm from 'remark-gfm';
 import { useMDXComponents } from '@/mdx-components';
 
 export const metadata: Metadata = {
-  title: 'PM Framework — Developer Guide (v1.0 → v7.7) — fitme-story',
+  title: 'PM Framework — Developer Guide (v1.0 → v7.8) — fitme-story',
   description:
-    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema, phase lifecycle, dispatch, cache, measurement protocol, 13 integrity check codes + 1 advisory, 3 operational walkthroughs, and the compressed v1.0 → v7.7 timeline. Mirrors docs/architecture/dev-guide-v1-to-v7-7.md.',
+    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema, phase lifecycle, dispatch, cache, measurement protocol, 12 write-time + 13 cycle-time + 3 advisory check codes, v7.8 bridge mechanisms (A–F), 3 operational walkthroughs, and the compressed v1.0 → v7.8 timeline. Mirrors docs/architecture/dev-guide-v1-to-v7-7.md (filename retained for ref-stability; content tracks v7.8).',
 };
 
 const UPSTREAM_URL =
   'https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/dev-guide-v1-to-v7-7.md';
+const LIFECYCLE_CATALOG_URL =
+  'https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/feature-lifecycle-event-catalog.md';
 const TRUST_AUDIT_URL = '/trust/audits/2026-04-21-gemini';
 const CASE_STUDY_URL = '/case-studies/framework-v7-7-validity-closure';
 const PRIOR_CASE_STUDY_URL = '/case-studies/mechanical-enforcement-v7-6';
@@ -44,7 +46,7 @@ export default async function DevGuidePage() {
           Developer guide
         </p>
         <h1 className="mt-2 font-serif text-[length:var(--text-display-lg)]">
-          PM Framework — Developer Guide (v1.0 → v7.7)
+          PM Framework — Developer Guide (v1.0 → v7.8)
         </h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Technical reference for developers onboarding to the framework. Not the
@@ -75,32 +77,39 @@ export default async function DevGuidePage() {
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Length:</dt>
-            <dd>~745 lines, 16 sections</dd>
+            <dd>~780 lines, 16 sections (incl. v7.8 §2.4 mechanism inventory)</dd>
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Last updated:</dt>
-            <dd>2026-04-27 at v7.7 ship</dd>
+            <dd>2026-05-07 at v7.8 ship + lifecycle-catalog companion</dd>
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Canonical source:</dt>
             <dd>
               <a className="underline" href={UPSTREAM_URL}>
                 docs/architecture/dev-guide-v1-to-v7-7.md
-              </a>
+              </a>{' '}
+              <span className="text-[var(--color-neutral-500)]">
+                (filename retained for ref-stability; content tracks v7.8)
+              </span>
             </dd>
           </div>
         </dl>
 
         <p className="mt-6 text-sm">
           Companion surfaces:{' '}
+          <a className="underline" href={LIFECYCLE_CATALOG_URL}>
+            Feature Lifecycle Event Catalog
+          </a>{' '}
+          (the event/log/gate catalog with mermaid flow diagrams — 12 sections, paired with this guide),{' '}
           <Link className="underline" href={CASE_STUDY_URL}>
             v7.7 case study
           </Link>{' '}
-          (current — Validity Closure synthesis),{' '}
+          (Validity Closure synthesis),{' '}
           <Link className="underline" href={PRIOR_CASE_STUDY_URL}>
             v7.6 case study
           </Link>{' '}
-          (predecessor — Mechanical Enforcement), and{' '}
+          (Mechanical Enforcement), and{' '}
           <Link className="underline" href={TRUST_AUDIT_URL}>
             Gemini audit on /trust
           </Link>{' '}
