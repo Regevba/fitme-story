@@ -26,35 +26,44 @@ const PRINCIPLES = [
   'Spacing owns grouping',
 ];
 
+// Audit A-014 (2026-05-08): `alt` is content-describing, not just the title.
+// Title and caption surface in the figcaption; `alt` describes the image
+// itself for screen-reader users who can't see the screenshot.
 const ONBOARDING_FLOW = [
   {
     src: '/design-system/welcome.png',
     title: 'Welcome',
+    alt: 'FitMe Welcome screen — orange app icon centered above the wordmark, value proposition tagline, and a single primary Sign Up button with no other chrome.',
     caption: 'Brand entry. One CTA, no chrome, the wordmark and the value proposition. The first frame the user judges the app on.',
   },
   {
     src: '/design-system/onboarding-goals.png',
     title: 'Goal selection',
+    alt: 'FitMe Goal selection screen — large card-style choices for fat-loss, muscle, recovery, and endurance, each with an icon and short description, with a thin progress bar across the top.',
     caption: 'A concrete outcome chosen up front, with large touch targets and a single primary action. The progress bar at top is the only navigation chrome.',
   },
   {
     src: '/design-system/onboarding-experience.png',
     title: 'Tell us about you',
+    alt: 'FitMe onboarding experience step — segmented selectors for training history, weekly frequency, and session duration with a Skip option in the top corner.',
     caption: 'Training experience and weekly frequency calibrate the program. Skip is always available — onboarding never blocks.',
   },
   {
     src: '/design-system/onboarding-apple-health.png',
     title: 'Sync Apple Health',
+    alt: 'FitMe Apple Health permission screen — a labeled list of every data category requested (heart rate, HRV, sleep, workouts) with the rationale next to each, plus Connect and Skip buttons.',
     caption: 'Permission with intent. Each data type listed by purpose, recovery and readiness explicitly named. Skip with a clear later-in-Settings escape.',
   },
   {
     src: '/design-system/onboarding-consent.png',
     title: 'Help us improve',
+    alt: 'FitMe analytics consent screen — two columns showing collected categories with green check marks and excluded categories with red cross marks, then equally prominent Accept and Continue Without buttons.',
     caption: 'Honest analytics. Green checks on what is collected, red on what is not — health values and personal information stay local. Continue Without is just as prominent as Accept.',
   },
   {
     src: '/design-system/onboarding-save-progress.png',
     title: 'Save your progress',
+    alt: 'FitMe save-progress screen — Continue with Apple and email sign-up rendered as equally weighted buttons, with secondary Log In and Skip For Now links underneath.',
     caption: 'Email or Apple, both equally weighted, log-in for returning users, skip-for-now for trial. The ladder reads top-down by friction.',
   },
 ];
@@ -63,21 +72,25 @@ const LIVE_APP_SCREENS = [
   {
     src: '/design-system/home-dashboard.png',
     title: 'Home — Day 84',
+    alt: 'FitMe Home dashboard on day 84 — greeting and rotating achievements at top, a rest-day status card with Start Recovery and Log Meal actions in the middle, and a body-composition snapshot card below.',
     caption: 'Personalized greeting, rotating achievements card, contextual day type (rest day with Start Recovery + Log Meal), body-composition snapshot below the fold. All actions are one tap away.',
   },
   {
     src: '/design-system/training-plan-live.png',
     title: 'Training plan — live session',
+    alt: 'FitMe Training tab during a live session — week strip with completion dots at top, a suggested session card with circular progress ring, then a list of exercise rows each showing sets, rep range, rest interval, and an inline coaching note in brand orange.',
     caption: 'Week strip with completion dots, suggested session card with progress ring, exercise rows showing sets / rep range / rest plus an inline coaching note in the brand orange.',
   },
   {
     src: '/design-system/session-complete.png',
     title: 'Session complete — celebration sheet',
+    alt: 'FitMe session-complete modal — celebration headline, four metric tiles for duration, exercises, total sets, and volume, plus a single Share button.',
     caption: 'Modal presentation honours every PR. Duration, exercises, total sets, and volume rendered in the same metric-tile grammar as the home dashboard. Share is one tap.',
   },
   {
     src: '/design-system/nutrition-live.png',
     title: 'Nutrition — macros and strategy',
+    alt: 'FitMe Nutrition tab — three macro target tiles for protein, carbs, and fat at top, the active strategy name "Continuous deficit" labeled beneath, a Repeat Last button, and a list of timestamped meals each showing kcal and protein.',
     caption: 'Macro targets at the top, named strategy beneath ("Continuous deficit"), Repeat Last for the daily ritual, meals timestamped with kcal + protein. Same chip and card grammar as the rest of the app.',
   },
 ];
@@ -118,7 +131,7 @@ export default function DesignSystemPage() {
               <div className="bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)]">
                 <Image
                   src={shot.src}
-                  alt={shot.title}
+                  alt={shot.alt}
                   width={1320}
                   height={2868}
                   className="h-auto w-full"
@@ -152,7 +165,7 @@ export default function DesignSystemPage() {
               <div className="bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)]">
                 <Image
                   src={shot.src}
-                  alt={shot.title}
+                  alt={shot.alt}
                   width={1320}
                   height={2868}
                   className="h-auto w-full"

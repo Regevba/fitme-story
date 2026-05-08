@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useSyncExternalStore } from 'react';
 import { Lock, Moon, Sun } from 'lucide-react';
 
@@ -53,7 +54,16 @@ function getThemeServerSnapshot(): boolean {
   return false;
 }
 
+// Match a nav item against the current pathname. Exact match for "/", and
+// prefix match for everything else so /case-studies/<slug> still highlights
+// the "Case Studies" tab. Audit V-003 + A-003 (2026-05-08).
+function isCurrentNav(pathname: string, href: string): boolean {
+  if (href === '/') return pathname === '/';
+  return pathname === href || pathname.startsWith(href + '/');
+}
+
 export function SiteHeader() {
+  const pathname = usePathname();
   const dark = useSyncExternalStore(
     subscribeToTheme,
     getThemeSnapshot,
@@ -76,13 +86,23 @@ export function SiteHeader() {
   return (
     <header className="border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]">
       <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between font-sans">
-        <Link href="/" className="font-semibold tracking-tight inline-flex items-center min-h-[44px]">
+        <Link
+          href="/"
+          className="font-semibold tracking-tight inline-flex items-center min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)] focus-visible:rounded"
+        >
           fitme<span className="text-[var(--color-brand-indigo)]">·</span>story
         </Link>
         <div className="flex items-center gap-6">
           <nav className="hidden md:flex gap-6 text-sm">
-            {NAV.map((item) =>
-              item.gated ? (
+            {NAV.map((item) => {
+              const current = !item.gated && isCurrentNav(pathname, item.href);
+              const baseLink =
+                'inline-flex items-center min-h-[44px] hover:text-[var(--color-brand-indigo)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)] focus-visible:rounded';
+              const currentClasses = current
+                ? ' text-[var(--color-brand-indigo)] border-b-2 border-[var(--color-brand-indigo)]'
+                : '';
+
+              return item.gated ? (
                 // Gated routes use a plain <a> with target="_blank" + rel,
                 // NOT next/link. Two reasons:
                 //   1. next/link auto-prefetches `/control-room` on viewport
@@ -98,7 +118,7 @@ export function SiteHeader() {
                   href={item.href}
                   target="_blank"
                   rel="noopener"
-                  className="inline-flex items-center gap-1.5 min-h-[44px] hover:text-[var(--color-brand-indigo)]"
+                  className={`${baseLink} gap-1.5`}
                   title="Gated: requires operator credentials. Opens in a new tab."
                 >
                   {item.label}
@@ -108,17 +128,19 @@ export function SiteHeader() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="inline-flex items-center min-h-[44px] hover:text-[var(--color-brand-indigo)]"
+                  aria-current={current ? 'page' : undefined}
+                  className={`${baseLink}${currentClasses}`}
                 >
                   {item.label}
                 </Link>
-              ),
-            )}
+              );
+            })}
           </nav>
           <button
             onClick={toggle}
             aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
-            className="p-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)]"
+            aria-pressed={dark}
+            className="p-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]"
           >
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>

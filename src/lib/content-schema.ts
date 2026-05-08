@@ -87,6 +87,13 @@ const FrontmatterShape = z.object({
   kill_criterion_fired: z.boolean().optional(),
   deferred_items: z.array(DeferredItemSchema).optional(),
   visual_aid: VisualAidSchema.optional(),
+
+  // Audit CS-008 (2026-05-08): explicit opt-out for the optional chrome
+  // fields (`honest_disclosures` + `visual_aid`) so a case study with
+  // intentionally bare frontmatter is distinguishable from one that simply
+  // forgot to populate them. Set both fields when opting out.
+  chrome_minimal: z.boolean().optional(),
+  chrome_minimal_reason: z.string().optional(),
 });
 
 export const FrontmatterSchema = FrontmatterShape.refine(
@@ -105,6 +112,13 @@ export const FrontmatterSchema = FrontmatterShape.refine(
     message:
       'Every case study (other than tier=unassigned) must declare `tldr: "..."` for the SummaryCard headline.',
     path: ['tldr'],
+  },
+).refine(
+  (fm) => !fm.chrome_minimal || Boolean(fm.chrome_minimal_reason),
+  {
+    message:
+      'When `chrome_minimal: true`, `chrome_minimal_reason: "..."` is required so the bare frontmatter is documented as intentional. Audit CS-008 (2026-05-08).',
+    path: ['chrome_minimal_reason'],
   },
 );
 

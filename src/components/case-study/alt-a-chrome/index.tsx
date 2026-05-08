@@ -54,10 +54,9 @@ export function SummaryCard({ fm }: { fm: Frontmatter }) {
       <div className="font-sans text-xs uppercase tracking-wider text-[var(--color-brand-indigo)] mb-2">
         Summary card · 60-second read
       </div>
-      <h1 className="font-serif text-[length:var(--text-display-md)] leading-tight">
-        {fm.title}
-      </h1>
-      <dl className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 font-sans text-sm">
+      {/* Audit A-019 (2026-05-08): h1 lives in template <header>, not here.
+          Removing the duplicate h1 keeps the document outline single-h1. */}
+      <dl className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 font-sans text-sm">
         {version ? (
           <div>
             <dt className="text-[var(--color-neutral-500)] text-xs uppercase tracking-wide">
