@@ -6,6 +6,7 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { Lock, Moon, Sun } from 'lucide-react';
 import { NAV, isCurrentNav } from '@/lib/nav';
 import { MobileNav } from './MobileNav';
+import { SearchInput } from './SearchInput';
 
 const STORAGE_KEY = 'fitme-story-theme';
 const STORAGE_EVENT = 'storage';
@@ -111,6 +112,9 @@ export function SiteHeader() {
               );
             })}
           </nav>
+          {/* Desktop search: hidden below md; MobileNav drawer carries its own
+              SearchInput so the field stays one-tap away on small screens. */}
+          <SearchInput variant="full" className="hidden md:block w-56 lg:w-72" />
           {/* Desktop theme toggle: hidden on mobile (MobileNav drawer has its
               own copy so the toggle stays one-tap-away on every viewport).
               Audit P-MOBNAV (2026-05-08). */}

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Lock, Menu, X, Moon, Sun } from 'lucide-react';
 import { NAV, isCurrentNav } from '@/lib/nav';
+import { SearchInput } from './SearchInput';
 
 // Mobile navigation drawer. Closes the only remaining P0 from the
 // 2026-05-08 audit (V-004): SiteHeader's `hidden md:flex` nav had no
@@ -91,6 +92,10 @@ export function MobileNav({ dark, onToggleTheme }: MobileNavProps) {
             >
               <X size={20} aria-hidden="true" />
             </button>
+          </div>
+
+          <div className="border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] px-3 py-3">
+            <SearchInput variant="full" />
           </div>
 
           <nav aria-label="Mobile navigation" className="flex-1 overflow-y-auto px-3 py-4">
