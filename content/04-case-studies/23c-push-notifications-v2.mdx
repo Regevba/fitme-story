@@ -1,9 +1,20 @@
 ---
-title: "Push Notifications v2 — From v1 Partial-Ship to Platform-Layer Rebuild in a Single Day"
+title: >-
+  Push Notifications v2 — From v1 Partial-Ship to Platform-Layer Rebuild in a
+  Single Day
 slug: push-notifications-v2
 upstream_path: docs/case-studies/push-notifications-v2-case-study.md
 tier: light
-tldr: "Reopened v1 push-notifications after audit UI-016 caught a substrate-built-but-never-wired partial-ship. Single-session full PM cycle (Phases 0-8) inverted the architecture from 'another notification feature' to a platform layer that all notification consumers (smart-reminders + future) plug into. 3 mechanical XCTest reachability cases now codify the v1 lesson — substrate cannot ship dead anymore. 16/16 tasks, 36 tests pass, 8/8 CI checks green including pm-framework/pr-integrity, 4 Figma frames on a new page. Smart-reminders consumer-side adaptation deferred to a paired backlog enhancement (separate scope)."
+tldr: >-
+  Reopened v1 push-notifications after audit UI-016 caught a
+  substrate-built-but-never-wired partial-ship. Single-session full PM cycle
+  (Phases 0-8) inverted the architecture from 'another notification feature' to
+  a platform layer that all notification consumers (smart-reminders + future)
+  plug into. 3 mechanical XCTest reachability cases now codify the v1 lesson —
+  substrate cannot ship dead anymore. 16/16 tasks, 36 tests pass, 8/8 CI checks
+  green including pm-framework/pr-integrity, 4 Figma frames on a new page.
+  Smart-reminders consumer-side adaptation deferred to a paired backlog
+  enhancement (separate scope).
 timeline_position:
   version: '7.8'
   order: 23.9
@@ -17,38 +28,82 @@ shipped_window: '2026-05-07 (single session, ~3.5h elapsed)'
 work_type: feature
 external_audit_status: pending
 key_numbers:
-  - label: "PR landed"
-    value: "FT2 #239"
+  - label: PR landed
+    value: 'FT2 #239'
     tier: T1
-    note: "Squash-merge to main — merge commit 6bf417a"
-  - label: "Tasks done"
-    value: "16 / 16"
+    note: Squash-merge to main — merge commit 6bf417a
+  - label: Tasks done
+    value: 16 / 16
     tier: T1
-    note: "7 P-core (heavyweight) + 9 E-core (lightweight); critical path T1→T3→T6→T14→T15→T16"
-  - label: "Tests pass"
-    value: "36 / 36"
+    note: >-
+      7 P-core (heavyweight) + 9 E-core (lightweight); critical path
+      T1→T3→T6→T14→T15→T16
+  - label: Tests pass
+    value: 36 / 36
     tier: T1
-    note: "30 unit + 3 reachability gate + 2 analytics-firing (MockAnalyticsAdapter) + 1 misc"
-  - label: "Reachability gate cases"
-    value: "3"
+    note: >-
+      30 unit + 3 reachability gate + 2 analytics-firing (MockAnalyticsAdapter)
+      + 1 misc
+  - label: Reachability gate cases
+    value: '3'
     tier: T1
-    note: "FirstWorkoutTrigger fires once + every URL routes + notification-source end-to-end. The 3rd case is the test that, had it existed for smart-reminders, would have caught its own .fitMeReminderTapped no-consumer gap."
-  - label: "CI checks on PR"
-    value: "8 / 8"
+    note: >-
+      FirstWorkoutTrigger fires once + every URL routes + notification-source
+      end-to-end. The 3rd case is the test that, had it existed for
+      smart-reminders, would have caught its own .fitMeReminderTapped
+      no-consumer gap.
+  - label: CI checks on PR
+    value: 8 / 8
     tier: T1
-    note: "Build-and-Test 14m53s + integrity 24s + pm-framework/pr-integrity 'PASS — no new findings vs main' + 5 others"
-  - label: "Net-new LOC"
-    value: "~1,850"
+    note: >-
+      Build-and-Test 14m53s + integrity 24s + pm-framework/pr-integrity 'PASS —
+      no new findings vs main' + 5 others
+  - label: Net-new LOC
+    value: '~1,850'
     tier: T2
-    note: "1,174 platform code + 567 test code + ~110 wiring/edits across 13 new + 7 edited + 5 HISTORICAL + 1 deleted file"
-  - label: "Bugs caught at build verification"
-    value: "1"
+    note: >-
+      1,174 platform code + 567 test code + ~110 wiring/edits across 13 new + 7
+      edited + 5 HISTORICAL + 1 deleted file
+  - label: Bugs caught at build verification
+    value: '1'
     tier: T1
-    note: "ReadinessResult.score → .overallScore typo; one-line fix; build re-ran clean. The build-verify gate works as intended."
-  - label: "Figma frames auto-built"
-    value: "4"
+    note: >-
+      ReadinessResult.score → .overallScore typo; one-line fix; build re-ran
+      clean. The build-verify gate works as intended.
+  - label: Figma frames auto-built
+    value: '4'
     tier: T1
-    note: "New page 936:2 'Push Notifications v2'; surfaces 937:6 (priming sheet) + 937:46 (Settings row 3 states) + 938:2 (denial banner) + 938:50 (readinessAlert high+low). 2 iterations (sizing-mode reset bug on first pass)."
+    note: >-
+      New page 936:2 'Push Notifications v2'; surfaces 937:6 (priming sheet) +
+      937:46 (Settings row 3 states) + 938:2 (denial banner) + 938:50
+      (readinessAlert high+low). 2 iterations (sizing-mode reset bug on first
+      pass).
+kill_criteria:
+  - >-
+    Deep-link routing success rate <95% in week-1 production telemetry once
+    smart-reminders consumer adapts
+  - >-
+    Permission priming sheet conversion rate <40% in week-1 (lower than v1
+    baseline)
+  - >-
+    Reachability test gate (3 cases) regresses to allow a
+    substrate-built-but-never-wired ship again
+kill_criterion_fired: false
+honest_disclosures:
+  - >-
+    Smart-reminders consumer-side adaptation is deferred to a paired backlog
+    enhancement. v2 ships the platform layer; smart-reminders adapts separately.
+    Today, deep-link routing success rate from smart-reminders fires is 0% until
+    the paired enhancement ships.
+  - >-
+    ReadinessAlertObserver.evaluate(_:) is not yet called from anywhere. T6
+    wired the platform but didn't add a call site. The first readiness alert
+    will not fire until a consumer invokes evaluate() with a ReadinessResult.
+    Effort to close: ~30 min — small follow-up.
+  - >-
+    No production data on the 6 success metrics yet. All 0 by definition
+    pre-launch. T1-instrumented and ready. First measurement window opens with
+    v7.8 measurement window 2026-05-11.
 ---
 
 Push Notifications v1 shipped 2026-04-16 as the first v5.2 PM lifecycle on a real product surface — full research / PRD / tasks / UX / implement / test / review / merge funnel. Four days later, the v7.5 integrity cycle caught **audit finding UI-016**: the substrate (`NotificationService`, `NotificationPreferencesStore`, `NotificationContentBuilder`, `NotificationPermissionPrimingView`) shipped + tested + merged, but the priming view was never instantiated and `NotificationService` was never called from app lifecycle. **Zero `notification_*` events ever fired in production.** A complete, reviewed, tested feature that nobody could see.

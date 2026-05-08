@@ -1,9 +1,16 @@
 ---
-title: "Unified Control Center — Migrating an Operator Dashboard Across Two Repos in 11 Days"
+title: >-
+  Unified Control Center — Migrating an Operator Dashboard Across Two Repos in
+  11 Days
 slug: unified-control-center
 upstream_path: docs/case-studies/unified-control-center-case-study.md
 tier: light
-tldr: "Retired the legacy Astro operator dashboard, migrated it inside the public showcase as a basic-auth-gated /control-room route, instrumented all 8 GA4 events, killed the standalone Vercel project. 11 days, 42/44 tasks done + 1 deferred, 20 PRs across 2 repos, 0 showcase regressions. Pre-state TTC baseline unmeasurable; post-state establishes the production baseline."
+tldr: >-
+  Retired the legacy Astro operator dashboard, migrated it inside the public
+  showcase as a basic-auth-gated /control-room route, instrumented all 8 GA4
+  events, killed the standalone Vercel project. 11 days, 42/44 tasks done + 1
+  deferred, 20 PRs across 2 repos, 0 showcase regressions. Pre-state TTC
+  baseline unmeasurable; post-state establishes the production baseline.
 timeline_position:
   version: '7.8'
   order: 23.5
@@ -13,30 +20,59 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 date: '2026-05-06'
-shipped_window: '2026-04-26 → 2026-05-06'
+shipped_window: 2026-04-26 → 2026-05-06
 work_type: feature
 external_audit_status: pending
 key_numbers:
-  - label: "Tasks done"
-    value: "42 / 44"
+  - label: Tasks done
+    value: 42 / 44
     tier: T1
-    note: "1 deferred (T2.5 baseline upgrade) — documented reason"
-  - label: "Calendar window"
-    value: "11 days"
+    note: 1 deferred (T2.5 baseline upgrade) — documented reason
+  - label: Calendar window
+    value: 11 days
     tier: T1
-    note: "research → formal close, 2026-04-26 → 2026-05-06"
-  - label: "PRs landed"
-    value: "20"
+    note: 'research → formal close, 2026-04-26 → 2026-05-06'
+  - label: PRs landed
+    value: '20'
     tier: T1
-    note: "across FitTracker2 + fitme-story repos"
-  - label: "GA4 events wired"
-    value: "8 / 8"
+    note: across FitTracker2 + fitme-story repos
+  - label: GA4 events wired
+    value: 8 / 8
     tier: T1
-    note: "all PRD §10.1 events instrumented + 13-test unit suite"
-  - label: "Showcase regressions"
-    value: "0"
+    note: all PRD §10.1 events instrumented + 13-test unit suite
+  - label: Showcase regressions
+    value: '0'
     tier: T2
-    note: "declared from build success across all PRs; no formal regression test wired"
+    note: >-
+      declared from build success across all PRs; no formal regression test
+      wired
+kill_criteria:
+  - >-
+    Auth (proxy.ts basic-auth) blocks legitimate operator access — repeated 401s
+    on valid credentials
+  - >-
+    GA4 instrumentation regressions block ≥3 of the 8 events from firing in
+    production
+  - TTC degradation > 50% vs measured baseline once GA4 produces 7 days of data
+kill_criterion_fired: false
+honest_disclosures:
+  - >-
+    Pre-state TTC baseline is unmeasurable. Legacy Astro dashboard GA4
+    instrumentation had effectively stopped firing by 2026-05-06; 2 events from
+    a single user across 7 days is not a usable sample. T2.5 deferred (status:
+    deferred); post-launch GA4 establishes the production baseline.
+  - >-
+    CI side-fix landed during the window. Multi-week parallel-clone simulator
+    hang env-flake (~24 failed runs over 6 days, forcing admin-merges) was
+    diagnosed and fixed mid-UCC via FT2 PR #225. Two-layer root cause:
+    FitTracker.xcscheme parallelizable=YES + AuthPolishV2UITests
+    zombie-app-instance bug.
+  - >-
+    PRD §13 30-day rollback window deviated. Original plan kept legacy Astro
+    alive 30 days post-launch; user authorized immediate deletion 2026-05-06
+    because (a) new dashboard verified working, (b) legacy instrumentation
+    already broken so no rollback value, (c) discovery path preserved via
+    showcase nav.
 ---
 
 The legacy Astro operator dashboard at `fit-tracker2.vercel.app` had drifted from the FitMe brand, maintained its own component library, and by the end of its life couldn't reliably emit the GA4 events its own measurement plan required. **UCC retired all of it.** The dashboard is now `fitme-story.vercel.app/control-room/*` — a basic-auth-gated route inside the public showcase, indigo/coral/warm-stone tokens shared with the rest of the site, all 8 PRD §10.1 GA4 events instrumented from day one, and the legacy Vercel project deleted post-verification.

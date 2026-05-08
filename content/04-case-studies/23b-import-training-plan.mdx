@@ -1,9 +1,18 @@
 ---
-title: "Import Training Plan — Resume from Audit-Flagged Partial Ship to Full Phase 1 Ship in 14 Hours"
+title: >-
+  Import Training Plan — Resume from Audit-Flagged Partial Ship to Full Phase 1
+  Ship in 14 Hours
 slug: import-training-plan
 upstream_path: docs/case-studies/import-training-plan-case-study.md
 tier: light
-tldr: "Resumed an audit-flagged partial-ship feature: rolled back to research mid-flight after discovering the original PRD claimed an impossible persistence target, rewrote the PRD against the actual write path, shipped Phase 1 (persist + activate + GDPR + 9 analytics events). Same session produced a v4.X skill-layer upgrade as a meta-byproduct: 4 new mechanical gates + auto Figma build. 4 PRs across 2 repos, 18/18 tasks, 33 new tests, 4 Figma frames auto-built (first v4.X production run), 0 P0 in ui-audit."
+tldr: >-
+  Resumed an audit-flagged partial-ship feature: rolled back to research
+  mid-flight after discovering the original PRD claimed an impossible
+  persistence target, rewrote the PRD against the actual write path, shipped
+  Phase 1 (persist + activate + GDPR + 9 analytics events). Same session
+  produced a v4.X skill-layer upgrade as a meta-byproduct: 4 new mechanical
+  gates + auto Figma build. 4 PRs across 2 repos, 18/18 tasks, 33 new tests, 4
+  Figma frames auto-built (first v4.X production run), 0 P0 in ui-audit.
 timeline_position:
   version: '7.8'
   order: 23.7
@@ -13,30 +22,62 @@ persona_emphasis:
   dev: architecture
   academic: measurement
 date: '2026-05-06'
-shipped_window: '2026-05-06 (single-session resume)'
+shipped_window: 2026-05-06 (single-session resume)
 work_type: feature
 external_audit_status: pending
 key_numbers:
-  - label: "PRs landed"
-    value: "4"
+  - label: PRs landed
+    value: '4'
     tier: T1
-    note: "FT2 #234 (feature) + #235 (skill upgrade) + #236 (backlog cleanup) + fitme-story #48 (skill reflection)"
-  - label: "Tasks done"
-    value: "18 / 18"
+    note: >-
+      FT2 #234 (feature) + #235 (skill upgrade) + #236 (backlog cleanup) +
+      fitme-story #48 (skill reflection)
+  - label: Tasks done
+    value: 18 / 18
     tier: T1
-    note: "15 E-core + 3 P-core, all green"
-  - label: "Tests added"
-    value: "33"
+    note: '15 E-core + 3 P-core, all green'
+  - label: Tests added
+    value: '33'
     tier: T1
-    note: "33 new tests across persistence + routing + orchestrator + GDPR + 11 analytics; 49/49 import-related suites pass"
-  - label: "P0 spec errors caught pre-code"
-    value: "4"
+    note: >-
+      33 new tests across persistence + routing + orchestrator + GDPR + 11
+      analytics; 49/49 import-related suites pass
+  - label: P0 spec errors caught pre-code
+    value: '4'
     tier: T1
-    note: "By the user-ordered pre-Phase-4 audit; saved 2-4h of compile-error rework"
-  - label: "Figma frames auto-built"
-    value: "4"
+    note: By the user-ordered pre-Phase-4 audit; saved 2-4h of compile-error rework
+  - label: Figma frames auto-built
+    value: '4'
     tier: T1
-    note: "v4.X /design build's first production run; page 916:2 in design system library"
+    note: >-
+      v4.X /design build's first production run; page 916:2 in design system
+      library
+kill_criteria:
+  - >-
+    Encrypted persistence layer regression (any read/write failure on
+    importedTrainingPlans)
+  - >-
+    Active-plan switching introduces a measurable cohort drop in workout
+    completion (>5% week-1 vs prior week)
+  - GDPR Art-17 export/delete fails any audit dry-run
+kill_criterion_fired: false
+honest_disclosures:
+  - >-
+    The original PRD persistence claim was structurally impossible. v1 PRD said
+    "ImportOrchestrator writes to TrainingProgramData" but TrainingProgramData
+    is a struct with only static let fields. Audit caught the partial ship;
+    resume caught the architectural gap. Cost: ~1 day rollback that wouldn't
+    have been needed if v1 PRD had referenced file:line touch points.
+  - >-
+    User-ordered pre-Phase-4 audit caught 4 P0 spec errors before any code was
+    written: AppRadius.pill, AppMotion.standardEase, SettingsActionLabel custom
+    badge slot, toast/snackbar component — none existed in the codebase. Audit
+    cost ~20 min; Phase 4 rework would have cost ~2-4h. This pattern is now
+    mechanical via /ux preflight + /design preflight (PR #235).
+  - >-
+    Phase 2 sync is deferred. CloudKit and Supabase per-record sync for imported
+    plans is out of Phase 1 scope. The needsSync field exists on the model from
+    day one so Phase 2 can opt records in without a schema migration.
 ---
 
 The import-training-plan feature originally shipped 2026-04-16 as a partial-ship: the parser, mapper, orchestrator, and 23 unit tests landed cleanly, but the source-picker and preview views were never wired into navigation and `confirmImport()` was a no-op stub. **Audit UI-015 (2026-04-20) caught it.** Resume attempt 2026-05-06 then surfaced a deeper structural error: the original PRD claimed `ImportOrchestrator` writes to `TrainingProgramData` — structurally impossible because `TrainingProgramData` is a `struct` with only `static let` fields. The honest path was a mid-flight rollback to research, a rewritten PRD against the actual persistence target (`EncryptedDataStore.importedTrainingPlans`), and a re-decomposed task list.

@@ -1,11 +1,23 @@
 ---
-title: "UCC Passkey Auth — Replacing basic-auth on the operator dashboard with WebAuthn"
+title: >-
+  UCC Passkey Auth — Replacing basic-auth on the operator dashboard with
+  WebAuthn
 slug: ucc-passkey-auth
 upstream_path: docs/case-studies/ucc-passkey-auth-case-study.md
 tier: light
-tldr: "Two-PR cross-repo ship that replaces shared HTTP basic-auth on /control-room/* with WebAuthn passkeys. Per-operator identity, per-device credentials, server-side session allowlist (instant revoke), append-only audit log synced daily into FT2 framework-health. Migration is reversible at every step via UCC_AUTH_MODE env switch (basic / passkey / both). 5 screens · 5 API routes · 22 new files in fitme-story · 19/19 unit tests pass · tsc clean · next build clean. Second feature shipped via the v7.8.1 protocol (Mechanism C session attribution + isolated worktree from Phase 1 + Tier 2.2 logging + Mechanism A coverage telemetry). Structurally closes the asymmetry where iOS users had passkeys but operators had a shared phishable password."
+tldr: >-
+  Two-PR cross-repo ship that replaces shared HTTP basic-auth on /control-room/*
+  with WebAuthn passkeys. Per-operator identity, per-device credentials,
+  server-side session allowlist (instant revoke), append-only audit log synced
+  daily into FT2 framework-health. Migration is reversible at every step via
+  UCC_AUTH_MODE env switch (basic / passkey / both). 5 screens · 5 API routes ·
+  22 new files in fitme-story · 19/19 unit tests pass · tsc clean · next build
+  clean. Second feature shipped via the v7.8.1 protocol (Mechanism C session
+  attribution + isolated worktree from Phase 1 + Tier 2.2 logging + Mechanism A
+  coverage telemetry). Structurally closes the asymmetry where iOS users had
+  passkeys but operators had a shared phishable password.
 timeline_position:
-  version: '7.8.1'
+  version: 7.8.1
   order: 26
 persona_emphasis:
   hr: outcomes
@@ -17,52 +29,101 @@ shipped_window: '2026-05-07 (single-session full PM cycle, ~115 min measured wal
 work_type: feature
 external_audit_status: pending
 key_numbers:
-  - label: "PRs merged"
-    value: "fitme-story #55 + FT2 #248"
+  - label: PRs merged
+    value: 'fitme-story #55 + FT2 #248'
     tier: T1
-    note: "fitme-story squash 5362f8f (WebAuthn gate code). FT2 squash e5a7c45 (cross-repo audit-log sync + protocol artifacts). Both auto-merged within seconds of each other."
-  - label: "Implementation tasks done"
-    value: "28 / 28"
+    note: >-
+      fitme-story squash 5362f8f (WebAuthn gate code). FT2 squash e5a7c45
+      (cross-repo audit-log sync + protocol artifacts). Both auto-merged within
+      seconds of each other.
+  - label: Implementation tasks done
+    value: 28 / 28
     tier: T1
-    note: "8 blocks (A auth-server lib, B KV store, C API routes, D sign-in/recover UI, E devices/audit admin UI, F panel + sync + CLI, G tests, H docs/glossary). Wave-classified as 16 E-core (sonnet-eligible) + 12 P-core (opus-eligible)."
-  - label: "Unit tests pass"
-    value: "19 / 19"
+    note: >-
+      8 blocks (A auth-server lib, B KV store, C API routes, D sign-in/recover
+      UI, E devices/audit admin UI, F panel + sync + CLI, G tests, H
+      docs/glossary). Wave-classified as 16 E-core (sonnet-eligible) + 12 P-core
+      (opus-eligible).
+  - label: Unit tests pass
+    value: 19 / 19
     tier: T1
-    note: "5 test files: util · iron-session-config · audit-log · load-events · round-trip. tsc 0 errors on all 22 new feature files. next build clean."
-  - label: "Phase transitions in one session"
-    value: "9"
+    note: >-
+      5 test files: util · iron-session-config · audit-log · load-events ·
+      round-trip. tsc 0 errors on all 22 new feature files. next build clean.
+  - label: Phase transitions in one session
+    value: '9'
     tier: T1
-    note: "Research → PRD → Tasks → UX/Integration → Implementation → Test → Review → Merge → Documentation. Each transition logged via append-feature-log.py before state.json mutation."
-  - label: "Measured wall time"
-    value: "~115 min"
+    note: >-
+      Research → PRD → Tasks → UX/Integration → Implementation → Test → Review →
+      Merge → Documentation. Each transition logged via append-feature-log.py
+      before state.json mutation.
+  - label: Measured wall time
+    value: ~115 min
     tier: T1
-    note: "Sum of timing.phases.*.duration_minutes from state.json. Tier 2.2 instrumented (precise timestamps). Not a steady-state forecast."
-  - label: "Files added in fitme-story"
-    value: "22"
+    note: >-
+      Sum of timing.phases.*.duration_minutes from state.json. Tier 2.2
+      instrumented (precise timestamps). Not a steady-state forecast.
+  - label: Files added in fitme-story
+    value: '22'
     tier: T1
-    note: "8 in src/lib/auth/ + 1 helper util · 6 API routes · 4 page shells + 4 client shells · 4 components · 2 scripts · 1 cron route. Plus 4 modified (proxy.ts, package.json, vercel.json, framework page, analytics.ts, glossary.ts)."
-  - label: "Files added in FT2"
-    value: "2 + 1 dir of artifacts"
+    note: >-
+      8 in src/lib/auth/ + 1 helper util · 6 API routes · 4 page shells + 4
+      client shells · 4 components · 2 scripts · 1 cron route. Plus 4 modified
+      (proxy.ts, package.json, vercel.json, framework page, analytics.ts,
+      glossary.ts).
+  - label: Files added in FT2
+    value: 2 + 1 dir of artifacts
     tier: T1
-    note: "GHA workflow + JSONL placeholder + .claude/features/ucc-passkey-auth/ (state, research, PRD, tasks, ux-spec, preflights, pre-merge reviews, risk audit) + docs/prompts/{ux,ui}/."
-  - label: "High-risk Swift files touched"
-    value: "0"
+    note: >-
+      GHA workflow + JSONL placeholder + .claude/features/ucc-passkey-auth/
+      (state, research, PRD, tasks, ux-spec, preflights, pre-merge reviews, risk
+      audit) + docs/prompts/{ux,ui}/.
+  - label: High-risk Swift files touched
+    value: '0'
     tier: T1
-    note: "DomainModels.swift, EncryptionService.swift, SupabaseSyncService.swift, CloudKitSyncService.swift, SignInService.swift, AuthManager.swift, AIOrchestrator.swift all unchanged. Pure web-side feature."
-  - label: "Lines added (fitme-story)"
-    value: "~2,650"
+    note: >-
+      DomainModels.swift, EncryptionService.swift, SupabaseSyncService.swift,
+      CloudKitSyncService.swift, SignInService.swift, AuthManager.swift,
+      AIOrchestrator.swift all unchanged. Pure web-side feature.
+  - label: Lines added (fitme-story)
+    value: '~2,650'
     tier: T1
-    note: "git diff --stat HEAD on the merged PR. Excludes package-lock.json churn."
+    note: git diff --stat HEAD on the merged PR. Excludes package-lock.json churn.
 primary_metric:
   name: unauthenticated_dashboard_reads_per_day
   target: 0
   baseline_pending_post_cutover: true
   tier: T1
 kill_criteria:
-  - "K1 — Registration ceremony fails on > 5% of attempted devices in week 1 → fall back to UCC_AUTH_MODE=basic."
-  - "K2 — any counter_replay event = hard stop. Investigate before any further sign-ins."
-  - "K3 — Vercel function p50 on /api/auth/* > 500 ms sustained 24 h → fall back."
+  - >-
+    If passkey registration ceremony fails on >5% of attempted devices in week
+    1, fall back to UCC_AUTH_MODE=both and reopen scope.
+  - Any counter_replay event in audit log = hard stop (replay attack detected).
+  - Function p50 >500ms sustained 24h → fall back.
 kill_criterion_fired: false
+honest_disclosures:
+  - >-
+    One bug caught + fixed during Phase 5 testing. iron-session's unsealData
+    returns {} on garbage input rather than throwing — my unsealSession wrapper
+    would have returned an empty SessionPayload-shaped object. Caught by the
+    "returns null on garbage input" test. Fix: explicit field-presence check on
+    all 4 payload fields. Test asserts the bug stays dead.
+  - >-
+    4 modules refactored to lazy env reads during Phase 5. Static reads of
+    process.env at module-load time caused test isolation issues (env-var
+    override after import had no effect because imports hoist). Refactored
+    audit-log.ts, load-events.ts, the cron route, and the bootstrap script to
+    read env at call-time.
+  - >-
+    Figma node IDs are absent. Per state.json.figma_build_status:
+    "deferred_to_prompt". The fitme-story dashboard has no current Figma-file
+    mapping — it was built code-first during the UCC migration. The portable
+    build prompt is the v4.X documented escape hatch.
+  - >-
+    kill_criteria_resolution is "Pending — week-1 telemetry gate." The kill
+    criteria are time-deferred (resolution at T+7d post-cutover). The
+    frontmatter records the criteria + the resolution placeholder; the actual
+    T+7d update will land in §99 after the cutover window.
 ---
 
 ## Why this exists
