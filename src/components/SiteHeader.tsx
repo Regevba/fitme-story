@@ -4,25 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useSyncExternalStore } from 'react';
 import { Lock, Moon, Sun } from 'lucide-react';
-
-interface NavItem {
-  href: string;
-  label: string;
-  /** When true, renders a small lock icon next to the label as a hint that
-      the destination is auth-gated (the basic-auth dialog will appear on
-      navigation). */
-  gated?: boolean;
-}
-
-const NAV: NavItem[] = [
-  { href: '/pm-flow', label: 'PM Flow' },
-  { href: '/framework', label: 'Framework' },
-  { href: '/design-system', label: 'Design System' },
-  { href: '/case-studies', label: 'Case Studies' },
-  { href: '/research', label: 'Research' },
-  { href: '/about', label: 'About' },
-  { href: '/control-room', label: 'Control Center', gated: true },
-];
+import { NAV, isCurrentNav } from '@/lib/nav';
+import { MobileNav } from './MobileNav';
 
 const STORAGE_KEY = 'fitme-story-theme';
 const STORAGE_EVENT = 'storage';
@@ -52,14 +35,6 @@ function getThemeSnapshot(): boolean {
 
 function getThemeServerSnapshot(): boolean {
   return false;
-}
-
-// Match a nav item against the current pathname. Exact match for "/", and
-// prefix match for everything else so /case-studies/<slug> still highlights
-// the "Case Studies" tab. Audit V-003 + A-003 (2026-05-08).
-function isCurrentNav(pathname: string, href: string): boolean {
-  if (href === '/') return pathname === '/';
-  return pathname === href || pathname.startsWith(href + '/');
 }
 
 export function SiteHeader() {
@@ -93,7 +68,7 @@ export function SiteHeader() {
           fitme<span className="text-[var(--color-brand-indigo)]">·</span>story
         </Link>
         <div className="flex items-center gap-6">
-          <nav className="hidden md:flex gap-6 text-sm">
+          <nav className="hidden md:flex gap-6 text-sm" aria-label="Primary navigation">
             {NAV.map((item) => {
               const current = !item.gated && isCurrentNav(pathname, item.href);
               const baseLink =
@@ -136,14 +111,18 @@ export function SiteHeader() {
               );
             })}
           </nav>
+          {/* Desktop theme toggle: hidden on mobile (MobileNav drawer has its
+              own copy so the toggle stays one-tap-away on every viewport).
+              Audit P-MOBNAV (2026-05-08). */}
           <button
             onClick={toggle}
             aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
             aria-pressed={dark}
-            className="p-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]"
+            className="hidden md:inline-flex p-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]"
           >
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+          <MobileNav dark={dark} onToggleTheme={toggle} />
         </div>
       </div>
     </header>
