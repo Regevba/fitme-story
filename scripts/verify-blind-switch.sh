@@ -27,6 +27,15 @@ BASE_URL="${1:-https://fitme-story.vercel.app}"
 PASS=0
 FAIL=0
 
+# Vercel SSO bypass: when probing a protected preview deployment in CI, set
+# BYPASS_TOKEN to the project's automation-bypass token so curl can get past
+# the SSO challenge to the actual app. Unset (e.g. local against prod) leaves
+# the array empty and curl behaves identically to before.
+BYPASS_HEADER=()
+if [ -n "${BYPASS_TOKEN:-}" ]; then
+  BYPASS_HEADER=(-H "x-vercel-protection-bypass: $BYPASS_TOKEN" -H "x-vercel-set-bypass-cookie: true")
+fi
+
 color_pass() { printf "\033[0;32m%s\033[0m" "$1"; }
 color_fail() { printf "\033[0;31m%s\033[0m" "$1"; }
 
@@ -49,28 +58,28 @@ printf "Verifying blind-switch on %s\n\n" "$BASE_URL"
 # ── Assertion 1 ──────────────────────────────────────────────────────
 # /control-room without auth → 401 with WWW-Authenticate Basic realm.
 # Verifies Layer 1 (proxy.ts) is gating the route.
-status=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/control-room")
+status=$(curl -s "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" -o /dev/null -w "%{http_code}" "$BASE_URL/control-room")
 assert "Layer 1: /control-room without auth returns 401" "401" "$status"
 
-www_auth=$(curl -sI "$BASE_URL/control-room" | grep -i "^www-authenticate:" | tr -d '\r' | awk '{print $2, $3}' | tr -d ' ')
+www_auth=$(curl -sI "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" "$BASE_URL/control-room" | grep -i "^www-authenticate:" | tr -d '\r' | awk '{print $2, $3}' | tr -d ' ')
 assert "Layer 1: WWW-Authenticate header is 'Basic realm=...'" \
   "Basicrealm=\"control-room\"" "$www_auth"
 
 # ── Assertion 2 ──────────────────────────────────────────────────────
 # / showcase root → 200, public. Verifies the matcher is properly scoped to
 # /control-room/* only (no over-broad gating that would lock out the showcase).
-status_root=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/")
+status_root=$(curl -s "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" -o /dev/null -w "%{http_code}" "$BASE_URL/")
 assert "Showcase /: public 200 (matcher properly scoped)" "200" "$status_root"
 
 # ── Assertion 3 ──────────────────────────────────────────────────────
 # robots.txt contains 'Disallow: /control-room'. Verifies Layer 2 robots gate.
-robots_disallow=$(curl -s "$BASE_URL/robots.txt" | grep -ci "^Disallow:.*control-room" || true)
+robots_disallow=$(curl -s "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" "$BASE_URL/robots.txt" | grep -ci "^Disallow:.*control-room" || true)
 assert "Layer 2: robots.txt has Disallow: /control-room" "1" "$robots_disallow"
 
 # ── Assertion 4 ──────────────────────────────────────────────────────
 # sitemap.xml contains zero references to /control-room. Verifies Layer 2
 # sitemap exclusion.
-sitemap_count=$(curl -s "$BASE_URL/sitemap.xml" | grep -c "control-room" || true)
+sitemap_count=$(curl -s "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" "$BASE_URL/sitemap.xml" | grep -c "control-room" || true)
 assert "Layer 2: sitemap.xml has 0 control-room URLs" "0" "$sitemap_count"
 
 # ── Summary ──────────────────────────────────────────────────────────
