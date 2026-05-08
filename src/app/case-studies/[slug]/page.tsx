@@ -3,6 +3,7 @@ import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypePrettyCode from 'rehype-pretty-code';
 import type { Metadata } from 'next';
 import { getAllCaseStudies, getCaseStudyBySlug } from '@/lib/content';
 import { useMDXComponents } from '@/mdx-components';
@@ -59,8 +60,9 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
       mdxOptions: {
         remarkPlugins: [remarkGfm],
         // Audit CS-007 (2026-05-08): every heading becomes an anchor target.
-        // rehype-slug adds id="..." to h1-h6; rehype-autolink-headings wraps
-        // the text in a self-link so each heading is deep-linkable.
+        // Audit T17 P-MDX-CODE (2026-05-08): rehype-pretty-code adds shiki
+        // syntax highlighting to fenced code blocks; pairs with the Pre
+        // wrapper in mdx-components.tsx for the copy-button overlay.
         rehypePlugins: [
           rehypeSlug,
           [
@@ -71,6 +73,13 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                 className: ['heading-anchor'],
                 ariaLabel: 'Permalink to this section',
               },
+            },
+          ],
+          [
+            rehypePrettyCode,
+            {
+              theme: { light: 'github-light', dark: 'github-dark' },
+              keepBackground: false,
             },
           ],
         ],

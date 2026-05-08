@@ -6,6 +6,7 @@ import { TimelineNav } from '@/components/mdx/TimelineNav';
 import { FindingsTable } from '@/components/mdx/FindingsTable';
 import { DevDive } from '@/components/mdx/DevDive';
 import { Term } from '@/components/mdx/Term';
+import { Pre } from '@/components/mdx/Pre';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
 import { ChipAffinityMap } from '@/components/bespoke/ChipAffinityMap';
 import { PhaseTimingChart } from '@/components/bespoke/PhaseTimingChart';
@@ -24,6 +25,10 @@ import { FrameworkAdvancement } from '@/components/case-study/FrameworkAdvanceme
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     ...components,
+    // Override <pre> for code blocks (audit T17 P-MDX-CODE, 2026-05-08):
+    // adds syntax highlighting via rehype-pretty-code (wired in compileMDX
+    // call sites) + a copy-button overlay via the Pre wrapper.
+    pre: Pre,
     MetricsCard,
     Pullquote,
     Figure,
