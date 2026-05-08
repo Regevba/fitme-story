@@ -1,6 +1,7 @@
 import type { ContentEntry } from '@/lib/content';
 import { FullCaseStudyLink } from './FullCaseStudyLink';
 import { CaseStudyToolbar } from './CaseStudyToolbar';
+import { ArticleNav } from './ArticleNav';
 import {
   SummaryCard,
   DataKey,
@@ -67,8 +68,9 @@ export function FlagshipTemplate({
           <TimelineNav prev={siblings?.prev} next={siblings?.next} />
           <FullCaseStudyLink fm={fm} />
         </div>
-        {/* See StandardTemplate sidebar comment — same reservation. */}
-        <aside aria-label="Sidebar" className="hidden md:block" />
+        <aside aria-label="Article navigation" className="hidden md:block">
+          <ArticleNav />
+        </aside>
       </div>
     </article>
   );
