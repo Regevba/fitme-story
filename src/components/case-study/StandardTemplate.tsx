@@ -1,6 +1,7 @@
 import type { ContentEntry } from '@/lib/content';
 import { FullCaseStudyLink } from './FullCaseStudyLink';
 import { CaseStudyToolbar } from './CaseStudyToolbar';
+import { ArticleNav } from './ArticleNav';
 import {
   SummaryCard,
   DataKey,
@@ -61,12 +62,9 @@ export function StandardTemplate({
         <TimelineNav prev={siblings?.prev} next={siblings?.next} />
         <FullCaseStudyLink fm={fm} />
       </div>
-      {/* Empty sidebar slot reserved for the dedicated <ArticleNav> component
-          shipping in the next PR (audit S1, 2026-05-08). Until then, an
-          aria-label is kept so the announced landmark is named, but the
-          slot stays visually empty rather than introducing chrome we'll
-          replace immediately. */}
-      <aside aria-label="Sidebar" className="hidden md:block" />
+      <aside aria-label="Article navigation" className="hidden md:block">
+        <ArticleNav />
+      </aside>
     </article>
   );
 }
