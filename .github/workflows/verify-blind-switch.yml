@@ -64,6 +64,11 @@ jobs:
         if: steps.filter.outputs.should_run == 'true'
         env:
           PREVIEW_URL: ${{ github.event.deployment_status.target_url }}
+          # Vercel SSO (ssoProtection: all_except_custom_domains) gates every
+          # preview URL. Without this header-token, curl probes hit the SSO
+          # challenge page instead of the app and assertions fail or pass
+          # coincidentally. Token = fitme-story project's automation-bypass.
+          BYPASS_TOKEN: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           set -e
           echo "Probing: $PREVIEW_URL"
