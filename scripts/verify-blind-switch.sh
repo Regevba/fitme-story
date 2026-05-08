@@ -31,9 +31,15 @@ FAIL=0
 # BYPASS_TOKEN to the project's automation-bypass token so curl can get past
 # the SSO challenge to the actual app. Unset (e.g. local against prod) leaves
 # the array empty and curl behaves identically to before.
+#
+# IMPORTANT: only `x-vercel-protection-bypass` is sent — NOT also
+# `x-vercel-set-bypass-cookie: true`. The cookie-set variant triggers a 307
+# redirect-to-self so a browser would persist the bypass cookie, which breaks
+# single-shot curl probes (we'd capture the 307 instead of the app response).
+# Per-request header validation alone is enough for one-off CI probes.
 BYPASS_HEADER=()
 if [ -n "${BYPASS_TOKEN:-}" ]; then
-  BYPASS_HEADER=(-H "x-vercel-protection-bypass: $BYPASS_TOKEN" -H "x-vercel-set-bypass-cookie: true")
+  BYPASS_HEADER=(-H "x-vercel-protection-bypass: $BYPASS_TOKEN")
 fi
 
 color_pass() { printf "\033[0;32m%s\033[0m" "$1"; }
