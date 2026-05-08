@@ -4,6 +4,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypePrettyCode from 'rehype-pretty-code';
 import { useMDXComponents } from '@/mdx-components';
 
 export const metadata: Metadata = {
@@ -29,7 +32,33 @@ export default async function DevGuidePage() {
     components,
     options: {
       parseFrontmatter: false,
-      mdxOptions: { remarkPlugins: [remarkGfm] },
+      mdxOptions: {
+        remarkPlugins: [remarkGfm],
+        // Audit T17 P-MDX-CODE (2026-05-08): syntax highlighting + copy
+        // button overlay for code blocks. Audit CS-007 (2026-05-08):
+        // every heading becomes a deep-link target. Same plugin set as
+        // the case-study slug page.
+        rehypePlugins: [
+          rehypeSlug,
+          [
+            rehypeAutolinkHeadings,
+            {
+              behavior: 'wrap',
+              properties: {
+                className: ['heading-anchor'],
+                ariaLabel: 'Permalink to this section',
+              },
+            },
+          ],
+          [
+            rehypePrettyCode,
+            {
+              theme: { light: 'github-light', dark: 'github-dark' },
+              keepBackground: false,
+            },
+          ],
+        ],
+      },
     },
   });
 
