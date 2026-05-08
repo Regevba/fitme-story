@@ -1,14 +1,15 @@
 import Image from 'next/image';
-import type { Metadata } from 'next';
 import { Disclosure } from '@/components/ui/Disclosure';
 import { FlowDiagram } from '@/components/case-study/FlowDiagram';
 import { TOKEN_GROUPS, TYPE_SCALE, MEASURES } from '@/lib/design-tokens';
 import { DESIGN_SYSTEM_COMPONENTS } from '@/lib/design-system-components';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'The design system — fitme-story',
+export const metadata = buildMetadata({
+  title: 'The design system',
   description: '13 UX foundations and ~125 tokens that underpin FitMe.',
-};
+  slug: '/design-system',
+});
 
 const PRINCIPLES = [
   'Clarity over cleverness',

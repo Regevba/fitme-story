@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'About — fitme-story',
+export const metadata = buildMetadata({
+  title: 'About',
   description: 'Who built this, why, and where to find the full archive.',
-};
+  slug: '/about',
+});
 
 export default function AboutPage() {
   return (

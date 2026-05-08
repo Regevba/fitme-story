@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
@@ -8,12 +7,15 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypePrettyCode from 'rehype-pretty-code';
 import { useMDXComponents } from '@/mdx-components';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'PM Framework — Developer Guide (v1.0 → v7.8.1) — fitme-story',
+export const metadata = buildMetadata({
+  title: 'PM Framework — Developer Guide (v1.0 → v7.8.1)',
   description:
-    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema, phase lifecycle, dispatch, cache, measurement protocol, 15 write-time + 13 cycle-time + 6 advisory check codes (v7.8.1 adds BRANCH_ISOLATION_VIOLATION + FEATURE_CLOSURE_COMPLETENESS + ISOLATION_OPT_OUT_REASON_MISSING write-time gates + 3 cycle-time advisories), v7.8 bridge mechanisms (A–F), 3 operational walkthroughs, and the compressed v1.0 → v7.8.1 timeline. Mirrors docs/architecture/dev-guide-v1-to-v7-7.md (filename retained for ref-stability; content tracks v7.8.1).',
-};
+    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema, phase lifecycle, dispatch, cache, measurement protocol, write-time + cycle-time + advisory check codes, v7.8 bridge mechanisms (A–F), 3 operational walkthroughs, and the compressed v1.0 → v7.8.1 timeline.',
+  slug: '/framework/dev-guide',
+  type: 'article',
+});
 
 const UPSTREAM_URL =
   'https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/dev-guide-v1-to-v7-7.md';

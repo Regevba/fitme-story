@@ -1,13 +1,14 @@
 import Link from 'next/link';
-import type { Metadata } from 'next';
 import { Wrench } from 'lucide-react';
 import { getAllCaseStudies, type ContentEntry } from '@/lib/content';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Case studies — fitme-story',
+export const metadata = buildMetadata({
+  title: 'Case studies',
   description:
     'Six milestone case studies from the FitMe PM framework evolution, plus supporting studies and developer deep-dives.',
-};
+  slug: '/case-studies',
+});
 
 // Six framework inflection points — the studies where something fundamental
 // changed. Hooks, impact metrics, short-labels and a dedicated accent color

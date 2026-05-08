@@ -12,6 +12,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     '',
     '/case-studies',
+    '/case-studies/compare', // Audit V-013 (2026-05-08): added to sitemap
+    '/case-studies/operations-layer',
     '/framework',
     '/framework/dispatch',
     '/framework/dev-guide',
@@ -22,7 +24,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/pm-flow',
     '/trust',
     '/trust/audits/2026-04-21-gemini',
-    '/case-studies/operations-layer',
     // NOTE: /control-room/* deliberately omitted — see src/proxy.ts + src/app/robots.ts.
   ];
   const studies = await getAllCaseStudies();

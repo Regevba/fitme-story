@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PmFlowHero } from '@/components/pm-flow/PmFlowHero';
 import { LifecycleLoop } from '@/components/pm-flow/LifecycleLoop';
@@ -7,11 +6,13 @@ import { EvolutionStrip } from '@/components/pm-flow/EvolutionStrip';
 import { SharedDataTiles } from '@/components/pm-flow/SharedDataTiles';
 import { CacheTiers } from '@/components/pm-flow/CacheTiers';
 import { Term } from '@/components/mdx/Term';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'The PM-flow ecosystem — fitme-story',
-  description: 'How the framework\'s 11 skills orchestrate a continuous product-development cycle. A guide for PMs using Claude.',
-};
+export const metadata = buildMetadata({
+  title: 'The PM-flow ecosystem',
+  description: "How the framework's 11 skills orchestrate a continuous product-development cycle. A guide for PMs using Claude.",
+  slug: '/pm-flow',
+});
 
 export default function PmFlowPage() {
   return (

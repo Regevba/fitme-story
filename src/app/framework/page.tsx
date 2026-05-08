@@ -1,12 +1,13 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'The framework — fitme-story',
+export const metadata = buildMetadata({
+  title: 'The framework',
   description: 'Six floors of an AI-orchestrated PM framework, explained layer by layer.',
-};
+  slug: '/framework',
+});
 
 export default function FrameworkPage() {
   return (

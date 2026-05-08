@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
 import { GLOSSARY } from '@/lib/glossary';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Glossary — fitme-story',
+export const metadata = buildMetadata({
+  title: 'Glossary',
   description: 'Plain-language definitions of hardware-inspired software terminology used throughout the site.',
-};
+  slug: '/glossary',
+});
 
 const CATEGORY_LABELS: Record<string, string> = {
   'hardware-analog': 'Hardware analogs',
