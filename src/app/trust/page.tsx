@@ -1,12 +1,13 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { FrameworkAdvancement } from '@/components/case-study/FrameworkAdvancement';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'How this site stays honest — fitme-story',
+export const metadata = buildMetadata({
+  title: 'How this site stays honest',
   description:
     'Case studies and code are periodically audited by external AI models as an independent integrity check.',
-};
+  slug: '/trust',
+});
 
 export default function TrustPage() {
   return (

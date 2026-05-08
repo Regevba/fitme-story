@@ -6,6 +6,7 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypePrettyCode from 'rehype-pretty-code';
 import type { Metadata } from 'next';
 import { getAllCaseStudies, getCaseStudyBySlug } from '@/lib/content';
+import { buildMetadata } from '@/lib/seo';
 import { useMDXComponents } from '@/mdx-components';
 import { LightTemplate } from '@/components/case-study/LightTemplate';
 import { StandardTemplate } from '@/components/case-study/StandardTemplate';
@@ -22,10 +23,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const entry = await getCaseStudyBySlug(slug);
   if (!entry) return { title: 'Not found' };
-  return {
-    title: `${entry.frontmatter.title} — fitme-story`,
-    description: `Case study from the FitMe PM framework evolution (tier: ${entry.frontmatter.tier}).`,
-  };
+  const fm = entry.frontmatter;
+  return buildMetadata({
+    title: fm.title,
+    description: fm.tldr ?? `Case study from the FitMe PM framework evolution (tier: ${fm.tier}).`,
+    slug: `/case-studies/${fm.slug}`,
+    type: 'article',
+    publishedAt: fm.date,
+  });
 }
 
 // Compute prev/next siblings in chronological (timeline-ordered) sequence.

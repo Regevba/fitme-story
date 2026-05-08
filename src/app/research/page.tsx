@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Research — fitme-story',
+export const metadata = buildMetadata({
+  title: 'Research',
   description: 'SoC-on-software, hardware-aware dispatch, and where the framework points next.',
-};
+  slug: '/research',
+});
 
 type ResearchItem = {
   title: string;

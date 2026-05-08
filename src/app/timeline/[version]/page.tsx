@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { FRAMEWORK_VERSIONS } from '@/lib/timeline';
 import { getAllCaseStudies } from '@/lib/content';
+import { buildMetadata } from '@/lib/seo';
 
 export async function generateStaticParams() {
   return FRAMEWORK_VERSIONS.map((v) => ({ version: v.version }));
@@ -12,10 +13,12 @@ export async function generateMetadata({ params }: { params: Promise<{ version: 
   const { version } = await params;
   const v = FRAMEWORK_VERSIONS.find((x) => x.version === version);
   if (!v) return { title: 'Not found' };
-  return {
-    title: `v${v.version} — ${v.headline} — fitme-story`,
+  return buildMetadata({
+    title: `v${v.version} — ${v.headline}`,
     description: v.headline,
-  };
+    slug: `/timeline/${v.version}`,
+    type: 'article',
+  });
 }
 
 export default async function VersionPage({ params }: { params: Promise<{ version: string }> }) {

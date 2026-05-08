@@ -1,11 +1,12 @@
-import type { Metadata } from 'next';
 import { DispatchReplay } from '@/components/bespoke/DispatchReplay';
 import { Term } from '@/components/mdx/Term';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'The framework in motion — fitme-story',
+export const metadata = buildMetadata({
+  title: 'The framework in motion',
   description: 'Watch a real feature flow through the framework: dispatch intelligence, skill-on-demand loading, batched execution, measurement.',
-};
+  slug: '/framework/dispatch',
+});
 
 export default function DispatchDemoPage() {
   return (

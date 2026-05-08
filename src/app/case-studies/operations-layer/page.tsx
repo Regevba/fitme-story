@@ -1,9 +1,10 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'The operations layer in practice — fitme-story',
+export const metadata = buildMetadata({
+  title: 'The operations layer in practice',
   description: 'Three short studies of how the framework handled maintenance, cleanup, and IA drift.',
-};
+  slug: '/case-studies/operations-layer',
+});
 
 export default function OperationsLayerPage() {
   return (

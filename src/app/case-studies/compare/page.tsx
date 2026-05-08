@@ -1,16 +1,17 @@
 import Link from 'next/link';
-import type { Metadata } from 'next';
 import { ArrowLeft } from 'lucide-react';
 import { getAllCaseStudies } from '@/lib/content';
 import CaseStudyComparisonTable, {
   type ComparisonRow,
 } from '@/components/case-study/CaseStudyComparisonTable';
+import { buildMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Compare all case studies — fitme-story',
+export const metadata = buildMetadata({
+  title: 'Compare all case studies',
   description:
     'Cross-case-study comparison table. Sort by version, date, tier, or work type. Filter and search across every shipped case study at a glance.',
-};
+  slug: '/case-studies/compare',
+});
 
 export default async function ComparePage() {
   const all = await getAllCaseStudies();
