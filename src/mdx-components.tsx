@@ -7,6 +7,11 @@ import { FindingsTable } from '@/components/mdx/FindingsTable';
 import { DevDive } from '@/components/mdx/DevDive';
 import { Term } from '@/components/mdx/Term';
 import { Pre } from '@/components/mdx/Pre';
+import { HonestDisclosure } from '@/components/mdx/callouts/HonestDisclosure';
+import { TriggerIncident } from '@/components/mdx/callouts/TriggerIncident';
+import { MemoryRef } from '@/components/mdx/callouts/MemoryRef';
+import { PredecessorChain } from '@/components/mdx/callouts/PredecessorChain';
+import { KillCriterionResolution } from '@/components/mdx/callouts/KillCriterionResolution';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
 import { ChipAffinityMap } from '@/components/bespoke/ChipAffinityMap';
 import { PhaseTimingChart } from '@/components/bespoke/PhaseTimingChart';
@@ -36,6 +41,13 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     FindingsTable,
     DevDive,
     Term,
+    // Callout family (audit T15 P-CALLOUTS, 2026-05-08): 5 standardized
+    // MDX components for recurring narrative patterns across case studies.
+    HonestDisclosure,
+    TriggerIncident,
+    MemoryRef,
+    PredecessorChain,
+    KillCriterionResolution,
     BlueprintOverlay,
     ChipAffinityMap,
     PhaseTimingChart,
