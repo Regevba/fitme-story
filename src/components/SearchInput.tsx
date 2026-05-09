@@ -84,7 +84,7 @@ export function SearchInput({ variant = 'full', className = '' }: SearchInputPro
           name="q"
           defaultValue={queryFromURL}
           placeholder="Search…"
-          className="w-full rounded-md border border-[var(--color-neutral-300)] bg-[var(--color-neutral-0)] py-1.5 pl-9 pr-12 text-sm text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus-visible:border-[var(--color-brand-indigo)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-indigo)] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)] dark:text-[var(--color-neutral-50)] dark:placeholder:text-[var(--color-neutral-400)]"
+          className="w-full rounded-full border border-[var(--color-neutral-300)] bg-[var(--color-neutral-0)] py-1.5 pl-9 pr-12 text-sm text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-500)] focus-visible:border-[var(--color-brand-indigo)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-indigo)] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)] dark:text-[var(--color-neutral-50)] dark:placeholder:text-[var(--color-neutral-400)]"
         />
         <kbd
           aria-hidden="true"
