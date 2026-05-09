@@ -19,7 +19,7 @@ export default function PmFlowPage() {
     <>
       <PmFlowHero />
 
-      <section id="loop" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
+      <section id="loop" className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">The process is a cycle, not a pipeline.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Product development never ends with shipping. It loops back through monitoring, feedback, and analysis into the next iteration. The inner ring below shows the 10 phases. After <strong>P8 Release</strong>, three feedback skills (CX, Ops, Marketing) observe the shipped product and feed signals back to Research and Learn — closing the loop. A separate <strong>Docs satellite</strong> sits off-cycle, carrying internal artifacts (PRDs, QA reports, runbooks) bidirectionally between PRD, Tasks, UX, and Test.
@@ -49,7 +49,7 @@ export default function PmFlowPage() {
         </aside>
       </section>
 
-      <section id="wall" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
+      <section id="wall" className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">Every skill stands alone. All skills fit together.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Each skill is a Lego brick — it works on its own AND it snaps into the 10-phase lifecycle (the <Term slug="hub-and-spoke">hub-and-spoke topology</Term>). Toggle <em>Scattered</em> to see them standalone; toggle <em>Assembled</em> to see them fit into phase columns. Click any brick to flip it and read the details.
@@ -57,7 +57,7 @@ export default function PmFlowPage() {
         <LegoWall />
       </section>
 
-      <section id="evolution" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
+      <section id="evolution" className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">How the ecosystem grew</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           From a single monolithic skill in v1.0 to a hub-and-spoke topology by v4.3, then <Term slug="soc">SoC-on-software</Term> optimizations, dispatch intelligence, and hardware-aware dispatch. Six milestones that matter most.
@@ -65,7 +65,7 @@ export default function PmFlowPage() {
         <EvolutionStrip />
       </section>
 
-      <section id="data" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
+      <section id="data" className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">The files the skills speak through.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Skills do not call each other directly — they read and write shared JSON files in <code className="font-mono">.claude/shared/</code>. Decoupling by design. Any skill can run standalone because every skill just reads state and writes state. The colored dots show which skills touch each file.
@@ -73,7 +73,7 @@ export default function PmFlowPage() {
         <SharedDataTiles />
       </section>
 
-      <section id="cache" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
+      <section id="cache" className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">Three cache tiers, just like a CPU.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           The framework borrows the <Term slug="cache-tiers">L1/L2/L3 cache hierarchy</Term> directly from CPU architecture. L1 is per-skill (fastest), L2 is shared across skills, L3 is project-wide lore. When a skill needs context, it checks L1 first — if it misses, it tries L2, then L3.

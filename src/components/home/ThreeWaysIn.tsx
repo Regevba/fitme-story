@@ -25,7 +25,7 @@ const CARDS = [
 export function ThreeWaysIn() {
   return (
     <section className="py-20">
-      <div className="max-w-5xl mx-auto px-6">
+      <div className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
         <h2 className="font-serif text-3xl text-center mb-12">Three ways in</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {CARDS.map((card) => {
