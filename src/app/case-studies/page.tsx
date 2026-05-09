@@ -85,12 +85,14 @@ const META_ANALYSIS_SLUGS = new Set([
 // Each milestone owns the version range [its_era_start, next_era_start).
 // Boundaries are explicit (not derived from MILESTONES[].version) so that the
 // user-facing milestone label can lag behind the case-study frontmatter version
-// without breaking the era grouping. Concretely: the hadf milestone is labeled
-// v7.0 even though its case-study frontmatter is v6.1, and parallel-stress-test
-// is labeled v5.2 though its frontmatter is v5.1 — using these labels as bucket
+// without breaking the era grouping. Concretely: parallel-stress-test is
+// labeled v5.2 though its frontmatter is v5.1 — using labels as bucket
 // boundaries miscategorized v5.0/v5.1 case studies (under eval-driven instead
-// of parallel-stress-test) and v6.1 case studies (under hadf instead of
-// measurement-v6). Explicit thresholds tied to era starts fix both at once.
+// of parallel-stress-test). Explicit thresholds tied to era starts fix it.
+// (Historical note: the hadf showcase frontmatter was v6.1 with milestone
+// label v7.0 until 2026-05-09, when both were aligned to v7.0 per user
+// directive. The explicit-threshold approach remains for the parallel-
+// stress-test case + future similar mismatches.)
 //
 // Order matches MILESTONES (onboarding-pilot, framework-evolution, eval-driven,
 // parallel-stress-test, measurement-v6, hadf).
