@@ -43,6 +43,7 @@
     "shiki": "^4.0.2"
   },
   "devDependencies": {
+    "@figma/code-connect": "^1.4.4",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "20.19.39",
     "@types/react": "^19",
