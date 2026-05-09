@@ -53,3 +53,4 @@ next-env.d.ts
 # src/data/shared/
 # src/data/features/
 # src/data/freshness.json
+scripts/__pycache__/

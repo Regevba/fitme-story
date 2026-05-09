@@ -1,0 +1,50 @@
+name: integrity
+
+# Runs the framework's write-time gates on every PR commit.
+# Ported from FitTracker2 .github/workflows/ci.yml + integrity-cycle.yml on
+# 2026-05-09 per user directive "every feature on fitme story must invoke
+# full framework". Closes the v7.8.2 cross-repo asymmetry.
+#
+# Security note: this workflow does not interpolate any github.event.* user-
+# controlled inputs into run: commands; secrets are only used to authenticate
+# gh. Safe per the GitHub Actions injection guide.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Authenticate gh for PR-citation cache
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh auth status
+
+      - name: State.json schema gates
+        run: python3 scripts/check-state-schema.py
+
+      - name: Case-study preflight (BROKEN_PR_CITATION + tier tags)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/check-case-study-preflight.py
+
+      - name: Cycle-time integrity scan
+        run: python3 scripts/integrity-check.py

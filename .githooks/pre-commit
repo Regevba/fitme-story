@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Git pre-commit hook — fitme-story port of FT2's framework gates.
+# Vendored from FitTracker2 .githooks/pre-commit on 2026-05-09 per
+# user directive "every feature on fitme story must invoke full
+# framework from now on". Closes the v7.8.2 cross-repo asymmetry
+# (which was: gates fire on FT2 commits but not on fitme-story).
+#
+# Defense layers fired here:
+#   1. state.json schema + transition gates (scripts/check-state-schema.py)
+#   2. case-study preflight (scripts/check-case-study-preflight.py)
+#
+# Enable with: make install-hooks
+# Bypass (emergency only): git commit --no-verify
+#   (cycle-time integrity-check still catches anything introduced via bypass.)
+
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+state_schema_checker="$repo_root/scripts/check-state-schema.py"
+case_study_checker="$repo_root/scripts/check-case-study-preflight.py"
+
+failed=0
+
+if [[ -x "$state_schema_checker" ]]; then
+  if ! "$state_schema_checker" --staged; then
+    failed=1
+  fi
+fi
+
+if [[ -x "$case_study_checker" ]]; then
+  if ! "$case_study_checker" --staged; then
+    failed=1
+  fi
+fi
+
+if [[ "$failed" -ne 0 ]]; then
+  echo ""
+  echo "Pre-commit rejected: framework gate(s) failed."
+  echo "Address each violation above, restage, and recommit."
+  echo "Emergency bypass: git commit --no-verify (cycle-time check still catches it)."
+  exit 1
+fi
