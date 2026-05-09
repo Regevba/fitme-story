@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useId, useRef, useState } from 'react';
+import { Suspense, useEffect, useId, useRef, useState } from 'react';
 import { Lock, Menu, X, Moon, Sun } from 'lucide-react';
 import { NAV, isCurrentNav } from '@/lib/nav';
 import { SearchInput } from './SearchInput';
@@ -95,7 +95,11 @@ export function MobileNav({ dark, onToggleTheme }: MobileNavProps) {
           </div>
 
           <div className="border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] px-3 py-3">
-            <SearchInput variant="full" />
+            {/* Suspense wrap — SearchInput uses useSearchParams() which would
+                CSR-bailout on prerender otherwise. */}
+            <Suspense fallback={<div className="h-9" aria-hidden="true" />}>
+              <SearchInput variant="full" />
+            </Suspense>
           </div>
 
           <nav aria-label="Mobile navigation" className="flex-1 overflow-y-auto px-3 py-4">

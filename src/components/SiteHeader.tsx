@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useSyncExternalStore } from 'react';
+import { Suspense, useEffect, useSyncExternalStore } from 'react';
 import { Lock, Moon, Sun } from 'lucide-react';
 import { NAV, isCurrentNav } from '@/lib/nav';
 import { MobileNav } from './MobileNav';
@@ -113,8 +113,13 @@ export function SiteHeader() {
             })}
           </nav>
           {/* Desktop search: hidden below md; MobileNav drawer carries its own
-              SearchInput so the field stays one-tap away on small screens. */}
-          <SearchInput variant="full" className="hidden md:block w-56 lg:w-72" />
+              SearchInput so the field stays one-tap away on small screens.
+              Wrapped in <Suspense> because SearchInput calls useSearchParams(),
+              which would otherwise CSR-bailout on prerender of /_not-found
+              (per Next.js missing-suspense-with-csr-bailout). */}
+          <Suspense fallback={<div className="hidden md:block w-56 lg:w-72" aria-hidden="true" />}>
+            <SearchInput variant="full" className="hidden md:block w-56 lg:w-72" />
+          </Suspense>
           {/* Desktop theme toggle: hidden on mobile (MobileNav drawer has its
               own copy so the toggle stays one-tap-away on every viewport).
               Audit P-MOBNAV (2026-05-08). */}
