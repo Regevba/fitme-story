@@ -68,8 +68,8 @@ export function SiteHeader() {
         >
           fitme<span className="text-[var(--color-brand-indigo)]">·</span>story
         </Link>
-        <div className="flex items-center gap-6">
-          <nav className="hidden md:flex gap-6 text-sm" aria-label="Primary navigation">
+        <div className="flex items-center gap-4 md:gap-8">
+          <nav className="hidden md:flex items-center gap-6 text-sm" aria-label="Primary navigation">
             {NAV.map((item) => {
               const current = !item.gated && isCurrentNav(pathname, item.href);
               const baseLink =
@@ -112,26 +112,34 @@ export function SiteHeader() {
               );
             })}
           </nav>
-          {/* Desktop search: hidden below md; MobileNav drawer carries its own
-              SearchInput so the field stays one-tap away on small screens.
-              Wrapped in <Suspense> because SearchInput calls useSearchParams(),
-              which would otherwise CSR-bailout on prerender of /_not-found
-              (per Next.js missing-suspense-with-csr-bailout). */}
-          <Suspense fallback={<div className="hidden md:block w-56 lg:w-72" aria-hidden="true" />}>
-            <SearchInput variant="full" className="hidden md:block w-56 lg:w-72" />
-          </Suspense>
-          {/* Desktop theme toggle: hidden on mobile (MobileNav drawer has its
-              own copy so the toggle stays one-tap-away on every viewport).
-              Audit P-MOBNAV (2026-05-08). */}
-          <button
-            onClick={toggle}
-            aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
-            aria-pressed={dark}
-            className="hidden md:inline-flex p-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]"
-          >
-            {dark ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-          <MobileNav dark={dark} onToggleTheme={toggle} />
+          {/* Trailing icon cluster — visually distinct from the nav links so
+              the bar reads as two groups (links | tools) instead of one
+              evenly-dispersed strip. */}
+          <div className="flex items-center gap-1 md:gap-2">
+            {/* Desktop search: collapsed icon-only by default; click or ⌘K to
+                expand into the pill input. Saves nav-bar width and matches
+                the GitHub/Linear pattern. MobileNav drawer keeps the
+                always-visible pill so the field is one-tap away on small
+                screens. Wrapped in <Suspense> because SearchInput calls
+                useSearchParams(), which would otherwise CSR-bailout on
+                prerender of /_not-found (per Next.js
+                missing-suspense-with-csr-bailout). */}
+            <Suspense fallback={<div className="hidden md:block h-11 w-11" aria-hidden="true" />}>
+              <SearchInput variant="expandable" className="hidden md:inline-flex" />
+            </Suspense>
+            {/* Desktop theme toggle: hidden on mobile (MobileNav drawer has
+                its own copy so the toggle stays one-tap-away on every
+                viewport). Audit P-MOBNAV (2026-05-08). */}
+            <button
+              onClick={toggle}
+              aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+              aria-pressed={dark}
+              className="hidden md:inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full p-2 hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]"
+            >
+              {dark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <MobileNav dark={dark} onToggleTheme={toggle} />
+          </div>
         </div>
       </div>
     </header>
