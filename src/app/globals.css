@@ -104,6 +104,15 @@ a,
   -webkit-overflow-scrolling: touch;
 }
 
+/* T24 (2026-05-09): Inline `<code>` inside prose can hold long file paths,
+   commit SHAs, or kebab-case identifiers that would otherwise overflow the
+   360px viewport. `overflow-wrap: anywhere` lets the browser break inside
+   the token at narrow widths without affecting wider screens. */
+.prose code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 /* 4. Antialias rendering — Safari subpixel default renders thinner than
    other browsers. Match the editorial weight everywhere. */
 html {
