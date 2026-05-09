@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "purpose": "Path-reducer registry for ledger files (append-only, dedup-by-key). Mechanism E custom git merge driver consults this when resolving conflicts on the listed files.",
+    "source": "Ported from FitTracker2 on 2026-05-09; identical schema.",
+    "version": "1.0.0"
+  },
+  "reducers": [
+    {
+      "path": ".claude/logs/*.log.json",
+      "reducer": "union_dedup_by_event_id",
+      "key": "event_id"
+    },
+    {
+      "path": ".claude/logs/gate-coverage.jsonl",
+      "reducer": "union_dedup_by_line_hash"
+    },
+    {
+      "path": ".claude/logs/_session-*.events.jsonl",
+      "reducer": "union_dedup_by_line_hash"
+    }
+  ]
+}

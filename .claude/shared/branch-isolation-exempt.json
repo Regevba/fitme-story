@@ -1,0 +1,13 @@
+{
+  "_meta": {
+    "purpose": "Exempt-pattern allowlist for BRANCH_ISOLATION_VIOLATION (Mode B). Files matching these globs do NOT trigger Mode B even when committed from main.",
+    "source": "Ported from FitTracker2 .claude/shared/branch-isolation-exempt.json on 2026-05-09 per cross-repo framework port.",
+    "version": "1.0.0"
+  },
+  "exempt_patterns": [
+    "README.md",
+    "CHANGELOG.md",
+    ".gitignore",
+    ".gitattributes"
+  ]
+}
