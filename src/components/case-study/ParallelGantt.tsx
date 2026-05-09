@@ -30,7 +30,7 @@ export function ParallelGantt({ lanes: lanesProp, lanesJson, totalMinutes, capti
       aria-label={`Parallel Gantt chart — ${lanes.length} features running concurrently over ${totalMinutes} minutes`}
     >
       {/* Time-scale header */}
-      <div className="mb-3 ml-[12rem] flex justify-between text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)]">
+      <div className="mb-3 ml-[6rem] sm:ml-[12rem] flex justify-between text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)]">
         <span>0 min</span>
         <span>{Math.round(totalMinutes / 2)} min</span>
         <span>{totalMinutes} min — all four finished</span>
@@ -41,7 +41,7 @@ export function ParallelGantt({ lanes: lanesProp, lanesJson, totalMinutes, capti
         {lanes.map((lane, i) => {
           const widthPct = (lane.endedAt / totalMinutes) * 100;
           return (
-            <div key={lane.feature} className="grid grid-cols-[12rem_1fr] items-center gap-3">
+            <div key={lane.feature} className="grid grid-cols-[6rem_1fr] sm:grid-cols-[12rem_1fr] items-center gap-2 sm:gap-3">
               <div className="text-right pr-3">
                 <div className="text-sm font-medium truncate">{lane.feature}</div>
                 <div className="text-[10px] text-[var(--color-neutral-500)] truncate">{lane.complexity}</div>

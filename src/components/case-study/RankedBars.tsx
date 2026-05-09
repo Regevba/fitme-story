@@ -40,7 +40,7 @@ export function RankedBars({ items: itemsProp, itemsJson, title, caption, classN
           return (
             <li
               key={item.label}
-              className="grid grid-cols-[7rem_1fr_4rem] items-center gap-3 text-xs"
+              className="grid grid-cols-[5rem_1fr_3rem] sm:grid-cols-[7rem_1fr_4rem] items-center gap-2 sm:gap-3 text-xs"
               role="img"
               aria-label={`${item.label}: ${item.value}${item.valueSuffix ?? ''}`}
             >

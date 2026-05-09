@@ -31,7 +31,7 @@ export function StandardTemplate({
       fm.visual_aid,
   );
   return (
-    <article className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-[1fr_280px] gap-12">
+    <article className="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-[1fr_280px] gap-12">
       <div>
         <CaseStudyToolbar />
         <header className="mb-10">
@@ -39,7 +39,7 @@ export function StandardTemplate({
             {fm.timeline_position ? `v${fm.timeline_position.version}` : null}
           </div>
           {/* Audit A-019 (2026-05-08): h1 always in <header>. */}
-          <h1 className="mt-4 font-serif text-[length:var(--text-display-lg)] leading-tight">
+          <h1 className="mt-4 font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[length:var(--text-display-lg)] leading-tight break-words">
             {fm.title}
           </h1>
           <p className="mt-2 text-sm text-[var(--color-neutral-500)] font-sans">

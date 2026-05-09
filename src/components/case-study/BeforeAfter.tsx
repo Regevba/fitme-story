@@ -57,7 +57,7 @@ export function BeforeAfter({
       className={`my-10 max-w-[var(--measure-body)] mx-auto ${className}`}
       aria-label={`Comparison: ${bLabel} ${bValue} versus ${aLabel} ${aValue}`}
     >
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4 sm:gap-6">
         <motion.div
           initial={reduced ? false : { opacity: 0, x: -16 }}
           whileInView={{ opacity: 1, x: 0 }}

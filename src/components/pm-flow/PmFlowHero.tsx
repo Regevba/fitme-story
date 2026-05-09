@@ -11,8 +11,8 @@ const ANCHOR_CHIPS = [
 
 export function PmFlowHero() {
   return (
-    <section className="max-w-4xl mx-auto px-6 py-24 text-center">
-      <h1 className="text-[length:var(--text-display-xl)] leading-[1.05] font-serif">
+    <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[length:var(--text-display-xl)] leading-[1.1] sm:leading-[1.05] font-serif break-words">
         The PM-flow ecosystem
       </h1>
       <p className="mt-6 text-lg max-w-[var(--measure-narrow)] mx-auto text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">

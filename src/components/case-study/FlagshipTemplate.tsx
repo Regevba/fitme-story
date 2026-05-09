@@ -37,7 +37,7 @@ export function FlagshipTemplate({
       {hero ? (
         <div className="border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]">{hero}</div>
       ) : null}
-      <div className="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-[1fr_280px] gap-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-[1fr_280px] gap-12">
         <div>
           <CaseStudyToolbar />
           <header className="mb-10">
@@ -45,7 +45,7 @@ export function FlagshipTemplate({
               Flagship · v{fm.timeline_position?.version}
             </div>
             {/* Audit A-019 (2026-05-08): h1 always in <header>. */}
-            <h1 className="mt-4 font-serif text-[length:var(--text-display-xl)] leading-[1.05]">
+            <h1 className="mt-4 font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[length:var(--text-display-xl)] leading-[1.1] sm:leading-[1.05] break-words">
               {fm.title}
             </h1>
             <p className="mt-2 text-sm text-[var(--color-neutral-500)] font-sans">

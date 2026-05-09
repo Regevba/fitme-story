@@ -40,7 +40,7 @@ export function CopyButton({ className = '' }: { className?: string }) {
       aria-label={copied ? 'Code copied to clipboard' : 'Copy code to clipboard'}
       aria-live="polite"
       className={
-        'inline-flex items-center justify-center min-h-[32px] min-w-[32px] rounded p-1.5 ' +
+        'inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded p-2 ' +
         'bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] ' +
         'text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] ' +
         'hover:text-[var(--color-brand-indigo)] ' +
