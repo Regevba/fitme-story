@@ -5,7 +5,7 @@ import { PersonaIndicator } from '@/components/PersonaIndicator';
 
 export function Hero() {
   return (
-    <section className="max-w-4xl mx-auto px-6 py-24 text-center">
+    <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-24 text-center">
       <h1 className="text-[length:var(--text-display-xl)] leading-[1.05] font-serif">
         How <span className="text-[var(--color-brand-indigo)]">/pm-flow</span> became a framework, and grew up alongside a fitness app.
       </h1>

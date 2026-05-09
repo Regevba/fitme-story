@@ -10,7 +10,7 @@ export const metadata = buildMetadata({
 
 export default function DispatchDemoPage() {
   return (
-    <article className="max-w-6xl mx-auto px-6 py-16">
+    <article className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16">
       <header className="mb-10 max-w-3xl">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">The framework in motion</h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">

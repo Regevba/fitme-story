@@ -61,7 +61,7 @@ export function SiteHeader() {
 
   return (
     <header className="border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]">
-      <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between font-sans">
+      <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 py-5 flex items-center justify-between font-sans">
         <Link
           href="/"
           className="font-semibold tracking-tight inline-flex items-center min-h-[44px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)] focus-visible:rounded"

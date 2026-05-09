@@ -3,7 +3,7 @@ import Link from 'next/link';
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]">
-      <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-6 justify-between text-sm font-sans text-[var(--color-neutral-500)]">
+      <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 py-10 flex flex-col md:flex-row gap-6 justify-between text-sm font-sans text-[var(--color-neutral-500)]">
         <div>
           <p>
             Built by Regev. <Link href="/about" className="underline">About</Link>.

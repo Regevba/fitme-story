@@ -74,7 +74,7 @@ export function NumbersPanel() {
 
   return (
     <section className="py-20 bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)]">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
         <h2 className="font-serif text-3xl text-center mb-12">The numbers</h2>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {NUMBERS.map((n, i) => (

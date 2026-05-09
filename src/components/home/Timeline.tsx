@@ -17,7 +17,7 @@ export function Timeline({ timelines }: { timelines: Record<TimelineMode, Node[]
 
   return (
     <section className="py-16" aria-label="Framework timeline">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
         <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
           <h2 className="font-serif text-3xl">The timeline</h2>
           <div className="flex gap-1 font-sans text-sm border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] rounded-full p-1">

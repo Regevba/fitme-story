@@ -115,10 +115,13 @@ export function SearchInput({ variant = 'full', className = '' }: SearchInputPro
     }
   }
 
-  // Expandable variant supplies its own width (matches the legacy desktop
-  // sizing that previously came from SiteHeader).
+  // Expandable variant supplies its own width. Uses larger breakpoints so
+  // the open pill feels generous on full-width chrome (no longer constrained
+  // by the prior max-w-6xl wrapper).
   const formClass =
-    variant === 'expandable' ? `${className} w-56 lg:w-72` : className;
+    variant === 'expandable'
+      ? `${className} w-72 md:w-96 lg:w-[28rem] xl:w-[32rem]`
+      : className;
 
   return (
     <form onSubmit={handleSubmit} className={formClass} role="search" aria-label="Site search">
