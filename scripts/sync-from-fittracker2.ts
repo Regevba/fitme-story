@@ -41,9 +41,11 @@ const DEFAULT_PATHS: SyncPaths = {
   ft2Root:        resolve(FITME_STORY_ROOT, '..', 'FitTracker2'),
   ft2Shared:      resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'shared'),
   ft2Features:    resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'features'),
+  ft2Logs:        resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'logs'),
   ft2IntegritySnapshots: resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'integrity', 'snapshots'),
   localShared:    resolve(FITME_STORY_ROOT, 'src', 'data', 'shared'),
   localFeatures:  resolve(FITME_STORY_ROOT, 'src', 'data', 'features'),
+  localLogs:      resolve(FITME_STORY_ROOT, 'src', 'data', 'logs'),
   localDocs:      resolve(FITME_STORY_ROOT, 'src', 'data', 'docs'),
   localIntegritySnapshots: resolve(FITME_STORY_ROOT, 'src', 'data', 'integrity', 'snapshots'),
   freshnessPath:  resolve(FITME_STORY_ROOT, 'src', 'data', 'freshness.json'),
@@ -84,11 +86,18 @@ interface SyncPaths {
   ft2Root: string;
   ft2Shared: string;
   ft2Features: string;
+  /** `.claude/logs/` — Tier 2.2 contemporaneous feature logs (v7.5+).
+      Optional; sync skips silently if the dir doesn't exist. Added 2026-05-09
+      Phase C (cross-repo state sync) per spec
+      `docs/superpowers/specs/2026-05-09-cross-repo-state-sync.md`. */
+  ft2Logs: string;
   /** `.claude/integrity/snapshots/` — 72h cycle history (v7.1+). Optional;
       sync skips silently if the dir doesn't exist (e.g. fresh repo). */
   ft2IntegritySnapshots: string;
   localShared: string;
   localFeatures: string;
+  /** `src/data/logs/` — synced sibling of `ft2Logs`. Phase C. */
+  localLogs: string;
   localDocs: string;
   /** `src/data/integrity/snapshots/` — synced sibling of above. */
   localIntegritySnapshots: string;
@@ -102,6 +111,9 @@ interface FreshnessReport {
   counts: {
     sharedFiles: number;
     featureFiles: number;
+    /** Tier 2.2 contemporaneous feature logs (.claude/logs/*.log.json).
+        Phase C addition — see spec 2026-05-09-cross-repo-state-sync.md. */
+    logFiles: number;
     /** Required parser-input markdowns (FT2_DOC_PATHS). */
     docFiles: number;
     /** Optional knowledge-hub markdowns + root READMEs. */
@@ -152,9 +164,11 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     ft2Root,
     ft2Shared,
     ft2Features,
+    ft2Logs,
     ft2IntegritySnapshots,
     localShared,
     localFeatures,
+    localLogs,
     localDocs,
     localIntegritySnapshots,
     freshnessPath,
@@ -172,7 +186,7 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
         syncedAt: new Date(0).toISOString(),
         durationMs: 0,
         source: 'committed-snapshot (FT2 not present at build time)',
-        counts: { sharedFiles: 0, featureFiles: 0, docFiles: 0, kbFiles: 0, integritySnapshotFiles: 0, bytesTotal: 0 },
+        counts: { sharedFiles: 0, featureFiles: 0, logFiles: 0, docFiles: 0, kbFiles: 0, integritySnapshotFiles: 0, bytesTotal: 0 },
         checkedFiles: [],
       };
       // Don't overwrite an existing freshness.json — preserve the
@@ -288,6 +302,26 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     checked.push(`kb/${rootPath}`);
   }
 
+  // Phase C-1 (2026-05-09): Tier 2.2 contemporaneous feature logs
+  // (.claude/logs/*.log.json). Forward-only sync per cross-repo-state-sync
+  // spec — FT2 is the canonical writer (scripts/append-feature-log.py runs
+  // from FT2 cwd); fitme-story consumes for control-room display.
+  // Soft-fail on missing dir (fresh repo).
+  if (existsSync(ft2Logs)) {
+    for (const entry of readdirSync(ft2Logs)) {
+      // Only sync per-feature .log.json files. Skip:
+      // - gate-coverage.jsonl (Mechanism A; per-repo, not synced — see §3 of spec)
+      // - _session-*.events.jsonl (Mechanism C; per-cwd, not synced)
+      if (!entry.endsWith('.log.json')) continue;
+      if (entry.startsWith('_')) continue;
+      const src = join(ft2Logs, entry);
+      const dst = join(localLogs, entry);
+      const { bytes } = copyJsonFile(src, dst);
+      bytesTotal += bytes;
+      checked.push(`logs/${entry}`);
+    }
+  }
+
   // Phase D: OPTIONAL 72h integrity-cycle snapshots
   // (.claude/integrity/snapshots/*.json). Required by the Framework Health
   // dashboard's CycleSnapshotPanel; without this sync, the panel renders
@@ -306,6 +340,7 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
 
   const sharedFiles = checked.filter((c) => c.startsWith('shared/')).length;
   const featureFiles = checked.filter((c) => c.startsWith('features/')).length;
+  const logFiles = checked.filter((c) => c.startsWith('logs/')).length;
   const docFiles = checked.filter((c) => c.startsWith('md/')).length;
   const kbFiles = checked.filter((c) => c.startsWith('kb/')).length;
   const integritySnapshotFiles = checked.filter((c) => c.startsWith('integrity/')).length;
@@ -314,7 +349,7 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     syncedAt: new Date().toISOString(),
     durationMs: Date.now() - startedAt,
     source: ft2Root,
-    counts: { sharedFiles, featureFiles, docFiles, kbFiles, integritySnapshotFiles, bytesTotal },
+    counts: { sharedFiles, featureFiles, logFiles, docFiles, kbFiles, integritySnapshotFiles, bytesTotal },
     checkedFiles: checked,
   };
 
@@ -327,7 +362,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   syncDashboardData()
     .then((r) => {
       console.log(
-        `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features + ${r.counts.docFiles} parser docs + ${r.counts.kbFiles} kb docs + ${r.counts.integritySnapshotFiles} integrity snapshots (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
+        `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features + ${r.counts.logFiles} feature logs + ${r.counts.docFiles} parser docs + ${r.counts.kbFiles} kb docs + ${r.counts.integritySnapshotFiles} integrity snapshots (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
       );
       console.log(`  freshness: ${DEFAULT_PATHS.freshnessPath}`);
     })

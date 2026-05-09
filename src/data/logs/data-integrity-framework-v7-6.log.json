@@ -1,0 +1,176 @@
+{
+  "version": "1.0",
+  "feature": "data-integrity-framework-v7-6",
+  "title": "data integrity framework v7 6",
+  "work_type": "framework",
+  "current_phase": "complete",
+  "framework_version": "7.6",
+  "started_at": "2026-04-25T04:03:43Z",
+  "updated_at": "2026-04-25T08:21:50Z",
+  "events": [
+    {
+      "timestamp": "2026-04-25T04:03:43Z",
+      "event_type": "phase_started",
+      "phase": "implement",
+      "summary": "v7.6 Mechanical Enforcement implementation begins. User approved all 4 sub-questions: (A) hard-block from day 1, (All) ship 1a+1b+1c+1d together, (V7.6) framework version bump, (After live) public Tier 3.3 issue. Resume from 2026-04-24 paused work \u2014 1a+1b drafted in check-state-schema.py working tree.",
+      "artifacts": [
+        ".claude/features/data-integrity-framework-v7-6/state.json",
+        "scripts/check-state-schema.py"
+      ],
+      "metrics": {
+        "cu_v2_factors": 2,
+        "tasks_planned": 10
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-04-25T04:07:47Z",
+      "event_type": "implementation_checkpoint",
+      "phase": "implement",
+      "summary": "1a (PHASE_TRANSITION_NO_LOG) and 1b (PHASE_TRANSITION_NO_TIMING) implemented in scripts/check-state-schema.py. Helpers added: _feature_slug_from_path, _load_committed_state, _parse_iso, _load_feature_log, _recent_phase_event. validate_file() gained enforce_transition kwarg; main() passes True only in --staged mode. 1a verified end-to-end: synthetic phase advance without log event fires the check with clear remediation message.",
+      "artifacts": [
+        "scripts/check-state-schema.py"
+      ],
+      "metrics": {
+        "checks_implemented": 2,
+        "loc_added": 200
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous",
+      "cache_hit": {
+        "level": "L1",
+        "key": "tier_2_2_logger_pattern_from_v7_5",
+        "type": "adapted",
+        "skill": "pm-workflow"
+      }
+    },
+    {
+      "timestamp": "2026-04-25T04:29:10Z",
+      "event_type": "tier_closure",
+      "phase": "implement",
+      "summary": "Phase 1 (Class B \u2192 A) complete: 4 new write-time defenses shipped \u2014 PHASE_TRANSITION_NO_LOG (1a) + PHASE_TRANSITION_NO_TIMING (1b) in check-state-schema.py; BROKEN_PR_CITATION (1c) + CASE_STUDY_MISSING_TIER_TAGS (1d) in new check-case-study-preflight.py. Pre-commit hook updated to invoke both checkers. Pipeline regression test extended from 11 to 15 assertions, all green. Phase 2-4 detailed plan archived for execution.",
+      "artifacts": [
+        "scripts/check-state-schema.py",
+        "scripts/check-case-study-preflight.py",
+        ".githooks/pre-commit",
+        "scripts/test-v7-5-pipeline.sh",
+        "docs/superpowers/plans/2026-04-25-v7-6-mechanical-enforcement-phases-2-4.md"
+      ],
+      "metrics": {
+        "pipeline_assertions": 15,
+        "pipeline_passing": 15,
+        "defenses_added": 4,
+        "class_b_to_a_promotions": 4
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-04-25T04:43:49Z",
+      "event_type": "code_change",
+      "phase": "implement",
+      "summary": "Phase 2b: extended scripts/measurement-adoption-report.py with append_history_snapshot() \u2014 dedup-by-date, atomic write, --history-output + --snapshot-trigger CLI flags. Verified: first run appends, second run on same date skips.",
+      "artifacts": [
+        "scripts/measurement-adoption-report.py",
+        ".claude/shared/measurement-adoption-history.json"
+      ],
+      "metrics": {},
+      "actor": "human_or_agent",
+      "status": "recorded",
+      "recording_mode": "contemporaneous",
+      "cache_hit": {
+        "level": "L2",
+        "key": "dated_snapshot_with_dedup_by_date",
+        "type": "adapted",
+        "skill": "v7.5 documentation-debt-history pattern: same dedup-by-date rule, same atomic-write idiom"
+      }
+    },
+    {
+      "timestamp": "2026-04-25T04:49:28Z",
+      "event_type": "code_change",
+      "phase": "implement",
+      "summary": "Phase 2c: created .github/workflows/framework-status-weekly.yml \u2014 weekly cron (Mondays 05:00 UTC) that snapshots measurement-adoption history, runs documentation-debt readout, compares vs prior snapshot, opens issue on regression. Observational-only; never blocks merges. Mirrors integrity-cycle.yml structure for consistency.",
+      "artifacts": [
+        ".github/workflows/framework-status-weekly.yml"
+      ],
+      "metrics": {},
+      "actor": "human_or_agent",
+      "status": "recorded",
+      "recording_mode": "contemporaneous",
+      "cache_hit": {
+        "level": "L2",
+        "key": "github_actions_cron_with_regression_issue",
+        "type": "adapted",
+        "skill": "Reused integrity-cycle.yml shape: cron + workflow_dispatch, env-routed dynamic values, github-script for issue creation, GITHUB_STEP_SUMMARY block. Adapted regression detection from integer-delta comparison instead of grep on report text."
+      }
+    },
+    {
+      "timestamp": "2026-04-25T04:55:01Z",
+      "event_type": "docs_change",
+      "phase": "implement",
+      "summary": "Phase 3a+3b: created docs/case-studies/meta-analysis/unclosable-gaps.md (5 Class B gaps, 4-section format each, Class A vs B promotion table). Updated CLAUDE.md with v7.6 write-time gates (4 new check codes), per-PR + weekly defenses block, and Known Mechanical Limits section linking to unclosable-gaps.md.",
+      "artifacts": [
+        "docs/case-studies/meta-analysis/unclosable-gaps.md",
+        "CLAUDE.md"
+      ],
+      "metrics": {},
+      "actor": "human_or_agent",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-04-25T05:22:14Z",
+      "event_type": "docs_change",
+      "phase": "implement",
+      "summary": "Phase 4a-4e: bumped framework-manifest.json to v7.6 (1.7\u21921.8) with full v7_6_mechanical_enforcement block (write_time_defenses, per_pr_and_weekly_defenses, unclosable_gaps_class_b, aggregate, policy_decisions_continued, tooling_attribution); wrote 616-line Dev-style case study (mechanical-enforcement-v7-6-case-study.md) covering full T1/T2/T3 arc, comprehensive CU+workload analysis with explicit outlier caveat, Codex tooling attribution; updated evolution.md (header + table row), .claude/integrity/README.md, repo-root mirrors (project_gemini_audit_2026_04_21.md, project_framework_v7_1_integrity_cycle.md), MEMORY.md index, created project_mechanical_enforcement_v7_6.md memory entry, appended v7.6 hand-off to project_data_integrity_framework_v7_5.md memory.",
+      "artifacts": [
+        ".claude/shared/framework-manifest.json",
+        "docs/case-studies/mechanical-enforcement-v7-6-case-study.md",
+        "docs/skills/evolution.md",
+        ".claude/integrity/README.md",
+        "project_gemini_audit_2026_04_21.md",
+        "project_framework_v7_1_integrity_cycle.md"
+      ],
+      "metrics": {},
+      "actor": "human_or_agent",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-04-25T05:35:23Z",
+      "event_type": "docs_change",
+      "phase": "implement",
+      "summary": "Added DEV-only framework guide per user request 2026-04-25. docs/architecture/dev-guide-v1-to-v7-6.md (745 lines, 16 sections) \u2014 covers 4 enforcement layers, state.json schema, phase lifecycle (9 phases x 4 work types), dispatch model, cache architecture (L1/L2/L3), measurement protocol (CU formula + cache_hits + timing + T1/T2/T3 tiers), 12 integrity check codes mapped to layer + script, pre-commit hooks + GitHub Actions inventory with security note, compressed v1.0->v7.6 evolution timeline, 3 operational walkthroughs (adding a feature, extending a check code, bumping the framework version), full cross-link index. Linked from CLAUDE.md '## Key Paths > Skills ecosystem' as the canonical dev onboarding entry.",
+      "artifacts": [
+        "docs/architecture/dev-guide-v1-to-v7-6.md",
+        "CLAUDE.md"
+      ],
+      "metrics": {},
+      "actor": "human_or_agent",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-04-25T08:21:50Z",
+      "event_type": "phase_transition",
+      "phase": "complete",
+      "summary": "Reconciled v7.6 feature state after confirming the v7.6 implementation series and DEV guide are merged to origin/main. Remaining cleanup work is isolated on branch framework-v7.6-pending-fixes with a rollbackable handoff plan.",
+      "artifacts": [
+        ".claude/features/data-integrity-framework-v7-6/state.json",
+        ".claude/logs/data-integrity-framework-v7-6.log.json",
+        "docs/superpowers/plans/2026-04-25-v7-6-pending-fixes-handoff.md"
+      ],
+      "metrics": {
+        "merged_v7_6_commits_verified": 5,
+        "pending_fix_groups_documented": 5
+      },
+      "actor": "codex",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    }
+  ]
+}
