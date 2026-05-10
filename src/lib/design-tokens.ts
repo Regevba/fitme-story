@@ -80,3 +80,51 @@ export const MEASURES: MeasureEntry[] = [
   { cssVar: '--measure-body', value: '65ch', label: 'Body — editorial reading width' },
   { cssVar: '--measure-wide', value: '72ch', label: 'Wide — tables, code blocks' },
 ];
+
+export interface MotionToken {
+  cssVar: string;
+  value: string;
+  label: string;
+  category: 'duration' | 'easing';
+  note?: string;
+}
+
+export const MOTION_TOKENS: MotionToken[] = [
+  { cssVar: '--motion-duration-fast', value: '120ms', label: 'Fast', category: 'duration', note: 'Micro-feedback — copy ✓, hover affordance.' },
+  { cssVar: '--motion-duration-standard', value: '200ms', label: 'Standard', category: 'duration', note: 'Default for state changes — modal open, badge appearance.' },
+  { cssVar: '--motion-duration-slow', value: '320ms', label: 'Slow', category: 'duration', note: 'Significant transitions — page-level transitions, large layout shifts.' },
+  { cssVar: '--motion-easing-standard', value: 'cubic-bezier(0.4, 0, 0.2, 1)', label: 'Standard', category: 'easing', note: 'Symmetric in/out — default for most transitions.' },
+  { cssVar: '--motion-easing-decelerate', value: 'cubic-bezier(0, 0, 0.2, 1)', label: 'Decelerate', category: 'easing', note: 'Element entering — slows as it lands.' },
+  { cssVar: '--motion-easing-emphasized', value: 'cubic-bezier(0.2, 0, 0, 1)', label: 'Emphasized', category: 'easing', note: 'Hero moments — extra anticipation + landing.' },
+];
+
+export interface ElevationToken {
+  cssVar: string;
+  lightValue: string;
+  darkValue: string;
+  level: 1 | 2 | 3 | 4;
+  label: string;
+  note?: string;
+}
+
+export const ELEVATION_TOKENS: ElevationToken[] = [
+  { cssVar: '--elevation-1', lightValue: '0 1px 2px rgb(0 0 0 / 0.06)', darkValue: '0 1px 2px rgb(0 0 0 / 0.4)', level: 1, label: 'Level 1', note: 'Resting cards, subtle separation from background.' },
+  { cssVar: '--elevation-2', lightValue: '0 4px 8px rgb(0 0 0 / 0.08)', darkValue: '0 4px 8px rgb(0 0 0 / 0.5)', level: 2, label: 'Level 2', note: 'Hovered cards, dropdowns, popovers.' },
+  { cssVar: '--elevation-3', lightValue: '0 8px 16px rgb(0 0 0 / 0.10)', darkValue: '0 8px 16px rgb(0 0 0 / 0.6)', level: 3, label: 'Level 3', note: 'Floating panels, sticky headers.' },
+  { cssVar: '--elevation-4', lightValue: '0 16px 32px rgb(0 0 0 / 0.12)', darkValue: '0 16px 32px rgb(0 0 0 / 0.7)', level: 4, label: 'Level 4', note: 'Modals, drawers — highest elevation.' },
+];
+
+export interface ZIndexToken {
+  cssVar: string;
+  value: number;
+  label: string;
+  note?: string;
+}
+
+export const Z_INDEX_TOKENS: ZIndexToken[] = [
+  { cssVar: '--z-base', value: 0, label: 'Base', note: 'Default flow — most page content.' },
+  { cssVar: '--z-elevated', value: 10, label: 'Elevated', note: 'Hover state, dropdown trigger lift.' },
+  { cssVar: '--z-header', value: 100, label: 'Header', note: 'Sticky site header above content.' },
+  { cssVar: '--z-modal', value: 1000, label: 'Modal', note: 'Dialogs, drawers — fully blocking.' },
+  { cssVar: '--z-toast', value: 10000, label: 'Toast', note: 'Transient feedback — above everything.' },
+];

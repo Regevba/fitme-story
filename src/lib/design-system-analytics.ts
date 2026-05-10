@@ -1,0 +1,82 @@
+/**
+ * GA4 event helpers for the public /design-system route.
+ *
+ * Per CLAUDE.md "Analytics Naming Convention": every screen-scoped event
+ * uses the `design_system_` prefix. Events declared here also appear in
+ * docs/product/analytics-taxonomy.csv with screen_scope=design_system.
+ *
+ * Every helper is a no-op when:
+ *   - rendered on the server (typeof window === 'undefined')
+ *   - window.gtag is unavailable (NEXT_PUBLIC_GA_ID unset, or GA blocked by
+ *     a privacy extension)
+ *
+ * Cousin file: src/lib/control-room/analytics.ts (operator-side analytics
+ * for /control-room/* routes; same gtag-wrapper pattern).
+ *
+ * Verification: post-deploy operator workflow.
+ *   1. Deploy preview
+ *   2. Open GA4 Real-Time DebugView (admin → DebugView)
+ *   3. Visit /design-system on the preview URL with `?gtm_debug=x`
+ *   4. Confirm all 4 events fire on the corresponding interactions
+ */
+
+interface GtagWindow extends Window {
+  gtag?: (command: 'event', eventName: string, params: Record<string, unknown>) => void;
+}
+
+function emit(eventName: string, params: object): void {
+  if (typeof window === 'undefined') return;
+  const gw = window as GtagWindow;
+  if (typeof gw.gtag !== 'function') return;
+  gw.gtag('event', eventName, params as Record<string, unknown>);
+}
+
+export type DesignSystemSection =
+  | 'parity'
+  | 'tokens-web'
+  | 'components-web'
+  | 'drift'
+  | 'dark-mode'
+  | 'heritage'
+  | 'contribute'
+  | 'principles'
+  | 'onboarding-flow'
+  | 'live-app'
+  | 'under-the-hood';
+
+export interface SectionViewEvent {
+  section_id: DesignSystemSection;
+  is_first_view_in_session: boolean;
+}
+
+export interface ComponentExpandEvent {
+  component_name: string;
+  component_status: 'Stable' | 'Experimental' | 'Deprecated' | 'Internal';
+}
+
+export interface CodeCopyEvent {
+  component_name: string;
+  snippet_type: 'react' | 'figma' | 'usage';
+}
+
+export interface FigmaLinkClickEvent {
+  component_name: string;
+  figma_node_id: string;
+  outbound_url: string;
+}
+
+export function trackDesignSystemSectionView(payload: SectionViewEvent): void {
+  emit('design_system_section_view', payload);
+}
+
+export function trackDesignSystemComponentExpand(payload: ComponentExpandEvent): void {
+  emit('design_system_component_expand', payload);
+}
+
+export function trackDesignSystemCodeCopy(payload: CodeCopyEvent): void {
+  emit('design_system_code_copy', payload);
+}
+
+export function trackDesignSystemFigmaLinkClick(payload: FigmaLinkClickEvent): void {
+  emit('design_system_figma_link_click', payload);
+}

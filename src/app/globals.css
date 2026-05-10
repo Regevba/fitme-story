@@ -48,6 +48,28 @@
   --text-display-xl: clamp(2.5rem, 5vw, 4.5rem);
   --text-display-lg: clamp(2rem, 4vw, 3.25rem);
   --text-display-md: clamp(1.5rem, 3vw, 2.25rem);
+
+  /* Motion tokens — Material M3 vocabulary, Apple HIG duration tiers.
+     Wrapped in @media (prefers-reduced-motion: reduce) below for opt-out. */
+  --motion-duration-fast: 120ms;
+  --motion-duration-standard: 200ms;
+  --motion-duration-slow: 320ms;
+  --motion-easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Elevation tokens — light-mode shadows. Dark-mode overrides in html.dark. */
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.06);
+  --elevation-2: 0 4px 8px rgb(0 0 0 / 0.08);
+  --elevation-3: 0 8px 16px rgb(0 0 0 / 0.10);
+  --elevation-4: 0 16px 32px rgb(0 0 0 / 0.12);
+
+  /* Z-index ladder — 10x spacing leaves room for insertions. */
+  --z-base: 0;
+  --z-elevated: 10;
+  --z-header: 100;
+  --z-modal: 1000;
+  --z-toast: 10000;
 }
 
 html {
@@ -65,6 +87,12 @@ html.dark {
   --color-neutral-700: #D6D3D1;
   --color-brand-indigo: #818CF8;
   --color-brand-coral: #FDA29B;
+  /* Elevation overrides: dark backgrounds hide low-opacity shadows; bump
+     opacity so the hierarchy is still readable. */
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --elevation-2: 0 4px 8px rgb(0 0 0 / 0.5);
+  --elevation-3: 0 8px 16px rgb(0 0 0 / 0.6);
+  --elevation-4: 0 16px 32px rgb(0 0 0 / 0.7);
 }
 
 @media (prefers-reduced-motion: reduce) {
