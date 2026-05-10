@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LayoutGroup, motion } from 'framer-motion';
+import { LayoutGroup, motion, useReducedMotion } from 'framer-motion';
 import { LegoBrick } from './LegoBrick';
 import {
   SKILLS,
@@ -88,9 +88,15 @@ function ScatteredLayout({
   onToggle: (slug: SkillSlug) => void;
   onPickSkill: (slug: SkillSlug) => void;
 }) {
+  // BHF-3 (DS lens audit 2026-05-10): respect prefers-reduced-motion.
+  // The `layout` prop drives FLIP animation on layout shifts; skip it
+  // entirely when the user has reduced-motion enabled. The global blanket
+  // in globals.css covers CSS animations but not framer-motion's
+  // layout-driven transforms.
+  const reduced = useReducedMotion();
   return (
     <motion.div
-      layout
+      layout={!reduced}
       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
       aria-label="Scattered — each skill stands alone"
     >

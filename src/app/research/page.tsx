@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Card } from '@/components/ui/Card';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -55,19 +56,22 @@ export default function ResearchPage() {
       </header>
       <ul className="space-y-6">
         {RESEARCH.map((r) => {
-          const cls = "group block p-5 rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] hover:border-[var(--color-brand-indigo)]";
+          // BHF-1 (DS lens audit 2026-05-10): migrated 5 inline rounded-lg
+          // border patterns to <Card interactive>. Wrapping the Card inside
+          // the Link/anchor preserves the link semantics + tap target while
+          // letting Card own the hover-border-indigo affordance.
           const inner = (
-            <>
+            <Card interactive padding="md" className="group block">
               <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">{r.title}</h2>
               <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">{r.body}</p>
-            </>
+            </Card>
           );
           return (
             <li key={r.title}>
               {r.external ? (
-                <a href={r.href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>
+                <a href={r.href} target="_blank" rel="noopener noreferrer" className="block">{inner}</a>
               ) : (
-                <Link href={r.href} className={cls}>{inner}</Link>
+                <Link href={r.href} className="block">{inner}</Link>
               )}
             </li>
           );

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { getDesignSystemMetrics } from '@/lib/design-system';
+import { Stat } from '@/components/ui/Stat';
 
 export function ParitySummaryCard() {
   const m = getDesignSystemMetrics();
@@ -8,31 +9,30 @@ export function ParitySummaryCard() {
       className="rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-4 mb-6"
       aria-label="Design system parity summary"
     >
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-        <div>
-          <div className="font-serif text-3xl font-semibold text-[var(--color-brand-indigo)]">
-            {m.parityCoverage}%
-          </div>
-          <div className="text-[11px] font-sans uppercase tracking-wide text-[var(--color-neutral-500)] mt-1">
-            Public parity
-          </div>
-          <div className="text-[10px] font-mono text-[var(--color-neutral-500)]">
-            {m.publicMapped} / {m.publicTotal}
-          </div>
-        </div>
-        <div>
-          <div className="font-serif text-3xl font-semibold">{m.mapped}</div>
-          <div className="text-[11px] font-sans uppercase tracking-wide text-[var(--color-neutral-500)] mt-1">
-            Total mapped <span className="text-[var(--color-neutral-500)]">/ {m.total}</span>
-          </div>
-        </div>
-        <div>
-          <div className="font-serif text-3xl font-semibold">{m.totalFigmaNodes}</div>
-          <div className="text-[11px] font-sans uppercase tracking-wide text-[var(--color-neutral-500)] mt-1">
-            Figma nodes
-          </div>
-        </div>
-        <div>
+      {/* BHF-4 (DS lens audit 2026-05-10): 3 of 4 stats migrated to <Stat>.
+          The 4th (Dark designed, emerald-tinted) keeps inline styling because
+          Stat's `accent` prop only covers brand-indigo; adding an emerald
+          variant would expand the API for a single consumer. Acceptable
+          trade-off; revisit if a second emerald-stat consumer appears. */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Stat
+          value={`${m.parityCoverage}%`}
+          label="Public parity"
+          sublabel={`${m.publicMapped} / ${m.publicTotal}`}
+          size="sm"
+          accent
+        />
+        <Stat
+          value={m.mapped}
+          label={
+            <>
+              Total mapped <span className="text-[var(--color-neutral-500)]">/ {m.total}</span>
+            </>
+          }
+          size="sm"
+        />
+        <Stat value={m.totalFigmaNodes} label="Figma nodes" size="sm" />
+        <div className="text-center">
           <div className="font-serif text-3xl font-semibold text-emerald-700 dark:text-emerald-300">
             {m.darkModeBreakdown.Designed}
           </div>
