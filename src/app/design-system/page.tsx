@@ -1,15 +1,89 @@
 import Image from 'next/image';
 import { Disclosure } from '@/components/ui/Disclosure';
 import { FlowDiagram } from '@/components/case-study/FlowDiagram';
-import { TOKEN_GROUPS, TYPE_SCALE, MEASURES } from '@/lib/design-tokens';
-import { DESIGN_SYSTEM_COMPONENTS } from '@/lib/design-system-components';
+import {
+  TOKEN_GROUPS,
+  TYPE_SCALE,
+  MEASURES,
+  MOTION_TOKENS,
+  ELEVATION_TOKENS,
+  Z_INDEX_TOKENS,
+} from '@/lib/design-tokens';
+import { DESIGN_SYSTEM_COMPONENTS as IOS_COMPONENTS } from '@/lib/design-system-components';
+import {
+  DESIGN_SYSTEM_COMPONENTS as WEB_COMPONENTS,
+  groupComponentsByCategory,
+  type ComponentCategory,
+} from '@/lib/design-system';
+import { ComponentCard } from '@/components/design-system/ComponentCard';
+import {
+  MotionTokenRow,
+  ElevationSwatch,
+  ZIndexLadderRow,
+} from '@/components/design-system/TokenSwatch';
+import {
+  ButtonVariants,
+  TagVariants,
+} from '@/components/design-system/VariantGrid';
+import {
+  HeritageMetricsCard,
+  AuditDecisionList,
+  LockedPatternList,
+} from '@/components/design-system/HeritageList';
+import { ParitySummaryCard } from '@/components/design-system/ParitySummaryCard';
+import { CaseStudyCard } from '@/components/ui/CaseStudyCard';
+import { FrameworkVersionCard } from '@/components/ui/FrameworkVersionCard';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'The design system',
-  description: '13 UX foundations and ~125 tokens that underpin FitMe.',
+  description:
+    'Two systems, one story — the iOS app and the framework story site share the same 13 UX foundations, ~125 semantic tokens, and CI-enforced compliance. Public showcase: tokens, components, drift status, dark-mode parity, contribution patterns.',
   slug: '/design-system',
 });
+
+const CATEGORY_TITLES: Record<ComponentCategory, string> = {
+  primitive: 'Primitives',
+  layout: 'Layout',
+  callout: 'MDX callouts',
+  'ui-utility': 'UI utilities',
+  'control-room': 'Control-room (Internal)',
+  persona: 'Persona',
+  bespoke: 'Bespoke (Internal)',
+};
+
+const CATEGORY_ORDER: ComponentCategory[] = [
+  'primitive',
+  'layout',
+  'callout',
+  'ui-utility',
+  'persona',
+  'control-room',
+  'bespoke',
+];
+
+/** Pre-baked previews for components that have inline-renderable variants. */
+const COMPONENT_PREVIEWS: Record<string, React.ReactNode> = {
+  Button: <ButtonVariants />,
+  Tag: <TagVariants />,
+  CaseStudyCard: (
+    <CaseStudyCard
+      href="/case-studies/example"
+      title="Example case study"
+      tldr="One-line summary of what this case study covers — readable in dark + light."
+      tagLabel="Standard"
+      tagVariant="standard"
+    />
+  ),
+  FrameworkVersionCard: (
+    <FrameworkVersionCard
+      href="/framework"
+      version="7.8.2"
+      date="2026-05-08"
+      outcome="Cross-repo gate asymmetry policy"
+    />
+  ),
+};
 
 const PRINCIPLES = [
   'Clarity over cleverness',
@@ -102,10 +176,50 @@ export default function DesignSystemPage() {
       <header className="mb-10">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">The design system</h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          13 UX foundations. ~125 semantic tokens. 13 reusable components. CI-enforced and visible in shipped screens.
+          Two systems, one story — the iOS app and the framework story site share the same 13 UX
+          foundations, ~125 semantic tokens, and CI-enforced compliance. The iOS app proves the
+          system in production. This site is the public observable surface.
         </p>
       </header>
-      <section className="mb-16">
+      <nav
+        aria-label="Design system page sections"
+        className="mb-10 flex flex-wrap gap-x-4 gap-y-2 text-xs font-sans text-[var(--color-neutral-500)] border-y border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] py-3"
+      >
+        <span className="font-semibold text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+          Part 1 (iOS):
+        </span>
+        <a href="#principles" className="hover:underline">
+          Principles
+        </a>
+        <a href="#onboarding-flow" className="hover:underline">
+          Onboarding
+        </a>
+        <a href="#live-app" className="hover:underline">
+          Live app
+        </a>
+        <a href="#under-the-hood" className="hover:underline">
+          Under the hood
+        </a>
+        <span className="font-semibold text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] ml-2">
+          Part 2 (Web):
+        </span>
+        <a href="#parity" className="hover:underline">
+          Parity
+        </a>
+        <a href="#tokens-web" className="hover:underline">
+          Tokens
+        </a>
+        <a href="#components-web" className="hover:underline">
+          Components
+        </a>
+        <a href="#heritage" className="hover:underline">
+          Heritage
+        </a>
+        <a href="#contribute" className="hover:underline">
+          Contribute
+        </a>
+      </nav>
+      <section id="principles" className="mb-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-6">The 13 principles</h2>
         <ol className="space-y-3 font-sans">
           {PRINCIPLES.map((p, i) => (
@@ -116,7 +230,7 @@ export default function DesignSystemPage() {
           ))}
         </ol>
       </section>
-      <section className="mt-16">
+      <section id="onboarding-flow" className="mt-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-3">Onboarding flow — six screens</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
           The first-run path uses the same typography, spacing, card radius, and CTA logic as the
@@ -150,7 +264,7 @@ export default function DesignSystemPage() {
           ))}
         </div>
       </section>
-      <section className="mt-16">
+      <section id="live-app" className="mt-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-3">Live app — daily use with mock data</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
           Four screens from the daily flow, captured against a seeded test profile so the data is
@@ -185,7 +299,7 @@ export default function DesignSystemPage() {
         </div>
       </section>
 
-      <section className="mt-16">
+      <section id="under-the-hood" className="mt-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-3">Under the hood</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
           What the principles and screens look like at the token layer — the raw inputs
@@ -275,7 +389,7 @@ export default function DesignSystemPage() {
             summary="Thirteen reusable components in the iOS app, all composed from the tokens above."
           >
             <ul className="divide-y divide-[var(--color-neutral-200)] dark:divide-[var(--color-neutral-700)]">
-              {DESIGN_SYSTEM_COMPONENTS.map((c) => (
+              {IOS_COMPONENTS.map((c) => (
                 <li key={c.name} className="py-3 grid gap-1 md:grid-cols-[10rem_1fr] md:gap-6">
                   <code className="font-mono text-sm text-[var(--color-brand-indigo)]">{c.name}</code>
                   <div>
@@ -316,6 +430,236 @@ export default function DesignSystemPage() {
             </p>
           </Disclosure>
         </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          PART 2 — The fitme-story website's own design system.
+          The system that renders this very page. Public observability layer
+          shipped via the fitme-story-website-design-system feature (2026-05-10).
+          ═══════════════════════════════════════════════════════════════════════ */}
+      <hr className="my-20 border-t-2 border-dashed border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]" />
+
+      <section className="mb-12">
+        <p className="text-sm font-sans uppercase tracking-wide text-[var(--color-neutral-500)] mb-2">
+          Part 2
+        </p>
+        <h2 className="font-serif text-[length:var(--text-display-md)] mb-4">
+          The system that renders this site
+        </h2>
+        <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] font-sans">
+          Part 1 narrates the iOS app&apos;s system. Part 2 documents the system rendering this
+          very page — the React components, Tailwind tokens, MDX callouts, and audit decisions
+          that compose the framework story site itself. It exists so designers and contributors
+          can see what&apos;s here, what&apos;s mapped to Figma, what&apos;s pending, and what we&apos;ve already
+          decided.
+        </p>
+      </section>
+
+      <section id="parity" className="mb-16 scroll-mt-24">
+        <h2 className="font-serif text-2xl mb-4">Parity at a glance</h2>
+        <ParitySummaryCard />
+        <p className="text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
+          This snapshot is computed at build time from the typed component manifest at{' '}
+          <code className="font-mono text-xs">src/lib/design-system.ts</code>. The drift detection
+          script (Bucket D of this feature) cross-checks the manifest against the live Figma file
+          on a weekly cron and on-demand via <code className="font-mono text-xs">make figma-drift</code>.
+        </p>
+      </section>
+
+      <section id="tokens-web" className="mb-16 scroll-mt-24">
+        <h2 className="font-serif text-2xl mb-4">Tokens — motion, elevation, z-index</h2>
+        <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)] mb-6">
+          Color, type, and measure tokens are documented in the &ldquo;Under the hood&rdquo; disclosure
+          above (shared with the iOS app). Motion, elevation, and z-index ladder — added in this
+          feature&apos;s Bucket A — are below.
+        </p>
+
+        <div className="space-y-10">
+          <div>
+            <h3 className="font-serif text-lg mb-3">Motion</h3>
+            <p className="text-xs font-sans text-[var(--color-neutral-500)] max-w-[var(--measure-body)] mb-4">
+              Material M3 vocabulary. All wrapped in{' '}
+              <code className="font-mono">@media (prefers-reduced-motion: reduce)</code> for opt-out.
+            </p>
+            <ul className="space-y-2">
+              {MOTION_TOKENS.map((t) => (
+                <MotionTokenRow
+                  key={t.cssVar}
+                  cssVar={t.cssVar}
+                  value={t.value}
+                  label={`${t.label} (${t.category})`}
+                  note={t.note}
+                />
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-serif text-lg mb-3">Elevation</h3>
+            <p className="text-xs font-sans text-[var(--color-neutral-500)] max-w-[var(--measure-body)] mb-4">
+              Each level shown rendered in light + dark. Dark-mode shadows bump opacity to
+              compensate for low contrast against neutral-900.
+            </p>
+            <ul className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              {ELEVATION_TOKENS.map((e) => (
+                <ElevationSwatch
+                  key={e.cssVar}
+                  cssVar={e.cssVar}
+                  lightValue={e.lightValue}
+                  darkValue={e.darkValue}
+                  level={e.level}
+                  label={e.label}
+                  note={e.note}
+                />
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-serif text-lg mb-3">Z-index ladder</h3>
+            <p className="text-xs font-sans text-[var(--color-neutral-500)] max-w-[var(--measure-body)] mb-4">
+              10× spacing leaves room for insertions. Header stays above hover; modal blocks
+              everything; toast outranks modal so transient feedback is always visible.
+            </p>
+            <ul className="space-y-2">
+              {Z_INDEX_TOKENS.map((z) => (
+                <ZIndexLadderRow
+                  key={z.cssVar}
+                  cssVar={z.cssVar}
+                  value={z.value}
+                  label={z.label}
+                  note={z.note}
+                />
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="components-web" className="mb-16 scroll-mt-24">
+        <h2 className="font-serif text-2xl mb-4">Components</h2>
+        <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)] mb-6">
+          {WEB_COMPONENTS.length} components catalogued. Status badges indicate maturity (Stable,
+          Experimental, Deprecated, Internal). Where Figma frames exist, each card links to the
+          node; where they don&apos;t yet, the card flags it for Bucket C.
+        </p>
+        {(() => {
+          const grouped = groupComponentsByCategory();
+          return CATEGORY_ORDER.map((cat) => {
+            const items = grouped[cat];
+            if (items.length === 0) return null;
+            const sectionId = `category-${cat}`;
+            return (
+              <div key={cat} id={sectionId} className="mb-12 scroll-mt-24">
+                <h3 className="font-serif text-lg mb-1">{CATEGORY_TITLES[cat]}</h3>
+                <p className="text-xs font-sans text-[var(--color-neutral-500)] mb-4">
+                  {items.length} {items.length === 1 ? 'component' : 'components'}
+                </p>
+                <div className="space-y-4">
+                  {items.map((entry) => (
+                    <ComponentCard
+                      key={entry.name}
+                      entry={entry}
+                      preview={COMPONENT_PREVIEWS[entry.name]}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          });
+        })()}
+      </section>
+
+      <section id="drift" className="mb-16 scroll-mt-24">
+        <h2 className="font-serif text-2xl mb-4">Drift report</h2>
+        <div className="rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6 bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)]">
+          <p className="text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+            <strong>Last run:</strong> never (Bucket D ships in this feature).
+          </p>
+          <p className="text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mt-2">
+            Once Bucket D lands: weekly cron + on-demand{' '}
+            <code className="font-mono text-xs">make figma-drift</code> /{' '}
+            <code className="font-mono text-xs">npm run figma-drift</code> will append a dated
+            report to{' '}
+            <code className="font-mono text-xs">docs/design-system/figma-code-sync-status.md</code>{' '}
+            and surface here.
+          </p>
+        </div>
+      </section>
+
+      <section id="dark-mode" className="mb-16 scroll-mt-24">
+        <h2 className="font-serif text-2xl mb-4">Dark-mode parity</h2>
+        <div className="rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6 bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)]">
+          <p className="text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+            Per-component status surfaced inline on each component card above (◐ Designed, ◑
+            AutoDerived, ✗ TODO, — NotApplicable).
+          </p>
+          <p className="text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mt-2">
+            Full matrix doc with contrast ratios + last-audited dates ships in Bucket E:{' '}
+            <code className="font-mono text-xs">
+              docs/design-system/fitme-story-dark-mode-coverage.md
+            </code>
+            .
+          </p>
+        </div>
+      </section>
+
+      <section id="heritage" className="mb-16 scroll-mt-24">
+        <h2 className="font-serif text-2xl mb-4">Design heritage</h2>
+        <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)] mb-6">
+          Durable design decisions made on this site before the design-system feature shipped.
+          Audit findings (P0/P1/P2) and locked patterns whose rationale matters when contributors
+          ask &ldquo;why is it this way?&rdquo;.
+        </p>
+        <HeritageMetricsCard />
+        <div className="space-y-10">
+          <div>
+            <h3 className="font-serif text-lg mb-3">Audit decisions</h3>
+            <AuditDecisionList />
+          </div>
+          <div>
+            <h3 className="font-serif text-lg mb-3">Locked patterns</h3>
+            <LockedPatternList />
+          </div>
+        </div>
+      </section>
+
+      <section id="contribute" className="mb-16 scroll-mt-24">
+        <h2 className="font-serif text-2xl mb-4">How to contribute</h2>
+        <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mb-3">
+          Three rules for every new component on this site:
+        </p>
+        <ol className="space-y-2 max-w-[var(--measure-body)] text-sm font-sans">
+          <li className="flex gap-3">
+            <span className="font-semibold text-[var(--color-brand-indigo)] w-6 shrink-0">1.</span>
+            <span>
+              <strong>Reuse before adding.</strong> Check this catalog first. Most patterns
+              already exist as tokens or primitives — extend before creating.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="font-semibold text-[var(--color-brand-indigo)] w-6 shrink-0">2.</span>
+            <span>
+              <strong>Add a manifest entry.</strong> Append to{' '}
+              <code className="font-mono text-xs">src/lib/design-system.ts</code>. The drift
+              detection script will surface mismatches; the showcase will render automatically.
+            </span>
+          </li>
+          <li className="flex gap-3">
+            <span className="font-semibold text-[var(--color-brand-indigo)] w-6 shrink-0">3.</span>
+            <span>
+              <strong>Map to Figma when possible.</strong> Author a{' '}
+              <code className="font-mono text-xs">.figma.tsx</code> file alongside the component;
+              capture the Figma node ID in the manifest. Code Connect publish remains gated by
+              Figma plan-tier scope (re-activates when unblocked).
+            </span>
+          </li>
+        </ol>
+        <p className="mt-6 text-sm font-sans text-[var(--color-neutral-500)]">
+          Full contribution doc lives at{' '}
+          <code className="font-mono text-xs">docs/CONTRIBUTING-design-system.md</code> (Bucket F
+          of this feature).
+        </p>
       </section>
     </article>
   );

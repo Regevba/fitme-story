@@ -360,6 +360,20 @@ export default async function FrameworkHealthPage() {
         <AuditLogPanel />
       </Section>
 
+      {/* ── fitme-story-website-design-system Bucket B T8 — public DS cross-link ── */}
+      <Section
+        id="public-design-system"
+        title="Public design system"
+        subtitle="The system that renders this site itself — public-facing inventory of tokens, components, drift, and dark-mode parity. Companion to the framework health view above."
+      >
+        <Link
+          href="/design-system"
+          className="inline-flex items-center gap-2 text-sm font-sans font-medium text-[var(--color-brand-indigo)] hover:underline"
+        >
+          Open /design-system →
+        </Link>
+      </Section>
+
       {/* ── T26 — Predecessor cross-links ── */}
       <PredecessorFooter />
     </article>
