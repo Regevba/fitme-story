@@ -1,0 +1,70 @@
+name: figma-drift-weekly
+
+# Weekly cron + on-demand drift detection for the fitme-story design system.
+# Cross-checks src/lib/design-system.ts manifest against .figma.tsx mapping
+# files. Surfaces drift in the workflow run summary; manual review on regression.
+#
+# Manual run: workflow_dispatch from the Actions tab.
+# Cadence: Mondays 06:00 UTC.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/lib/design-system.ts'
+      - 'src/components/**/*.figma.tsx'
+      - 'scripts/figma-drift.mjs'
+      - 'src/lib/figma-drift.ts'
+      - '.github/workflows/figma-drift-weekly.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Run figma-drift
+        run: |
+          set +e
+          npm run figma-drift -- --json > drift-report.json 2>drift-stderr.log
+          EXIT_CODE=$?
+          set -e
+
+          if [ -f drift-report.json ]; then
+            echo "## Drift report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            head -100 drift-report.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [ -s drift-stderr.log ]; then
+            echo "## stderr" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat drift-stderr.log >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          exit $EXIT_CODE
+
+      - name: Upload drift report artifact
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: figma-drift-report-${{ github.run_id }}
+          path: |
+            drift-report.json
+            drift-stderr.log
+          retention-days: 90

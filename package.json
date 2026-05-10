@@ -14,7 +14,8 @@
     "validate-content": "tsx scripts/validate-frontmatter.ts",
     "audit-case-studies": "node scripts/audit-frontmatter.mjs",
     "case-study-audit": "npm run validate-content && npm run audit-case-studies",
-    "verify-blind-switch": "bash scripts/verify-blind-switch.sh"
+    "verify-blind-switch": "bash scripts/verify-blind-switch.sh",
+    "figma-drift": "tsx scripts/figma-drift.mjs"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
