@@ -180,10 +180,13 @@ function FilterSelect({
   return (
     <label className="flex items-center gap-2 text-xs text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
       <span className="font-medium">{label}</span>
+      {/* P1-042 (DS lens audit 2026-05-10): bumped tap target to 44px min-height
+          (V-004 lineage) + restored visible focus ring per design system a11y
+          requirement. Was: py-1 (~24px) + outline-none. */}
       <select
         name={name}
         defaultValue={value}
-        className="rounded border border-[var(--color-neutral-300)] bg-[var(--color-neutral-0)] px-2 py-1 text-sm text-[var(--color-neutral-900)] focus-visible:border-[var(--color-brand-indigo)] focus-visible:outline-none dark:border-[var(--color-neutral-600)] dark:bg-[var(--color-neutral-800)] dark:text-[var(--color-neutral-50)]"
+        className="min-h-[44px] rounded border border-[var(--color-neutral-300)] bg-[var(--color-neutral-0)] px-2 py-2 text-sm text-[var(--color-neutral-900)] focus-visible:border-[var(--color-brand-indigo)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)] dark:border-[var(--color-neutral-600)] dark:bg-[var(--color-neutral-800)] dark:text-[var(--color-neutral-50)]"
       >
         <option value="">All</option>
         {options.map((o) => (
