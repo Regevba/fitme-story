@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Card } from '@/components/ui/Card';
 import { PmFlowHero } from '@/components/pm-flow/PmFlowHero';
 import { LifecycleLoop } from '@/components/pm-flow/LifecycleLoop';
 import { LegoWall } from '@/components/pm-flow/LegoWall';
@@ -87,7 +88,9 @@ export default function PmFlowPage() {
           The <code className="font-mono">/design build</code> skill pushes screens into Figma. The <strong>Code Connect bridge</strong> (added 2026-05-09) closes the other direction: every Figma library frame can render its actual code snippet in Dev Mode, mapped via a small template file alongside the source component.
         </p>
         <div className="mt-8 grid md:grid-cols-2 gap-6 max-w-[var(--measure-wide)]">
-          <div className="rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6">
+          {/* BHF-1 (DS lens audit 2026-05-10): migrated 2 inline rounded-lg
+              border patterns to <Card variant="flat" padding="md">. */}
+          <Card variant="flat" padding="md">
             <div className="font-serif text-xl mb-2">Web — fitme-story</div>
             <p className="text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mb-3">
               <code className="font-mono text-xs">.figma.tsx</code> files map React components to Figma file <code className="font-mono text-xs">fsjHfFLAHELACZHku8Rfcl</code> (FitMe Story Web — Design System). Parsed by the <code className="font-mono">@figma/code-connect</code> npm package.
@@ -95,8 +98,8 @@ export default function PmFlowPage() {
             <p className="text-xs text-[var(--color-neutral-500)] font-sans">
               17 component node IDs mapped at first ship: 3 buttons · 3 tags · 5 callouts · 2 cards · 2 search · 2 layouts.
             </p>
-          </div>
-          <div className="rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6">
+          </Card>
+          <Card variant="flat" padding="md">
             <div className="font-serif text-xl mb-2">iOS — FitTracker2</div>
             <p className="text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mb-3">
               <code className="font-mono text-xs">.figma.swift</code> files map SwiftUI Views to Figma file <code className="font-mono text-xs">0Ai7s3fCFqR5JXDW8JvgmD</code> (FitTracker Design System Library). Build-safety wrapper <code className="font-mono text-xs">#if canImport(Figma)</code> keeps Xcode green without the toolchain.
@@ -104,7 +107,7 @@ export default function PmFlowPage() {
             <p className="text-xs text-[var(--color-neutral-500)] font-sans">
               5 screen-level mappings on first ship — sourced from existing shipped features&apos; <code className="font-mono">state.json::figma_node_ids</code>. No placeholders.
             </p>
-          </div>
+          </Card>
         </div>
         <p className="mt-6 max-w-[var(--measure-body)] text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Going forward, <code className="font-mono">scripts/scaffold-figma-mapping.&#123;py,mjs&#125;</code> auto-generates mapping files from any feature&apos;s captured node IDs (Layer A). Planned: <code className="font-mono">/design build</code> auto-invokes the scaffold (Layer B); CI publish workflow runs <code className="font-mono">figma connect publish</code> on merge to main, gated on a repo secret (Layer C). Manual steps per new UI feature: 2 today → 0 once Layer C ships.

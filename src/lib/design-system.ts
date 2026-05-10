@@ -135,6 +135,21 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     darkModeStatus: 'Designed',
     codeSnippet: `import { FrameworkVersionCard } from '@/components/ui/FrameworkVersionCard';\n\n<FrameworkVersionCard\n  href="/framework"\n  version="7.8.2"\n  date="2026-05-08"\n  outcome="Cross-repo gate asymmetry policy"\n/>`,
   },
+  {
+    name: 'Card',
+    githubPath: 'src/components/ui/Card.tsx',
+    purpose: 'Generic bordered container — flat or tinted variant, optional interactive hover.',
+    whereUsed: 'Public routes (about, pm-flow, framework, research) — anywhere a bordered content block needs consistent styling. Replaces ~10 inline rounded-md/lg border patterns identified in DS lens audit BHF-1.',
+    category: 'primitive',
+    status: 'Stable',
+    figmaNodeIds: [
+      { variant: 'flat', nodeId: '17-7' },
+      { variant: 'tinted', nodeId: '17-11' },
+    ],
+    hasFigmaConnect: true,
+    darkModeStatus: 'Designed',
+    codeSnippet: `import { Card } from '@/components/ui/Card';\n\n<Card variant="tinted" padding="md">\n  Content here\n</Card>\n\n// Interactive (hover affordance for link cards):\n<Link href="/...">\n  <Card interactive>...</Card>\n</Link>`,
+  },
 
   // --- Layout (4) ---
   {
