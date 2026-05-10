@@ -150,6 +150,23 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     darkModeStatus: 'Designed',
     codeSnippet: `import { Card } from '@/components/ui/Card';\n\n<Card variant="tinted" padding="md">\n  Content here\n</Card>\n\n// Interactive (hover affordance for link cards):\n<Link href="/...">\n  <Card interactive>...</Card>\n</Link>`,
   },
+  {
+    name: 'Callout',
+    githubPath: 'src/components/ui/Callout.tsx',
+    purpose: 'Semantic callout for non-MDX surfaces — info / warn / success / danger variants with left-border accent + icon + optional eyebrow title.',
+    whereUsed: '/trust audit-results aside, /research note asides, info boxes outside case-study MDX. Distinct from src/components/mdx/callouts/* which are pre-baked semantic callouts (HonestDisclosure, TriggerIncident, etc.) with fixed variants.',
+    category: 'primitive',
+    status: 'Stable',
+    figmaNodeIds: [
+      { variant: 'info', nodeId: '19-7' },
+      { variant: 'warn', nodeId: '19-11' },
+      { variant: 'success', nodeId: '19-15' },
+      { variant: 'danger', nodeId: '19-19' },
+    ],
+    hasFigmaConnect: true,
+    darkModeStatus: 'Designed',
+    codeSnippet: `import { Callout } from '@/components/ui/Callout';\n\n<Callout variant="info" title="Heads up">\n  Body content explains the situation.\n</Callout>`,
+  },
 
   // --- Layout (4) ---
   {

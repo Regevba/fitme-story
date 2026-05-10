@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { FrameworkAdvancement } from '@/components/case-study/FrameworkAdvancement';
+import { Card } from '@/components/ui/Card';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -75,7 +76,11 @@ export default function TrustPage() {
         </ul>
 
         <h2>Latest audit results</h2>
-        <div className="not-prose my-6 rounded-lg border border-[var(--color-neutral-300)] bg-[var(--color-neutral-50)] p-6 dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]">
+        {/* BHF-2 (DS lens audit 2026-05-10): the audit recommended Callout
+            for this site, but the substantive multi-paragraph + dl content
+            fits Card<tinted> better than the alert-style Callout. Ships as
+            a BHF-1 extension. */}
+        <Card variant="tinted" padding="md" className="not-prose my-6">
           <p className="text-sm uppercase tracking-wide text-[var(--color-neutral-500)]">
             2026-04-21 · Google Gemini 2.5 Pro · follow-up progress 2026-04-24
           </p>
@@ -182,7 +187,7 @@ export default function TrustPage() {
               Read the full audit →
             </Link>
           </p>
-        </div>
+        </Card>
 
         <h2>Framework advancement — what the audit could and couldn&apos;t verify</h2>
         <p>
