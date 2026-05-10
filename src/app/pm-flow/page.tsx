@@ -81,6 +81,62 @@ export default function PmFlowPage() {
         <CacheTiers />
       </section>
 
+      <section id="code-connect" className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16 scroll-mt-20">
+        <h2 className="font-serif text-3xl mb-4">Designs and code stay in sync — both directions.</h2>
+        <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+          The <code className="font-mono">/design build</code> skill pushes screens into Figma. The <strong>Code Connect bridge</strong> (added 2026-05-09) closes the other direction: every Figma library frame can render its actual code snippet in Dev Mode, mapped via a small template file alongside the source component.
+        </p>
+        <div className="mt-8 grid md:grid-cols-2 gap-6 max-w-[var(--measure-wide)]">
+          <div className="rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6">
+            <div className="font-serif text-xl mb-2">Web — fitme-story</div>
+            <p className="text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mb-3">
+              <code className="font-mono text-xs">.figma.tsx</code> files map React components to Figma file <code className="font-mono text-xs">fsjHfFLAHELACZHku8Rfcl</code> (FitMe Story Web — Design System). Parsed by the <code className="font-mono">@figma/code-connect</code> npm package.
+            </p>
+            <p className="text-xs text-[var(--color-neutral-500)] font-sans">
+              17 component node IDs mapped at first ship: 3 buttons · 3 tags · 5 callouts · 2 cards · 2 search · 2 layouts.
+            </p>
+          </div>
+          <div className="rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6">
+            <div className="font-serif text-xl mb-2">iOS — FitTracker2</div>
+            <p className="text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mb-3">
+              <code className="font-mono text-xs">.figma.swift</code> files map SwiftUI Views to Figma file <code className="font-mono text-xs">0Ai7s3fCFqR5JXDW8JvgmD</code> (FitTracker Design System Library). Build-safety wrapper <code className="font-mono text-xs">#if canImport(Figma)</code> keeps Xcode green without the toolchain.
+            </p>
+            <p className="text-xs text-[var(--color-neutral-500)] font-sans">
+              5 screen-level mappings on first ship — sourced from existing shipped features&apos; <code className="font-mono">state.json::figma_node_ids</code>. No placeholders.
+            </p>
+          </div>
+        </div>
+        <p className="mt-6 max-w-[var(--measure-body)] text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+          Going forward, <code className="font-mono">scripts/scaffold-figma-mapping.&#123;py,mjs&#125;</code> auto-generates mapping files from any feature&apos;s captured node IDs (Layer A). Planned: <code className="font-mono">/design build</code> auto-invokes the scaffold (Layer B); CI publish workflow runs <code className="font-mono">figma connect publish</code> on merge to main, gated on a repo secret (Layer C). Manual steps per new UI feature: 2 today → 0 once Layer C ships.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3 text-sm font-sans">
+          <a
+            href="https://github.com/Regevba/FitTracker2/blob/main/docs/design-system/ios-code-connect-workflow.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-2 rounded-full border border-[var(--color-neutral-300)] hover:border-[var(--color-brand-indigo)] hover:text-[var(--color-brand-indigo)] transition-colors"
+          >
+            iOS Code Connect Workflow doc →
+          </a>
+          <a
+            href="https://github.com/Regevba/FitTracker2/blob/main/docs/design-system/fitme-story-design-architecture.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-2 rounded-full border border-[var(--color-neutral-300)] hover:border-[var(--color-brand-indigo)] hover:text-[var(--color-brand-indigo)] transition-colors"
+          >
+            fitme-story Design Architecture doc →
+          </a>
+          <a
+            href="https://github.com/figma/code-connect"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-2 rounded-full border border-[var(--color-neutral-300)] hover:border-[var(--color-brand-indigo)] hover:text-[var(--color-brand-indigo)] transition-colors"
+          >
+            Figma Code Connect repo →
+          </a>
+        </div>
+      </section>
+
       <section id="build-your-own" className="max-w-4xl mx-auto px-6 py-16 scroll-mt-20">
         <h2 className="font-serif text-3xl mb-4">Want this pattern in your own setup?</h2>
         <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)]">
