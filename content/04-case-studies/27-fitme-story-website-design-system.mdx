@@ -28,7 +28,7 @@ work_type: feature
 external_audit_status: pending
 key_numbers:
   - label: Public Figma parity
-    value: 100%
+    value: '100%'
     tier: T1
     note: 17/17 public components mapped (Button, Tag, CaseStudyCard, FrameworkVersionCard, SiteHeader, SiteFooter, SearchInput, MobileNav, Disclosure, 5 callouts, 3 persona)
   - label: Total Figma node IDs captured
@@ -36,30 +36,31 @@ key_numbers:
     tier: T1
     note: Across 17 .figma.tsx files (Button has 3 variants, Tag has 3, SearchInput has 2)
   - label: Components catalogued
-    value: 31 (17 Stable + 14 Internal)
+    value: '31 (17 Stable + 14 Internal)'
     tier: T1
     note: Internal-deferral policy excludes 10 control-room + 4 bespoke from parity denominator
   - label: Figma variables added
-    value: 15
+    value: '15'
     tier: T1
     note: 6 motion + 4 elevation + 5 z-index. Collection grew 36 → 51.
   - label: Audit decisions documented
-    value: 11
+    value: '11'
     tier: T1
     note: A-001/002/014/018 + V-004 + CS-006/008/016/020 + R-009 + T24
   - label: Locked patterns documented
-    value: 7
+    value: '7'
     tier: T1
     note: case-study Alt A chrome, frontmatter audit gate, /glossary page pattern, token-prefix naming, reduced-motion blanket, persona soft overlay, Safari tap-highlight
   - label: Drift detection unit tests
-    value: 6/6 pass
+    value: '6/6 pass'
     tier: T1
     note: full-parity, missing-figma, code-only, missing-source, empty-entries, markdown-format
   - label: GA4 events declared
-    value: 4
+    value: '4'
     tier: T1
     note: section_view (implemented via TrackedSection IntersectionObserver), figma_link_click (implemented via TrackedFigmaLink), component_expand + code_copy (declared, UI deferred)
-visual_aid: parity-stat-grid
+visual_aid:
+  component: KeyNumbersChart
 honest_disclosures:
   - GA4 DebugView confirmation (T28) and Lighthouse run on staging (T29) deferred to operator post-deploy. Cannot be completed in-session.
   - 5 newly-mapped Figma components (MobileNav, Disclosure, 3 persona) ship as placeholder stubs — labeled rectangles with component name + 1-line description. Designers flesh out visuals later. Stubs satisfy Code Connect's COMPONENT requirement.
