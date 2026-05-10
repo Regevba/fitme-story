@@ -167,6 +167,22 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     darkModeStatus: 'Designed',
     codeSnippet: `import { Callout } from '@/components/ui/Callout';\n\n<Callout variant="info" title="Heads up">\n  Body content explains the situation.\n</Callout>`,
   },
+  {
+    name: 'Stat',
+    githubPath: 'src/components/ui/Stat.tsx',
+    purpose: 'Metric-display primitive — value (big number) + label + optional sublabel. 3 sizes (sm/md/lg), optional brand-indigo accent, optional serif typeface.',
+    whereUsed: 'NumbersPanel (homepage), OriginNarrative (homepage), timeline keyMetric, ParitySummaryCard (design-system showcase). Replaces inline text-{3,4,5}xl font-semibold patterns identified in DS lens audit BHF-4.',
+    category: 'primitive',
+    status: 'Stable',
+    figmaNodeIds: [
+      { variant: 'sm', nodeId: '21-7' },
+      { variant: 'md', nodeId: '21-11' },
+      { variant: 'lg', nodeId: '21-15' },
+    ],
+    hasFigmaConnect: true,
+    darkModeStatus: 'Designed',
+    codeSnippet: `import { Stat } from '@/components/ui/Stat';\n\n<Stat value="100%" label="Public parity" sublabel="17 / 17" size="sm" accent />\n<Stat value="3.5×" label="Speedup" size="lg" accent />`,
+  },
 
   // --- Layout (4) ---
   {
