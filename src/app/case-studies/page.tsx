@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Wrench } from 'lucide-react';
 import { getAllCaseStudies, type ContentEntry } from '@/lib/content';
 import { buildMetadata } from '@/lib/seo';
+import { Disclosure } from '@/components/ui/Disclosure';
 
 export const metadata = buildMetadata({
   title: 'Case studies',
@@ -210,6 +211,11 @@ export default async function CaseStudiesIndex() {
           versions, and what the numbers can and can't prove. Placed
           intentionally before the infographic so readers hit the framing
           before the data. */}
+      {/* P0-007 (DS lens audit 2026-05-10): the methodology body is ~200 lines
+          of dense prose + definitions. Wrapping it in <Disclosure> collapses
+          by default so the cards below stay above the fold; readers can
+          expand on demand. The h2 stays outside the Disclosure to keep the
+          #methodology-heading anchor link working from elsewhere. */}
       <section
         aria-labelledby="methodology-heading"
         className="mb-16 rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-6 sm:p-8"
@@ -226,6 +232,10 @@ export default async function CaseStudiesIndex() {
           </p>
         </div>
 
+        <Disclosure
+          label="Read the methodology"
+          summary="What complexity units, cache-hit tiers, and timing measurements actually mean — and what they can't prove."
+        >
         <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed mb-8 max-w-[var(--measure-body)]">
           Every case study below cites numbers — wall time, complexity units, cache-hit rates,
           throughput multipliers. This block explains where those numbers come from, how the
@@ -335,6 +345,7 @@ export default async function CaseStudiesIndex() {
             </dd>
           </div>
         </dl>
+        </Disclosure>
       </section>
 
       {/* ============ INFOGRAPHIC — framework progression strip ============
