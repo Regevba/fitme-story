@@ -104,6 +104,18 @@ html.dark {
   }
 }
 
+/* T5 (P2-040 audit follow-up 2026-05-10): semantic class for the repeated
+   divider-row pattern (token-list rows with bottom border + pb-2 spacing).
+   Used in TokenSwatch.MotionTokenRow + ZIndexLadderRow, and the design-system
+   Type scale + Reading measures sections. */
+.divider-row {
+  border-bottom: 1px solid var(--color-neutral-200);
+  padding-bottom: 0.5rem;
+}
+html.dark .divider-row {
+  border-bottom-color: var(--color-neutral-700);
+}
+
 /* Native Safari quirk fixes (added 2026-04-28 with the case-study
    presentation refactor). Apply to all browsers — no harm to others. */
 

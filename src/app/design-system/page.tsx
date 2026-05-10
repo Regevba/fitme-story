@@ -356,7 +356,7 @@ export default function DesignSystemPage() {
                   {TYPE_SCALE.map((t) => (
                     <li
                       key={t.cssVar}
-                      className="flex flex-wrap gap-3 items-baseline border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pb-2"
+                      className="flex flex-wrap gap-3 items-baseline divider-row"
                     >
                       <span className="font-sans font-semibold text-sm w-28 shrink-0">{t.label}</span>
                       <code className="font-mono text-xs text-[var(--color-neutral-500)]">{t.cssVar}</code>
@@ -373,7 +373,7 @@ export default function DesignSystemPage() {
                   {MEASURES.map((m) => (
                     <li
                       key={m.cssVar}
-                      className="flex flex-wrap gap-3 items-baseline border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pb-2"
+                      className="flex flex-wrap gap-3 items-baseline divider-row"
                     >
                       <span className="font-sans font-semibold text-sm w-28 shrink-0">{m.value}</span>
                       <code className="font-mono text-xs text-[var(--color-neutral-500)]">{m.cssVar}</code>

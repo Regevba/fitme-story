@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { buildMetadata } from '@/lib/seo';
 
@@ -62,7 +63,15 @@ export default function ResearchPage() {
           // letting Card own the hover-border-indigo affordance.
           const inner = (
             <Card interactive padding="md" className="group block">
-              <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">{r.title}</h2>
+              <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)] flex items-center gap-2">
+                {r.title}
+                {/* T4 (P2-027 audit follow-up 2026-05-10): show external-link
+                    icon when r.external is true so the affordance is visible
+                    before the click. */}
+                {r.external && (
+                  <ExternalLink size={14} className="shrink-0 text-[var(--color-neutral-500)]" aria-hidden="true" />
+                )}
+              </h2>
               <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">{r.body}</p>
             </Card>
           );
