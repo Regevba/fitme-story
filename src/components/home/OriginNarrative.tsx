@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { Smartphone, RefreshCw, ShieldCheck, Compass } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
+import { Stat } from '@/components/ui/Stat';
 import { ORIGIN_BEATS, type LucideIconName } from './origin-beats';
 
 const ICON_MAP: Record<LucideIconName, ComponentType<SVGProps<SVGSVGElement>>> = {
@@ -31,10 +32,9 @@ export function OriginNarrative() {
             >
               <div className="font-sans text-[var(--color-neutral-500)]">
                 {beat.visual.kind === 'metric' ? (
-                  <div>
-                    <div className="text-4xl font-semibold text-[var(--color-brand-indigo)]">{beat.visual.value}</div>
-                    <div className="text-xs uppercase tracking-wider mt-1">{beat.visual.label}</div>
-                  </div>
+                  /* T2 (P2-029 audit follow-up 2026-05-10): inline text-4xl
+                     font-semibold + uppercase label migrated to <Stat>. */
+                  <Stat value={beat.visual.value} label={beat.visual.label} size="md" accent centered={false} />
                 ) : (
                   Icon && (
                     <Icon

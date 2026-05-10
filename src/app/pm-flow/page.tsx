@@ -156,24 +156,32 @@ export default function PmFlowPage() {
           </p>
         </div>
 
+        {/* T1 (P2-022 audit follow-up 2026-05-10): 3 inline rounded-lg interactive
+            nav cards migrated to <Card interactive>. */}
         <div className="mt-10 grid md:grid-cols-3 gap-4">
-          <Link href="/framework" className="group block p-5 rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] hover:border-[var(--color-brand-indigo)]">
-            <div className="font-serif text-lg group-hover:text-[var(--color-brand-indigo)]">The 6-floor building →</div>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              Zoom out to the full framework architecture.
-            </p>
+          <Link href="/framework" className="block">
+            <Card interactive padding="md" className="group">
+              <div className="font-serif text-lg group-hover:text-[var(--color-brand-indigo)]">The 6-floor building →</div>
+              <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                Zoom out to the full framework architecture.
+              </p>
+            </Card>
           </Link>
-          <Link href="/framework/dispatch" className="group block p-5 rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] hover:border-[var(--color-brand-indigo)]">
-            <div className="font-serif text-lg group-hover:text-[var(--color-brand-indigo)]">Watch it run →</div>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              A real feature flowing through the framework in real time.
-            </p>
+          <Link href="/framework/dispatch" className="block">
+            <Card interactive padding="md" className="group">
+              <div className="font-serif text-lg group-hover:text-[var(--color-brand-indigo)]">Watch it run →</div>
+              <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                A real feature flowing through the framework in real time.
+              </p>
+            </Card>
           </Link>
-          <Link href="/glossary" className="group block p-5 rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] hover:border-[var(--color-brand-indigo)]">
-            <div className="font-serif text-lg group-hover:text-[var(--color-brand-indigo)]">Glossary →</div>
-            <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              Plain-language definitions for every term on this page.
-            </p>
+          <Link href="/glossary" className="block">
+            <Card interactive padding="md" className="group">
+              <div className="font-serif text-lg group-hover:text-[var(--color-brand-indigo)]">Glossary →</div>
+              <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                Plain-language definitions for every term on this page.
+              </p>
+            </Card>
           </Link>
         </div>
       </section>

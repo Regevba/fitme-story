@@ -42,7 +42,7 @@ type MotionTokenRowProps = {
 
 export function MotionTokenRow({ cssVar, value, label, note }: MotionTokenRowProps) {
   return (
-    <li className="flex flex-wrap gap-3 items-baseline border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pb-2">
+    <li className="flex flex-wrap gap-3 items-baseline divider-row">
       <span className="font-sans font-semibold text-sm w-32 shrink-0">{label}</span>
       <code className="font-mono text-xs text-[var(--color-neutral-500)] w-56 shrink-0 truncate">
         {cssVar}
@@ -116,7 +116,7 @@ type ZIndexLadderRowProps = {
 
 export function ZIndexLadderRow({ cssVar, value, label, note }: ZIndexLadderRowProps) {
   return (
-    <li className="flex flex-wrap gap-3 items-baseline border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pb-2">
+    <li className="flex flex-wrap gap-3 items-baseline divider-row">
       <span className="font-sans font-semibold text-sm w-24 shrink-0">{label}</span>
       <code className="font-mono text-xs text-[var(--color-neutral-500)] w-32 shrink-0 truncate">
         {cssVar}

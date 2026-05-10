@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
+import { Card } from '@/components/ui/Card';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -29,40 +30,49 @@ export default function FrameworkPage() {
           <a href="/case-studies/soc-on-software">SoC-v5.0 case study</a>.
         </p>
       </div>
+      {/* T1 (P2-022 audit follow-up 2026-05-10): 2 inline rounded-lg interactive
+          nav cards migrated to <Card interactive>. Hover-shadow-lg preserved
+          via className override since the base Card doesn't include shadow. */}
       <section className="mt-16">
-        <Link
-          href="/framework/dispatch"
-          className="group block rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6 hover:border-[var(--color-brand-indigo)] hover:shadow-lg transition-all"
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
-                See the framework in motion →
-              </h2>
-              <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                Two real feature traces walked through the six floors — scroll-driven, with floor-by-floor firing order.
-              </p>
+        <Link href="/framework/dispatch" className="block">
+          <Card
+            interactive
+            padding="md"
+            className="group hover:shadow-lg transition-all"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
+                  See the framework in motion →
+                </h2>
+                <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                  Two real feature traces walked through the six floors — scroll-driven, with floor-by-floor firing order.
+                </p>
+              </div>
+              <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
             </div>
-            <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
-          </div>
+          </Card>
         </Link>
       </section>
       <section className="mt-6">
-        <Link
-          href="/framework/dev-guide"
-          className="group block rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6 hover:border-[var(--color-brand-indigo)] hover:shadow-lg transition-all"
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
-                Developer guide (v1.0 → v7.7) →
-              </h2>
-              <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 13 integrity check codes + 1 advisory, 3 operational walkthroughs, compressed v1.0 → v7.7 timeline.
-              </p>
+        <Link href="/framework/dev-guide" className="block">
+          <Card
+            interactive
+            padding="md"
+            className="group hover:shadow-lg transition-all"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
+                  Developer guide (v1.0 → v7.7) →
+                </h2>
+                <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                  Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 13 integrity check codes + 1 advisory, 3 operational walkthroughs, compressed v1.0 → v7.7 timeline.
+                </p>
+              </div>
+              <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
             </div>
-            <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
-          </div>
+          </Card>
         </Link>
       </section>
     </article>
