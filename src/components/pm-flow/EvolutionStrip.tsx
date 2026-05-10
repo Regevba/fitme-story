@@ -74,6 +74,14 @@ const MILESTONES: Milestone[] = [
     caseStudyHref: '/case-studies/import-training-plan',
     tintVar: 'var(--skill-ux)',
   },
+  {
+    version: 'v4.X + CC',
+    date: '2026-05-09',
+    headline: 'Cross-repo Figma Code Connect',
+    what: 'Figma library frames now map to React components (web, file fsjHfFLAHELACZHku8Rfcl) AND SwiftUI Views (iOS, file 0Ai7s3fCFqR5JXDW8JvgmD) via .figma.tsx + .figma.swift template files. Build-safety wrapper (#if canImport(Figma) on iOS, parser-excluded tsx on web) keeps everything compiling without the toolchain. Companion scaffold scripts auto-generate mapping files from state.json::figma_node_ids. Planned: /design build auto-invokes scaffold (Layer B); CI publish on merge (Layer C). Closes the design↔code loop in both directions.',
+    caseStudyHref: '/case-studies/import-training-plan',
+    tintVar: 'var(--skill-design)',
+  },
 ];
 
 export function EvolutionStrip() {
