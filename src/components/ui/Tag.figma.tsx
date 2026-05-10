@@ -2,26 +2,26 @@
 import figma from '@figma/code-connect';
 import { Tag } from './Tag';
 
-const FIGMA_BASE =
-  'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System';
-
-figma.connect(Tag, `${FIGMA_BASE}?node-id=5-12`, {
-  props: {
-    children: figma.string('Label'),
+figma.connect(
+  Tag,
+  'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-12',
+  {
+    example: () => <Tag variant="flagship">Flagship</Tag>,
   },
-  example: ({ children }) => <Tag variant="flagship">{children}</Tag>,
-});
+);
 
-figma.connect(Tag, `${FIGMA_BASE}?node-id=5-14`, {
-  props: {
-    children: figma.string('Label'),
+figma.connect(
+  Tag,
+  'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-14',
+  {
+    example: () => <Tag variant="standard">Standard</Tag>,
   },
-  example: ({ children }) => <Tag variant="standard">{children}</Tag>,
-});
+);
 
-figma.connect(Tag, `${FIGMA_BASE}?node-id=5-16`, {
-  props: {
-    children: figma.string('Label'),
+figma.connect(
+  Tag,
+  'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-16',
+  {
+    example: () => <Tag variant="tier_t1">T1</Tag>,
   },
-  example: ({ children }) => <Tag variant="tier_t1">{children}</Tag>,
-});
+);

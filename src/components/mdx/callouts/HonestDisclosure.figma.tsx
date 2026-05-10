@@ -6,9 +6,10 @@ figma.connect(
   HonestDisclosure,
   'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-20',
   {
-    props: {
-      children: figma.string('Body'),
-    },
-    example: ({ children }) => <HonestDisclosure>{children}</HonestDisclosure>,
+    example: () => (
+      <HonestDisclosure>
+        Sample body text rendered inside the HonestDisclosure callout.
+      </HonestDisclosure>
+    ),
   },
 );

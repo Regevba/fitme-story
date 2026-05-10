@@ -6,17 +6,12 @@ figma.connect(
   FrameworkVersionCard,
   'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-59',
   {
-    props: {
-      version: figma.string('Version'),
-      date: figma.string('Date'),
-      outcome: figma.string('Outcome'),
-    },
-    example: ({ version, date, outcome }) => (
+    example: () => (
       <FrameworkVersionCard
         href="/framework"
-        version={version}
-        date={date}
-        outcome={outcome}
+        version="7.8.1"
+        date="2026-05-09"
+        outcome="Cross-repo Code Connect bridge shipped"
       />
     ),
   },
