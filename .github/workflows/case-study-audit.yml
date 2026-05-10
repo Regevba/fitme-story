@@ -1,0 +1,33 @@
+name: case-study-audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/**/*.mdx'
+      - 'src/lib/content-schema.ts'
+      - 'scripts/validate-frontmatter.ts'
+      - 'scripts/audit-frontmatter.mjs'
+      - '.github/workflows/case-study-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/**/*.mdx'
+      - 'src/lib/content-schema.ts'
+      - 'scripts/validate-frontmatter.ts'
+      - 'scripts/audit-frontmatter.mjs'
+      - '.github/workflows/case-study-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci --prefer-offline --no-audit
+      - run: npm run validate-content
+      - run: node scripts/audit-frontmatter.mjs
