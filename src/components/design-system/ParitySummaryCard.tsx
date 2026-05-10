@@ -14,13 +14,16 @@ export function ParitySummaryCard() {
             {m.parityCoverage}%
           </div>
           <div className="text-[11px] font-sans uppercase tracking-wide text-[var(--color-neutral-500)] mt-1">
-            Figma parity
+            Public parity
+          </div>
+          <div className="text-[10px] font-mono text-[var(--color-neutral-500)]">
+            {m.publicMapped} / {m.publicTotal}
           </div>
         </div>
         <div>
           <div className="font-serif text-3xl font-semibold">{m.mapped}</div>
           <div className="text-[11px] font-sans uppercase tracking-wide text-[var(--color-neutral-500)] mt-1">
-            Mapped <span className="text-[var(--color-neutral-500)]">/ {m.total}</span>
+            Total mapped <span className="text-[var(--color-neutral-500)]">/ {m.total}</span>
           </div>
         </div>
         <div>
@@ -43,6 +46,10 @@ export function ParitySummaryCard() {
         {m.statusBreakdown.Internal} Internal ·{' '}
         {m.statusBreakdown.Experimental} Experimental ·{' '}
         {m.statusBreakdown.Deprecated} Deprecated
+      </p>
+      <p className="mt-1 text-[11px] font-sans text-[var(--color-neutral-500)] text-center italic">
+        Public parity excludes Internal components from the denominator —
+        operator-only surfaces follow code-first design, not Figma-first.
       </p>
     </aside>
   );

@@ -166,8 +166,8 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     whereUsed: 'Site-wide, rendered inside SiteHeader at < 768px.',
     category: 'layout',
     status: 'Stable',
-    figmaNodeIds: null,
-    hasFigmaConnect: false,
+    figmaNodeIds: [{ variant: 'default', nodeId: '10-7' }],
+    hasFigmaConnect: true,
     darkModeStatus: 'Designed',
   },
   {
@@ -250,11 +250,30 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     whereUsed: '/design-system Part 1 sections, FAQ-style content blocks.',
     category: 'ui-utility',
     status: 'Stable',
-    figmaNodeIds: null,
-    hasFigmaConnect: false,
+    figmaNodeIds: [{ variant: 'default', nodeId: '10-13' }],
+    hasFigmaConnect: true,
     darkModeStatus: 'AutoDerived',
   },
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // Internal components (control-room + bespoke). DELIBERATELY UNMAPPED to
+  // Figma at this stage. Rationale (codified Bucket C 2026-05-10):
+  //
+  // 1. These components serve operator-only / behind-auth surfaces. They do
+  //    not appear on public-facing routes that designers need to mock up.
+  // 2. They are heavily data-driven (TaskTree, AuditLogPanel, DevicesTable)
+  //    — designing them in Figma without realistic data fixtures produces
+  //    low-fidelity stubs that mislead more than they help.
+  // 3. Code-first design is appropriate here: the React implementation IS
+  //    the design source of truth; designers iterate by reading the code +
+  //    using browser dev tools, not by editing static Figma frames.
+  // 4. Mapping them anyway would inflate the parity metric without adding
+  //    designer value. The honest move is to surface "Internal — Figma
+  //    deferred" + adjust parity to compute over public components only.
+  //
+  // The drift detection script (Bucket D) still tracks Internal components,
+  // it just doesn't alarm on missing Figma frames for them.
+  // ──────────────────────────────────────────────────────────────────────────
   // --- Control-room (10) — Internal: power /control-room/* routes (gated) ---
   {
     name: 'FeatureCard',
@@ -375,8 +394,8 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     whereUsed: 'Site-wide (when persona selected).',
     category: 'persona',
     status: 'Stable',
-    figmaNodeIds: null,
-    hasFigmaConnect: false,
+    figmaNodeIds: [{ variant: 'default', nodeId: '11-7' }],
+    hasFigmaConnect: true,
     darkModeStatus: 'Designed',
   },
   {
@@ -386,8 +405,8 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     whereUsed: 'Inline within case-study / framework MDX content.',
     category: 'persona',
     status: 'Stable',
-    figmaNodeIds: null,
-    hasFigmaConnect: false,
+    figmaNodeIds: [{ variant: 'default', nodeId: '11-11' }],
+    hasFigmaConnect: true,
     darkModeStatus: 'Designed',
   },
   {
@@ -397,8 +416,8 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     whereUsed: 'MDX content wrappers.',
     category: 'persona',
     status: 'Stable',
-    figmaNodeIds: null,
-    hasFigmaConnect: false,
+    figmaNodeIds: [{ variant: 'default', nodeId: '11-15' }],
+    hasFigmaConnect: true,
     darkModeStatus: 'Designed',
   },
 
@@ -449,10 +468,23 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
   },
 ];
 
-/** Computed metrics for the showcase route's drift summary card. */
+/**
+ * Computed metrics for the showcase route's parity summary card.
+ *
+ * Parity convention (codified Bucket C 2026-05-10): Internal-status components
+ * (control-room operator surfaces + bespoke illustrations) are EXCLUDED from
+ * the parity denominator. Rationale: Internal components serve operator-only
+ * surfaces and follow code-first design, not Figma-first. Designing them in
+ * Figma adds maintenance cost without designer benefit. The "publicParity"
+ * field is the meaningful one; the "totalParity" field includes them for
+ * completeness.
+ */
 export function getDesignSystemMetrics() {
   const total = DESIGN_SYSTEM_COMPONENTS.length;
+  const publicComponents = DESIGN_SYSTEM_COMPONENTS.filter(c => c.status !== 'Internal');
+  const internalComponents = DESIGN_SYSTEM_COMPONENTS.filter(c => c.status === 'Internal');
   const mapped = DESIGN_SYSTEM_COMPONENTS.filter(c => c.hasFigmaConnect).length;
+  const publicMapped = publicComponents.filter(c => c.hasFigmaConnect).length;
   const totalFigmaNodes = DESIGN_SYSTEM_COMPONENTS.reduce(
     (sum, c) => sum + (c.figmaNodeIds?.length ?? 0),
     0,
@@ -472,7 +504,16 @@ export function getDesignSystemMetrics() {
   return {
     total,
     mapped,
-    parityCoverage: total === 0 ? 0 : Math.round((mapped / total) * 100),
+    publicTotal: publicComponents.length,
+    publicMapped,
+    internalTotal: internalComponents.length,
+    /** Parity for public components only — the meaningful metric. */
+    parityCoverage:
+      publicComponents.length === 0
+        ? 0
+        : Math.round((publicMapped / publicComponents.length) * 100),
+    /** Parity including Internal — for completeness; lower by design. */
+    totalParityCoverage: total === 0 ? 0 : Math.round((mapped / total) * 100),
     totalFigmaNodes,
     darkModeBreakdown,
     statusBreakdown,
