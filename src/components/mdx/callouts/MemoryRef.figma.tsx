@@ -6,13 +6,12 @@ figma.connect(
   MemoryRef,
   'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-32',
   {
-    props: {
-      slug: figma.string('Slug'),
-      title: figma.string('Title'),
-      note: figma.string('Note'),
-    },
-    example: ({ slug, title, note }) => (
-      <MemoryRef slug={slug} title={title} note={note} />
+    example: () => (
+      <MemoryRef
+        slug="example-case-study"
+        title="Example case study"
+        note="One-line note about the cross-reference"
+      />
     ),
   },
 );

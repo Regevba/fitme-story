@@ -6,17 +6,12 @@ figma.connect(
   CaseStudyCard,
   'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-52',
   {
-    props: {
-      title: figma.string('Title'),
-      tldr: figma.string('TLDR'),
-      tagLabel: figma.string('Tag'),
-    },
-    example: ({ title, tldr, tagLabel }) => (
+    example: () => (
       <CaseStudyCard
         href="/case-studies/example"
-        title={title}
-        tldr={tldr}
-        tagLabel={tagLabel}
+        title="Example Case Study"
+        tldr="One-line summary of what this case study covers."
+        tagLabel="Standard"
         tagVariant="standard"
       />
     ),

@@ -6,15 +6,11 @@ figma.connect(
   KillCriterionResolution,
   'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-44',
   {
-    props: {
-      dueDate: figma.string('Due Date'),
-      resolution: figma.string('Resolution'),
-    },
-    example: ({ dueDate, resolution }) => (
+    example: () => (
       <KillCriterionResolution
         status="clear"
-        dueDate={dueDate}
-        resolution={resolution}
+        dueDate="2026-05-15"
+        resolution="0 of 2 kill criteria fired in week 1"
       />
     ),
   },

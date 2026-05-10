@@ -6,18 +6,13 @@ figma.connect(
   TriggerIncident,
   'https://www.figma.com/design/fsjHfFLAHELACZHku8Rfcl/FitMe-Story-Web-Design-System?node-id=5-26',
   {
-    props: {
-      date: figma.string('Date'),
-      title: figma.string('Title'),
-      children: figma.string('Body'),
-    },
-    example: ({ date, title, children }) => (
+    example: () => (
       <TriggerIncident
-        date={date}
-        title={title}
+        date="2026-04-30"
+        title="Incident 1 — Example trigger"
         failureModes={['example-mode-1', 'example-mode-2']}
       >
-        {children}
+        Brief description of what triggered this incident.
       </TriggerIncident>
     ),
   },
