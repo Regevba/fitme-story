@@ -31,6 +31,7 @@ import {
   LockedPatternList,
 } from '@/components/design-system/HeritageList';
 import { ParitySummaryCard } from '@/components/design-system/ParitySummaryCard';
+import { TrackedSection } from '@/components/design-system/TrackedSection';
 import { CaseStudyCard } from '@/components/ui/CaseStudyCard';
 import { FrameworkVersionCard } from '@/components/ui/FrameworkVersionCard';
 import { buildMetadata } from '@/lib/seo';
@@ -455,7 +456,7 @@ export default function DesignSystemPage() {
         </p>
       </section>
 
-      <section id="parity" className="mb-16 scroll-mt-24">
+      <TrackedSection sectionId="parity" className="mb-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-4">Parity at a glance</h2>
         <ParitySummaryCard />
         <p className="text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
@@ -464,9 +465,9 @@ export default function DesignSystemPage() {
           script (Bucket D of this feature) cross-checks the manifest against the live Figma file
           on a weekly cron and on-demand via <code className="font-mono text-xs">make figma-drift</code>.
         </p>
-      </section>
+      </TrackedSection>
 
-      <section id="tokens-web" className="mb-16 scroll-mt-24">
+      <TrackedSection sectionId="tokens-web" className="mb-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-4">Tokens — motion, elevation, z-index</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)] mb-6">
           Color, type, and measure tokens are documented in the &ldquo;Under the hood&rdquo; disclosure
@@ -534,9 +535,9 @@ export default function DesignSystemPage() {
             </ul>
           </div>
         </div>
-      </section>
+      </TrackedSection>
 
-      <section id="components-web" className="mb-16 scroll-mt-24">
+      <TrackedSection sectionId="components-web" className="mb-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-4">Components</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)] mb-6">
           {WEB_COMPONENTS.length} components catalogued. Status badges indicate maturity (Stable,
@@ -568,9 +569,9 @@ export default function DesignSystemPage() {
             );
           });
         })()}
-      </section>
+      </TrackedSection>
 
-      <section id="drift" className="mb-16 scroll-mt-24">
+      <TrackedSection sectionId="drift" className="mb-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-4">Drift report</h2>
         <div className="rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6 bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)]">
           <p className="text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
@@ -585,9 +586,9 @@ export default function DesignSystemPage() {
             and surface here.
           </p>
         </div>
-      </section>
+      </TrackedSection>
 
-      <section id="dark-mode" className="mb-16 scroll-mt-24">
+      <TrackedSection sectionId="dark-mode" className="mb-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-4">Dark-mode parity</h2>
         <div className="rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-6 bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)]">
           <p className="text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
@@ -602,9 +603,9 @@ export default function DesignSystemPage() {
             .
           </p>
         </div>
-      </section>
+      </TrackedSection>
 
-      <section id="heritage" className="mb-16 scroll-mt-24">
+      <TrackedSection sectionId="heritage" className="mb-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-4">Design heritage</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)] mb-6">
           Durable design decisions made on this site before the design-system feature shipped.
@@ -622,9 +623,9 @@ export default function DesignSystemPage() {
             <LockedPatternList />
           </div>
         </div>
-      </section>
+      </TrackedSection>
 
-      <section id="contribute" className="mb-16 scroll-mt-24">
+      <TrackedSection sectionId="contribute" className="mb-16 scroll-mt-24">
         <h2 className="font-serif text-2xl mb-4">How to contribute</h2>
         <p className="max-w-[var(--measure-body)] text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mb-3">
           Three rules for every new component on this site:
@@ -660,7 +661,7 @@ export default function DesignSystemPage() {
           <code className="font-mono text-xs">docs/CONTRIBUTING-design-system.md</code> (Bucket F
           of this feature).
         </p>
-      </section>
+      </TrackedSection>
     </article>
   );
 }

@@ -5,6 +5,7 @@ import {
   buildGitHubSourceUrl,
 } from '@/lib/design-system';
 import { StatusBadge } from './StatusBadge';
+import { TrackedFigmaLink } from './TrackedFigmaLink';
 
 type Props = {
   entry: ComponentManifestEntry;
@@ -99,20 +100,13 @@ export function ComponentCard({ entry, preview }: Props) {
         >
           GitHub source ↗
         </a>
-        {figmaUrl ? (
-          <a
-            href={figmaUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[var(--color-brand-indigo)] hover:underline"
-          >
-            Figma node ↗
-            {entry.figmaNodeIds && entry.figmaNodeIds.length > 1 ? (
-              <span className="text-[var(--color-neutral-500)]">
-                {' '}({entry.figmaNodeIds.length} variants)
-              </span>
-            ) : null}
-          </a>
+        {figmaUrl && primaryFigmaNode ? (
+          <TrackedFigmaLink
+            componentName={entry.name}
+            figmaNodeId={primaryFigmaNode.nodeId}
+            figmaUrl={figmaUrl}
+            variantCount={entry.figmaNodeIds?.length}
+          />
         ) : (
           <span className="text-[var(--color-neutral-500)]">
             Figma node — not yet captured (Bucket C)
