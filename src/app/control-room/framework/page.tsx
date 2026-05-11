@@ -51,7 +51,7 @@ function loadGateCoverage() {
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
   description:
-    'Live dashboard for the FitMe PM framework v7.8: Tier 1.1 adoption trends, documentation-debt coverage, automation map, 72h integrity cycle snapshot, and v7.8 Mechanism F membrane status.',
+    'Live dashboard for the FitMe PM framework v7.8.3: Tier 1.1 adoption trends, documentation-debt coverage, automation map (33 mechanical gates + 5 advisories), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, and v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted).',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -129,8 +129,35 @@ const PREDECESSOR_LINKS = [
     date: '2026-05-04',
     href: '/case-studies/framework-v7-8-bridge',
     external: false,
+    current: false,
+    description: 'Mechanisms A-F (advisory). First honesty-ledger entry FT2-FH-001. 9 PRs in 2 days.',
+  },
+  {
+    label: 'v7.8.1 — Branch Isolation + Closure Completeness',
+    version: 'v7.8.1',
+    date: '2026-05-07',
+    href: '/case-studies/framework-v7-8-1-branch-isolation',
+    external: false,
+    current: false,
+    description: '3 new write-time gates (BRANCH_ISOLATION_VIOLATION, FEATURE_CLOSURE_COMPLETENESS, ISOLATION_OPT_OUT_REASON_MISSING) + 3 cycle-time advisories. First feature shipped via v7.8 protocol.',
+  },
+  {
+    label: 'v7.8.2 — Cross-Repo Telemetry Asymmetry',
+    version: 'v7.8.2',
+    date: '2026-05-08',
+    href: 'https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md',
+    external: true,
+    current: false,
+    description: 'Patch-level. Documents FT2-only Mechanism A telemetry as exemption. Bash short-circuit on PostToolUse:Read silences cross-repo Mechanism C noise.',
+  },
+  {
+    label: 'v7.8.3 — Cross-Repo State-Sync Release Umbrella',
+    version: 'v7.8.3',
+    date: '2026-05-11',
+    href: '/case-studies/cross-repo-state-sync-impl',
+    external: false,
     current: true,
-    description: 'This dashboard. Mechanisms A-F (advisory). First honesty-ledger entry FT2-FH-001. 9 PRs in 2 days.',
+    description: 'This dashboard. V2 enforced + V9 logs + 3 new state_owner gates + D-3 unified PR cite cache + C-4 telemetry aggregator + D-1 reverse-sync GH Action. 10 PRs / 2 repos / 1 day.',
   },
 ];
 
