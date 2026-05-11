@@ -6,13 +6,24 @@
   "current_phase": "research",
   "framework_version": "v7.8.3",
   "started_at": "2026-05-11T15:41:06Z",
-  "updated_at": "2026-05-11T15:41:06Z",
+  "updated_at": "2026-05-11T15:58:07Z",
   "events": [
     {
       "timestamp": "2026-05-11T15:41:06Z",
       "event_type": "phase_started",
       "phase": "research",
       "summary": "Phase 4 cutover: first fitme-story-native state.json created; serves as v7.8.3 framework certification round-trip",
+      "artifacts": [],
+      "metrics": {},
+      "actor": "human_or_agent",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-11T15:58:07Z",
+      "event_type": "note",
+      "phase": "research",
+      "summary": "Cutover re-trigger commit; documents 2-attempt workflow firing history (load-error + dispatch-diff-window-wrong); third attempt via this commit's path-filter match",
       "artifacts": [],
       "metrics": {},
       "actor": "human_or_agent",
