@@ -1,0 +1,141 @@
+name: Reverse-sync fitme-story-native state.json to FT2
+
+# Triggered when fitme-story-native features (state_owner: "fitme-story") get
+# committed to fitme-story main. Opens a PR against FT2 mirroring the
+# state.json with state_owner_sync_origin: "fitme-story-reverse" marker so
+# the morphed C-5 (STATE_OWNER_LOCATION_MISMATCH) gate exempts the file.
+#
+# v7.8.3 Phase 3 (D-1) per FT2 spec
+# docs/superpowers/specs/2026-05-11-cross-repo-state-sync-impl-design.md §4.2.
+#
+# Operator setup (one-time): provision fine-grained PAT at
+# https://github.com/settings/tokens?type=beta scoped to Regevba/FitTracker2
+# with Contents:write + Pull-requests:write. Add as FT2_REPO_TOKEN repo
+# secret in fitme-story. Without the secret, workflow skips silently.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.claude/features/**/state.json'
+
+jobs:
+  reverse-sync:
+    runs-on: ubuntu-latest
+    # Skip silently if FT2_REPO_TOKEN secret not provisioned (operator hasn't
+    # set it up yet). Phase 3 ships without requiring the token; Phase 4
+    # cutover triggers the first real run.
+    if: ${{ vars.FT2_REPO_TOKEN_PROVISIONED == 'true' || secrets.FT2_REPO_TOKEN != '' }}
+    steps:
+      - name: Checkout fitme-story
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # need previous commit for diff
+
+      - name: Detect changed fitme-story-native state.json files
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          # git diff between push HEAD and previous main commit
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- '.claude/features/*/state.json' || true)
+          NATIVE_FILES=()
+          for f in $CHANGED; do
+            if [ ! -f "$f" ]; then
+              continue  # file deleted; skip
+            fi
+            owner=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('state_owner',''))" "$f" 2>/dev/null || echo "")
+            if [ "$owner" = "fitme-story" ]; then
+              NATIVE_FILES+=("$f")
+            fi
+          done
+          if [ ${#NATIVE_FILES[@]} -eq 0 ]; then
+            echo "No fitme-story-native state.json modified; skipping reverse-sync"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s\n' "${NATIVE_FILES[@]}" > /tmp/native-files.txt
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "count=${#NATIVE_FILES[@]}" >> "$GITHUB_OUTPUT"
+          echo "Detected ${#NATIVE_FILES[@]} fitme-story-native state.json files"
+          cat /tmp/native-files.txt
+
+      - name: Checkout FT2
+        if: steps.detect.outputs.skip == 'false'
+        uses: actions/checkout@v4
+        with:
+          repository: Regevba/FitTracker2
+          token: ${{ secrets.FT2_REPO_TOKEN }}
+          path: ft2-checkout
+          fetch-depth: 1
+
+      - name: Mirror state.json files into FT2 with sync_origin marker
+        if: steps.detect.outputs.skip == 'false'
+        id: mirror
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          SHORT_SHA="${SOURCE_SHA:0:7}"
+          BRANCH="reverse-sync/from-fitme-story/${SHORT_SHA}"
+          cd ft2-checkout
+          git config user.email "noreply@github.com"
+          git config user.name "fitme-story reverse-sync bot"
+          git checkout -b "$BRANCH"
+          while IFS= read -r src_file; do
+            dest_file="${src_file}"
+            mkdir -p "$(dirname "$dest_file")"
+            python3 - "$src_file" "$dest_file" "$SOURCE_SHA" <<'PYEOF'
+          import json, sys
+          src_path = f"../{sys.argv[1]}"
+          dest_path = sys.argv[2]
+          source_sha = sys.argv[3]
+          with open(src_path) as f:
+              state = json.load(f)
+          # Add sync_origin marker fields per spec §4.4
+          state["state_owner_sync_origin"] = "fitme-story-reverse"
+          state["state_owner_sync_origin_commit"] = source_sha
+          state["state_owner_sync_origin_pr_url"] = "pending"  # filled by next step
+          with open(dest_path, "w") as f:
+              json.dump(state, f, indent=2)
+              f.write("\n")
+          PYEOF
+          done < /tmp/native-files.txt
+          git add .
+          git commit -m "Reverse-sync: mirror fitme-story-native state.json from ${SHORT_SHA}"
+          git push -u origin "$BRANCH"
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Open PR against FT2
+        if: steps.detect.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.FT2_REPO_TOKEN }}
+          SOURCE_SHA: ${{ github.sha }}
+          # Moved from expression context into env to avoid injection risk
+          SYNC_COUNT: ${{ steps.detect.outputs.count }}
+          SYNC_BRANCH: ${{ steps.mirror.outputs.branch }}
+          SHORT_SHA: ${{ steps.mirror.outputs.short_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE_LIST=$(sed 's/^/- /' /tmp/native-files.txt)
+          cd ft2-checkout
+          gh pr create \
+            --repo Regevba/FitTracker2 \
+            --base main \
+            --head "$SYNC_BRANCH" \
+            --title "Reverse-sync: ${SYNC_COUNT} fitme-story-native state.json from ${SHORT_SHA}" \
+            --body "Auto-PR from fitme-story reverse-sync GitHub Action (v7.8.3 D-1).
+
+          Source commit: https://github.com/Regevba/fitme-story/commit/${SOURCE_SHA}
+          Source files (in fitme-story repo):
+          ${FILE_LIST}
+
+          Each state.json carries \`state_owner_sync_origin: 'fitme-story-reverse'\` marker.
+          Morphed C-5 gate exempts these files from STATE_OWNER_LOCATION_MISMATCH.
+
+          Manual operator merge required per \`feedback_no_auto_merge_without_approval.md\`.
+
+          Generated by reverse-sync-fitme-story-to-ft2 GitHub Action."
