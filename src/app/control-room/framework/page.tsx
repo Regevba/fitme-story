@@ -20,8 +20,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { loadFrameworkLedgers } from '@/lib/framework-health/load-ledgers';
 import { loadMembraneStatus } from '@/lib/framework-health/load-membrane-status';
+import { aggregateGateCoverage, countEventsBySource } from '@/lib/control-room/gate-coverage-aggregator';
 import { AdoptionTrendChart } from '@/components/framework-health/AdoptionTrendChart';
 import { DocDebtTrendChart } from '@/components/framework-health/DocDebtTrendChart';
 import { AutomationMap } from '@/components/framework-health/AutomationMap';
@@ -31,6 +34,19 @@ import { MembraneStatusPanel } from '@/components/framework-health/MembraneStatu
 import AuditLogPanel from '@/components/control-room/AuditLogPanel';
 
 export const dynamic = 'force-dynamic';
+
+// ── v7.8.3 C-4 — Cross-repo gate-coverage loader ─────────────────────────────
+
+function loadGateCoverage() {
+  const ft2Path = join(process.cwd(), 'src', 'data', 'integrity', 'gate-coverage-ft2.jsonl');
+  const fsPath = join(process.cwd(), '.claude', 'logs', 'gate-coverage.jsonl');
+  const ft2Content = existsSync(ft2Path) ? readFileSync(ft2Path, 'utf-8') : '';
+  const fsContent = existsSync(fsPath) ? readFileSync(fsPath, 'utf-8') : '';
+  return {
+    events: aggregateGateCoverage(ft2Content, fsContent),
+    counts: countEventsBySource(ft2Content, fsContent),
+  };
+}
 
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
@@ -210,6 +226,12 @@ export default async function FrameworkHealthPage() {
   const currentAdoption = ledgers.adoptionCurrent;
   const debt = ledgers.documentationDebt;
 
+  // v7.8.3 C-4 — cross-repo gate coverage (build-time, no await needed)
+  const gateCoverage = loadGateCoverage();
+  const ft2FireCount = gateCoverage.counts.ft2;
+  const fsFireCount = gateCoverage.counts['fitme-story'];
+  const totalFireCount = gateCoverage.events.length;
+
   return (
     <article className="max-w-5xl mx-auto px-6 py-12">
       {/* ── Header ── */}
@@ -372,6 +394,54 @@ export default async function FrameworkHealthPage() {
         >
           Open /design-system →
         </Link>
+      </Section>
+
+      {/* ── v7.8.3 C-4 — Cross-repo gate coverage ── */}
+      <Section
+        id="gate-coverage"
+        title="Gate coverage — cross-repo (v7.8.3)"
+        subtitle="Aggregated gate-fire events from FT2 (synced via src/data/integrity/gate-coverage-ft2.jsonl) and fitme-story local (.claude/logs/gate-coverage.jsonl). Build-time snapshot; refreshes on each Vercel deploy."
+      >
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {(
+            [
+              ['FT2', ft2FireCount, 'indigo'],
+              ['fitme-story', fsFireCount, 'violet'],
+              ['Total', totalFireCount, 'neutral'],
+            ] as const
+          ).map(([label, count, color]) => (
+            <div
+              key={label}
+              className={`rounded-lg border p-3 text-center ${
+                color === 'indigo'
+                  ? 'border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950'
+                  : color === 'violet'
+                    ? 'border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950'
+                    : 'border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]'
+              }`}
+            >
+              <p
+                className={`text-2xl font-bold font-sans ${
+                  color === 'indigo'
+                    ? 'text-indigo-700 dark:text-indigo-300'
+                    : color === 'violet'
+                      ? 'text-violet-700 dark:text-violet-300'
+                      : 'text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)]'
+                }`}
+              >
+                {count.toLocaleString()}
+              </p>
+              <p className="text-xs font-sans text-[var(--color-neutral-500)] mt-0.5">{label} fires</p>
+            </div>
+          ))}
+        </div>
+        {ft2FireCount === 0 && fsFireCount === 0 && (
+          <p className="text-sm font-sans text-[var(--color-neutral-500)] italic">
+            No gate-coverage events found. Run{' '}
+            <code className="font-mono">make integrity-check</code> in the FitTracker2 repo to
+            populate gate-coverage-ft2.jsonl, or trigger the sync script.
+          </p>
+        )}
       </Section>
 
       {/* ── T26 — Predecessor cross-links ── */}
