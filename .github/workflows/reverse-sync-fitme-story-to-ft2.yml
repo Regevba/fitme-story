@@ -18,22 +18,40 @@ on:
     branches: [main]
     paths:
       - '.claude/features/**/state.json'
+  workflow_dispatch:  # allow manual re-trigger after fixes or for re-runs
 
 jobs:
   reverse-sync:
     runs-on: ubuntu-latest
-    # Skip silently if FT2_REPO_TOKEN secret not provisioned (operator hasn't
-    # set it up yet). Phase 3 ships without requiring the token; Phase 4
-    # cutover triggers the first real run.
-    if: ${{ vars.FT2_REPO_TOKEN_PROVISIONED == 'true' || secrets.FT2_REPO_TOKEN != '' }}
+    # NOTE on token-presence check: GitHub Actions does NOT support secrets.* at
+    # the JOB-level if condition (the workflow file fails to load with a
+    # "workflow file issue" error). Token-presence guard is moved into the FIRST
+    # step which uses an env-var indirection that DOES work at step level.
+    # If FT2_REPO_TOKEN is missing, the token_check step exits 0 cleanly + sets
+    # skip=true so subsequent steps no-op (matches the original "skip silently"
+    # intent of the job-level if).
     steps:
+      - name: Token presence check (skip rest if missing)
+        id: token_check
+        env:
+          HAS_TOKEN: ${{ secrets.FT2_REPO_TOKEN != '' }}
+        run: |
+          if [ "$HAS_TOKEN" != "true" ]; then
+            echo "FT2_REPO_TOKEN not provisioned; skipping reverse-sync (no-op)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
       - name: Checkout fitme-story
+        if: steps.token_check.outputs.skip == 'false'
         uses: actions/checkout@v4
         with:
           fetch-depth: 2  # need previous commit for diff
 
       - name: Detect changed fitme-story-native state.json files
         id: detect
+        if: steps.token_check.outputs.skip == 'false'
         shell: bash
         run: |
           set -euo pipefail
@@ -61,7 +79,7 @@ jobs:
           cat /tmp/native-files.txt
 
       - name: Checkout FT2
-        if: steps.detect.outputs.skip == 'false'
+        if: steps.token_check.outputs.skip == 'false' && steps.detect.outputs.skip == 'false'
         uses: actions/checkout@v4
         with:
           repository: Regevba/FitTracker2
@@ -70,7 +88,7 @@ jobs:
           fetch-depth: 1
 
       - name: Mirror state.json files into FT2 with sync_origin marker
-        if: steps.detect.outputs.skip == 'false'
+        if: steps.token_check.outputs.skip == 'false' && steps.detect.outputs.skip == 'false'
         id: mirror
         shell: bash
         env:
@@ -109,7 +127,7 @@ jobs:
           echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Open PR against FT2
-        if: steps.detect.outputs.skip == 'false'
+        if: steps.token_check.outputs.skip == 'false' && steps.detect.outputs.skip == 'false'
         env:
           GH_TOKEN: ${{ secrets.FT2_REPO_TOKEN }}
           SOURCE_SHA: ${{ github.sha }}
