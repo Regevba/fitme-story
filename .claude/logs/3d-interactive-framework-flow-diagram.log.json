@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "feature": "3d-interactive-framework-flow-diagram",
+  "title": "3d interactive framework flow diagram",
+  "work_type": "Feature",
+  "current_phase": "research",
+  "framework_version": "v7.8.3",
+  "started_at": "2026-05-11T15:41:06Z",
+  "updated_at": "2026-05-11T15:41:06Z",
+  "events": [
+    {
+      "timestamp": "2026-05-11T15:41:06Z",
+      "event_type": "phase_started",
+      "phase": "research",
+      "summary": "Phase 4 cutover: first fitme-story-native state.json created; serves as v7.8.3 framework certification round-trip",
+      "artifacts": [],
+      "metrics": {},
+      "actor": "human_or_agent",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    }
+  ]
+}
