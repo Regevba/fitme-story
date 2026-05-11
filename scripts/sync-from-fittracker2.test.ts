@@ -34,9 +34,11 @@ function makePaths(): { paths: SyncPaths; tmpRoot: string; cleanup: () => void }
     ft2Root:                join(tmpRoot, 'FitTracker2'),
     ft2Shared:              join(tmpRoot, 'FitTracker2', '.claude', 'shared'),
     ft2Features:            join(tmpRoot, 'FitTracker2', '.claude', 'features'),
+    ft2Logs:                join(tmpRoot, 'FitTracker2', '.claude', 'logs'),
     ft2IntegritySnapshots:  join(tmpRoot, 'FitTracker2', '.claude', 'integrity', 'snapshots'),
     localShared:            join(tmpRoot, 'fitme-story', 'src', 'data', 'shared'),
     localFeatures:          join(tmpRoot, 'fitme-story', 'src', 'data', 'features'),
+    localLogs:              join(tmpRoot, 'fitme-story', 'src', 'data', 'logs'),
     localDocs:              join(tmpRoot, 'fitme-story', 'src', 'data', 'docs'),
     localIntegritySnapshots: join(tmpRoot, 'fitme-story', 'src', 'data', 'integrity', 'snapshots'),
     freshnessPath:          join(tmpRoot, 'fitme-story', 'src', 'data', 'freshness.json'),
@@ -308,6 +310,45 @@ test('syncDashboardData throws when FT2 absent AND no committed snapshot', async
       /FitTracker2 repo not found.*AND no committed snapshot/,
       'must throw with a clear actionable message'
     );
+  } finally {
+    cleanup();
+  }
+});
+
+// ── Test 7: v7.8.3 §4.1 gate-coverage-ft2.jsonl forward sync ────────
+// Verifies that FT2's .claude/logs/gate-coverage.jsonl is mirrored to
+// src/data/integrity/gate-coverage-ft2.jsonl (renamed -ft2 suffix to
+// disambiguate from fitme-story's own local .claude/logs/gate-coverage.jsonl).
+// Reverses the original Phase C spec §3 explicit exclusion.
+test('forward sync mirrors FT2 gate-coverage.jsonl as gate-coverage-ft2.jsonl', async () => {
+  const { paths, tmpRoot, cleanup } = makePaths();
+  try {
+    // Set up a minimal FT2 source tree with .claude/logs/gate-coverage.jsonl.
+    writeJson(join(paths.ft2Shared, 'a.json'), {});
+    writeJson(join(paths.ft2Features, 'a', 'state.json'), {});
+    writeFt2Docs(paths.ft2Root);
+
+    // Create the gate-coverage.jsonl file in FT2's .claude/logs/ dir.
+    const ft2LogsDir = join(tmpRoot, 'FitTracker2', '.claude', 'logs');
+    mkdirSync(ft2LogsDir, { recursive: true });
+    writeFileSync(
+      join(ft2LogsDir, 'gate-coverage.jsonl'),
+      '{"gate":"V2_FIELD_MISSING","outcome":"PASS","ts":"2026-05-12T00:00:00Z","candidates":3,"checked":3}\n'
+    );
+
+    await syncDashboardData(paths);
+
+    // The file must appear at the new -ft2 suffixed destination path.
+    const destFile = join(tmpRoot, 'fitme-story', 'src', 'data', 'integrity', 'gate-coverage-ft2.jsonl');
+    assert.ok(existsSync(destFile), 'gate-coverage-ft2.jsonl must exist in src/data/integrity/');
+
+    const content = readFileSync(destFile, 'utf8');
+    assert.match(content, /"V2_FIELD_MISSING"/, 'content must mirror FT2 source');
+    assert.match(content, /"PASS"/, 'content must mirror outcome field');
+
+    // The original name (without -ft2) must NOT exist at the dest — rename only.
+    const wrongDest = join(tmpRoot, 'fitme-story', 'src', 'data', 'integrity', 'gate-coverage.jsonl');
+    assert.ok(!existsSync(wrongDest), 'gate-coverage.jsonl (no suffix) must NOT be created at dest');
   } finally {
     cleanup();
   }
