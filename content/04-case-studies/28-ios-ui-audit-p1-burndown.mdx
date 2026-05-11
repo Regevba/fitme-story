@@ -1,0 +1,203 @@
+---
+title: >-
+  iOS UI Audit P1 Burndown — 2-PR Token Substitution + Audit Hardening
+slug: ios-ui-audit-p1-burndown
+upstream_path: docs/case-studies/ios-ui-audit-p1-burndown-case-study.md
+tier: light
+tldr: >-
+  Single-session proactive burndown of the 103 P1 ui-audit findings the parent
+  feature ui-audit-baseline-burndown deferred to fix-as-you-touch. Frequency
+  analysis revealed 4 high-recurrence magic frame values (44, 28, 80, 36) that
+  warranted tokens. Two cross-cutting PRs landed: PR-1 added 4 AppSize tokens +
+  50 frame mass-substitutions across 21 views; PR-2 added 3 AppText tokens + 23
+  font mass-substitutions across 8 views + 4 explicit a11y labels + widened the
+  DS-A11Y-BUTTON audit window 20→60 lines (two legitimate false-positives in
+  StatsView/SupplementItemRow surfaced complex multi-line label blocks the
+  heuristic missed). Combined: ui-audit P1 103 → 44 (-59, 57% reduction), 0
+  font + 0 a11y findings remaining. Original 5-PR area-bucketed plan replaced
+  by 2-PR cross-area structure after frequency analysis — strictly faster
+  (~3h vs estimated ~10h). Option B strategy locked via /AskUserQuestion:
+  high-frequency tokens only, 44 long-tail P1s accepted as documented
+  design-specific values.
+timeline_position:
+  version: '7.8.2'
+  order: 28
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-05-11'
+shipped_window: '2026-05-11 (single session, ~3 hours wall time across 2 PRs)'
+work_type: enhancement
+external_audit_status: pending
+key_numbers:
+  - label: PRs merged
+    value: 'FT2 #292 + #294'
+    tier: T1
+    note: >-
+      PR #292 squash 953908b (AppSize tokens + 50 frame subs in 21 views).
+      PR #294 (AppText tokens + 23 font subs in 8 views + 4 a11y labels +
+      audit-window widen 20→60).
+  - label: ui-audit P1 reduction
+    value: '103 → 44 (-59, 57%)'
+    tier: T1
+    note: >-
+      Baseline 103 (pre-burndown), drift to 108 by 2026-05-11. Combined PR-1 +
+      PR-2 closes 59 findings. Remaining 44 = unique design-specific frame/padding
+      values accepted per Option B strategy.
+  - label: P0 ui-audit findings
+    value: '0 / 0'
+    tier: T1
+    note: Maintained throughout. Hard gate in verify-local since 2026-04-24.
+  - label: DS-RAW-FONT-SHORTHAND closed
+    value: '26 / 26 (100%)'
+    tier: T1
+  - label: DS-A11Y-BUTTON closed
+    value: '6 / 6 (100%)'
+    tier: T1
+    note: >-
+      4 explicit labels added + 2 false-positives recognized after audit-window
+      widen (StatsView metricChip had label 40 lines past Button, SupplementItemRow
+      toggle had comprehensive a11y modifiers 58 lines past Button — both
+      legitimate, the heuristic was too tight).
+  - label: New design tokens added
+    value: '7 (4 AppSize + 3 AppText)'
+    tier: T1
+    note: >-
+      AppSize.tapTarget=44 (iOS HIG), AppSize.tapTargetCompact=36,
+      AppSize.iconContainer=28 (distinct from iconBadge=26),
+      AppSize.fieldWidthCompact=80. AppText.subheadingStrong,
+      AppText.captionMicro, AppText.captionMicroMedium.
+  - label: SwiftUI views touched
+    value: '29 (21 in PR-1 + 8 in PR-2)'
+    tier: T1
+    note: >-
+      No HISTORICAL v1 files touched. All v2 + canonical paths only.
+      Build PASSES on both PRs.
+  - label: Mass substitutions
+    value: '73 total (50 frame + 23 font)'
+    tier: T1
+  - label: Operator spot-checks
+    value: '2 / 2'
+    tier: T2
+    note: >-
+      Per locked Option B strict-risk decision: iOS simulator visual verification
+      on every touched screen before each PR merge. Both passed — zero visual
+      drift.
+  - label: Kill criteria triggered
+    value: 'No'
+    tier: T1
+    note: >-
+      kill_criteria_resolution = not_triggered_no_visual_regression_post_spot_check.
+      All substitutions are pixel-identical (same SwiftUI value, just named via
+      AppSize.* / AppText.*).
+  - label: Audit window widening
+    value: '20 → 60 lines'
+    tier: T1
+    note: >-
+      scripts/ui-audit.py DS-A11Y-BUTTON heuristic window widened. 60 lines covers
+      complex multi-line label blocks without significant cross-button
+      false-negative risk (modifiers attach to closest view; intervening
+      Button { blocks scope their own search).
+related_prs:
+  - 292
+  - 294
+parent_feature: ui-audit-baseline-burndown
+parent_case_study: docs/case-studies/ui-audit-baseline-burndown.md
+framework_version: '7.8.2'
+case_study_type: scoped
+---
+
+## Context
+
+The parent feature `ui-audit-baseline-burndown` shipped 2026-04-24 with the `make ui-audit` scanner promoted to a hard `verify-local` gate. At that moment the codebase sat at 0 P0 + 103 P1 across 42 files. The P0=0 gate ensures no NEW P0 ever lands; the 103 P1 findings stayed under "fix-as-you-touch" — addressed only when a PR happened to touch the file.
+
+By 2026-05-11 the P1 count had drifted to 108 (+5 from baseline) despite the fix-as-you-touch policy. This enhancement shipped a **proactive burndown** instead of waiting for organic touches.
+
+## The strategy decision
+
+Initial plan (drafted 2026-05-10 at session pause) was 5 area-bucketed PRs assuming "lightweight token substitution." Frequency analysis of the 62 DS-MAGIC-FRAME findings on resume morning revealed:
+
+| Value | Occurrences | Pattern |
+|---|---:|---|
+| 44 | 36 | iOS HIG tap target |
+| 28 | 16 | icon container (distinct from `iconBadge=26`) |
+| 80 | 13 | inline numeric field width |
+| 36 | 7 | compact tap target |
+| 23 other | 1–4 each | unique design-specific (chart 180, modal 260, divider 50, etc.) |
+
+Trying to tokenize every magic number forces inventing single-use tokens which inflates the design system. The honest move: add 4 tokens for genuinely-shared patterns, mass-substitute, and accept the long-tail as documented design-specific P1s.
+
+**Decision matrix locked via `/AskUserQuestion` 2026-05-11:**
+
+- Strategy: **Option B** (Tokens for high-frequency only, ~78% target reduction)
+- PR structure: **2 PRs cross-area** (tokens-first vs area-first)
+- Risk tolerance: **Strict** (operator iOS simulator spot-check per PR before merge)
+
+This replaced the original 5-PR plan with 2 cross-cutting PRs — strictly better than the area-bucketed alternative (less review burden, cleaner git history, faster wall time — ~3h vs estimated ~10h).
+
+## What shipped
+
+### PR #292 — PR-1: Frame tokens + mass substitution (squash `953908b`)
+
+- 4 new `AppSize` tokens in `FitTracker/Services/AppTheme.swift`:
+  - `AppSize.tapTarget = 44` (iOS HIG minimum)
+  - `AppSize.tapTargetCompact = 36`
+  - `AppSize.iconContainer = 28` (distinct from existing `iconBadge = 26`)
+  - `AppSize.fieldWidthCompact = 80`
+- `scripts/ui-audit.py` `APP_SIZE_VALUES` allowlist extended to `{28, 36, 44, 80}`
+- 50 mass-substitutions of `.frame(width: N, height: N)` literals across 21 SwiftUI views
+- HISTORICAL v1 files automatically excluded (script-level skip)
+
+Verification (T1): `xcodebuild build` PASSED; `make ui-audit` P0=0 maintained; P1 baseline 103 → 72 (-31).
+
+### PR #294 — PR-2: AppText tokens + a11y labels + audit-window widen (squash `c0759f9`)
+
+- 3 new `AppText` tokens in `AppTheme.swift`:
+  - `AppText.subheadingStrong` (subheadline / rounded / semibold)
+  - `AppText.captionMicro` (caption2 / rounded)
+  - `AppText.captionMicroMedium` (caption2 / rounded / medium)
+- 23 font shorthand substitutions across 8 SwiftUI views (Auth × 2, Nutrition Tabs × 3, Onboarding × 1, Shared × 2)
+- 4 explicit `.accessibilityLabel(...)` modifiers added (AIFeedbackView × 2 thumbs, AIIntelligenceSheet dismiss, SignInView error dismiss)
+- DS-A11Y-BUTTON audit window widened 20 → 60 lines in `scripts/ui-audit.py`
+
+The audit window widen surfaced two legitimate-but-flagged findings in already-correct code: `Stats/v2/StatsView.metricChip` (a11y label at line 271, 40 lines past Button) and `Nutrition/Components/SupplementItemRow.supplementToggle` (comprehensive a11y chain 58 lines past Button). The 20-line heuristic produced false-positives. 60 lines covers complex multi-line label blocks without significant cross-button false-negative risk.
+
+Verification (T1): `xcodebuild build` PASSED; combined PR-1+PR-2 P1 baseline **103 → 44 (-59, 57% reduction)**.
+
+## Combined outcome
+
+| Metric | Baseline (2026-04-24) | Pre-burndown drift (2026-05-11) | Post-burndown | Reduction |
+|---|---:|---:|---:|---:|
+| P0 ui-audit findings | 0 | 0 | 0 | maintained |
+| **P1 ui-audit findings** | **103** | 108 | **44** | **-59 (57%)** |
+| Files with findings | 42 | — | 26 | -16 |
+| DS-MAGIC-FRAME | 62 | — | 40 | -22 |
+| DS-RAW-FONT-SHORTHAND | 26 | — | 0 | **-26 (100%)** |
+| DS-A11Y-BUTTON | 6 | — | 0 | **-6 (100%)** |
+| DS-MAGIC-PADDING | 6 | — | 4 | -2 |
+
+All numbers T1 (instrumented via `make ui-audit-baseline`).
+
+## The 44 long-tail P1s — by design, not omission
+
+40 DS-MAGIC-FRAME + 4 DS-MAGIC-PADDING remaining = unique design-specific values that don't warrant single-use tokens. Examples: chart container height 180 (chart-specific; another chart legitimately uses 240), modal sheet height 260 (sheet-height is design-decision, not reusable), divider visual 50 (single-use accent geometry).
+
+These stay as honest P1s under CLAUDE.md fix-as-you-touch. Future PRs that touch these files SHOULD clear them as part of the change — but the audit doesn't block on them, and the design system doesn't grow to accommodate them.
+
+## Risk handling
+
+**Kill criterion** (locked at task approval): Net visual regression on a critical user-path screen → revert the PR; investigate token; consider whether the audit rule's recommended token is actually wrong for that context.
+
+**Resolution** (post-spot-check): `not_triggered_no_visual_regression`. All token substitutions are visually identical at the pixel level (same SwiftUI value, just named via `AppSize.*` / `AppText.*`). Operator iOS simulator spot-check on each PR before merge confirmed zero drift.
+
+## Audit-script hardening (incidental discovery)
+
+PR-2's DS-A11Y-BUTTON closure surfaced two legitimate-but-flagged findings in already-correct code (StatsView.metricChip + SupplementItemRow.supplementToggle). Widening the 20-line audit window to 60 fixed both without significant cross-button false-negative risk. **Honest framing:** widening the audit window is not "the audit becoming weaker" — the heuristic produced false-positives that would have caused authors to add redundant inline labels (genuinely worse a11y). The widened window improves accuracy on complex multi-line label blocks.
+
+## Cross-references
+
+- Source case study (FT2): [`docs/case-studies/ios-ui-audit-p1-burndown-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/ios-ui-audit-p1-burndown-case-study.md)
+- Parent feature: [UI-Audit Baseline Burndown](/case-studies/ui-audit-baseline-burndown) — shipped the P0=0 hard gate; this enhancement does the proactive P1 burndown
+- Protocol: [Framework v7.8.1 — Branch Isolation + Closure Completeness](/case-studies/framework-v7-8-1-branch-isolation) — Mechanism C session attribution + isolated worktree from Phase 1 + Tier 2.2 logging + Mechanism A coverage telemetry verification all active throughout this ship
