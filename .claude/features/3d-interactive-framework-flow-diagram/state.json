@@ -15,5 +15,22 @@
         "started_at": "2026-05-11T16:30:00Z"
       }
     }
-  }
+  },
+  "cutover_attempts": [
+    {
+      "attempt": 1,
+      "fitme_story_commit": "7dd090f",
+      "fitme_story_pr": 88,
+      "workflow_outcome": "failed_workflow_load",
+      "reason": "Original workflow used secrets.* in job-level if (unsupported by GH Actions)",
+      "fix_pr": 89,
+      "fix_commit": "dcd4f84"
+    },
+    {
+      "attempt": 2,
+      "workflow_outcome": "workflow_dispatch_diff_window_wrong",
+      "reason": "workflow_dispatch HEAD is the hotfix commit; git diff HEAD~1 HEAD does not see the original state.json commit",
+      "mitigation": "Trigger via subsequent state.json modification (this commit) to exercise the path-filter trigger correctly"
+    }
+  ]
 }
