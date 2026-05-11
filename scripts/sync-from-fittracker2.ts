@@ -310,7 +310,9 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
   if (existsSync(ft2Logs)) {
     for (const entry of readdirSync(ft2Logs)) {
       // Only sync per-feature .log.json files. Skip:
-      // - gate-coverage.jsonl (Mechanism A; per-repo, not synced — see §3 of spec)
+      // - gate-coverage.jsonl: FT2's mirrored as gate-coverage-ft2.jsonl per v7.8.3 spec §4.1
+      //   (control-room aggregator reads both); fitme-story's stays per-repo (no sync).
+      //   Reverses the Phase C original spec §3 exclusion.
       // - _session-*.events.jsonl (Mechanism C; per-cwd, not synced)
       if (!entry.endsWith('.log.json')) continue;
       if (entry.startsWith('_')) continue;
@@ -320,6 +322,22 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
       bytesTotal += bytes;
       checked.push(`logs/${entry}`);
     }
+  }
+
+  // v7.8.3 §4.1: forward-sync FT2's gate-coverage.jsonl as gate-coverage-ft2.jsonl
+  // (renamed -ft2 suffix to disambiguate from fitme-story's own local
+  // .claude/logs/gate-coverage.jsonl). Control-room aggregator (Phase 1 C-4)
+  // reads both files at build time. Reverses the original Phase C spec §3
+  // explicit exclusion.
+  const ft2GateCoverage = join(ft2Logs, 'gate-coverage.jsonl');
+  if (existsSync(ft2GateCoverage)) {
+    // Derive parent of localIntegritySnapshots (= src/data/integrity/) so the
+    // file lands at src/data/integrity/gate-coverage-ft2.jsonl.
+    const localIntegrityDir = resolve(localIntegritySnapshots, '..');
+    const dst = join(localIntegrityDir, 'gate-coverage-ft2.jsonl');
+    const { bytes } = copyTextFile(ft2GateCoverage, dst);
+    bytesTotal += bytes;
+    checked.push('integrity/gate-coverage-ft2.jsonl');
   }
 
   // Phase D: OPTIONAL 72h integrity-cycle snapshots
