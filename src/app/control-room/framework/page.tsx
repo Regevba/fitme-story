@@ -51,7 +51,7 @@ function loadGateCoverage() {
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
   description:
-    'Live dashboard for the FitMe PM framework v7.8.3: Tier 1.1 adoption trends, documentation-debt coverage, automation map (33 mechanical gates + 5 advisories), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, and v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted).',
+    'Live dashboard for the FitMe PM framework v7.8.4: Tier 1.1 adoption trends, documentation-debt coverage, automation map (33 mechanical gates + 5 advisories), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), and v7.8.4 pre-v7.9 telemetry calibration baseline (0 findings + 0 advisory at ship).',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -156,8 +156,17 @@ const PREDECESSOR_LINKS = [
     date: '2026-05-11',
     href: '/case-studies/cross-repo-state-sync-impl',
     external: false,
+    current: false,
+    description: 'V2 enforced + V9 logs + 3 new state_owner gates + D-3 unified PR cite cache + C-4 telemetry aggregator + D-1 reverse-sync GH Action. 10 PRs / 2 repos / 1 day.',
+  },
+  {
+    label: 'v7.8.4 — Pre-v7.9 Telemetry Calibration',
+    version: 'v7.8.4',
+    date: '2026-05-12',
+    href: 'https://github.com/Regevba/FitTracker2/pull/314',
+    external: true,
     current: true,
-    description: 'This dashboard. V2 enforced + V9 logs + 3 new state_owner gates + D-3 unified PR cite cache + C-4 telemetry aggregator + D-1 reverse-sync GH Action. 10 PRs / 2 repos / 1 day.',
+    description: 'This dashboard. Patch-level. Adds PR_CACHE_STALE auto-refresh (closes 33-finding false-positive class). Narrows TIER_TAG_LIKELY_INCORRECT heuristic (target/kill filter + \\b word-boundary + intervening-tier-marker skip). cache_hits[] backfills + 5 doc-debt closures. make integrity-check: 35+9 → 0+0.',
   },
 ];
 

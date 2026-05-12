@@ -10,9 +10,9 @@ import { useMDXComponents } from '@/mdx-components';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'PM Framework — Developer Guide (v1.0 → v7.8.3)',
+  title: 'PM Framework — Developer Guide (v1.0 → v7.8.4)',
   description:
-    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema (incl. v7.8.3 cross-repo state_owner enum), phase lifecycle, dispatch, cache, measurement protocol, 33 mechanical gates + 5 advisories, v7.8 bridge mechanisms (A–F), v7.8.3 cross-repo state-sync release umbrella (V2 enforced + V9 logs + D-3 unified PR cite cache + D-1 reverse-sync GH Action), 3 operational walkthroughs, and the compressed v1.0 → v7.8.3 timeline.',
+    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema (incl. v7.8.3 cross-repo state_owner enum), phase lifecycle, dispatch, cache, measurement protocol, 33 mechanical gates + 5 advisories, v7.8 bridge mechanisms (A–F), v7.8.3 cross-repo state-sync release umbrella (V2 enforced + V9 logs + D-3 unified PR cite cache + D-1 reverse-sync GH Action), v7.8.4 pre-v7.9 telemetry calibration (PR_CACHE_STALE auto-refresh + TIER_TAG heuristic narrowing), 3 operational walkthroughs, and the compressed v1.0 → v7.8.4 timeline.',
   slug: '/framework/dev-guide',
   type: 'article',
 });

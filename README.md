@@ -4,11 +4,12 @@ Next.js 16 site that narrates the FitMe PM-framework evolution through a timelin
 
 Production: [fitme-story.vercel.app](https://fitme-story.vercel.app)
 
-> **Latest at v7.6 (Mechanical Enforcement, shipped 2026-04-25):**
+> **Latest at v7.8.4 (Pre-v7.9 Telemetry Calibration, shipped 2026-05-12 via [FT2 PR #314](https://github.com/Regevba/FitTracker2/pull/314)):**
 >
-> - [Case study (Light template)](https://fitme-story.vercel.app/case-studies/mechanical-enforcement-v7-6) — outlier-flagged, summary card, 7 Class B → A promotions, 5 documented Class B gaps, honest tooling attribution.
-> - [Developer guide (technical, dev-only)](https://fitme-story.vercel.app/framework/dev-guide) — 745 lines covering 4 enforcement layers, `state.json` schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, 12 integrity check codes, 3 operational walkthroughs. Vendored mirror of [`docs/architecture/dev-guide-v1-to-v7-6.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/dev-guide-v1-to-v7-6.md) on FitTracker2.
-> - [Trust page Gemini-audit subroute](https://fitme-story.vercel.app/trust/audits/2026-04-21-gemini) — verbatim audit + appended response section linking the case study, the dev guide, and [Tier 3.3 invitation issue #142](https://github.com/Regevba/FitTracker2/issues/142).
+> - [Developer guide (technical, dev-only)](https://fitme-story.vercel.app/framework/dev-guide) — covers 4 enforcement layers, `state.json` schema (incl. v7.8.3 cross-repo `state_owner` enum), phase lifecycle, dispatch model, cache architecture, measurement protocol, **33 mechanical gates + 5 advisories** (unchanged from v7.8.3), v7.8 bridge mechanisms A–F, v7.8.3 cross-repo state-sync release umbrella, v7.8.4 PR_CACHE_STALE auto-refresh + TIER_TAG heuristic narrowing. Vendored mirror of [`docs/architecture/dev-guide-v1-to-v7-7.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/dev-guide-v1-to-v7-7.md) (filename retained for ref-stability; content tracks v7.8.4) on FitTracker2.
+> - [Control-room framework dashboard](https://fitme-story.vercel.app/control-room/framework) — live Tier 1.1 adoption trends + documentation-debt coverage + 72h integrity cycle snapshot + v7.8 Mechanism F membrane status + v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams).
+> - [v7.8.3 cross-repo state-sync case study](https://fitme-story.vercel.app/case-studies/cross-repo-state-sync-impl) — 5-phase release umbrella, 10 PRs across 2 repos in one day, V2 advisory → enforced, 3 v7.9 candidates (F11/F12/F13) surfaced.
+> - [Trust page Gemini-audit subroute](https://fitme-story.vercel.app/trust/audits/2026-04-21-gemini) — verbatim audit + appended response section linking case studies, the dev guide, and [Tier 3.3 invitation issue #142](https://github.com/Regevba/FitTracker2/issues/142).
 
 ## Getting Started
 
