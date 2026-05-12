@@ -1,0 +1,109 @@
+---
+title: >-
+  fitme-story DS P2 Final Sweep — 3 Utility Classes, 5 P2s Closed, 5 Re-Deferred
+slug: fitme-story-ds-p2-final-sweep
+upstream_path: docs/case-studies/fitme-story-ds-p2-final-sweep-case-study.md
+tier: light
+tldr: >-
+  Final sweep on the 10 remaining deferred P2 items from the 2026-05-10
+  lens audit. Adds 3 utility classes to globals.css (.term-label,
+  .section-padding-x, .link-inline) and migrates 6 inline patterns
+  across /glossary, /pm-flow, /case-studies, and /trust. Re-defers 5
+  items with sharper documentation — 1 was an audit false positive
+  (P2-013), 4 carry confirmed visual-regression risk. Cumulative P2
+  closure now 10 of 16 (62.5%) across three enhancements.
+timeline_position:
+  version: '7.8.3'
+  order: 32
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+date: '2026-05-12'
+date_written: '2026-05-12'
+shipped_window: '2026-05-12 (single session, 1 PR)'
+work_type: enhancement
+external_audit_status: not_required
+key_numbers:
+  - label: P2 items closed by this enhancement
+    value: '5 of 10 remaining (50%)'
+    tier: T1
+    note: 'P2-006/013/019/033/034. P2-013 was confirmed as an audit false positive (icon already tokenized to --color-neutral-500).'
+  - label: New utility classes
+    value: '3'
+    tier: T1
+    note: '.term-label, .section-padding-x, .link-inline — added to src/app/globals.css.'
+  - label: Cumulative P2 closure across 3 enhancements
+    value: '10 of 16 (62.5%)'
+    tier: T1
+    note: 'Parent #84 (4) + #93 (1) + #95 (5) = 10. 6 stay deferred (5 with confirmed regression risk + 1 audit false positive already closed).'
+  - label: Files touched
+    value: '7'
+    tier: T1
+  - label: PR
+    value: '1 ([fitme-story#95], merge b54ed43)'
+    tier: T1
+  - label: Wall time
+    value: '~35 min'
+    tier: T2
+honest_disclosures:
+  - >-
+    The user's "continue with all fitme story tasks" directive expanded
+    scope from the parent feature's tight 1-P2 closure. I attacked the 5
+    tractable items and explicitly preserved the deferral discipline for
+    the 4 items with confirmed visual-regression risk.
+  - >-
+    P2-013 (Wrench icon) was an audit false positive — the icon is
+    already tokenized to --color-neutral-500. Counted as closed since
+    there is nothing to fix.
+  - >-
+    New finding: P2-012 + P2-037 (heading-scale alignment) was
+    quantified as a confirmed visual regression at wide viewports.
+    text-3xl = 30px static; --text-display-md = clamp(24px, 3vw, 36px).
+    Swap grows headings >6px at ≥ 1280px viewports. Re-deferred upfront
+    rather than attempted blindly.
+predecessor_chain:
+  - feature: fitme-story-website-design-system
+    pr: '[fitme-story#81] + #287'
+    date: '2026-05-10'
+    note: 'Foundation'
+  - feature: fitme-story-design-system-p2-cleanup
+    pr: '[fitme-story#84]'
+    date: '2026-05-10'
+    note: '4/16 P2s shipped + 12 deferred'
+  - feature: fitme-story-ds-p2-deferred
+    pr: '[fitme-story#93]'
+    date: '2026-05-12'
+    note: '1 more P2 (P2-044) closed'
+  - feature: fitme-story-ds-p2-final-sweep
+    pr: '[fitme-story#95]'
+    date: '2026-05-12'
+    note: 'This case study: 5 more P2s closed'
+---
+
+## TL;DR
+
+Final sweep on the 10 remaining deferred P2 items. 5 closed, 5 re-deferred with sharper docs. Cumulative P2 closure across 3 enhancements: **10 of 16 (62.5%)**.
+
+## What shipped
+
+**3 new utility classes** in `globals.css`:
+
+- `.term-label` — `<dt>` definition-list typography (P2-019)
+- `.section-padding-x` — wide-section breakpoint stack (P2-034)
+- `.link-inline` — inline link with hover/focus underline (P2-006 + P2-033)
+
+**6 site migrations** across `/glossary`, `/pm-flow`, `/case-studies` + `/compare`, `/trust` + audits.
+
+## What stays deferred
+
+5 items, each with explicit reason:
+
+- **P2-002** (Hero gradient) — designer judgment required
+- **P2-003** (NumbersPanel) — visual regression confirmed
+- **P2-012 + P2-037** (heading scale) — **new wide-viewport regression quantified this sweep**
+- **P2-029-remaining** (Stat for NumbersPanel + timeline) — visual regression confirmed
+
+## Honest framing
+
+P2-013 turned out to be an audit false positive (icon already tokenized). The 4 truly-deferred items all carry concrete regression risk that wasn't safely closable without operator visual-spot-check capacity.

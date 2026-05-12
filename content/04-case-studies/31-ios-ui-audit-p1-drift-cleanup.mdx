@@ -1,0 +1,102 @@
+---
+title: >-
+  iOS UI-Audit P1 Drift Cleanup — 44 → 14 (Option B Respected, 68% Reduction)
+slug: ios-ui-audit-p1-drift-cleanup
+upstream_path: docs/case-studies/ios-ui-audit-p1-drift-cleanup-case-study.md
+tier: light
+tldr: >-
+  Drift-cleanup follow-up to `ios-ui-audit-p1-burndown` (PRs #292+#294).
+  Respects Option B's locked ceiling — tokenizes ONLY magic dims with
+  frequency >= 2 across the iOS codebase. Result: ui-audit P1 44 → 14
+  (-68%), DS-MAGIC-FRAME 40 → 12, DS-MAGIC-PADDING 4 → 0. The 14
+  remaining are true singletons that stay as fix-as-you-touch per the
+  parent feature's locked decision. 10 new AppSize tokens + 4
+  magic-padding swaps. Single PR, single session.
+timeline_position:
+  version: '7.8.3'
+  order: 31
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+date: '2026-05-12'
+date_written: '2026-05-12'
+shipped_window: '2026-05-12 (single session, 1 PR)'
+work_type: enhancement
+external_audit_status: not_required
+key_numbers:
+  - label: ui-audit P1 reduction
+    value: '44 → 14 (-68%)'
+    tier: T1
+    note: 'Verified via `make ui-audit` post-substitution.'
+  - label: AppSize tokens added
+    value: '10'
+    tier: T1
+    note: 'All justified by frequency >= 2 (indicatorDotTiny ×7, chartHeightTall ×5, etc.).'
+  - label: Files touched
+    value: '15'
+    tier: T1
+    note: 'Spans Views/Auth, Views/Main, Views/Onboarding, Views/Settings, Views/Shared.'
+  - label: xcodebuild build
+    value: 'PASS'
+    tier: T1
+    note: 'Verified locally before merge.'
+  - label: PR
+    value: '1 (#307, merge f0b305a)'
+    tier: T1
+  - label: Wall time
+    value: '~97 min'
+    tier: T2
+honest_disclosures:
+  - >-
+    This was a deliberate scope-locked enhancement, not a bulldoze. The
+    user could have asked me to push past Option B's ceiling to 0; I
+    surfaced the contradiction with the parent's locked decision and we
+    agreed to respect it. The frequency-≥-2 rule produced a defensible
+    68% reduction without violating the parent's "high-frequency tokens
+    only" rationale.
+  - >-
+    The 14 remaining P1s are true singletons. Adding a token for each
+    (50, 76, 88, 60, 58, 320, 30, 280, 220, 150, 140, 14, 0.5) would
+    bloat AppSize without improving design coherence.
+predecessor_chain:
+  - feature: ios-ui-audit-p1-burndown
+    pr: '#292 + #294'
+    date: '2026-05-11'
+    note: 'Parent: 103 → 44 (Option B locked)'
+  - feature: ios-ui-audit-p1-drift-cleanup
+    pr: '#307'
+    date: '2026-05-12'
+    note: 'This case study: 44 → 14 (frequency >= 2 only)'
+---
+
+## TL;DR
+
+Drift cleanup on the iOS `make ui-audit` P1 surface. The parent feature [`ios-ui-audit-p1-burndown`](28-ios-ui-audit-p1-burndown) locked **Option B** ("high-frequency tokens only; long-tail singletons stay as fix-as-you-touch") and shipped 103 → 44. This follow-up applies the same rule (frequency ≥ 2 only) to push 44 → 14.
+
+## What shipped
+
+**10 new `AppSize` tokens** in `FitTracker/Services/AppTheme.swift`:
+
+| Token | Value | Occurrences |
+|---|---|---|
+| `indicatorDotTiny` | 6 | 7 |
+| `chartHeightTall` | 200 | 5 |
+| `progressBarHeightTall` | 6 | 3 |
+| `chartHeightCompact` | 180 | 2 |
+| `chartMinWidth` | 260 | 2 |
+| `iconJumbo` | 96 | 2 |
+| `avatarHero` | 72 | 2 |
+| `illustrationLarge` | 120 | 2 |
+| `illustrationXLarge` | 160 | 2 |
+| `controlSmall` | 34 | 2 |
+
+**4 magic-padding fixes** swap off-grid values to nearest `AppSpacing` token (1-2pt shift, all on the 4pt grid).
+
+## What stays deferred
+
+14 true singletons remain. Per Option B, adding a token for each would bloat the design system without improving coherence.
+
+## Honest framing
+
+This was a continuation of the parent feature's discipline, not a bulldoze. Option B respected.
