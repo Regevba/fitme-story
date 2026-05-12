@@ -1,0 +1,113 @@
+---
+title: >-
+  UI/UX Final Sweep — iOS P1 to 0, fitme-story P2 to 93%, /case-studies browse-by-category
+slug: ui-ux-final-sweep-2026-05-12
+upstream_path: docs/case-studies/ui-ux-final-sweep-2026-05-12-case-study.md
+tier: light
+tldr: >-
+  Three-PR sweep in a single session. iOS reached 0 P1 findings
+  (from baseline of 103 across three burndowns). fitme-story closed
+  13 of 14 P2 lens-audit items (93%). And /case-studies got a new
+  "Browse v7.x by category" accordion with 3 collapsible groups
+  (Framework / Design System / UI/UX Features), sorted by publication
+  date within each.
+timeline_position:
+  version: '7.8.3'
+  order: 33
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+date: '2026-05-12'
+date_written: '2026-05-12'
+shipped_window: '2026-05-12 (single session, 3 PRs)'
+work_type: enhancement
+external_audit_status: not_required
+key_numbers:
+  - label: iOS make ui-audit P1
+    value: '14 → 0 (-100%)'
+    tier: T1
+    note: 'Verified post-merge. Cumulative trajectory across 4 PRs: 103 → 44 → 14 → 0.'
+  - label: fitme-story P2 closure (cumulative)
+    value: '13 of 14 (93%)'
+    tier: T1
+    note: 'Across 4 enhancements. P2-002 + P2-013 were audit false positives; all real items closed except 1 minor styling judgment call.'
+  - label: New AppSize tokens (this PR)
+    value: '13'
+    tier: T1
+    note: 'Semantic singletons covering captionLabelWidth, authFieldHeight, dividerHairline, macroBarHeight, imagePreviewHeight, textEditorMinHeight, popoverMaxWidth, bannerHeight, centeredTextMaxWidth, dialogMaxWidth, rowHeightCompact, dividerVerticalTall, stepIndicatorSize.'
+  - label: PRs shipped
+    value: '3'
+    tier: T1
+    note: 'FT2 #311 (iOS) + fitme-story #97 (P2 sweep) + fitme-story #98 (browse-by-category accordion).'
+  - label: Wall time
+    value: '~41 min'
+    tier: T2
+    note: 'Single session, scope-locked attack on remaining items.'
+honest_disclosures:
+  - >-
+    This sweep accepted the design-system "bloat" trade-off Option B was
+    originally guarding against. User explicitly authorized on 2026-05-12.
+    Each new iOS token carries a semantic name + comment so future
+    readers can locate the single use site.
+  - >-
+    Wide-viewport visual spot-check on the heading-scale swaps
+    (text-3xl → --text-display-md, ~6px growth at viewports ≥ 1280px)
+    is still pending. Migration paths are byte-identical except for
+    that one responsive token change.
+  - >-
+    P2-013 (Wrench icon) and P2-002 (Hero gradient) were both confirmed
+    as audit false positives during this sweep — code already used
+    tokens correctly. Counted as closed since there is nothing to fix.
+predecessor_chain:
+  - feature: ios-ui-audit-p1-burndown
+    pr: '#292 + #294'
+    date: '2026-05-11'
+    note: 'Parent burndown: 103 → 44 (Option B locked)'
+  - feature: ios-ui-audit-p1-drift-cleanup
+    pr: '#307'
+    date: '2026-05-12'
+    note: 'P1 44 → 14'
+  - feature: fitme-story-design-system-p2-cleanup
+    pr: '[fitme-story#84]'
+    date: '2026-05-10'
+    note: 'P2 4/14 closed + 12 deferred'
+  - feature: fitme-story-ds-p2-deferred
+    pr: '[fitme-story#93]'
+    date: '2026-05-12'
+    note: 'P2-044 (Tag-muted)'
+  - feature: fitme-story-ds-p2-final-sweep
+    pr: '[fitme-story#95]'
+    date: '2026-05-12'
+    note: '5 more P2s closed'
+  - feature: ui-ux-final-sweep-2026-05-12
+    pr: '#311 + [fitme-story#97] + [fitme-story#98]'
+    date: '2026-05-12'
+    note: 'This case study: iOS P1 → 0, P2 → 93%, /case-studies accordion'
+---
+
+## TL;DR
+
+Three PRs, one session, every locked deferral the design system was carrying — pushed past. iOS `make ui-audit` P1 hit zero. fitme-story P2 closure reached 93%. And `/case-studies` got a new categorized browse path so v7.x studies group by topic (Framework / Design System / UI-UX Features) instead of strictly chronological.
+
+## What shipped
+
+| Part | PR | Headline |
+|---|---|---|
+| iOS singleton tokens | FT2 #311 (`ac80088`) | 13 AppSize tokens + 14 substitutions → P1 14 → 0 |
+| fitme-story P2 sweep | [fitme-story#97] | Stat sentence/inline migration + 7 heading swaps |
+| /case-studies categorization | [fitme-story#98] | New accordion section with 3 collapsible groups |
+
+## Cumulative trajectory
+
+**iOS P1:** 103 (baseline) → 44 (Option B locked) → 14 (drift cleanup) → **0** (this PR)
+
+**fitme-story P2:** 0 → 4 (parent) → 5 (P2-044) → 10 (P2 final sweep) → **13/14 (93%)** (this PR)
+
+## What stays open
+
+The 1 fitme-story P2 not closed (P2-029 NumbersPanel styling judgment) is fundamentally a question of whether the operator prefers `serif={false}` for the sentence-case label — semantically migrated, just awaiting visual confirmation. No items remain in "needs designer judgment" or "visual regression risk" state.
+
+## Honest framing
+
+This was a deliberate scope-expansion past the parent feature's Option B ceiling. The user authorized it explicitly. Each addition has documented intent so future readers can navigate the trade-off. Wide-viewport heading spot-check still pending.
