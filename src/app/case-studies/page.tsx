@@ -83,6 +83,63 @@ const META_ANALYSIS_SLUGS = new Set([
   'full-system-audit',
 ]);
 
+// ============ V7.x category bucketing ============
+// 2026-05-12: user request — surface v7.x case studies grouped by what
+// they touched, with collapsible accordion groups. Each group is
+// independently expandable; default-collapsed so the milestones above
+// stay above the fold. Slug-pattern matchers (regex) chosen over a
+// frontmatter `category` field to avoid touching ~30 MDX files for a
+// presentation-layer concern.
+type V7Category = 'framework' | 'design-system' | 'ui-ux';
+
+const V7_CATEGORY_RULES: Array<{
+  id: V7Category;
+  label: string;
+  summary: string;
+  test: (slug: string) => boolean;
+}> = [
+  {
+    id: 'framework',
+    label: 'Framework',
+    summary:
+      'Framework versions, integrity gates, branch isolation, cross-repo state sync, dispatch research.',
+    test: (slug) =>
+      /^(framework-|mechanical-enforcement-|bridge-v|cross-repo-state-sync|hadf-)/.test(slug),
+  },
+  {
+    id: 'design-system',
+    label: 'Design System',
+    summary:
+      'Design-system token work, Figma↔code parity, UI audits, lens-audit follow-ups, presentation refactors.',
+    test: (slug) =>
+      /^(fitme-story-(ds-|website-design-system)|ios-(ui|code)-audit|ios-ui-audit-|ui-audit-baseline-|case-study-presentation-|android-design-system|case-study-comparison-table)/.test(
+        slug,
+      ),
+  },
+  {
+    id: 'ui-ux',
+    label: 'UI/UX Features',
+    summary:
+      'Product features and enhancements — stats, auth, smart reminders, push notifications, control center, training plans, passkeys.',
+    test: () => true, // catchall — must be last
+  },
+];
+
+function categorizeV7(slug: string): V7Category {
+  for (const rule of V7_CATEGORY_RULES) {
+    if (rule.test(slug)) return rule.id;
+  }
+  return 'ui-ux';
+}
+
+// "v7.x" predicate: timeline_position.version starts with "7" or numerically >= 7.0.
+function isV7Series(versionRaw: string | undefined): boolean {
+  if (!versionRaw) return false;
+  if (/^7(\.|$)/.test(versionRaw)) return true;
+  const num = parseFloat(versionRaw);
+  return Number.isFinite(num) && num >= 7.0;
+}
+
 // Each milestone owns the version range [its_era_start, next_era_start).
 // Boundaries are explicit (not derived from MILESTONES[].version) so that the
 // user-facing milestone label can lag behind the case-study frontmatter version
@@ -183,6 +240,32 @@ export default async function CaseStudiesIndex() {
     .sort((a, b) =>
       dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
     );
+
+  // V7.x category bucketing — group all v7.x case studies (including
+  // milestones + secondaries) by what they touched. Same study can appear
+  // in milestones AND a category here; the category section is a parallel
+  // browse path (by topic) to the milestone-chronological view (by version).
+  const v7Studies = all.filter(
+    (c) =>
+      !DEVELOPER_SLUGS.has(c.frontmatter.slug) &&
+      !META_ANALYSIS_SLUGS.has(c.frontmatter.slug) &&
+      c.frontmatter.tier !== 'unassigned' &&
+      isV7Series(c.frontmatter.timeline_position?.version),
+  );
+  const v7Buckets: Record<V7Category, ContentEntry[]> = {
+    framework: [],
+    'design-system': [],
+    'ui-ux': [],
+  };
+  for (const c of v7Studies) {
+    v7Buckets[categorizeV7(c.frontmatter.slug)].push(c);
+  }
+  // Sort each bucket by publication date (ascending — oldest first).
+  for (const id of Object.keys(v7Buckets) as V7Category[]) {
+    v7Buckets[id].sort((a, b) =>
+      dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
@@ -514,6 +597,69 @@ export default async function CaseStudiesIndex() {
             );
           })}
         </ol>
+      </section>
+
+      {/* ============ V7.x BY CATEGORY ============
+          Parallel browse path (by topic) to the milestone-chronological view
+          above (by version). User request 2026-05-12: surface v7.x case
+          studies grouped into Framework / Design System / UI-UX Features
+          with collapsible accordion groups. Each category sorted by
+          publication date ascending. Default-collapsed to keep milestones
+          above the fold. */}
+      <section className="mb-20" aria-labelledby="v7-category-heading">
+        <h2
+          id="v7-category-heading"
+          className="font-serif text-[length:var(--text-display-md)] mb-2"
+        >
+          Browse v7.x by category
+        </h2>
+        <p className="font-sans text-sm text-[var(--color-neutral-500)] mb-6 max-w-[var(--measure-body)]">
+          The v7.x era split across three concurrent tracks: framework gates,
+          design-system work, and product features. Expand any group to see the
+          full list sorted by publication date.
+        </p>
+
+        <div className="space-y-3">
+          {V7_CATEGORY_RULES.map((rule) => {
+            const studies = v7Buckets[rule.id];
+            if (studies.length === 0) return null;
+            return (
+              <Disclosure
+                key={rule.id}
+                label={`${rule.label} (${studies.length})`}
+                summary={rule.summary}
+              >
+                <ul className="divide-y divide-[var(--color-neutral-200)] dark:divide-[var(--color-neutral-800)]">
+                  {studies.map((c) => (
+                    <li key={c.frontmatter.slug}>
+                      <Link
+                        href={`/case-studies/${c.frontmatter.slug}`}
+                        className="block group py-3 px-2 -mx-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors"
+                      >
+                        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                          <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
+                            v{c.frontmatter.timeline_position?.version}
+                          </span>
+                          <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
+                            {c.frontmatter.title}
+                          </span>
+                          {formatPublishedDate(c.frontmatter.date) && (
+                            <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
+                              {formatPublishedDate(c.frontmatter.date)}
+                            </span>
+                          )}
+                          <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
+                            {c.readingTimeMin} min
+                          </span>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </Disclosure>
+            );
+          })}
+        </div>
       </section>
 
       {/* ============ META-ANALYSIS & METHODOLOGY ============
