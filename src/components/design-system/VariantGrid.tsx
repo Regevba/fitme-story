@@ -22,11 +22,12 @@ export function ButtonVariants() {
 }
 
 export function TagVariants() {
-  const variants: TagVariant[] = ['flagship', 'standard', 'tier_t1'];
+  const variants: TagVariant[] = ['flagship', 'standard', 'tier_t1', 'muted'];
   const labels: Record<TagVariant, string> = {
     flagship: 'Flagship',
     standard: 'Standard',
     tier_t1: 'T1',
+    muted: 'Muted',
   };
   return (
     <div className="flex flex-wrap gap-2 items-center">
