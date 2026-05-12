@@ -124,7 +124,7 @@ export default function TrustPage() {
                 not PRs. Correction appended to the audit; issue{' '}
                 <a
                   href="https://github.com/Regevba/FitTracker2/issues/138"
-                  className="underline"
+                  className="link-inline underline"
                 >
                   #138
                 </a>{' '}
@@ -161,7 +161,7 @@ export default function TrustPage() {
                 distinct from Tier 1.1&apos;s adoption gap. Filed as issue{' '}
                 <a
                   href="https://github.com/Regevba/FitTracker2/issues/140"
-                  className="underline"
+                  className="link-inline underline"
                 >
                   #140
                 </a>{' '}

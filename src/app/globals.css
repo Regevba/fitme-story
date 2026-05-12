@@ -116,6 +116,46 @@ html.dark .divider-row {
   border-bottom-color: var(--color-neutral-700);
 }
 
+/* P2-019 (DS lens audit 2026-05-10): semantic term-label for definition-list
+   <dt> headings (currently used by /glossary; reusable for any future
+   definition list). Brand-indigo display-style typography. */
+.term-label {
+  font-family: var(--font-serif, ui-serif), serif;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  color: var(--color-brand-indigo);
+}
+
+/* P2-034 (DS lens audit 2026-05-10): wide-section horizontal padding stack.
+   Was repeated inline 5+ times on /pm-flow as
+   `px-4 sm:px-6 lg:px-10 xl:px-14`. Single utility class lets future
+   additions stay consistent without copy-paste. */
+.section-padding-x {
+  padding-inline: 1rem;
+}
+@media (min-width: 640px) {
+  .section-padding-x { padding-inline: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .section-padding-x { padding-inline: 2.5rem; }
+}
+@media (min-width: 1280px) {
+  .section-padding-x { padding-inline: 3.5rem; }
+}
+
+/* P2-006 + P2-033 (DS lens audit 2026-05-10): inline link with subtle
+   hover-underline. Unifies the mix of `className="underline"` and inline
+   `underline-offset-4 hover:underline` patterns across /case-studies and
+   /trust audit metadata. Style: no underline at rest, 4px-offset underline
+   on hover/focus, inherits color. */
+.link-inline {
+  text-underline-offset: 4px;
+}
+.link-inline:hover,
+.link-inline:focus-visible {
+  text-decoration: underline;
+}
+
 /* Native Safari quirk fixes (added 2026-04-28 with the case-study
    presentation refactor). Apply to all browsers — no harm to others. */
 

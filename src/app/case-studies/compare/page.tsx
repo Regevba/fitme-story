@@ -41,7 +41,7 @@ export default async function ComparePage() {
       <nav className="mb-6">
         <Link
           href="/case-studies"
-          className="inline-flex items-center gap-1 text-sm text-slate-500 underline-offset-4 hover:underline hover:text-slate-700 dark:text-white/50 dark:hover:text-white/80"
+          className="inline-flex items-center gap-1 text-sm text-slate-500 link-inline hover:text-slate-700 dark:text-white/50 dark:hover:text-white/80"
         >
           <ArrowLeft className="h-3 w-3" aria-hidden="true" />
           Back to case studies
