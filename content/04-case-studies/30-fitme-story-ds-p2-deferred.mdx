@@ -1,0 +1,131 @@
+---
+title: >-
+  Design System P2 Deferred — One Variant, One Migration, Ten Items Still Deferred
+slug: fitme-story-ds-p2-deferred
+upstream_path: docs/case-studies/fitme-story-ds-p2-deferred-case-study.md
+tier: light
+tldr: >-
+  Tightly-scoped enhancement closing one P2 item (P2-044) from the eleven
+  deferred at the end of fitme-story-design-system-p2-cleanup. Adds a `muted`
+  variant to the Tag component, migrates the 3 inline `/search` category badges
+  to use it, and extends the design-system showcase. The other 10 deferred P2s
+  stay deferred with their per-item reasons documented — judgement calls about
+  hero gradients, heading scales, and stat-component visual regression don't
+  belong inside a mechanical cleanup pass.
+timeline_position:
+  version: '7.8.3'
+  order: 30
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+date: '2026-05-12'
+date_written: '2026-05-12'
+shipped_window: '2026-05-12 (single session, 1 PR)'
+work_type: enhancement
+external_audit_status: not_required
+key_numbers:
+  - label: P2 items closed by this enhancement
+    value: '1 of 11 deferred'
+    tier: T1
+    note: >-
+      P2-044 was the only deferred P2 whose blocker (\"would need a Tag<muted>
+      variant\") could be resolved in isolation without designer input or
+      visual-regression-test infrastructure.
+  - label: Parent feature P2 closure rate after this PR
+    value: '5 of 16 (31%)'
+    tier: T1
+    note: >-
+      Parent shipped 4/16 + this enhancement adds 1 more. Remaining 11 carry
+      per-item deferral reasons (designer judgment, visual regression risk,
+      per-instance polish).
+  - label: PRs shipped
+    value: '1'
+    tier: T1
+    note: 'fitme-story PR #93 (squash 4001c09).'
+  - label: Wall time
+    value: '~55 min'
+    tier: T2
+    note: >-
+      Includes worktree setup + scaffold + implementation + verification +
+      closure. Pure implementation was ~25 min; rest was framework ceremony.
+  - label: Visual change expected on /search
+    value: 'None'
+    tier: T1
+    note: >-
+      Tag<muted> uses byte-for-byte the same classes as the original inline
+      spans (bg-neutral-100 light / bg-neutral-800 dark / !rounded-full).
+      Pixel-identical migration.
+honest_disclosures:
+  - >-
+    This enhancement deliberately did NOT attack 10 of the 11 deferred P2s. The
+    user could have asked for a bigger sweep; the scope-locking question that
+    surfaced at the top of the session preserved the parent feature's
+    locked-decision rationale. Each deferred item still has a real blocker
+    (designer input, visual regression, or per-instance judgment) that was not
+    resolved by this enhancement.
+  - >-
+    The `Tag<muted>` variant is exclusively for muted-info contexts (rounded-full
+    + lighter neutral surface). The standard variant remains rounded-md + heavier
+    neutral surface. Reviewers proposing new Tag usages should check the variant
+    semantic before reaching for `muted`.
+predecessor_chain:
+  - feature: fitme-story-website-design-system
+    pr: '[fitme-story#81]'
+    date: '2026-05-10'
+    note: 'Foundation: 17 component nodes + 4 primitives'
+  - feature: fitme-story-design-system-p2-cleanup
+    pr: '[fitme-story#84]'
+    date: '2026-05-10'
+    note: '4 of 16 P2s shipped + 12 deferred with per-item reasons'
+  - feature: fitme-story-ds-p2-deferred
+    pr: '[fitme-story#93]'
+    date: '2026-05-12'
+    note: 'This case study: P2-044 closure (Tag<muted> + /search migration)'
+---
+
+## TL;DR
+
+The parent feature [`fitme-story-design-system-p2-cleanup`](27a-fitme-story-design-system-p2-cleanup) closed 4 of 16 P2 items from the 2026-05-10 lens audit and deferred 12 with documented per-item reasons. **P2-044** (`Tag<muted>` variant needed for /search badges) was the only deferred item whose blocker could be resolved in isolation — the others needed designer input, visual-regression review, or per-instance judgment that didn't fit a mechanical cleanup pass.
+
+This enhancement adds the `muted` variant, migrates 3 inline `/search` category badges, and extends the design-system showcase. Single PR, single session, ~55 min wall time.
+
+## What shipped
+
+| Change | Site | Note |
+|---|---|---|
+| New `muted` variant | `src/components/ui/Tag.tsx` | `bg-neutral-100` light / `bg-neutral-800` dark / `!rounded-full` |
+| 3 inline span → `<Tag variant="muted">` | `src/app/search/page.tsx` | Category label + version chip + tier chip |
+| Showcase grid extension | `src/components/design-system/VariantGrid.tsx` | `muted` now renders alongside `flagship` / `standard` / `tier_t1` on `/design-system` |
+
+## What stays deferred (and why)
+
+Ten P2 items remain unaddressed by this enhancement. Their per-item deferral reasons are documented in the parent case study and re-summarized here for traceability:
+
+| ID | Why it stays deferred |
+|---|---|
+| P2-002 | Hero gradient is intentional brand chrome; designer judgment needed |
+| P2-003 | NumbersPanel `text-3xl` → `--text-display-md` would change at wide viewports (visual regression) |
+| P2-006 | About contact link styling — per-instance polish, opportunistic |
+| P2-012 | Methodology / Meta-analysis heading scale — per-heading review at wide viewports |
+| P2-013 | "Developer deep-dives" Wrench icon — per-instance polish |
+| P2-019 | Glossary `<dt>` term-label class — per-instance polish |
+| P2-029 (rest) | Stat migration for NumbersPanel + timeline page — visual regression confirmed |
+| P2-033 | Audit metadata link styling variation — per-instance polish |
+| P2-034 | `/pm-flow` padding breakpoint stack tokenization — per-instance judgment |
+| P2-037 | Section headings `text-3xl` alignment — visual regression risk |
+
+These can be revisited individually as fix-as-you-touch PRs or bundled into a follow-up enhancement with operator visual-spot-check capacity.
+
+## Verification
+
+- `tsc --noEmit`: **0 new errors** (8 pre-existing on main, all in test files unrelated to UI primitives).
+- `npm test`: **0 new failures** (1 timeline test fails on main, pre-existing).
+- `npm run case-study-audit`: **exit 0** (all 30 case studies COMPLIANT_FULL or intentionally exempt).
+- Visual check: deferred to operator (Vercel preview), but the migration is pixel-identical by construction.
+
+## Honest framing
+
+This was a small, scope-locked piece of work. The user could have asked me to bulldoze all 11 deferred P2s in one pass; the conversation that opened the session explicitly preserved the parent feature's locked decision. The discipline of asking "which scope do you actually want?" before scaffolding paid for itself — without it, P2-002 (Hero gradient) and P2-029 (Stat regressions) would have shipped as silent visual drift.
+
+Future Tag work should consult the variant table on `/design-system` before reaching for `muted`. The distinction between `muted` (rounded-full, supplementary) and `standard` (rounded-md, emphasis) is intentional, not a bug.
