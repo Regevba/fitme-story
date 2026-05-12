@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { buildMetadata } from '@/lib/seo';
 import { getSearchIndex, getSearchIndexFacets, type SearchCategory } from '@/lib/search-index';
 import { search, type SearchFilters, type SearchHit } from '@/lib/search';
+import { Tag } from '@/components/ui/Tag';
 
 const CATEGORY_LABELS: Record<SearchCategory, string> = {
   'case-study': 'Case Study',
@@ -233,19 +234,9 @@ function ResultItem({ hit }: { hit: SearchHit }) {
           <h2 className="text-lg font-semibold text-[var(--color-neutral-900)] hover:underline dark:text-[var(--color-neutral-50)]">
             {entry.title}
           </h2>
-          <span className="rounded-full bg-[var(--color-neutral-100)] px-2 py-0.5 text-xs font-medium text-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)] dark:text-[var(--color-neutral-300)]">
-            {CATEGORY_LABELS[entry.category]}
-          </span>
-          {entry.tags.version && (
-            <span className="rounded-full bg-[var(--color-neutral-100)] px-2 py-0.5 text-xs text-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)] dark:text-[var(--color-neutral-300)]">
-              v{entry.tags.version}
-            </span>
-          )}
-          {entry.tags.tier && (
-            <span className="rounded-full bg-[var(--color-neutral-100)] px-2 py-0.5 text-xs text-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)] dark:text-[var(--color-neutral-300)]">
-              {entry.tags.tier}
-            </span>
-          )}
+          <Tag variant="muted">{CATEGORY_LABELS[entry.category]}</Tag>
+          {entry.tags.version && <Tag variant="muted">v{entry.tags.version}</Tag>}
+          {entry.tags.tier && <Tag variant="muted">{entry.tags.tier}</Tag>}
         </div>
         <p className="text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           {hit.snippet || entry.description}
