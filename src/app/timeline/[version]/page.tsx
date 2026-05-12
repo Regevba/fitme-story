@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { FRAMEWORK_VERSIONS } from '@/lib/timeline';
 import { getAllCaseStudies } from '@/lib/content';
 import { buildMetadata } from '@/lib/seo';
+import { Stat } from '@/components/ui/Stat';
 
 export async function generateStaticParams() {
   return FRAMEWORK_VERSIONS.map((v) => ({ version: v.version }));
@@ -38,10 +39,16 @@ export default async function VersionPage({ params }: { params: Promise<{ versio
       <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
         {v.headline}
       </p>
-      <div className="mt-8 flex items-baseline gap-2">
-        <span className="text-4xl font-semibold text-[var(--color-brand-indigo)]">{v.keyMetric.value}</span>
-        <span className="text-sm text-[var(--color-neutral-500)] font-sans">{v.keyMetric.label}</span>
-      </div>
+      <Stat
+        value={v.keyMetric.value}
+        label={v.keyMetric.label}
+        size="md"
+        accent
+        serif={false}
+        layout="inline"
+        labelCase="sentence"
+        className="mt-8"
+      />
       <h2 className="mt-16 font-serif text-2xl">Case studies in this version</h2>
       <ul className="mt-4 space-y-3">
         {studies.map((c) => (

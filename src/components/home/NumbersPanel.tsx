@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useCurrentPersona } from '@/lib/persona-context';
 import { Term } from '@/components/mdx/Term';
+import { Stat } from '@/components/ui/Stat';
 
 type PersonaKey = 'default' | 'hr' | 'pm' | 'dev' | 'academic';
 
@@ -75,7 +76,7 @@ export function NumbersPanel() {
   return (
     <section className="py-20 bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)]">
       <div className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14">
-        <h2 className="font-serif text-3xl text-center mb-12">The numbers</h2>
+        <h2 className="font-serif text-[length:var(--text-display-md)] text-center mb-12">The numbers</h2>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {NUMBERS.map((n, i) => (
             <motion.div
@@ -84,12 +85,15 @@ export function NumbersPanel() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: reduced ? 0 : i * 0.1, duration: 0.5 }}
-              className="text-center"
             >
-              <div className="text-5xl font-semibold text-[var(--color-brand-indigo)]">{n.value}</div>
-              <div className="mt-2 text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                {n.labels[key]}
-              </div>
+              <Stat
+                value={n.value}
+                label={n.labels[key]}
+                size="lg"
+                accent
+                serif={false}
+                labelCase="sentence"
+              />
             </motion.div>
           ))}
         </div>

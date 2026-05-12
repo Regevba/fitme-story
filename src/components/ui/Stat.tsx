@@ -1,6 +1,8 @@
 import * as React from 'react';
 
 export type StatSize = 'sm' | 'md' | 'lg';
+export type StatLabelCase = 'upper' | 'sentence';
+export type StatLayout = 'block' | 'inline';
 
 export interface StatProps {
   /** The big number / value. Strings preferred so callers can format (e.g. "100%", "1.2K"). */
@@ -19,6 +21,18 @@ export interface StatProps {
   centered?: boolean;
   /** Additional className for one-off layout overrides. */
   className?: string;
+  /**
+   * Label case treatment. 'upper' (default) for editorial stat grids;
+   * 'sentence' for descriptive labels (NumbersPanel uses sentence case).
+   * Added 2026-05-12 per P2-029-remaining (DS lens audit follow-up).
+   */
+  labelCase?: StatLabelCase;
+  /**
+   * Layout: 'block' (default) stacks value above label; 'inline' renders
+   * value + label on the same baseline with a gap (timeline page pattern).
+   * Added 2026-05-12 per P2-029-remaining.
+   */
+  layout?: StatLayout;
 }
 
 const sizeClasses: Record<StatSize, string> = {
@@ -50,6 +64,8 @@ export function Stat({
   serif = true,
   centered = true,
   className = '',
+  labelCase = 'upper',
+  layout = 'block',
 }: StatProps) {
   const valueClasses = [
     serif ? 'font-serif' : 'font-sans',
@@ -60,14 +76,26 @@ export function Stat({
     .filter(Boolean)
     .join(' ');
 
-  const containerClasses = [centered ? 'text-center' : '', className].filter(Boolean).join(' ');
+  const labelClasses =
+    labelCase === 'upper'
+      ? 'text-[11px] font-sans uppercase tracking-wide text-[var(--color-neutral-500)] mt-1'
+      : 'mt-2 text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]';
+
+  const containerLayout =
+    layout === 'inline' ? 'flex items-baseline gap-2' : '';
+
+  const containerClasses = [
+    centered && layout === 'block' ? 'text-center' : '',
+    containerLayout,
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={containerClasses || undefined}>
       <div className={valueClasses}>{value}</div>
-      <div className="text-[11px] font-sans uppercase tracking-wide text-[var(--color-neutral-500)] mt-1">
-        {label}
-      </div>
+      <div className={labelClasses}>{label}</div>
       {sublabel != null && (
         <div className="text-[10px] font-mono text-[var(--color-neutral-500)]">
           {sublabel}
