@@ -52,7 +52,7 @@ export default function GlossaryPage() {
           <dl className="space-y-8">
             {c.entries.map((e) => (
               <div key={e.slug} id={e.slug} className="scroll-mt-28">
-                <dt className="font-serif text-xl text-[var(--color-brand-indigo)]">{e.term}</dt>
+                <dt className="term-label">{e.term}</dt>
                 <dd className="mt-2 prose prose-lg dark:prose-invert max-w-[var(--measure-body)]">
                   <p>{e.full}</p>
                 </dd>

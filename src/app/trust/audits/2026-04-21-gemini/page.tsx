@@ -15,7 +15,7 @@ export default function GeminiAudit20260421Page() {
   return (
     <article className="max-w-[var(--measure-wide)] mx-auto px-6 py-16">
       <nav className="mb-8 text-sm">
-        <Link href="/trust" className="underline">
+        <Link href="/trust" className="link-inline underline">
           ← Back to /trust
         </Link>
       </nav>
@@ -58,7 +58,7 @@ export default function GeminiAudit20260421Page() {
             liberal <code>#\d+</code> regex and conflated issue citations with PR
             citations; Gemini faithfully repeated the error because it was given the
             flawed meta-analysis as input. See §10 below for the full correction.{' '}
-            <a href={GITHUB_ISSUE_URL} className="underline">
+            <a href={GITHUB_ISSUE_URL} className="link-inline underline">
               Issue #138
             </a>{' '}
             has been closed with the full explanation. The original Gemini text in
@@ -68,7 +68,7 @@ export default function GeminiAudit20260421Page() {
         </div>
 
         <p className="mt-6 text-sm">
-          <a href={ARCHIVE_URL} className="underline">
+          <a href={ARCHIVE_URL} className="link-inline underline">
             Full audit source ({`independent-audit-2026-04-21-gemini.md`})
           </a>
         </p>
