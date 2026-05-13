@@ -69,10 +69,40 @@ export function trackDesignSystemSectionView(payload: SectionViewEvent): void {
   emit('design_system_section_view', payload);
 }
 
+/**
+ * @forward-declared
+ *
+ * Helper exported for future use. As of 2026-05-13 there is no UI that
+ * calls this — the `/design-system` ComponentCard does not yet have an
+ * expand button. Honored as intentional forward-declaration by:
+ *   - FT2 `docs/product/analytics-taxonomy.csv` row (Notes prefixed `[FORWARD-DECLARED]`)
+ *   - FT2 `docs/master-plan/analytics-master-plan-2026-05-13.md` §5.4 convention
+ *
+ * When the expand UI ships:
+ *   1. Wire this helper from the new component
+ *   2. Remove `[FORWARD-DECLARED]` from the CSV Notes
+ *   3. Add a unit test confirming the helper fires
+ *   4. Update implementing feature's state.json
+ */
 export function trackDesignSystemComponentExpand(payload: ComponentExpandEvent): void {
   emit('design_system_component_expand', payload);
 }
 
+/**
+ * @forward-declared
+ *
+ * Helper exported for future use. As of 2026-05-13 there is no UI that
+ * calls this — the `/design-system` Copy snippet button is not yet
+ * implemented. Honored as intentional forward-declaration by:
+ *   - FT2 `docs/product/analytics-taxonomy.csv` row (Notes prefixed `[FORWARD-DECLARED]`)
+ *   - FT2 `docs/master-plan/analytics-master-plan-2026-05-13.md` §5.4 convention
+ *
+ * When the Copy button ships:
+ *   1. Wire this helper from the button onClick
+ *   2. Remove `[FORWARD-DECLARED]` from the CSV Notes
+ *   3. Add a unit test confirming the helper fires
+ *   4. Update implementing feature's state.json
+ */
 export function trackDesignSystemCodeCopy(payload: CodeCopyEvent): void {
   emit('design_system_code_copy', payload);
 }
