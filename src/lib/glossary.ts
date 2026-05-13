@@ -443,4 +443,20 @@ export const GLOSSARY: GlossaryEntry[] = [
     tooltip: 'The umbrella standard for hardware-backed authentication; WebAuthn is its browser-facing API.',
     full: 'FIDO2 is the FIDO Alliance\'s umbrella spec for phishing-resistant authentication: WebAuthn (the browser API) + CTAP (the protocol authenticators speak to clients over USB/NFC/BLE). YubiKeys, Touch ID, Face ID, Windows Hello, and Android Google Password Manager are all FIDO2 authenticators. fitme-story\'s passkey gate works with all of them via @simplewebauthn.',
   },
+  {
+    slug: 'observed-patterns-catalog',
+    term: 'Observed Patterns Catalog',
+    aliases: ['observed patterns', 'pattern catalog', 'observed-patterns.md'],
+    category: 'framework',
+    tooltip: 'The canonical manifest of gate-firing patterns operators must recognize before debugging the framework.',
+    full: 'Shipped at framework v7.8.5 (2026-05-13, FT2 PR #328). A single file at .claude/integrity/observed-patterns.md catalogues 23 gate-firing patterns (write-time + cycle-time, e.g. BRANCH_ISOLATION_HISTORICAL, CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT, TIER_TAG_LIKELY_INCORRECT) and 9 workflow patterns (e.g. SSH signing, branch drift, no-auto-merge). Each entry documents trigger, why-expected, signal-vs-noise rule, silence path, and first-observed date. Auto-loaded as preflight by /pm-workflow; CLI access via `make observed-patterns`. The catalog grows append-only-by-default: any novel pattern surfaced during a session MUST be appended before the protocol closes the feature. Converts framework debugging from "every advisory triggers fresh investigation" to "look it up first, only escalate if novel."',
+  },
+  {
+    slug: 'w9-branch-drift',
+    term: 'W9 — Branch Drift Detection',
+    aliases: ['W9', 'branch drift', 'PostToolUse:Bash hook', 'check-branch-drift'],
+    category: 'framework',
+    tooltip: 'A PostToolUse:Bash hook that fires a real-time alert when a concurrent Claude session flips the working tree\'s HEAD.',
+    full: 'Workflow pattern W9 in the Observed Patterns Catalog, shipped at framework v7.8.5 (2026-05-13, FT2 PR #341). The script at scripts/check-branch-drift.py runs as a PostToolUse:Bash hook: on first invocation it records the current git branch to .claude/_session-state/<session_id>-branch.txt; on subsequent calls it compares + emits a LOUD stderr warning if HEAD has changed without the session running git checkout itself (typically caused by another concurrent Claude session sharing the same working directory). The warning is surfaced back to the assistant via tool output, so the assistant can flag the drift to the operator in real time before the wrong-branch commit lands. Includes a 4-step recovery playbook (stop → inspect → stash-or-cherry-pick → push with explicit --head). Prevention: each concurrent session should run in its own git worktree.',
+  },
 ];

@@ -51,7 +51,7 @@ function loadGateCoverage() {
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
   description:
-    'Live dashboard for the FitMe PM framework v7.8.4: Tier 1.1 adoption trends, documentation-debt coverage, automation map (33 mechanical gates + 5 advisories), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), and v7.8.4 pre-v7.9 telemetry calibration baseline (0 findings + 0 advisory at ship).',
+    'Live dashboard for the FitMe PM framework v7.8.5: Tier 1.1 adoption trends, documentation-debt coverage, automation map (33 mechanical gates + 5 advisories), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.4 pre-v7.9 telemetry calibration baseline (0 findings + 0 advisory at ship), and v7.8.5 Observed Patterns Catalog with W9 branch-drift real-time alert hook.',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -165,8 +165,17 @@ const PREDECESSOR_LINKS = [
     date: '2026-05-12',
     href: 'https://github.com/Regevba/FitTracker2/pull/314',
     external: true,
+    current: false,
+    description: 'Patch-level. Adds PR_CACHE_STALE auto-refresh (closes 33-finding false-positive class). Narrows TIER_TAG_LIKELY_INCORRECT heuristic (target/kill filter + \\b word-boundary + intervening-tier-marker skip). cache_hits[] backfills + 5 doc-debt closures. make integrity-check: 35+9 → 0+0.',
+  },
+  {
+    label: 'v7.8.5 — Observability Layer',
+    version: 'v7.8.5',
+    date: '2026-05-13',
+    href: 'https://github.com/Regevba/FitTracker2/pull/328',
+    external: true,
     current: true,
-    description: 'This dashboard. Patch-level. Adds PR_CACHE_STALE auto-refresh (closes 33-finding false-positive class). Narrows TIER_TAG_LIKELY_INCORRECT heuristic (target/kill filter + \\b word-boundary + intervening-tier-marker skip). cache_hits[] backfills + 5 doc-debt closures. make integrity-check: 35+9 → 0+0.',
+    description: 'This dashboard. Patch-level. Ships the Observed Patterns Catalog (23 gate patterns + 9 workflow patterns at .claude/integrity/observed-patterns.md) + W9 branch-drift real-time alert via PostToolUse:Bash hook (scripts/check-branch-drift.py). Detects when a concurrent Claude session sharing the working directory runs git checkout, flipping HEAD. No new gates — operator-facing observability + workflow patterns. PRs #328 + #341.',
   },
 ];
 
