@@ -6,7 +6,7 @@
   "current_phase": "research",
   "framework_version": "v7.8.3",
   "started_at": "2026-05-11T15:41:06Z",
-  "updated_at": "2026-05-11T15:58:07Z",
+  "updated_at": "2026-05-13T13:59:26Z",
   "events": [
     {
       "timestamp": "2026-05-11T15:41:06Z",
@@ -27,6 +27,28 @@
       "artifacts": [],
       "metrics": {},
       "actor": "human_or_agent",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T13:59:25Z",
+      "event_type": "phase_approved",
+      "phase": "research",
+      "summary": "Phase 0 (Research) approved. 597-line dossier shipped via FT2 PR #324 (16312b0). 4 pre-PRD blockers resolved: Q1=Pixar clean-tech, Q2=hybrid procedural+glTF, Q15=Framework Universe, Q10=Track A launch window. Cross-repo mirror entry: canonical state lives here, dossier + PRD draft live in FT2.",
+      "artifacts": [],
+      "metrics": {},
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T13:59:26Z",
+      "event_type": "phase_started",
+      "phase": "prd",
+      "summary": "Phase 1 (PRD) opened. Cross-repo mirror entry: PRD draft lives in FT2 sibling commit on feature/3d-framework-universe-prd-draft.",
+      "artifacts": [],
+      "metrics": {},
+      "actor": "claude_opus_4_7",
       "status": "recorded",
       "recording_mode": "contemporaneous"
     }
