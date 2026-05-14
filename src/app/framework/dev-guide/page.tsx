@@ -77,7 +77,7 @@ export default async function DevGuidePage() {
           Developer guide
         </p>
         <h1 className="mt-2 font-serif text-[length:var(--text-display-lg)]">
-          PM Framework — Developer Guide (v1.0 → v7.8.1)
+          PM Framework — Developer Guide (v1.0 → v7.8.5)
         </h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Technical reference for developers onboarding to the framework. Not the
