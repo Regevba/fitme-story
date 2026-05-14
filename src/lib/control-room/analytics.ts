@@ -31,6 +31,7 @@ export type ControlRoomRoute =
   | 'tasks'
   | 'knowledge'
   | 'framework'
+  | 'analytics'
   | 'auth_passkey_signin'
   | 'auth_passkey_recover'
   | 'auth_passkey_devices'
