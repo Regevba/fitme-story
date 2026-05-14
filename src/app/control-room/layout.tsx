@@ -89,6 +89,12 @@ const SECONDARY_NAV: NavItem[] = [
     built: true,
     toView: 'analytics',
   },
+  {
+    href: '/control-room/skills',
+    label: 'Skills Activity',
+    built: true,
+    toView: 'skills',
+  },
   { href: '/case-studies', label: 'Case studies →', built: true, toView: 'external' },
 ];
 
