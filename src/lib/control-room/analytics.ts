@@ -18,6 +18,8 @@
  * analytics-taxonomy.csv).
  */
 
+import { teeToDebugMirror } from '../analytics-debug-mirror';
+
 // ────────────────────────────────────────────────────────────────────────────
 // Event payload types — one per GA4 event in the PRD
 // ────────────────────────────────────────────────────────────────────────────
@@ -107,6 +109,9 @@ function emit<T extends object>(eventName: string, params: T): void {
   } catch {
     // GA failures must never break the dashboard.
   }
+  // Phase 2.A.4: also tee to local mirror when NEXT_PUBLIC_DEBUG_ANALYTICS=1.
+  // No-op when env var unset — production behavior unchanged.
+  teeToDebugMirror(eventName, params);
 }
 
 // ────────────────────────────────────────────────────────────────────────────

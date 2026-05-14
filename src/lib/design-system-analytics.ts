@@ -20,6 +20,8 @@
  *   4. Confirm all 4 events fire on the corresponding interactions
  */
 
+import { teeToDebugMirror } from './analytics-debug-mirror';
+
 interface GtagWindow extends Window {
   gtag?: (command: 'event', eventName: string, params: Record<string, unknown>) => void;
 }
@@ -29,6 +31,9 @@ function emit(eventName: string, params: object): void {
   const gw = window as GtagWindow;
   if (typeof gw.gtag !== 'function') return;
   gw.gtag('event', eventName, params as Record<string, unknown>);
+  // Phase 2.A.4: also tee to local mirror when NEXT_PUBLIC_DEBUG_ANALYTICS=1.
+  // No-op when env var unset — production behavior unchanged.
+  teeToDebugMirror(eventName, params);
 }
 
 export type DesignSystemSection =
