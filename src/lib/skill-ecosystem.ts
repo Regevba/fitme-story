@@ -1,7 +1,7 @@
 import type { PhaseId } from './lifecycle-phases';
 
 export type SkillSlug =
-  | 'pm-workflow' | 'research' | 'ux' | 'design' | 'dev'
+  | 'pm-workflow' | 'brainstorm-pm' | 'research' | 'ux' | 'design' | 'dev'
   | 'qa' | 'analytics' | 'cx' | 'marketing' | 'ops' | 'release';
 
 export type RingPosition = 'hub' | 'inner' | 'outer';
@@ -37,12 +37,29 @@ export const SKILLS: Skill[] = [
     phaseOwnership: ['P1', 'P2', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9'],
     subCommands: ['{feature-name}'],
     purpose: 'The orchestrator at the heart of the framework. /pm-workflow runs a feature through nine lifecycle phases, dispatches the ten spoke skills as needed, and syncs state into the shared data layer. It is the only skill that touches every phase.',
-    invokes: ['research', 'ux', 'design', 'dev', 'qa', 'analytics', 'cx', 'marketing', 'ops', 'release'],
+    invokes: ['brainstorm-pm', 'research', 'ux', 'design', 'dev', 'qa', 'analytics', 'cx', 'marketing', 'ops', 'release'],
     invokedBy: [],
     readsFromShared: ['context.json', 'feature-registry.json', 'skill-routing.json', 'framework-manifest.json', 'case-study-monitoring.json'],
     writesToShared: ['feature-registry.json', 'case-study-monitoring.json', 'change-log.json'],
     standaloneExample: 'Used alone: /pm-workflow my-feature starts a new feature through the full nine-phase lifecycle.',
     docsHref: `${GH_DOCS}/pm-workflow.md`,
+  },
+  {
+    slug: 'brainstorm-pm',
+    displayName: '/brainstorm-pm',
+    oneLiner: 'Problem framing & assumption surfacing. PM-flavored brainstorming for new features.',
+    accent: '#FB923C',
+    accentVar: 'var(--skill-brainstorm-pm)',
+    ring: 'inner',
+    phaseOwnership: ['P0'],
+    subCommands: ['problem', 'solution', 'assumption', 'strategy'],
+    purpose: '/brainstorm-pm expands the option space before the user commits — surfaces problem framings, candidate solutions, hidden assumptions, and strategic angles that would otherwise get skipped. Default Phase 0 entry point for /pm-workflow whenever the problem shape is not obvious. Distinct from superpowers:brainstorming which is generic creative work; every /brainstorm-pm output is reducible to a PRD section (problem statement, success metric, kill criterion, JTBD, opportunity branch).',
+    invokes: ['research'],
+    invokedBy: ['pm-workflow'],
+    readsFromShared: ['context.json', 'feature-registry.json', 'cx-signals.json', 'case-study-monitoring.json'],
+    writesToShared: ['feature-registry.json'],
+    standaloneExample: 'Used alone: /brainstorm-pm problem on "we should add a workout AI coach" reframes the user-stated want into a recommendation problem before AI scope is locked.',
+    docsHref: `${GH_DOCS}/brainstorm-pm.md`,
   },
   {
     slug: 'research',
@@ -55,7 +72,7 @@ export const SKILLS: Skill[] = [
     subCommands: ['wide', 'narrow', 'feature', 'competitive', 'market', 'ux-patterns', 'aso'],
     purpose: '/research funnels from cross-industry pattern recognition down to feature-specific deep dives. It surfaces competitive moves, market trends, UX patterns, and ASO keywords so the team starts Phase 0 with a clear landscape instead of assumptions.',
     invokes: ['cx', 'marketing'],
-    invokedBy: ['pm-workflow'],
+    invokedBy: ['pm-workflow', 'brainstorm-pm'],
     readsFromShared: ['context.json', 'cx-signals.json'],
     writesToShared: ['context.json'],
     standaloneExample: 'Used alone: /research feature smart-reminders fetches prior-art for a new feature idea.',
