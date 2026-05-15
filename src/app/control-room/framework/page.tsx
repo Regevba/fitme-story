@@ -51,7 +51,7 @@ function loadGateCoverage() {
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
   description:
-    'Live dashboard for the FitMe PM framework v7.8.5: Tier 1.1 adoption trends, documentation-debt coverage, automation map (33 mechanical gates + 5 advisories), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.4 pre-v7.9 telemetry calibration baseline (0 findings + 0 advisory at ship), and v7.8.5 Observed Patterns Catalog with W9 branch-drift real-time alert hook.',
+    'Live dashboard for the FitMe PM framework v7.8.6: Tier 1.1 adoption trends, documentation-debt coverage, automation map (34 mechanical gates + 5 advisories), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.4 pre-v7.9 telemetry calibration baseline (0 findings + 0 advisory at ship), v7.8.5 Observed Patterns Catalog with W9 branch-drift real-time alert hook, and v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit).',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -174,8 +174,17 @@ const PREDECESSOR_LINKS = [
     date: '2026-05-13',
     href: 'https://github.com/Regevba/FitTracker2/pull/328',
     external: true,
+    current: false,
+    description: 'Patch-level. Ships the Observed Patterns Catalog (23 gate patterns + 9 workflow patterns at .claude/integrity/observed-patterns.md) + W9 branch-drift real-time alert via PostToolUse:Bash hook (scripts/check-branch-drift.py). Detects when a concurrent Claude session sharing the working directory runs git checkout, flipping HEAD. No new gates — operator-facing observability + workflow patterns. PRs #328 + #341.',
+  },
+  {
+    label: 'v7.8.6 — Cadence Batch',
+    version: 'v7.8.6',
+    date: '2026-05-15',
+    href: 'https://github.com/Regevba/FitTracker2/pull/363',
+    external: true,
     current: true,
-    description: 'This dashboard. Patch-level. Ships the Observed Patterns Catalog (23 gate patterns + 9 workflow patterns at .claude/integrity/observed-patterns.md) + W9 branch-drift real-time alert via PostToolUse:Bash hook (scripts/check-branch-drift.py). Detects when a concurrent Claude session sharing the working directory runs git checkout, flipping HEAD. No new gates — operator-facing observability + workflow patterns. PRs #328 + #341.',
+    description: 'This dashboard. Patch-level. Closes the 96h drift window between weekly framework-status cron and 72h integrity cycle (data-integrity §2.1+§2.3). Adds make integrity-diff vs 2026-05-14 anchor; make preflight WORK_TYPE=<type> unified entry point writing .claude/shared/preflight-cache.json consumed by all 10 skills; W1 ssh-agent SessionStart preflight; weekly Mechanism A gate-coverage zero-drift scan + per-dimension trend nudge (cu_v2/fully_adopted_post_v6 watch); calendar reminders for B1/B2/B4/B5 follow-ups. Nice-to-have batch: weekly dependency audit workflow + daily stale-branch + PR babysit sections. No new enforcement gates. PRs #363 (MUST) + #365 (nice-to-have).',
   },
 ];
 
