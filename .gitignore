@@ -56,3 +56,15 @@ next-env.d.ts
 # src/data/features/
 # src/data/freshness.json
 scripts/__pycache__/
+
+# Claude Code session-only artifacts — never commit
+# (mirrors the relevant subset of FitTracker2's .gitignore for cross-repo consistency)
+.claude/logs/_session-*.events.jsonl
+.claude/logs/*.lock
+.claude/logs/*.lock.json
+.claude/logs/gate-coverage.jsonl
+.claude/active-feature
+.claude/shared/preflight-cache.json
+.claude/shared/integrity-checkpoint-regression.flag
+.claude/scheduled_tasks.lock
+.claude/worktrees/
