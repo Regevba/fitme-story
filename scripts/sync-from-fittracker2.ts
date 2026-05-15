@@ -43,11 +43,13 @@ const DEFAULT_PATHS: SyncPaths = {
   ft2Features:    resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'features'),
   ft2Logs:        resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'logs'),
   ft2IntegritySnapshots: resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'integrity', 'snapshots'),
+  ft2Skills:      resolve(FITME_STORY_ROOT, '..', 'FitTracker2', '.claude', 'skills'),
   localShared:    resolve(FITME_STORY_ROOT, 'src', 'data', 'shared'),
   localFeatures:  resolve(FITME_STORY_ROOT, 'src', 'data', 'features'),
   localLogs:      resolve(FITME_STORY_ROOT, 'src', 'data', 'logs'),
   localDocs:      resolve(FITME_STORY_ROOT, 'src', 'data', 'docs'),
   localIntegritySnapshots: resolve(FITME_STORY_ROOT, 'src', 'data', 'integrity', 'snapshots'),
+  localSkills:    resolve(FITME_STORY_ROOT, 'src', 'data', 'skills'),
   freshnessPath:  resolve(FITME_STORY_ROOT, 'src', 'data', 'freshness.json'),
 };
 
@@ -94,6 +96,12 @@ interface SyncPaths {
   /** `.claude/integrity/snapshots/` — 72h cycle history (v7.1+). Optional;
       sync skips silently if the dir doesn't exist (e.g. fresh repo). */
   ft2IntegritySnapshots: string;
+  /** `.claude/skills/` — 12 project-owned skill packages (v7.8.5+). Each
+      `{name}/SKILL.md` has a YAML frontmatter (name, description,
+      last_updated, framework_version, status, adapters_used) that the
+      /control-room/skills page renders. P1.2 follow-up — see
+      docs/skills/skills-review-2026-05-13.md §5. */
+  ft2Skills: string;
   localShared: string;
   localFeatures: string;
   /** `src/data/logs/` — synced sibling of `ft2Logs`. Phase C. */
@@ -101,6 +109,10 @@ interface SyncPaths {
   localDocs: string;
   /** `src/data/integrity/snapshots/` — synced sibling of above. */
   localIntegritySnapshots: string;
+  /** `src/data/skills/manifest.json` — parsed SKILL.md frontmatter manifest.
+      P1.2 runtime-sync follow-up; replaces the static SKILL_MANIFEST in
+      src/app/control-room/skills/page.tsx. */
+  localSkills: string;
   freshnessPath: string;
 }
 
@@ -120,6 +132,9 @@ interface FreshnessReport {
     kbFiles: number;
     /** 72h integrity cycle snapshots (.claude/integrity/snapshots/*.json). */
     integritySnapshotFiles: number;
+    /** Project-owned SKILL.md files parsed into skills/manifest.json
+        (P1.2 runtime-sync follow-up). */
+    skillFiles: number;
     bytesTotal: number;
   };
   checkedFiles: string[];
@@ -145,6 +160,126 @@ function copyTextFile(srcPath: string, dstPath: string): { bytes: number } {
   return { bytes: Buffer.byteLength(raw, 'utf8') };
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// Skills manifest sync (P1.2 follow-up to fitme-story PR #110)
+//
+// Parses every FT2 `.claude/skills/{name}/SKILL.md` YAML frontmatter and
+// writes a single `src/data/skills/manifest.json` for the /control-room/skills
+// page. Replaces the static SKILL_MANIFEST that was hand-synced at v7.8.5+S
+// sweep ship time. Soft-fail on missing FT2 dir (fresh repo / cross-repo
+// asymmetry per v7.8.2 spec).
+// ────────────────────────────────────────────────────────────────────────────
+
+type SkillStatus = 'active' | 'stable' | 'planned' | 'deprecated';
+
+interface SkillRow {
+  name: string;
+  description: string;
+  status: SkillStatus | '';
+  lastUpdated: string;
+  frameworkVersion: string;
+  adaptersUsed: string[];
+  loc: number;
+}
+
+interface SkillsManifest {
+  syncedAt: string;
+  source: string;
+  skills: SkillRow[];
+}
+
+const PLACEHOLDER_SKILL_DIRS = new Set(['_template', '_shared', '_project']);
+
+function parseSkillFrontmatter(raw: string): Record<string, string> {
+  const lines = raw.split('\n');
+  if (lines.length === 0 || lines[0].trim() !== '---') return {};
+  const fm: Record<string, string> = {};
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === '---') break;
+    const colon = lines[i].indexOf(':');
+    if (colon < 0) continue;
+    const key = lines[i].slice(0, colon).trim();
+    let val = lines[i].slice(colon + 1).trim();
+    if (val.length >= 2) {
+      const first = val[0];
+      const last = val[val.length - 1];
+      if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
+        val = val.slice(1, -1);
+      }
+    }
+    fm[key] = val;
+  }
+  return fm;
+}
+
+function parseInlineList(raw: string): string[] {
+  if (!raw) return [];
+  if (raw.startsWith('[') && raw.endsWith(']')) {
+    return raw
+      .slice(1, -1)
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+  }
+  return [];
+}
+
+function isSkillStatus(s: string): s is SkillStatus {
+  return s === 'active' || s === 'stable' || s === 'planned' || s === 'deprecated';
+}
+
+function syncSkillsManifest(
+  ft2Skills: string,
+  localSkills: string,
+): { fileCount: number; bytes: number; checked: string[] } {
+  const checked: string[] = [];
+  if (!existsSync(ft2Skills)) {
+    return { fileCount: 0, bytes: 0, checked };
+  }
+  if (existsSync(localSkills)) rmSync(localSkills, { recursive: true, force: true });
+  mkdirSync(localSkills, { recursive: true });
+
+  const skills: SkillRow[] = [];
+  let bytesTotal = 0;
+
+  for (const entry of readdirSync(ft2Skills, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (PLACEHOLDER_SKILL_DIRS.has(entry.name)) continue;
+    const skillMd = join(ft2Skills, entry.name, 'SKILL.md');
+    if (!existsSync(skillMd)) continue;
+
+    const raw = readFileSync(skillMd, 'utf8');
+    const fm = parseSkillFrontmatter(raw);
+    const status = fm.status ?? '';
+    const row: SkillRow = {
+      name: fm.name ?? entry.name,
+      description: fm.description ?? '',
+      status: isSkillStatus(status) ? status : '',
+      lastUpdated: fm.last_updated ?? '',
+      frameworkVersion: fm.framework_version ?? '',
+      adaptersUsed: parseInlineList(fm.adapters_used ?? ''),
+      loc: raw.split('\n').length,
+    };
+    skills.push(row);
+    bytesTotal += Buffer.byteLength(raw, 'utf8');
+    checked.push(`skills/${entry.name}/SKILL.md`);
+  }
+
+  skills.sort((a, b) => a.name.localeCompare(b.name));
+
+  const manifest: SkillsManifest = {
+    syncedAt: new Date().toISOString(),
+    source: ft2Skills,
+    skills,
+  };
+
+  const manifestPath = join(localSkills, 'manifest.json');
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  checked.push('skills/manifest.json');
+
+  return { fileCount: skills.length, bytes: bytesTotal, checked };
+}
+
 /**
  * Recursively walk a directory and yield every file path.
  * Skips .DS_Store and .gitkeep noise that the macOS filesystem leaves around.
@@ -166,11 +301,13 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     ft2Features,
     ft2Logs,
     ft2IntegritySnapshots,
+    ft2Skills,
     localShared,
     localFeatures,
     localLogs,
     localDocs,
     localIntegritySnapshots,
+    localSkills,
     freshnessPath,
   } = paths;
 
@@ -186,7 +323,7 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
         syncedAt: new Date(0).toISOString(),
         durationMs: 0,
         source: 'committed-snapshot (FT2 not present at build time)',
-        counts: { sharedFiles: 0, featureFiles: 0, logFiles: 0, docFiles: 0, kbFiles: 0, integritySnapshotFiles: 0, bytesTotal: 0 },
+        counts: { sharedFiles: 0, featureFiles: 0, logFiles: 0, docFiles: 0, kbFiles: 0, integritySnapshotFiles: 0, skillFiles: 0, bytesTotal: 0 },
         checkedFiles: [],
       };
       // Don't overwrite an existing freshness.json — preserve the
@@ -356,18 +493,27 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     }
   }
 
+  // Phase E (2026-05-14): parse FT2 .claude/skills/{name}/SKILL.md frontmatter
+  // into src/data/skills/manifest.json for the /control-room/skills page
+  // (P1.2 runtime-sync follow-up to fitme-story PR #110). Soft-fail on
+  // missing dir.
+  const skillsSync = syncSkillsManifest(ft2Skills, localSkills);
+  bytesTotal += skillsSync.bytes;
+  checked.push(...skillsSync.checked);
+
   const sharedFiles = checked.filter((c) => c.startsWith('shared/')).length;
   const featureFiles = checked.filter((c) => c.startsWith('features/')).length;
   const logFiles = checked.filter((c) => c.startsWith('logs/')).length;
   const docFiles = checked.filter((c) => c.startsWith('md/')).length;
   const kbFiles = checked.filter((c) => c.startsWith('kb/')).length;
   const integritySnapshotFiles = checked.filter((c) => c.startsWith('integrity/')).length;
+  const skillFiles = skillsSync.fileCount;
 
   const report: FreshnessReport = {
     syncedAt: new Date().toISOString(),
     durationMs: Date.now() - startedAt,
     source: ft2Root,
-    counts: { sharedFiles, featureFiles, logFiles, docFiles, kbFiles, integritySnapshotFiles, bytesTotal },
+    counts: { sharedFiles, featureFiles, logFiles, docFiles, kbFiles, integritySnapshotFiles, skillFiles, bytesTotal },
     checkedFiles: checked,
   };
 
@@ -380,7 +526,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   syncDashboardData()
     .then((r) => {
       console.log(
-        `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features + ${r.counts.logFiles} feature logs + ${r.counts.docFiles} parser docs + ${r.counts.kbFiles} kb docs + ${r.counts.integritySnapshotFiles} integrity snapshots (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
+        `✓ synced FitTracker2 → fitme-story: ${r.counts.sharedFiles} shared + ${r.counts.featureFiles} features + ${r.counts.logFiles} feature logs + ${r.counts.docFiles} parser docs + ${r.counts.kbFiles} kb docs + ${r.counts.integritySnapshotFiles} integrity snapshots + ${r.counts.skillFiles} skills (${(r.counts.bytesTotal / 1024).toFixed(1)} KB) in ${r.durationMs}ms`
       );
       console.log(`  freshness: ${DEFAULT_PATHS.freshnessPath}`);
     })

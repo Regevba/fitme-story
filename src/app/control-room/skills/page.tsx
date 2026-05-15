@@ -1,24 +1,26 @@
 /**
- * /control-room/skills — Skills Activity panel (P1.2 MVP)
+ * /control-room/skills — Skills Activity panel (P1.2)
  *
  * Closes P1.2 from FitTracker2 `docs/skills/skills-review-2026-05-13.md` §5.
- * MVP scope: static inventory of the 12 project-owned skills under
- * FT2's `.claude/skills/*`. Frontmatter snapshot taken at the
- * 2026-05-14 v7.8.5+S sweep ship time.
  *
- * Dynamic data sources (state.json::cache_hits[], _session-*.events.jsonl,
- * live SKILL.md frontmatter) are NOT wired in this PR. They exist on the
- * FT2 side (per P1.1 `/dev skills trace` + P0.4 `make skills-audit`) but
- * are not yet mirrored into fitme-story's sync target. The follow-up:
+ * The 12 project-owned skills under FT2's `.claude/skills/*` are surfaced via
+ * a runtime manifest produced by `scripts/sync-from-fittracker2.ts` at
+ * prebuild time. The sync script parses every `SKILL.md` YAML frontmatter
+ * (name, description, last_updated, framework_version, status, adapters_used)
+ * and writes `src/data/skills/manifest.json`, which is loaded here via
+ * `loadSkillsManifest()` from `@/lib/control-room/skills-manifest`.
  *
- *   1. Extend `scripts/sync-from-fittracker2.ts` to mirror
- *      `.claude/skills/{name}/SKILL.md` → `src/data/skills/{name}/SKILL.md`
- *   2. Replace SKILL_MANIFEST below with a runtime YAML-frontmatter parser
- *   3. Add `_session-*.events.jsonl` aggregator for usage tracing
+ * Manifest freshness ⇄ prebuild freshness: the page's `Manifest date` footer
+ * shows `manifest.syncedAt`. If FT2 isn't on disk at build time, the sync
+ * falls back to the committed snapshot under src/data/.
  *
- * Until that lands, regenerate the manifest below by hand whenever a
- * SKILL.md `last_updated:` changes. The page footer shows the manifest
- * date so reviewers can spot rot.
+ * Editorial `PHASE_MAPPING` (which lifecycle phase a skill owns) stays
+ * hand-curated in this file — it's not part of SKILL.md frontmatter.
+ *
+ * Still deferred to a future follow-up (NOT in this PR):
+ *   - `_session-*.events.jsonl` aggregator for per-feature usage tracing
+ *     (the `/dev skills trace {feature}` empirical data surface)
+ *   - state.json::cache_hits[] aggregator for the same
  *
  * Gated by proxy.ts basic-auth on /control-room/*.
  */
@@ -26,6 +28,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
+
+import { loadSkillsManifest, type SkillRow as ManifestSkillRow, type SkillStatus } from '@/lib/control-room/skills-manifest';
 
 export const metadata: Metadata = {
   title: 'Skills Activity — Control room',
@@ -35,156 +39,60 @@ export const metadata: Metadata = {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
-// Skill manifest — hand-synced at sweep time. Update on any SKILL.md
-// frontmatter change. See header comment for follow-up to make dynamic.
+// Skill manifest — runtime-synced from FT2 at prebuild time (P1.2 follow-up).
+//
+// `scripts/sync-from-fittracker2.ts` parses every FT2 `.claude/skills/{name}/
+// SKILL.md` YAML frontmatter and writes `src/data/skills/manifest.json`.
+// `loadSkillsManifest()` reads that JSON at server-component-render time
+// (build time for static pages).
+//
+// PHASE_MAPPING below is editorial (which lifecycle phase the skill owns)
+// — not part of SKILL.md frontmatter, so it stays hand-curated here.
+// If a new skill ships without a phase entry, the page shows "—" until
+// this map is extended.
 // ────────────────────────────────────────────────────────────────────────────
 
-const MANIFEST_DATE = '2026-05-14';
-
-type SkillStatus = 'active' | 'stable' | 'planned' | 'deprecated';
-
-interface SkillRow {
-  name: string;
-  description: string; // first sentence of frontmatter description
-  status: SkillStatus;
-  lastUpdated: string; // YYYY-MM-DD
-  frameworkVersion: string; // vX.Y or vX.Y.Z
-  adaptersUsed: string[];
-  loc: number; // SKILL.md line count at sweep time (rough proxy for skill size)
-  phase: string; // one-line phase ownership
+interface PageSkillRow extends ManifestSkillRow {
+  phase: string;
 }
 
-const SKILLS: readonly SkillRow[] = [
-  {
-    name: 'pm-workflow',
-    description: 'Hub. 10-phase product lifecycle orchestrator + roadmap sub-cmd.',
-    status: 'active',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['ga4'],
-    loc: 1688,
-    phase: 'All phases (dispatch)',
-  },
-  {
-    name: 'ux',
-    description: 'UX research, specs, wireframes, validation, preflight + pre-merge-review gates.',
-    status: 'active',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['axe'],
-    loc: 525,
-    phase: 'Phase 0 (v2 audit) + Phase 3 + Phase 6',
-  },
-  {
-    name: 'design',
-    description: 'Design system governance, Figma MCP build, Code Connect bridge, preflight + pre-merge-review gates.',
-    status: 'active',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['axe'],
-    loc: 344,
-    phase: 'Phase 3 + Phase 6',
-  },
-  {
-    name: 'cx',
-    description: 'Reviews, NPS, sentiment, post-deploy digests, root-cause feedback dispatch.',
-    status: 'stable',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['app-store-connect', 'ga4', 'sentry'],
-    loc: 242,
-    phase: 'Phase 0 + Phase 8 + Phase 9',
-  },
-  {
-    name: 'analytics',
-    description: 'Event taxonomy, instrumentation validation, dashboards, funnels, live watch.',
-    status: 'active',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['ga4'],
-    loc: 232,
-    phase: 'Phase 1 + Phase 5 + Phase 8',
-  },
-  {
-    name: 'marketing',
-    description: 'ASO, campaigns, competitive analysis, content, launch comms, App Store screenshots.',
-    status: 'stable',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['app-store-connect', 'firecrawl'],
-    loc: 231,
-    phase: 'Phase 0 + Phase 8',
-  },
-  {
-    name: 'ops',
-    description: 'Infrastructure health, incident response, cloud cost audit, alert config.',
-    status: 'stable',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['security-audit', 'sentry'],
-    loc: 231,
-    phase: 'Cross-phase',
-  },
-  {
-    name: 'research',
-    description: 'Wide-to-narrow research funnel (cross-industry → same-category → feature-specific).',
-    status: 'active',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['firecrawl'],
-    loc: 230,
-    phase: 'Phase 0',
-  },
-  {
-    name: 'release',
-    description: 'Version bumps, changelogs, TestFlight prep, App Store submission.',
-    status: 'stable',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['app-store-connect'],
-    loc: 187,
-    phase: 'Phase 7',
-  },
-  {
-    name: 'qa',
-    description: 'Test planning, coverage, regression sweeps, security audits.',
-    status: 'active',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['axe', 'security-audit', 'sentry'],
-    loc: 179,
-    phase: 'Phase 5',
-  },
-  {
-    name: 'dev',
-    description: 'Branching, code review, CI status, deps, perf, skill-of-skills meta-checks.',
-    status: 'active',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: ['security-audit'],
-    loc: 173,
-    phase: 'Phase 4 + Phase 6 + Phase 7',
-  },
-  {
-    name: 'brainstorm-pm',
-    description: 'PM-flavored brainstorming with 4 modes (problem/solution/assumption/strategy) and 4 frameworks.',
-    status: 'active',
-    lastUpdated: '2026-05-14',
-    frameworkVersion: 'v7.8.5',
-    adaptersUsed: [],
-    loc: 210,
-    phase: 'Phase 0 (default new-feature entry point)',
-  },
-];
+const PHASE_MAPPING: Record<string, string> = {
+  'pm-workflow': 'All phases (dispatch)',
+  ux: 'Phase 0 (v2 audit) + Phase 3 + Phase 6',
+  design: 'Phase 3 + Phase 6',
+  cx: 'Phase 8 (post-launch) + Phase 9 (learn)',
+  analytics: 'Phase 1 (PRD) + Phase 4 (implement) + Phase 8 (post-launch)',
+  marketing: 'Phase 8 (post-launch) + Phase 9 (learn)',
+  ops: 'All phases (infra monitoring)',
+  research: 'Phase 0 (Research & Discovery)',
+  release: 'Phase 7 (merge) + Phase 8 (docs)',
+  qa: 'Phase 5 (test) + Phase 6 (review)',
+  dev: 'Phase 4 (implement) + Phase 5 (test) + Phase 6 (review) + skill-of-skills audit',
+  'brainstorm-pm': 'Phase 0 (default new-feature entry point)',
+};
+
+const MANIFEST = loadSkillsManifest();
+const MANIFEST_DATE = MANIFEST.syncedAt.slice(0, 10) || '(no sync)';
+
+const SKILLS: readonly PageSkillRow[] = MANIFEST.skills.map((s) => ({
+  ...s,
+  phase: PHASE_MAPPING[s.name] ?? '—',
+}));
+
 
 const FT2_GH = 'https://github.com/Regevba/FitTracker2';
 
-const STATUS_BADGE_STYLES: Record<SkillStatus, string> = {
+const STATUS_BADGE_STYLES: Record<SkillStatus | 'unknown', string> = {
   active: 'bg-[var(--color-success-bg)] text-[var(--color-success-fg)]',
   stable: 'bg-[var(--color-info-bg,#dbeafe)] text-[var(--color-info-fg,#1e40af)]',
   planned: 'bg-[var(--color-warn-bg)] text-[var(--color-warn-fg)]',
   deprecated: 'bg-[var(--color-neutral-200)] text-[var(--color-neutral-700)]',
+  unknown: 'bg-[var(--color-neutral-200)] text-[var(--color-neutral-700)]',
 };
+
+function statusKey(s: SkillStatus | ''): SkillStatus | 'unknown' {
+  return s === '' ? 'unknown' : s;
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // Section wrapper — mirrors framework/page.tsx style
@@ -247,9 +155,11 @@ export default function SkillsActivityPage() {
           >
             skills-review 2026-05-13
           </Link>{' '}
-          queue. MVP: static manifest dated <strong>{MANIFEST_DATE}</strong>; live data
-          (cache_hits + session ledgers + audit findings) deferred to a follow-up
-          sync extension.
+          queue. Manifest synced from FT2 SKILL.md frontmatter at{' '}
+          <strong>{MANIFEST_DATE}</strong> via{' '}
+          <code className="font-mono text-xs">scripts/sync-from-fittracker2.ts</code>;
+          per-feature usage tracing (cache_hits + session ledgers) still
+          deferred to a future sync extension.
         </p>
         <dl className="mt-6 grid grid-cols-3 gap-4 text-sm">
           <div>
@@ -326,8 +236,8 @@ export default function SkillsActivityPage() {
                     </p>
                   </td>
                   <td className="px-3 py-3 align-top">
-                    <span className={`inline-block rounded px-2 py-0.5 text-xs font-mono ${STATUS_BADGE_STYLES[s.status]}`}>
-                      {s.status}
+                    <span className={`inline-block rounded px-2 py-0.5 text-xs font-mono ${STATUS_BADGE_STYLES[statusKey(s.status)]}`}>
+                      {s.status || '—'}
                     </span>
                   </td>
                   <td className="px-3 py-3 align-top font-mono text-xs">{s.lastUpdated}</td>
@@ -429,16 +339,17 @@ export default function SkillsActivityPage() {
 
       <footer className="mt-16 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] pt-6 text-xs text-[var(--color-neutral-500)] dark:text-[var(--color-neutral-400)]">
         <p>
-          <strong>Manifest date:</strong> {MANIFEST_DATE} (v7.8.5+S sweep). Updated by hand when
-          any SKILL.md <code className="font-mono">last_updated:</code> changes.
+          <strong>Manifest date:</strong> {MANIFEST_DATE}. Auto-regenerated at prebuild time
+          by <code className="font-mono">scripts/sync-from-fittracker2.ts</code> from FT2's
+          live <code className="font-mono">.claude/skills/{'{name}'}/SKILL.md</code> frontmatter.
         </p>
         <p className="mt-2">
           <strong>Dynamic data plan:</strong> follow-up PR will extend{' '}
           <code className="font-mono">scripts/sync-from-fittracker2.ts</code> to mirror{' '}
           <code className="font-mono">.claude/skills/{'{name}'}/SKILL.md</code> into{' '}
-          <code className="font-mono">src/data/skills/</code>, then replace the static manifest
-          above with a YAML-frontmatter loader. Usage tracing (which skills fired per feature)
-          requires aggregating <code className="font-mono">_session-*.events.jsonl</code> — also
+          <code className="font-mono">src/data/skills/manifest.json</code> at prebuild time
+          (shipped 2026-05-15). Usage tracing (which skills fired per feature) still
+          requires aggregating <code className="font-mono">_session-*.events.jsonl</code> —
           deferred.
         </p>
       </footer>

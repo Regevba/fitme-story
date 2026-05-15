@@ -36,11 +36,13 @@ function makePaths(): { paths: SyncPaths; tmpRoot: string; cleanup: () => void }
     ft2Features:            join(tmpRoot, 'FitTracker2', '.claude', 'features'),
     ft2Logs:                join(tmpRoot, 'FitTracker2', '.claude', 'logs'),
     ft2IntegritySnapshots:  join(tmpRoot, 'FitTracker2', '.claude', 'integrity', 'snapshots'),
+    ft2Skills:              join(tmpRoot, 'FitTracker2', '.claude', 'skills'),
     localShared:            join(tmpRoot, 'fitme-story', 'src', 'data', 'shared'),
     localFeatures:          join(tmpRoot, 'fitme-story', 'src', 'data', 'features'),
     localLogs:              join(tmpRoot, 'fitme-story', 'src', 'data', 'logs'),
     localDocs:              join(tmpRoot, 'fitme-story', 'src', 'data', 'docs'),
     localIntegritySnapshots: join(tmpRoot, 'fitme-story', 'src', 'data', 'integrity', 'snapshots'),
+    localSkills:            join(tmpRoot, 'fitme-story', 'src', 'data', 'skills'),
     freshnessPath:          join(tmpRoot, 'fitme-story', 'src', 'data', 'freshness.json'),
   };
   // Pre-create the fitme-story output dir so sync can write into it.
