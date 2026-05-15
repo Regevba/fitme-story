@@ -16,6 +16,7 @@
 
   /* PM-flow skill palette — one color per skill (Tailwind -500 family for a11y) */
   --skill-pm-workflow: #4F46E5; /* indigo — hub (reuses brand-indigo) */
+  --skill-brainstorm-pm: #FB923C; /* amber-orange — Phase 0 framing sibling to /research */
   --skill-research: #F59E0B;    /* amber */
   --skill-ux: #D946EF;           /* fuchsia */
   --skill-design: #EC4899;       /* pink */
