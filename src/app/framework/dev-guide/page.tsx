@@ -10,9 +10,9 @@ import { useMDXComponents } from '@/mdx-components';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'PM Framework — Developer Guide (v1.0 → v7.8.5)',
+  title: 'PM Framework — Developer Guide (v1.0 → v7.8.6)',
   description:
-    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema (incl. v7.8.3 cross-repo state_owner enum), phase lifecycle, dispatch, cache, measurement protocol, 33 mechanical gates + 5 advisories, v7.8 bridge mechanisms (A–F), v7.8.3 cross-repo state-sync release umbrella (V2 enforced + V9 logs + D-3 unified PR cite cache + D-1 reverse-sync GH Action), v7.8.4 pre-v7.9 telemetry calibration (PR_CACHE_STALE auto-refresh + TIER_TAG heuristic narrowing), v7.8.5 observability layer (Observed Patterns Catalog of 23 gate patterns + 9 workflow patterns + W9 branch-drift real-time alert via PostToolUse:Bash hook), 3 operational walkthroughs, and the compressed v1.0 → v7.8.5 timeline.',
+    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema (incl. v7.8.3 cross-repo state_owner enum), phase lifecycle, dispatch, cache, measurement protocol, 34 mechanical gates + 5 advisories, v7.8 bridge mechanisms (A–F), v7.8.3 cross-repo state-sync release umbrella (V2 enforced + V9 logs + D-3 unified PR cite cache + D-1 reverse-sync GH Action), v7.8.4 pre-v7.9 telemetry calibration (PR_CACHE_STALE auto-refresh + TIER_TAG heuristic narrowing), v7.8.5 observability layer (Observed Patterns Catalog of 23 gate patterns + 9 workflow patterns + W9 branch-drift real-time alert via PostToolUse:Bash hook), v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit + daily stale-branch/PR-babysit), 3 operational walkthroughs, and the compressed v1.0 → v7.8.6 timeline.',
   slug: '/framework/dev-guide',
   type: 'article',
 });
@@ -77,7 +77,7 @@ export default async function DevGuidePage() {
           Developer guide
         </p>
         <h1 className="mt-2 font-serif text-[length:var(--text-display-lg)]">
-          PM Framework — Developer Guide (v1.0 → v7.8.5)
+          PM Framework — Developer Guide (v1.0 → v7.8.6)
         </h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Technical reference for developers onboarding to the framework. Not the
