@@ -1,0 +1,142 @@
+{
+  "syncedAt": "2026-05-15T04:19:24.893Z",
+  "source": "/Volumes/DevSSD/fitme-story/.worktrees/FitTracker2/.claude/skills",
+  "skills": [
+    {
+      "name": "analytics",
+      "description": "Use when planning event taxonomy for a new feature, auditing instrumentation drift (CSV ↔ enum ↔ code), building a metric dashboard, running a funnel analysis, producing a metric report, or watching live analytics events. Aligns events with docs/product/analytics-taxonomy.csv and enforces the screen-prefix naming convention. Sub-commands: /analytics spec {feature}, /analytics validate, /analytics dashboard {feature}, /analytics report, /analytics funnel {name}, /analytics watch.",
+      "status": "active",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "ga4"
+      ],
+      "loc": 348
+    },
+    {
+      "name": "brainstorm-pm",
+      "description": "Use when starting a new feature without a clear PRD shape, deciding whether the problem is real before investing in a solution, surfacing hidden assumptions in a proposed feature, or doing strategic framing (e.g. why this feature now, why not the alternative). PM-flavored brainstorming with 4 modes (problem / solution / assumption / strategy) and 4 frameworks (HMW / JTBD / First Principles / OST). Distinct from /superpowers:brainstorming which is generic creative work. Default Phase 0 (Research & Discovery) entry point for /pm-workflow on any new-feature work whose problem shape is not obvious.",
+      "status": "active",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [],
+      "loc": 227
+    },
+    {
+      "name": "cx",
+      "description": "Use when reviewing App Store / Play Store feedback, running NPS analysis, scoring review sentiment, building a post-deploy CX digest, refreshing the public roadmap, capturing testimonials, or root-cause analyzing customer confusion for a shipped feature. Dispatches messaging issues to /marketing, UX issues to /design, functional bugs to /dev + /qa, expectation mismatches to /pm-workflow. Sub-commands: /cx reviews, /cx nps, /cx sentiment, /cx testimonials, /cx roadmap, /cx digest, /cx analyze {feature}.",
+      "status": "stable",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "app-store-connect",
+        "ga4",
+        "sentry"
+      ],
+      "loc": 269
+    },
+    {
+      "name": "design",
+      "description": "Use when running a design-system audit, validating semantic tokens, running an accessibility pass, gating Phase 3 UI spec preflight (DS + Figma MCP liveness + Code Connect write-access), gating Phase 6 pre-merge UI review (ui-audit P0=0 + figma_node_ids populated + spec ↔ build parity), generating a Figma build prompt, or pushing screens into the FitMe Design System Library via Figma MCP with .figma.tsx / .figma.swift Code Connect auto-scaffold. Sub-commands: /design audit, /design tokens, /design accessibility, /design preflight {feature}, /design pre-merge-review {feature}, /design prompt {feature}, /design build {feature}. (DEPRECATED: /design figma → /design build; /design ux-spec → /ux spec.)",
+      "status": "active",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "axe"
+      ],
+      "loc": 372
+    },
+    {
+      "name": "dev",
+      "description": "Use when starting a feature branch, requesting code review, checking CI status, auditing dependencies, profiling a performance hotspot, or auditing the skills layer itself (skill-of-skills meta-checks). Respects high-risk-area review policy (DomainModels, EncryptionService, SupabaseSyncService, CloudKitSyncService, SignInService, AuthManager, AIOrchestrator). Sub-commands: /dev branch {feature}, /dev review, /dev deps, /dev perf, /dev ci-status, /dev skills {audit|trace|freshness}.",
+      "status": "active",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "security-audit"
+      ],
+      "loc": 226
+    },
+    {
+      "name": "marketing",
+      "description": "Use when refreshing App Store Optimization, launching a marketing campaign, running competitive analysis, drafting marketing content, sequencing onboarding email automation, planning launch comms for a shipped feature, or capturing App Store screenshots. Receives CX-dispatched messaging fixes from /cx analyze (messaging root cause → reposition/rephrase). Sub-commands: /marketing aso, /marketing campaign {name}, /marketing competitive, /marketing content {topic}, /marketing email {sequence}, /marketing launch {feature}, /marketing screenshots.",
+      "status": "stable",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "app-store-connect",
+        "firecrawl"
+      ],
+      "loc": 255
+    },
+    {
+      "name": "ops",
+      "description": "Use when running an infrastructure health check, responding to a production incident, auditing cloud cost, configuring alert thresholds, or feeding the UCC Source Health panel. Monitors Railway (FastAPI), Supabase (PostgreSQL), CloudKit, Firebase/GA4, Vercel, GitHub Actions. Sub-commands: /ops health, /ops incident {description}, /ops cost, /ops alerts.",
+      "status": "stable",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "security-audit",
+        "sentry"
+      ],
+      "loc": 257
+    },
+    {
+      "name": "pm-workflow",
+      "description": "Use when starting a new feature, resuming a paused feature, advancing a phase, running the v6.0 10-phase product management lifecycle (Research → PRD → Tasks → UX/Integration → Code → Test → Review → Merge → Docs → Learn), OR managing the roadmap (RICE / MoSCoW / Now-Next-Later prioritization + decision memos). Orchestrates skill-on-demand dispatch, model tiering (Sonnet vs Opus), batch operations, deterministic phase timing, cache-hit tracking, eval coverage gates, and CU v2 continuous factors. Invocations: /pm-workflow {feature-name} | /pm-workflow roadmap {review|prioritize|decide {item}}.",
+      "status": "active",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "ga4"
+      ],
+      "loc": 1730
+    },
+    {
+      "name": "qa",
+      "description": "Use when planning the test surface for a new feature, running the iOS test suite via xcodebuild, generating a coverage report, executing a regression sweep, or running a security audit. Enforces test-density targets (analytics 1.3-2.7× event/test ratio, integration tests for high-risk paths) and Gemini-audit Tier 1.1 / 2.1 / 3.2 coverage. Sub-commands: /qa plan {feature}, /qa run, /qa coverage, /qa regression, /qa security.",
+      "status": "active",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "axe",
+        "security-audit",
+        "sentry"
+      ],
+      "loc": 194
+    },
+    {
+      "name": "release",
+      "description": "Use when preparing a TestFlight or App Store release, drafting a pre-release checklist, generating release notes from the changelog, or submitting a build to App Store Connect. Verifies CI gates green (build + test + tokens-check + ui-audit P0=0) before promoting any build. Sub-commands: /release prepare, /release checklist, /release notes, /release submit.",
+      "status": "stable",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "app-store-connect"
+      ],
+      "loc": 212
+    },
+    {
+      "name": "research",
+      "description": "Use when researching a new feature, scanning competitive products in-category, mapping cross-industry UX patterns (Duolingo / Headspace / Strava / Notion / etc.), conducting an ASO research pass, or producing a market analysis. Works as a wide-to-narrow funnel (cross-industry → same-category → feature-specific). Sub-commands: /research wide {topic}, /research narrow {category}, /research feature {name}, /research competitive, /research market, /research ux-patterns {pattern}, /research aso.",
+      "status": "active",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "firecrawl"
+      ],
+      "loc": 253
+    },
+    {
+      "name": "ux",
+      "description": "Use when starting UX research for a new feature, drafting a UX spec, building wireframes, validating a spec against the 13 UX principles (8 core + 5 FitMe-specific), gating Phase 3 UX preflight (verifies spec cites real codebase symbols — saves 2-4h of Phase 4 rework per feature on average), gating Phase 6 UX pre-merge review (verifies shipped code matches spec + kill_criteria_resolution present), running a UX audit, or generating a UX build prompt. Sub-commands: /ux research {feature}, /ux spec {feature}, /ux wireframe {feature}, /ux validate {feature}, /ux preflight {feature}, /ux pre-merge-review {feature}, /ux audit, /ux patterns, /ux prompt {feature}.",
+      "status": "active",
+      "lastUpdated": "2026-05-14",
+      "frameworkVersion": "v7.8.5",
+      "adaptersUsed": [
+        "axe"
+      ],
+      "loc": 551
+    }
+  ]
+}
