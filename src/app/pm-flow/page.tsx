@@ -11,7 +11,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'The PM-flow ecosystem',
-  description: "How the framework's 11 skills orchestrate a continuous product-development cycle. A guide for PMs using Claude.",
+  description: "How the framework's 12 skills orchestrate a continuous product-development cycle. A guide for PMs using Claude.",
   slug: '/pm-flow',
 });
 

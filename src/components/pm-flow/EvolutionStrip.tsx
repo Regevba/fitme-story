@@ -30,7 +30,7 @@ const MILESTONES: Milestone[] = [
     version: 'v4.3',
     date: '2026-04-11',
     headline: 'Hub-and-spoke topology formalized',
-    what: '6 refactors validated the pattern. 6.5× measured speedup vs. the monolith. 11 skills in the topology.',
+    what: '6 refactors validated the pattern. 6.5× measured speedup vs. the monolith. 12 skills in the topology (as of 2026-05-14 +/brainstorm-pm).',
     caseStudyHref: '/case-studies/framework-evolution',
     tintVar: 'var(--color-brand-indigo)',
   },

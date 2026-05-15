@@ -32,7 +32,7 @@ export function LegoWall() {
   const toggle = (slug: SkillSlug) => setOpenSlug((cur) => (cur === slug ? null : slug));
 
   return (
-    <div className="my-8" aria-label="Lego wall — 11 skills in scattered or assembled layout">
+    <div className="my-8" aria-label="Lego wall — 12 skills in scattered or assembled layout">
       <LayoutGroup id="pm-flow-lego-wall">
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <div className="flex gap-1 font-sans text-sm border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] rounded-full p-1" role="tablist" aria-label="Layout">

@@ -34,7 +34,7 @@ import { loadSkillsManifest, type SkillRow as ManifestSkillRow, type SkillStatus
 export const metadata: Metadata = {
   title: 'Skills Activity — Control room',
   description:
-    'Inventory + last-updated + adapter usage for the 12 project-owned skills under .claude/skills/*. Static snapshot from the 2026-05-14 v7.8.5+S sweep; dynamic sync deferred to a follow-up.',
+    'Inventory + last-updated + adapter usage for the 12 project-owned skills under .claude/skills/*. Dynamically synced at prebuild from FT2 SKILL.md frontmatter (P1.2 runtime sync shipped via PR #111). Current snapshot reflects v7.8.6 (all 10 skills carry the preflight-cache pointer in their `## Shared Data` section per FT2 PR #363).',
   robots: { index: false, follow: false },
 };
 
@@ -201,7 +201,7 @@ export default function SkillsActivityPage() {
       <Section
         id="inventory"
         title="Inventory"
-        subtitle="Frontmatter snapshot at v7.8.5+S sweep time. Click a skill to open its SKILL.md on GitHub."
+        subtitle="Dynamic frontmatter sync at prebuild (PR #111). v7.8.6: all 10 skills carry the preflight-cache pointer in their Shared Data section. Click a skill to open its SKILL.md on GitHub."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-sm">
