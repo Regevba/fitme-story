@@ -53,10 +53,13 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* Accent stripe lives outside the button so its width stays fixed
-          regardless of any transforms on inner content. */}
+          regardless of any transforms on inner content. `rounded-l-md`
+          matches the parent's `rounded-md` so the stripe follows the
+          card's curve at top-left + bottom-left instead of bleeding into
+          the corner crescent created by the inner button's 1px border. */}
       <span
         aria-hidden
-        className="absolute left-0 top-0 bottom-0 w-1.5 pointer-events-none"
+        className="absolute left-0 top-0 bottom-0 w-1.5 pointer-events-none rounded-l-md"
         style={{ backgroundColor: skill.accent }}
       />
       <button

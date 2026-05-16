@@ -10,6 +10,151 @@ export const metadata = buildMetadata({
   slug: '/framework',
 });
 
+type Floor = {
+  n: number;
+  title: string;
+  summary: React.ReactNode;
+  href?: string;
+  hrefLabel?: string;
+};
+
+const FLOORS: Floor[] = [
+  {
+    n: 1,
+    title: 'State',
+    summary: (
+      <>
+        Source of truth — <code>state.json</code> per feature, integrity ledgers, append-only checkpoint logs.
+      </>
+    ),
+  },
+  {
+    n: 2,
+    title: 'Skill ecosystem',
+    summary: (
+      <>
+        <strong>12 skills</strong> since 2026-05-14 (1 hub + 11 spokes; was 11 through v7.8.4) plus their L1 / L2 / L3 cache tiers.
+      </>
+    ),
+    href: '/pm-flow',
+    hrefLabel: 'See the skills',
+  },
+  {
+    n: 3,
+    title: 'Skill-on-demand loading (v5.0)',
+    summary: (
+      <>
+        SoC primitive: load only the <code>SKILL.md</code> files the current phase needs — reclaims ~30K tokens per session.
+      </>
+    ),
+  },
+  {
+    n: 4,
+    title: 'Batch dispatch (v5.1)',
+    summary: <>SoC primitive: template-once-iterate-N pattern across feature tasks; reduces per-task overhead.</>,
+  },
+  {
+    n: 5,
+    title: 'Dispatch intelligence (v5.2)',
+    summary: (
+      <>
+        Score complexity → probe capability → dispatch with budget. Cuts average tool usage <strong>48%</strong> and variance <strong>84%</strong>.
+      </>
+    ),
+  },
+  {
+    n: 6,
+    title: 'Measurement (v6.0)',
+    summary: <>Deterministic phase timing, cache-hit tracking, eval coverage gates, CU v2 continuous factors.</>,
+  },
+  {
+    n: 7,
+    title: 'Enforcement (v7.x)',
+    summary: (
+      <>
+        <strong>34 mechanical gates + 5 advisories</strong> — write-time pre-commit hooks, 72h integrity cycle, per-PR review bot, weekly framework-status cron, Tier 1 / 2 / 3 readouts.
+      </>
+    ),
+  },
+  {
+    n: 8,
+    title: 'v7.8 → v7.9 bridge cadence',
+    summary: <>Patch-level releases adding observability surfaces without new enforcement gates. See timeline below.</>,
+  },
+];
+
+type BridgeEntry = {
+  version: string;
+  date: string;
+  summary: React.ReactNode;
+  planned?: boolean;
+};
+
+const BRIDGE_TIMELINE: BridgeEntry[] = [
+  {
+    version: 'v7.8',
+    date: '2026-05-04',
+    summary: <>Bridge layer ships — six advisory mechanisms <strong>A–F</strong>.</>,
+  },
+  {
+    version: 'v7.8.1',
+    date: '2026-05-07',
+    summary: <>Branch-isolation + feature-closure-completeness gates added (advisory).</>,
+  },
+  {
+    version: 'v7.8.2',
+    date: '2026-05-08',
+    summary: <>Cross-repo telemetry exemption documented — closes v7.9 candidates F7 + F8.</>,
+  },
+  {
+    version: 'v7.8.3',
+    date: '2026-05-11',
+    summary: (
+      <>
+        Cross-repo state-sync release umbrella (<code>V2 / V9 / D-1 / D-3</code>) — 5 phases × 10 PRs across 2 repos.
+      </>
+    ),
+  },
+  {
+    version: 'v7.8.4',
+    date: '2026-05-12',
+    summary: (
+      <>
+        <code>TIER_TAG_LIKELY_INCORRECT</code> heuristic narrowed + PR cache auto-refresh — clears a 33-finding false-positive class.
+      </>
+    ),
+  },
+  {
+    version: 'v7.8.5',
+    date: '2026-05-13',
+    summary: <>Observed Patterns Catalog (23 gate + 9 workflow patterns) + W9 branch-drift hook.</>,
+  },
+  {
+    version: 'v7.8.5+S',
+    date: '2026-05-14',
+    summary: (
+      <>
+        12 SKILL.md sweep + <code>make skills-audit</code> with 6 conformance checks. <code>/brainstorm-pm</code> added (12th skill).
+      </>
+    ),
+  },
+  {
+    version: 'v7.8.6',
+    date: '2026-05-15',
+    summary: (
+      <>
+        Cadence batch — <code>make integrity-diff</code> vs anchor, unified <code>make preflight WORK_TYPE</code>, weekly Mechanism A zero-drift, W1 ssh-agent preflight.
+      </>
+    ),
+  },
+  {
+    version: 'v7.9',
+    date: '~2026-06-01',
+    summary: <>Promotion target after a +7d zero-false-positive measurement window.</>,
+    planned: true,
+  },
+];
+
 export default function FrameworkPage() {
   return (
     <article className="max-w-4xl mx-auto px-6 py-16">
@@ -23,13 +168,75 @@ export default function FrameworkPage() {
       <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-16">
         <h2>How the floors cooperate</h2>
         <p>
-          The framework is organized as eight floors stacked on a shared slab. Floor 1 holds the source-of-truth state. Floor 2 is the hub-and-spoke of skills and their cache tiers (<strong>12 skills since 2026-05-14</strong>: 1 hub + 11 spokes — <code>/brainstorm-pm</code> added in the skills-review execution sweep). Floors 3–5 add successive SoC-inspired primitives — skill-on-demand loading, batch dispatch, dispatch intelligence. Floor 6 observes the lower floors via the v6.0 measurement overlay. Floor 7 promotes that observation into mechanical enforcement: 30+ gates + 5 advisories split across write-time pre-commit hooks, the 72h integrity cycle, a per-PR review bot, a weekly framework-status cron, and the Tier 1/2/3 readout dashboards. Floor 8 is the v7.8 → v7.9 bridge cadence (v7.8 shipped 2026-05-04 with six advisory mechanisms A–F; v7.8.1 added branch-isolation + closure-completeness gates 2026-05-07; v7.8.2 documented the cross-repo telemetry exemption 2026-05-08; v7.8.3 landed the cross-repo state-sync release umbrella with V2/V9/D-1/D-3 2026-05-11; v7.8.4 narrowed TIER_TAG heuristic + auto-refreshed PR cache 2026-05-12; v7.8.5 shipped the Observed Patterns Catalog + W9 branch-drift hook 2026-05-13; v7.8.5+S 2026-05-14 swept all 12 SKILL.md files for trigger-rich descriptions, frontmatter, observed-patterns preflight, anti-patterns, plus <code>make skills-audit</code> with 6 conformance checks and a preflight-fixture regression harness; v7.8.6 2026-05-15 closed the 96h drift window with <code>make integrity-diff</code> vs 2026-05-14 anchor + <code>make preflight WORK_TYPE=&lt;type&gt;</code> unified entry point writing <code>.claude/shared/preflight-cache.json</code> consumed by all 10 skills + W1 ssh-agent SessionStart preflight + weekly Mechanism A gate-coverage zero-drift scan + per-dimension trend nudge + weekly dependency audit + daily stale-branch / PR-babysit). v7.9 promotion lands ~2026-06-01 after a +7d measurement window confirms zero false-positives.
-        </p>
-        <p>
-          For the full worked example of a single sprint flowing through these floors, see the{' '}
-          <a href="/case-studies/soc-on-software">SoC-v5.0 case study</a>.
+          Eight floors stacked on a shared state slab. Each floor adds one capability on top of the floors below it — read top-down to see how state becomes skills, skills become primitives, primitives become measurement, and measurement becomes enforcement.
         </p>
       </div>
+
+      <section className="mt-8 grid gap-3" aria-label="The eight floors of the framework">
+        {FLOORS.map((floor) => (
+          <Card key={floor.n} variant="flat" padding="md">
+            <div className="flex items-baseline gap-3">
+              <span className="font-mono text-xs tabular-nums text-[var(--color-neutral-500)]">
+                {String(floor.n).padStart(2, '0')}
+              </span>
+              <h3 className="font-serif text-lg leading-tight">{floor.title}</h3>
+            </div>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+              {floor.summary}
+            </p>
+            {floor.href && (
+              <Link
+                href={floor.href}
+                className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[var(--color-brand-indigo)] hover:underline"
+              >
+                {floor.hrefLabel ?? 'Learn more'} <ArrowRight size={12} aria-hidden />
+              </Link>
+            )}
+          </Card>
+        ))}
+      </section>
+
+      <section className="mt-12" aria-label="v7.8 to v7.9 bridge timeline">
+        <h2 className="font-serif text-2xl">v7.8 → v7.9 bridge timeline</h2>
+        <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
+          Each entry is a patch-level release on Floor 8. All advisory surfaces; the enforcement-gate count holds at <strong>34 mechanical + 5 advisories</strong> until v7.9 promotion.
+        </p>
+        <ol className="mt-6 space-y-4 border-l border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pl-6">
+          {BRIDGE_TIMELINE.map((entry) => (
+            <li key={entry.version} className="relative">
+              <span
+                aria-hidden
+                className={`absolute -left-[29px] top-1.5 inline-block h-2.5 w-2.5 rounded-full ${
+                  entry.planned
+                    ? 'border-2 border-[var(--color-brand-indigo)] bg-transparent'
+                    : 'bg-[var(--color-brand-indigo)]'
+                }`}
+              />
+              <div className="flex items-baseline gap-3 flex-wrap">
+                <code className="font-mono text-sm font-semibold">{entry.version}</code>
+                <time className="text-xs tabular-nums text-[var(--color-neutral-500)]">{entry.date}</time>
+                {entry.planned && (
+                  <span className="text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)]">
+                    Planned
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-sm leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+                {entry.summary}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <p className="mt-10 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+        For the full worked example of a single sprint flowing through these floors, see the{' '}
+        <a href="/case-studies/soc-on-software" className="text-[var(--color-brand-indigo)] hover:underline">
+          SoC-v5.0 case study
+        </a>
+        .
+      </p>
+
       {/* T1 (P2-022 audit follow-up 2026-05-10): 2 inline rounded-lg interactive
           nav cards migrated to <Card interactive>. Hover-shadow-lg preserved
           via className override since the base Card doesn't include shadow. */}
