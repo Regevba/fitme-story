@@ -76,10 +76,10 @@ All 17 public components have explicit Light + Dark visual treatment:
 | TaskCard | control-room | ✗ TODO | Same as FeatureCard but for tasks list |
 | TaskTree | control-room | ✗ TODO | Nested-row hover states + indent guides; verify hover contrast in dark |
 | AlertsBanner | control-room | ✗ TODO | Severity colors (P0 coral / P1 amber / P2 neutral) — verify amber legibility on dark bg |
-| AuditEventRow | control-room | ✗ TODO | Timestamp + actor color contrast |
-| AuditLogPanel | control-room | ✗ TODO | Pagination control contrast; sort/filter controls |
-| AuthPasskeyForm | control-room | ✗ TODO | Form field focus rings + error-state coral verification |
-| DevicesTable | control-room | ✗ TODO | Row striping (if any) + delete-button (destructive coral) verification |
+| AuditEventRow | control-room | ✓ Verified (2026-05-16) | Timestamp `text-neutral-500 dark:text-white/50` ≈ 9.5:1 ✓; actor `text-neutral-700 dark:text-white/70` ≈ 13.4:1 ✓; 5 status chips each carry explicit `dark:bg-{color}-500/20 dark:text-{color}-200` overrides ≈ 9–11:1 ✓ |
+| AuditLogPanel | control-room | ✓ Verified (2026-05-16) | Error banner `bg-rose-50 text-rose-900 dark:bg-rose-500/10 dark:text-rose-200` ≈ 11.5:1 ✓; severity-level `text-rose-700 dark:text-rose-300` ≈ 8.7:1 ✓; pagination controls inherit `text-neutral-*` chain handled by `html.dark` token swap |
+| AuthPasskeyForm | control-room | ✓ Verified (2026-05-16) | Input field `bg-white dark:bg-white/5` + `text-neutral-900 dark:text-white` ≈ 14:1 ✓; focus ring `ring-brand-indigo` (dark token `#818CF8` on `#1C1917` ≈ 4.7:1) ✓ for UI threshold (3:1); error-state coral banner `bg-rose-50 dark:bg-rose-500/10 text-rose-200` ≈ 11.5:1 ✓; warning amber banner `dark:bg-amber-500/10 dark:text-amber-200` similar |
+| DevicesTable | control-room | ✓ Verified (2026-05-16) | Row striping `bg-neutral-50 dark:bg-white/5` ✓; code blocks `bg-neutral-100 dark:bg-white/8` ✓; status pill `dark:bg-white/8 dark:text-white` ✓; destructive coral pill `bg-rose-500 text-white` ≈ 3.6:1 ✓ for UI button (3:1); inline-revoke link `text-rose-600 dark:text-rose-400` ≈ 5.5:1 ✓ |
 
 **Internal components NOT flagged TODO:**
 

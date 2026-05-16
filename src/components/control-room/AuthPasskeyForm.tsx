@@ -239,7 +239,9 @@ export default function AuthPasskeyForm(props: AuthPasskeyFormProps) {
         type="button"
         onClick={handlePrimary}
         disabled={status === 'pending' || status === 'success' || status === 'locked'}
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-indigo px-6 text-sm font-semibold text-white transition hover:bg-brand-indigo-hover focus-visible:ring-2 focus-visible:ring-brand-indigo focus-visible:ring-offset-2 focus-visible:outline-none disabled:bg-brand-indigo/60"
+        className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-indigo px-6 text-sm font-semibold text-white transition hover:bg-brand-indigo-hover focus-visible:ring-2 focus-visible:ring-brand-indigo focus-visible:ring-offset-2 focus-visible:outline-none disabled:bg-brand-indigo/60${
+          props.mode === 'authenticate' && status === 'idle' ? ' coral-pulse-cta' : ''
+        }`}
         style={{ backgroundColor: 'var(--color-brand-indigo)' }}
       >
         {status === 'success' ? (
