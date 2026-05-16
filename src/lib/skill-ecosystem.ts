@@ -48,7 +48,7 @@ export const SKILLS: Skill[] = [
     slug: 'brainstorm-pm',
     displayName: '/brainstorm-pm',
     oneLiner: 'Problem framing & assumption surfacing. PM-flavored brainstorming for new features.',
-    accent: '#FB923C',
+    accent: '#14B8A6',
     accentVar: 'var(--skill-brainstorm-pm)',
     ring: 'inner',
     phaseOwnership: ['P0'],
