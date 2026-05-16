@@ -66,7 +66,12 @@ export function LegoBrick({ skill, isOpen, onToggle, onPickSkill }: Props) {
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        className={`w-full text-left rounded-md border bg-white dark:bg-[var(--color-neutral-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-indigo)] overflow-hidden transition-shadow pl-1.5 ${
+        // `h-full` so the white card body fills the motion.div's stretched
+        // height when CSS grid (parent ScatteredLayout) stretches sibling
+        // rows to match the tallest brick. Without it the button only sizes
+        // to its content and the absolute accent stripe (top-0 bottom-0 on
+        // motion.div) extends visibly below the white card body.
+        className={`w-full h-full text-left rounded-md border bg-white dark:bg-[var(--color-neutral-900)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-indigo)] overflow-hidden transition-shadow pl-1.5 ${
           expanded
             ? 'border-transparent shadow-xl'
             : 'border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]'
