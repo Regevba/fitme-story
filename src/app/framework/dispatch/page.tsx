@@ -23,10 +23,10 @@ export default function DispatchDemoPage() {
         <div className="prose prose-lg dark:prose-invert mt-4">
           <p>
             Each trace is a beat-by-beat replay of a real feature that shipped through the framework. The floors mirror the static{' '}
-            <a href="/framework">framework blueprint</a>: Floor 1 is the shared state slab, Floors 2–5 are successive dispatch primitives, Floor 6 is the measurement overlay.
+            <a href="/framework">framework blueprint</a>: Floor 1 is the shared state slab, Floor 2 is the skill ecosystem, Floors 3–5 are successive dispatch primitives, Floor 6 is the measurement overlay, Floor 7 is the enforcement layer, and Floor 8 is the v7.8 → v7.9 bridge cadence.
           </p>
           <p>
-            Floors marked <em>firing</em> are actively executing in that beat. Floors marked <em>dormant</em> were skipped entirely for this feature — which is the point: the framework selectively activates only what each task needs. Sprint I (mechanical) used 2 of 11 skills; the fitme-story build (UI-heavy) used 4 different ones.
+            Floors marked <em>firing</em> are actively executing in that beat. Floors marked <em>dormant</em> were skipped entirely for this feature — which is the point: the framework selectively activates only what each task needs. Sprint I (mechanical) used 2 of 12 skills; the fitme-story build (UI-heavy) used 4 different ones.
           </p>
           <p>
             The traces are pinned to the static methodology docs — click through for the full story.

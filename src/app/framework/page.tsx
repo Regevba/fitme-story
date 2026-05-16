@@ -6,7 +6,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'The framework',
-  description: 'Six floors of an AI-orchestrated PM framework, explained layer by layer.',
+  description: 'Eight floors of an AI-orchestrated PM framework, explained layer by layer.',
   slug: '/framework',
 });
 
@@ -161,7 +161,7 @@ export default function FrameworkPage() {
       <header className="mb-10">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">The framework</h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          Seven floors. Hover to explore how each layer contributes.
+          Eight floors. Hover to explore how each layer contributes.
         </p>
       </header>
       <BlueprintOverlay interactive />
@@ -253,7 +253,7 @@ export default function FrameworkPage() {
                   See the framework in motion →
                 </h2>
                 <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                  Two real feature traces walked through the six floors — scroll-driven, with floor-by-floor firing order.
+                  Two real feature traces walked through the eight floors — scroll-driven, with floor-by-floor firing order.
                 </p>
               </div>
               <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />

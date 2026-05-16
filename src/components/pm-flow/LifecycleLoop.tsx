@@ -430,7 +430,7 @@ export function LifecycleLoop() {
               onMouseLeave={() => setHover(null)}
               onFocus={() => setHover(src.id)}
               onBlur={() => setHover(null)}
-              className="cursor-pointer focus:outline-none"
+              className="cursor-pointer focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)] rounded"
             >
               <rect
                 x={pillLeft}
@@ -489,7 +489,7 @@ export function LifecycleLoop() {
               onMouseLeave={() => setHover(null)}
               onFocus={() => setHover('docs')}
               onBlur={() => setHover(null)}
-              className="cursor-help focus:outline-none"
+              className="cursor-help focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)] rounded"
             >
               <rect
                 x={pillLeft}
@@ -595,7 +595,7 @@ export function LifecycleLoop() {
               onMouseLeave={isP8 ? () => setHover(null) : undefined}
               onFocus={isP8 ? () => setHover('p8') : undefined}
               onBlur={isP8 ? () => setHover(null) : undefined}
-              className={isP8 ? 'cursor-help focus:outline-none' : 'cursor-pointer focus:outline-none'}
+              className={`${isP8 ? 'cursor-help' : 'cursor-pointer'} focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)] rounded-full`}
               style={{ outlineOffset: 4, opacity: isActive ? 1 : 0.25 }}
             >
               {isActive ? (
