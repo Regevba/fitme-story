@@ -444,6 +444,14 @@ export const GLOSSARY: GlossaryEntry[] = [
     full: 'FIDO2 is the FIDO Alliance\'s umbrella spec for phishing-resistant authentication: WebAuthn (the browser API) + CTAP (the protocol authenticators speak to clients over USB/NFC/BLE). YubiKeys, Touch ID, Face ID, Windows Hello, and Android Google Password Manager are all FIDO2 authenticators. fitme-story\'s passkey gate works with all of them via @simplewebauthn.',
   },
   {
+    slug: 'ucc-auth-mode',
+    term: 'UCC_AUTH_MODE',
+    aliases: ['UCC_AUTH_MODE', 'control-room auth mode', 'auth mode env'],
+    category: 'web',
+    tooltip: 'The env var that controls how /control-room/* is gated — basic, passkey, or both — and is the single rollback lever during the cutover.',
+    full: 'UCC_AUTH_MODE is the env var fitme-story\'s proxy.ts checks on every request to /control-room/*. Three values: `basic` (HTTP basic-auth via DASHBOARD_USER/DASHBOARD_PASS — the legacy mode for ~30 days through 2026-05-16); `passkey` (iron-session cookie required, redirect to /control-room/sign-in on miss — the steady-state target); `both` (accept either, audit-log which path was used — the cutover window). Default when unset = `basic`. Cutover Parts 1-6 shipped 2026-05-16 flipping basic → both; Part 8 (flip both → passkey + drop DASHBOARD_USER/DASHBOARD_PASS) calendar-gated on/after 2026-05-28 per infra-master-plan-2026-05-12 §4.1. Rollback at any phase = PATCH the env back via Vercel REST API in 30 seconds.',
+  },
+  {
     slug: 'observed-patterns-catalog',
     term: 'Observed Patterns Catalog',
     aliases: ['observed patterns', 'pattern catalog', 'observed-patterns.md'],

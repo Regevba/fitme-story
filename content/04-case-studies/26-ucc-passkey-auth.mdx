@@ -186,3 +186,16 @@ Compliance ledger on this ship: ✓ ✓ ✓ ✓ ✓ ✓ — the `kill_criteria_r
 - Predecessor: [Unified Control Center](/case-studies/unified-control-center) — produced the T2.5 deferral
 - Sibling: [Auth Polish v2](/case-studies/auth-polish-v2) — iOS-side passkey patterns ported here
 - Protocol: [Framework v7.8.1 — Branch Isolation + Closure Completeness](/case-studies/framework-v7-8-1-branch-isolation) — the v7.8 protocol gated this ship
+
+## 2026-05-16 cutover update
+
+Setup-guide Parts 1-6 EXECUTED 2026-05-16, nine days post-ship. The dashboard now runs at `UCC_AUTH_MODE=both`: passkey AND legacy basic-auth both accepted on `/control-room/*` during the cutover window. One platform passkey registered for the first operator (Redis-verified). The legacy `DASHBOARD_USER`/`DASHBOARD_PASS` credentials are preserved as a single-env-var rollback path.
+
+**Remaining cutover steps (calendar-anchored):**
+
+- **2026-05-17** — wire `UCC_AUDIT_BLOB_URL` repo variable in FT2 (after tonight's 05:13 UTC cron fires); activates the daily audit-log GHA
+- **2026-05-18+** — verify framework-health passkey panel renders with real audit data (depends on the above + 1 daily sync)
+- **2026-05-23** — T+7d kill-criteria checkpoint (K1 registration ceremony failure rate ≤ 5%, K2 zero counter_replay events, K3 function p50 ≤ 500ms sustained 24h)
+- **2026-05-28+** — Part 8 `UCC_AUTH_MODE=passkey` + drop legacy basic-auth (calendar-gated post-v7.9 promotion to avoid co-firing two large infra changes)
+
+Four operational quirks captured for future operators: the Vercel CLI `env add` silently writes empty values in headless mode (worked around via REST API direct POST); the bootstrap CLI does not fall back from `UPSTASH_REDIS_REST_*` to `KV_REST_API_*` (worked around via inline export); sensitive-typed env vars are write-only by design (verify writes via non-sensitive dev copy); local `.vercel/project.json` may point to legacy `fit-tracker2` project (re-link to `fitme-story` before provisioning). Full details + reproduction commands in the [source case study §99](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/ucc-passkey-auth-case-study.md#99-resolution-log-post-launch).

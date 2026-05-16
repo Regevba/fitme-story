@@ -57,7 +57,7 @@ The dashboard is gated by three independent layers so a single misconfiguration 
 
 | Layer | Code | Behavior |
 |---|---|---|
-| **1 — basic-auth proxy** | [`src/proxy.ts`](src/proxy.ts) | Intercepts every request to `/control-room/*`. Requires `DASHBOARD_USER` + `DASHBOARD_PASS` env vars; rejects unauthenticated requests with HTTP 401. Override with `DASHBOARD_PUBLIC=true` to disable auth (e.g., for a temporary public-mode demo). |
+| **1 — auth proxy (passkey + basic-auth)** | [`src/proxy.ts`](src/proxy.ts) | Intercepts every request to `/control-room/*`. Behavior controlled by `UCC_AUTH_MODE` env var: `basic` = HTTP basic-auth via `DASHBOARD_USER`/`DASHBOARD_PASS`; `passkey` = iron-session cookie + WebAuthn ceremony, redirect to `/control-room/sign-in` on miss; `both` (current as of 2026-05-16) = accept either, audit-log which path was used. Cutover from `basic` → `both` shipped 2026-05-16; flip to `passkey`-only calendar-gated for 2026-05-28+ (post-v7.9 promotion). Override with `DASHBOARD_PUBLIC=true` to disable ALL auth (local dev only). Full runbook: [`FT2 docs/setup/ucc-passkey-auth-setup-guide.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/setup/ucc-passkey-auth-setup-guide.md). |
 | **2 — crawler exclusion** | `app/sitemap.ts`, `app/robots.ts` | `/control-room/*` is excluded from the sitemap and disallowed in robots.txt. Crawlers and link-preview bots can't discover the routes even if the auth gate is up. |
 | **3 — build-time strip** | `next.config.ts` | When `DASHBOARD_BUILD=false`, every `/control-room/*` route rewrites to `/404` and the dashboard bundle is dropped via `webpack.IgnorePlugin`. Used for emergency takedowns or for staging environments that should never ship the dashboard at all. |
 
