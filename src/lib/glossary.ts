@@ -491,4 +491,20 @@ export const GLOSSARY: GlossaryEntry[] = [
     tooltip: 'An append-only weekly snapshot of which gates have emitted Mechanism A coverage telemetry, used to detect any gate that stopped emitting week-over-week.',
     full: 'Shipped at framework v7.8.6 (2026-05-15, FT2 PR #363). Each Monday at 05:00 UTC, the framework-status-weekly.yml workflow runs scripts/weekly-trend-scan.py over .claude/logs/gate-coverage.jsonl and appends a single row to .claude/shared/gate-coverage-weekly.jsonl listing the distinct gates that emitted that week. Any gate that previously emitted but stopped → the framework-status digest issue opens with reason "A2 gate-coverage", surfacing the silent-pass risk before it accumulates. Complements per-gate GATE_COVERAGE_ZERO advisory by adding a week-over-week comparator, addressing the documented v7.8.0-era HADF Phase 2-bis 9-commit silent-pass incident (observed-patterns #3) at a longer time horizon.',
   },
+  {
+    slug: 'w10-stale-branches',
+    term: 'W10 — Stale `[gone]` branches + orphan worktrees',
+    aliases: ['W10', 'stale branches', 'gone branches', 'orphan worktrees', 'clean_gone'],
+    category: 'framework',
+    tooltip: 'A daily-checkpoint surface that lists local branches whose remote was deleted plus any orphan worktrees the operator may have forgotten about.',
+    full: 'Workflow pattern W10 in the Observed Patterns Catalog. Shipped at framework v7.8.6 (2026-05-15, FT2 PR #365) as part of the daily-checkpoint nice-to-have batch. `scripts/daily-integrity-checkpoint.py` lists, in its daily output, local branches whose remote-tracking ref is `[gone]` (the remote was deleted, typically by squash-merge) plus any worktrees in `.claude/worktrees/` that may have been forgotten. The surface is informational, not blocking — cleanup is operator-driven by design because (a) W5 prohibits destructive ops without approval and (b) `[gone]` branches sometimes still hold unpushed WIP. Cleanup is run via the bundled `commit-commands:clean_gone` skill, which lists candidates, asks for confirmation, and atomically removes branch + worktree. Routine drift is 1-5/week; investigate when >10/week, when a worktree is on a non-`[gone]` branch (forgotten active work), or when an unfamiliar branch appears (possible W9 branch-drift artifact from a concurrent session).',
+  },
+  {
+    slug: 'ga4-access-binding',
+    term: 'GA4 access binding',
+    aliases: ['access binding', 'accessBindings', 'GA4 SA binding', 'GA4 service account binding'],
+    category: 'framework',
+    tooltip: 'The mapping of a Google Cloud service account to a GA4 property that grants the GA4 MCP server permission to read events.',
+    full: "An access binding is GA4's term for the IAM grant that links a Google Cloud service account identity to a specific GA4 property (e.g., FitMe's property `531124395`) with a stated role (typically Viewer). Without it, the GA4 MCP server hits 403 PERMISSION_DENIED on every query. The happy path is the GA4 UI: paste the SA email → click Add. Two failure modes stack on top of each other and have been observed: (1) the UI rejects the SA email with `This email doesn't match a Google account` — caused by identity-propagation lag, the \"Notify by email\" checkbox left CHECKED, or Google's 2026-04-23 behavior change blocking newly-created SAs from being added via the UI; (2) the OAuth Playground API workaround is blocked by Google's Advanced Protection Program (APP) when requesting elevated scopes like `analytics.edit`. Three recovery paths are documented in `docs/setup/ga4-access-binding-setup-guide.md` (FT2 PR #376, 2026-05-16): UI retry with propagation-wait + checkbox UNCHECK; bind from a non-APP Google account; configure an own OAuth client + use it in Playground.",
+  },
 ];
