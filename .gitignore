@@ -68,3 +68,4 @@ scripts/__pycache__/
 .claude/shared/integrity-checkpoint-regression.flag
 .claude/scheduled_tasks.lock
 .claude/worktrees/
+.env*.local

@@ -105,6 +105,18 @@ html.dark {
   }
 }
 
+/* UU1 — UCC coral-pulse nudge animation (ux-spec §6 follow-up; 1 P2 from ucc-passkey-auth
+   ux-pre-merge-review). Fires once on /control-room/sign-in passkey CTA mount, 800ms after
+   load, drawing the eye to the "Unlock with passkey" button. The global prefers-reduced-motion
+   rule above neutralizes the animation (0.001ms duration) for users with motion sensitivity. */
+@keyframes coral-pulse-cta {
+  0%   { box-shadow: 0 0 0 0  color-mix(in srgb, var(--color-brand-coral) 60%, transparent); }
+  100% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-brand-coral) 0%,  transparent); }
+}
+.coral-pulse-cta {
+  animation: coral-pulse-cta 700ms ease-out 800ms 1 forwards;
+}
+
 /* T5 (P2-040 audit follow-up 2026-05-10): semantic class for the repeated
    divider-row pattern (token-list rows with bottom border + pb-2 spacing).
    Used in TokenSwatch.MotionTokenRow + ZIndexLadderRow, and the design-system
