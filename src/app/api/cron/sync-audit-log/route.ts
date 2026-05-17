@@ -1,24 +1,30 @@
 // src/app/api/cron/sync-audit-log/route.ts
 //
-// T21 Vercel-Cron sibling — invoked daily by the cron entry in vercel.json.
+// Vercel-Cron sibling — invoked daily by the cron entry in vercel.json.
 //
-// Reads .local/ucc-auth-events.jsonl off the function host and PUTs it into
-// a Vercel Blob. The FT2 GHA workflow (T22) pulls that Blob the next morning
-// and commits the file into FT2/.claude/logs/.
+// Reads the live audit-log from Upstash Redis (`ucc:audit-log:events`),
+// SANITIZES each event (hashes operator_label so PII never crosses to the
+// public blob), then PUTs the sanitized JSONL to a Vercel Blob. The FT2
+// GHA workflow (T22) pulls that blob the next morning and commits the
+// file into FT2/.claude/logs/.
+//
+// Why sanitize at the cron-write boundary:
+//   - Redis (private, token-gated) holds operator emails raw so the
+//     in-app AuditLogPanel can show "you signed in" to authenticated
+//     operators viewing their own activity.
+//   - Vercel Blob with access:public + addRandomSuffix:false produces a
+//     deterministic URL (so FT2 can hard-code UCC_AUDIT_BLOB_URL once)
+//     but the URL is publicly readable to anyone who guesses it. Operator
+//     emails MUST NOT cross that boundary.
+//
+// Security amendment per ucc-passkey-auth-audit-log-redis-fix
+// pre-implementation audit (2026-05-17).
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { promises as fs } from 'node:fs';
-import * as path from 'node:path';
 import { put } from '@vercel/blob';
+import { readAllEvents, sanitizeForPublicExport } from '@/lib/auth/redis-audit-log';
 
 export const runtime = 'nodejs';
-
-function getLogPath(): string {
-  return (
-    process.env.UCC_AUDIT_LIVE_PATH ??
-    path.join(process.cwd(), '.local', 'ucc-auth-events.jsonl')
-  );
-}
 
 function getBlobPathname(): string {
   return process.env.UCC_AUDIT_BLOB_PATH ?? 'ucc-auth-events.jsonl';
@@ -43,21 +49,39 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  let raw: string;
+  let events: unknown[];
   try {
-    raw = await fs.readFile(getLogPath(), 'utf8');
-  } catch {
-    return NextResponse.json({ ok: true, synced: 0, reason: 'no_log_yet' });
+    events = await readAllEvents();
+  } catch (err) {
+    return NextResponse.json(
+      { error: 'redis_read_failed', synced: 0, message: String(err) },
+      { status: 500 },
+    );
   }
 
-  const lineCount = raw.split('\n').filter((l) => l.trim()).length;
+  if (events.length === 0) {
+    return NextResponse.json({ ok: true, synced: 0, reason: 'no_events_yet' });
+  }
 
-  const blob = await put(getBlobPathname(), raw, {
+  // Sanitize each event before writing the public blob.
+  const sanitized = events
+    .filter((e): e is Record<string, unknown> => typeof e === 'object' && e !== null)
+    .map(sanitizeForPublicExport);
+
+  const jsonl = sanitized.map((e) => JSON.stringify(e)).join('\n') + '\n';
+
+  const blob = await put(getBlobPathname(), jsonl, {
     access: 'public',
     addRandomSuffix: false,
+    allowOverwrite: true,
     contentType: 'application/x-ndjson',
     token: blobToken,
   });
 
-  return NextResponse.json({ ok: true, synced: lineCount, url: blob.url });
+  return NextResponse.json({
+    ok: true,
+    synced: sanitized.length,
+    url: blob.url,
+    pii_redacted: true,
+  });
 }
