@@ -30,9 +30,15 @@ Need a new visual element on a fitme-story route?
 │  └─ YES ↓
 │
 ├─ Is this a control-room (operator-only) component?
-│  └─ YES → status: 'Internal'. Skip Figma frame creation.
-│       Add to manifest with figmaNodeIds: null + hasFigmaConnect: false.
-│       See §3 Internal components.
+│  └─ YES ↓ (check §3.1 form-driven exception first)
+│  │   │
+│  │   ├─ Form-driven + pre-auth surface? (see §3.1 criteria)
+│  │   │  └─ YES → status: 'Stable'. Build it like a public component → §2.
+│  │   │  └─ NO ↓
+│  │   │
+│  │   └─ status: 'Internal'. Skip Figma frame creation.
+│  │        Add to manifest with figmaNodeIds: null + hasFigmaConnect: false.
+│  │        See §3 Internal components.
 │  └─ NO ↓ (this is a public component)
 │
 └─ Build it as a Stable public component → §2 below.
@@ -144,6 +150,52 @@ Internal components (control-room, bespoke illustrations) follow code-first desi
 - Block on designer review for Internal-component visual changes — code review covers these
 
 **Why:** Internal surfaces serve operator-only / behind-auth routes. They are heavily data-driven (TaskTree, AuditLogPanel, DevicesTable) — designing them in Figma without realistic data fixtures produces low-fidelity stubs that mislead more than help. The React implementation IS the design source of truth; designers iterate by reading the code + browser dev tools.
+
+### §3.1 Form-driven exception (added 2026-05-17)
+
+A narrow exception to §3: a control-room component MAY have full Figma representation when **both** criteria hold:
+
+1. **Form-driven, not data-driven.** The component renders a static set of inputs + buttons + a finite enumerable set of error/success states. No tables, lists, dynamic counts, or other "needs realistic data fixtures" UI.
+2. **Shown to unauthenticated or pre-session users.** The component lives behind no real session yet (the user is trying to acquire one). Examples: sign-in, sign-up, recovery, password-reset.
+
+**Both criteria must hold.** A control-room form that consumes dynamic data (e.g., a revoke-confirmation dialog that lists existing devices) does NOT qualify.
+
+**Qualifying components (initial list, 2026-05-17):**
+
+| Component | Path | Why qualifying |
+|---|---|---|
+| `AuthPasskeyForm` | `src/components/control-room/AuthPasskeyForm.tsx` | Email input + WebAuthn button + 8 known error states (`ERROR_REASON` map at AuthPasskeyForm.tsx:36-46). Shown pre-auth. |
+| `/control-room/sign-in` (page) | `src/app/control-room/sign-in/page.tsx` | Wraps `AuthPasskeyForm` in `mode=authenticate`. Pre-auth. |
+| `/control-room/sign-in/recover` (page) | `src/app/control-room/sign-in/recover/page.tsx` | Bootstrap-token paste + `AuthPasskeyForm` in `mode=register`. Pre-auth. |
+
+**Components that stay Internal under §3 (do NOT qualify):**
+
+- `TaskTree`, `FeatureCard`, `TaskCard` — heavily data-driven; list dynamic counts
+- `AlertsBanner` — content depends on `framework-health.json` derived state
+- `AuditEventRow`, `AuditLogPanel` — render dynamic audit-log entries
+- `DevicesTable` — lists registered devices (data-driven); revoke confirmation depends on which device row
+
+**Manifest contract under the §3.1 exception:**
+
+For a component that qualifies under §3.1, the manifest entry MUST be:
+
+- `status: 'Stable'` (not `'Internal'`)
+- `figmaNodeIds: { component_root: "<node-id>", variant_idle: "<node-id>", ... }` populated
+- `hasFigmaConnect: true`
+- `darkModeStatus: 'Designed'` — the Figma frame defines the dark-mode appearance
+- `.figma.tsx` Code Connect file required at the same path-stem as the component
+
+**Drift detection:** `figma-drift` SHOULD include §3.1-qualifying components in its public-parity calculation (they DO have Figma frames; drift IS meaningful for them). The Internal allowlist exempts the rest of `control-room/*` from the calculation, NOT §3.1-qualifying components.
+
+**Why this exception exists:**
+
+Pre-auth surfaces are effectively public-feeling — they're often the first impression of the operator dashboard, and they accept hostile traffic (failed sign-in attempts). The §3 "no realistic data fixtures" concern doesn't apply to a screen whose entire UI is an email input + a button + 8 enumerable error states. The cost of designing them in Figma is bounded (no fixture-shopping needed); the value is full design-review on the screens that shape first impressions.
+
+**How to apply:**
+
+Before flipping a control-room component from `Internal` to `Stable` via §3.1, confirm BOTH criteria above. If criterion 1 ("form-driven, not data-driven") is borderline — the component renders ANY dynamic content beyond static text + known-enumerable states — default to keeping it Internal under §3. The exception is narrowly scoped on purpose.
+
+**Provenance:** added as part of the `ucc-sign-in-figma-mapping` enhancement on `ucc-passkey-auth`. See `.claude/features/ucc-sign-in-figma-mapping/state.json` (FT2) for the task breakdown that introduced this clause.
 
 ---
 
