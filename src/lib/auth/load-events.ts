@@ -1,34 +1,25 @@
 // src/lib/auth/load-events.ts
 //
-// Server-side loader for the audit log JSONL. Used by the audit page (T17)
-// and the AuditLogPanel (T18). Mirrors the load-ledgers.ts pattern.
+// Server-side loader for the audit log. Used by the audit page (T17) and
+// the AuditLogPanel (T18).
+//
+// Reads from Upstash Redis LIST `ucc:audit-log:events` via
+// redis-audit-log.ts. Redis LPUSH puts newest at HEAD, so readEvents
+// already returns newest-first — no manual reverse needed.
+//
+// Historical note (2026-05-07 → 2026-05-17): originally read from
+// cwd/.local/ucc-auth-events.jsonl which silently failed on Vercel
+// (function fs is read-only). Migrated to Redis via the
+// ucc-passkey-auth-audit-log-redis-fix enhancement.
 
-import { promises as fs } from 'node:fs';
-import * as path from 'node:path';
 import type { AuditEvent } from '@/components/control-room/AuditEventRow';
-
-function getLiveLogPath(): string {
-  return (
-    process.env.UCC_AUDIT_LIVE_PATH ??
-    path.join(process.cwd(), '.local', 'ucc-auth-events.jsonl')
-  );
-}
+import { AUDIT_LOG_MAX_EVENTS, readEvents } from './redis-audit-log';
 
 export async function loadAuthEvents(limit?: number): Promise<AuditEvent[]> {
   try {
-    const raw = await fs.readFile(getLiveLogPath(), 'utf8');
-    const lines = raw.split('\n').filter((l) => l.trim());
-    const events = lines
-      .map((l): AuditEvent | null => {
-        try {
-          return JSON.parse(l) as AuditEvent;
-        } catch {
-          return null;
-        }
-      })
-      .filter((e): e is AuditEvent => e !== null)
-      .reverse(); // newest first
-    return typeof limit === 'number' ? events.slice(0, limit) : events;
+    const count = typeof limit === 'number' ? limit : AUDIT_LOG_MAX_EVENTS;
+    const events = (await readEvents(count)) as AuditEvent[];
+    return events;
   } catch {
     return [];
   }

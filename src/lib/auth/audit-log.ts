@@ -2,25 +2,33 @@
 //
 // T3 — Audit log writer.
 //
-// Two-stage write:
-//   1) Local JSONL append at fitme-story/.local/ucc-auth-events.jsonl (live source)
-//   2) Best-effort POST to a Vercel Blob (non-blocking) for daily GHA pull into FT2
+// Primary store: Upstash Redis LIST `ucc:audit-log:events` via
+// redis-audit-log.ts. Bounded at 10k events via LTRIM on each write.
 //
-// Privacy: never log raw credentialID, raw IP, full UA, raw token. SHA-256 hashes
-// for cross-event correlation; IP truncated; UA stripped to family.
+// Secondary (optional): best-effort POST to UCC_AUDIT_BLOB_ENDPOINT for
+// external log forwarders (Logflare, Axiom, etc.). No-op when unset.
+//
+// The cron route /api/cron/sync-audit-log reads Redis, sanitizes PII
+// (hashes operator_label), and writes a public Vercel Blob for daily
+// FT2 sync. Redis stays the live source; the blob is a derived export.
+//
+// Privacy: never log raw credentialID, raw IP, full UA, raw token.
+// SHA-256 hashes for cross-event correlation; IP truncated; UA stripped
+// to family. operator_label STAYS RAW in Redis (read by AuditLogPanel
+// for authenticated operators viewing their own activity) but is
+// hashed at the cron-write boundary before crossing to the public blob.
+//
+// Historical note (2026-05-07 → 2026-05-17): originally Stage 1 was
+// fs.appendFile(cwd/.local/ucc-auth-events.jsonl) — silently failed on
+// Vercel function fs (read-only). Stage 2 (UCC_AUDIT_BLOB_ENDPOINT) was
+// never provisioned. Audit events written via that broken design landed
+// nowhere. Migrated to Redis primary via the
+// ucc-passkey-auth-audit-log-redis-fix enhancement.
 
-import { promises as fs } from 'node:fs';
-import * as path from 'node:path';
 import { sha256Truncated } from './util';
+import { pushEvent, readEvents } from './redis-audit-log';
 
 const SCHEMA_VERSION = 1;
-
-function getLiveLogPath(): string {
-  return (
-    process.env.UCC_AUDIT_LIVE_PATH ??
-    path.join(process.cwd(), '.local', 'ucc-auth-events.jsonl')
-  );
-}
 
 function getBlobEndpoint(): string | null {
   return process.env.UCC_AUDIT_BLOB_ENDPOINT || null;
@@ -112,19 +120,20 @@ function uaFamilyFromRaw(ua: string): string {
 
 export async function logAuthEvent(input: AuthEventInput): Promise<void> {
   const record = redactInput(input);
-  const line = JSON.stringify(record) + '\n';
 
-  // Stage 1: append to local JSONL (best effort; never throws).
-  const livePath = getLiveLogPath();
+  // Stage 1: Redis primary store (bounded LIST via LTRIM).
+  // Best-effort — auth must NOT fail because of audit-log delivery.
   try {
-    await fs.mkdir(path.dirname(livePath), { recursive: true });
-    await fs.appendFile(livePath, line, 'utf8');
-  } catch (err) {
-    // Local fs may be read-only on Vercel — that's expected; rely on Blob.
-    // Don't surface to caller.
+    await pushEvent(record);
+  } catch {
+    // Redis unreachable / quota exhausted — swallow. The auth path's
+    // primary state (operators, credentials, sessions) lives in the
+    // same Redis instance, so a hard failure here would already have
+    // blocked auth upstream. If it didn't, this is a transient blip.
   }
 
-  // Stage 2: best-effort POST to Vercel Blob (non-blocking).
+  // Stage 2: optional best-effort external forwarder (Logflare, Axiom).
+  // No-op when UCC_AUDIT_BLOB_ENDPOINT is unset (default in prod today).
   const blobEndpoint = getBlobEndpoint();
   if (blobEndpoint) {
     try {
@@ -134,7 +143,7 @@ export async function logAuthEvent(input: AuthEventInput): Promise<void> {
           'Content-Type': 'application/x-ndjson',
           Authorization: `Bearer ${process.env.UCC_AUDIT_BLOB_TOKEN ?? ''}`,
         },
-        body: line,
+        body: JSON.stringify(record) + '\n',
       });
     } catch {
       // Swallow — auth must not fail because of audit-log delivery.
@@ -142,14 +151,11 @@ export async function logAuthEvent(input: AuthEventInput): Promise<void> {
   }
 }
 
-// Test seam — read all events from the live log (used by AuditLogPanel + tests).
-export async function readAuthEvents(): Promise<unknown[]> {
+// Read the last N events from Redis. Default 50 matches AuditLogPanel's
+// "Recent events" view. Returns parsed records.
+export async function readAuthEvents(count = 50): Promise<unknown[]> {
   try {
-    const raw = await fs.readFile(getLiveLogPath(), 'utf8');
-    return raw
-      .split('\n')
-      .filter((l) => l.trim())
-      .map((l) => JSON.parse(l));
+    return await readEvents(count);
   } catch {
     return [];
   }
