@@ -395,10 +395,13 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     purpose: 'WebAuthn passkey registration / sign-in form for /control-room/sign-in.',
     whereUsed: '/control-room/sign-in only.',
     category: 'control-room',
-    status: 'Internal',
-    figmaNodeIds: null,
-    hasFigmaConnect: false,
-    darkModeStatus: 'TODO',
+    status: 'Stable',
+    figmaNodeIds: [
+      { variant: 'authenticate', nodeId: '30-2' },
+      { variant: 'register', nodeId: '30-8' },
+    ],
+    hasFigmaConnect: true,
+    darkModeStatus: 'Designed',
   },
   {
     name: 'DevicesTable',
