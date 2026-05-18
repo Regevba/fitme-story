@@ -131,8 +131,12 @@ export function analyzeLocalDrift(
     }
   }
 
-  // Check 2: .figma.tsx files where the component name is not in manifest
+  // Check 2: .figma.tsx files where the component name is not in manifest.
+  // Page-level mappings under src/app/** are exempt — pages map Figma frames
+  // but are route handlers, not reusable design-system components, so they
+  // legitimately do not appear in the manifest.
   for (const tsx of figmaTsxEntries) {
+    if (tsx.filePath.startsWith('src/app/')) continue;
     if (!manifestByName.has(tsx.componentName)) {
       findings.push({
         severity: 'fail',

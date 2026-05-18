@@ -78,6 +78,21 @@ test('analyzeLocalDrift — empty entries produces MAPPING_INCONSISTENCY for eve
   assert.equal(report.publicParityCoverage, 100); // metric reads manifest, not findings
 });
 
+test('analyzeLocalDrift — page-level .figma.tsx under src/app/** is exempt from CODE_ONLY check', () => {
+  const entries: FigmaTsxEntry[] = [
+    ...buildEntriesFromManifest(),
+    {
+      filePath: 'src/app/control-room/sign-in/page.figma.tsx',
+      componentName: 'SignInPage',
+      nodeIds: ['31-3'],
+      sourceFilePath: 'src/app/control-room/sign-in/page.tsx',
+    },
+  ];
+  const report = analyzeLocalDrift(entries, ALWAYS_EXISTS);
+  const codeOnly = report.findings.filter(f => f.code === 'CODE_ONLY');
+  assert.equal(codeOnly.length, 0, 'page-level mappings must not produce CODE_ONLY findings');
+});
+
 test('formatDriftReportMarkdown — produces valid markdown with parity numbers', () => {
   const entries = buildEntriesFromManifest();
   const report = analyzeLocalDrift(entries, ALWAYS_EXISTS);

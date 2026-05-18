@@ -43,8 +43,12 @@ async function loadFigmaTsxFiles() {
     const absPath = join(ROOT, filePath);
     const content = readFileSync(absPath, 'utf8');
 
-    // Parse imports of the form: `import { Component } from './ComponentName';`
-    const importMatch = content.match(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"]\.\/(\w+)['"];/);
+    // Parse the relative import that points at the mapped component. Accept either:
+    //   `import { Component } from './SourceModule';`   (named import — UI components)
+    //   `import Component from './SourceModule';`       (default import — Next.js pages + default-exported components)
+    const namedMatch = content.match(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"]\.\/(\w+)['"];/);
+    const defaultMatch = content.match(/^import\s+(\w+)\s+from\s*['"]\.\/(\w+)['"];/m);
+    const importMatch = namedMatch ?? defaultMatch;
     if (!importMatch) continue;
     const componentName = importMatch[1];
     const sourceModule = importMatch[2];
