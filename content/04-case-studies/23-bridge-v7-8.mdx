@@ -13,7 +13,7 @@ persona_emphasis:
   academic: measurement
 date: '2026-05-03'
 external_audit_status: pending
-tldr: 'v7.7 shipped a gate (CACHE_HITS_EMPTY_POST_V6) that ran on every commit but exercised data on 0 of 46 features — a textbook silent-pass. The framework asserted gate *implementation*; it never asserted gate *execution*. v7.8 ships the meta-fix: Mechanism A coverage-asserting gates (every gate emits {candidates, checked, skipped, skip_reasons} per run, captured in .claude/logs/gate-coverage.jsonl), Mechanism B dual-read + canonical framework_version on 46/46 features, Mechanism C session-event auto-instrumentation with active-feature attribution wired through /pm-workflow, and Mechanism E git merge driver that auto-resolves append-only ledger conflicts. 6 PRs in 2 days (#173 + #185–#189). 27 mechanical gates + 2 advisories + a coverage observability layer. M3 + M4 (schema bridge fields, membrane status, final case-study/showcase) deferred.'
+tldr: 'v7.7 shipped a gate (CACHE_HITS_EMPTY_POST_V6) that ran on every commit but exercised data on 0 of 46 features — a textbook silent-pass. The framework asserted gate *implementation*; it never asserted gate *execution*. v7.8 ships the meta-fix: Mechanism A coverage-asserting gates (every gate emits {candidates, checked, skipped, skip_reasons} per run, captured in .claude/logs/gate-coverage.jsonl), Mechanism B dual-read + canonical framework_version on 46/46 features, Mechanism C session-event auto-instrumentation with active-feature attribution wired through /pm-workflow, Mechanism D pre-commit-self-test for header drift, Mechanism E git merge driver that auto-resolves append-only ledger conflicts, and Mechanism F advisory membrane-status smartlog. M3 schema bridge fields populated on 47/47 features. M4 ships the cold-start entrypoint + framework-honesty-ledger first entry FT2-FH-001. 9 PRs across 2 days (#173 + #185–#189 + #192–#194). 27 mechanical gates + 2 advisories + the Mechanism A coverage observability layer.'
 key_numbers:
   - label: 'CACHE_HITS_EMPTY_POST_V6 effective coverage at v7.7 ship'
     value: '0/46 (silent-pass)'
@@ -30,11 +30,14 @@ key_numbers:
   - label: 'Total mechanical gates + advisories'
     value: '25+1 → 27+2 (plus Mechanism A coverage layer + Mechanism E merge driver)'
     tier: T1
-  - label: 'PRs shipped (this session — Claude-supervised)'
-    value: '5 (#185, #186, #187, #188, #189)'
+  - label: 'PRs shipped (Claude-supervised across 2 sessions)'
+    value: '8 (#185, #186, #187, #188, #189, #192, #193, #194)'
     tier: T1
   - label: 'PRs shipped (predecessor — Regev direct)'
     value: '1 (#173)'
+    tier: T1
+  - label: 'Schema bridge fields populated (M3)'
+    value: '47/47 features'
     tier: T1
   - label: 'Mechanism C session attribution before #188'
     value: '0% (lockfile not written)'
@@ -45,10 +48,10 @@ key_numbers:
 honest_disclosures:
   - 'Mechanism A coverage ledger captures the silent-pass evidence (CACHE_HITS_EMPTY_POST_V6 candidates=47, checked=0) but does NOT yet enforce — the GATE_COVERAGE_ZERO meta-check is deferred to v7.9 once ≥7 days of stats accumulate to calibrate the threshold.'
   - 'Mechanism C v7.8 only writes the session ledger; observe-cache-hit.py does NOT yet dual-write to state.json::cache_hits[] (that promotion is the v7.9 ratification step).'
-  - 'M3 PR-5 (schema bridge fields: agent_manifest, _meta.deprecation_warnings, path-reducers.json, agent-leases.json + migration script + fcntl.flock + epoch scaffolding) deferred — needs design judgment on field shapes.'
-  - 'M3 PR-6 (Mechanism F membrane status + UCC dashboard panel + Mechanism D pre-commit header self-audit) deferred.'
-  - 'M4 PR-7 (final synthesis of this case study + cold-start entrypoint + framework-honesty-ledger entry) deferred — case study is currently the live append-only journal, not yet final.'
-  - 'PR #187 (Mechanism A) hit the known parallel-clone macOS-15 simulator hang in CI (`MealLogUITests.testNutritionTabOpensMealEntryPath`). The PR touched 0 Swift code; failure is environmental + matches PR #166 backlog. Re-run pending at time of merge.'
+  - 'M3 PR-5 (#192) populates schema bridge fields (agent_manifest, _meta.deprecation_warnings, path-reducers.json, agent-leases.json) but does NOT enforce them — every entry in path-reducers.json ships mode: advisory; agent_manifest.writes is empty for every existing feature. v7.9 promotes to enforced.'
+  - 'M3 PR-6 (#193) ships Mechanism F as read-only advisory smartlog. No /pm-workflow gate consumes agent-leases.json yet; v7.9 wires lease acquisition at session start. UCC dashboard panel deferred to a subsequent fitme-story PR.'
+  - 'M4 PR-7 (#194) ships the cold-start entrypoint + first honesty-ledger entry FT2-FH-001 documenting the v7.7 silent-pass + v7.8 closure path. Case study (T22) lands on FT2 main via PR #191; this showcase MDX (T24) is in PR #13.'
+  - 'PR #187 (Mechanism A) hit the known parallel-clone macOS-15 simulator hang in CI (`MealLogUITests.testNutritionTabOpensMealEntryPath`). The PR touched 0 Swift code; failure is environmental + matches PR #166 backlog. Held for admin-merge call.'
   - 'Memory drift surfaced at session start: the 2026-04-30 audit memo was 2 days stale. Several "open" gaps had been closed by predecessor PRs (#169, #173). Verifying memory against current code BEFORE work avoided ~2 hours of duplicated effort. Saved as a reusable lesson in Section 8.0.'
 kill_criteria:
   - 'Mechanism A ledger writes break under concurrent runs (file corruption, race conditions in append path).'
@@ -57,18 +60,18 @@ kill_criteria:
   - 'Pre-existing Build and Test parallel-clone simulator hang blocks v7.8 PRs >50% of the time.'
 kill_criterion_fired: false
 deferred_items:
-  - title: 'M3 PR-5 — Schema bridge fields'
-    ledger: 'state.json on all 46 features'
-    reason: 'Largest piece — needs design judgment on field shapes (agent_manifest, _meta.deprecation_warnings, path-reducers.json, agent-leases.json).'
-  - title: 'M3 PR-6 — Mechanism F membrane status + UCC dashboard panel'
+  - title: 'UCC dashboard Mechanism F panel'
     ledger: '/control-room/framework §7'
-    reason: 'Needs UCC dashboard work coupled with the script. Mechanism D (pre-commit header self-audit) bundled here.'
-  - title: 'M4 PR-7 — Final synthesis'
-    ledger: 'this case study Section 99 + framework-honesty-ledger entry FT2-FH-001'
-    reason: 'Lands when M3 PR-5 + PR-6 ship.'
+    reason: 'Requires reading membrane-status.py JSON output at build time + new component. Subsequent fitme-story PR.'
   - title: 'GATE_COVERAGE_ZERO meta-check enforcement'
     ledger: '.claude/logs/gate-coverage.jsonl'
     reason: 'v7.9 promotion. Needs ≥7 days of stats to calibrate threshold.'
+  - title: 'agent_manifest.writes enforcement'
+    ledger: '.claude/shared/agent-leases.json + state.json::agent_manifest'
+    reason: 'v7.9 Mechanism G validates staged_paths ⊆ writes at /pm-workflow lease acquisition.'
+  - title: 'path-reducers.json mode advisory → enforced'
+    ledger: '.claude/shared/path-reducers.json'
+    reason: 'v7.9 flips entries to enforced after demonstrating zero false-positives over the +7d measurement window.'
 visual_aid:
   component: BeforeAfter
   data:
@@ -79,10 +82,10 @@ visual_aid:
       subtitle: 'CACHE_HITS_EMPTY_POST_V6 silent-pass: 0/46 effective coverage. framework_version: 6/46 unprefixed numeric, 39/46 missing.'
     afterLabel: 'v7.8 (bridge to v7.9)'
     after:
-      label: 'v7.8 partial ship (M1+M2)'
-      value: '27 gates + 2 advisories + coverage layer + merge driver'
-      subtitle: 'Coverage observability for every gate. framework_version 46/46 canonical. Mechanism C attribution wired. Ledger conflicts auto-resolve.'
-    delta: 'M1 (coverage + dual-read + framework_version backfill) + M2 (Mechanism C wiring + Mechanism E merge driver) shipped. M3 + M4 pending.'
+      label: 'v7.8 ship (M1+M2+M3+M4)'
+      value: '27 gates + 2 advisories + coverage layer + merge driver + schema bridges + smartlog + honesty ledger'
+      subtitle: 'Coverage observability for every gate. framework_version 46/46 canonical. Mechanism C attribution wired. Ledger conflicts auto-resolve. Schema bridge fields populated 47/47. Membrane-status smartlog read-only advisory. First honesty-ledger entry FT2-FH-001 published.'
+    delta: 'M1+M2+M3+M4 shipped across 9 PRs in 2 days. v7.9 ratification waits for the +7d measurement window (zero false-positives in path-reducers + gate-coverage + Mechanism C attribution).'
 ---
 
 # Bridge to v7.9 — How v7.8 Closed the v7.7 Silent-Pass
