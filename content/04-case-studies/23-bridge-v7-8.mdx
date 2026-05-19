@@ -13,7 +13,7 @@ persona_emphasis:
   academic: measurement
 date: '2026-05-03'
 external_audit_status: pending
-tldr: 'v7.7 shipped a gate (CACHE_HITS_EMPTY_POST_V6) that ran on every commit but exercised data on 0 of 46 features — a textbook silent-pass. The framework asserted gate *implementation*; it never asserted gate *execution*. v7.8 ships the meta-fix: Mechanism A coverage-asserting gates (every gate emits {candidates, checked, skipped, skip_reasons} per run, captured in .claude/logs/gate-coverage.jsonl), Mechanism B dual-read + canonical framework_version on 46/46 features, Mechanism C session-event auto-instrumentation with active-feature attribution wired through /pm-workflow, and Mechanism E git merge driver that auto-resolves append-only ledger conflicts. 6 PRs in 2 days (#173 + #185–#189). 27 mechanical gates + 2 advisories + a coverage observability layer. M3 + M4 (schema bridge fields, membrane status, final case-study/showcase) deferred.'
+tldr: 'v7.7 shipped a gate (CACHE_HITS_EMPTY_POST_V6) that ran on every commit but exercised data on 0 of 46 features — a textbook silent-pass. The framework asserted gate *implementation*; it never asserted gate *execution*. v7.8 ships the meta-fix: Mechanism A coverage-asserting gates (every gate emits {candidates, checked, skipped, skip_reasons} per run, captured in .claude/logs/gate-coverage.jsonl), Mechanism B dual-read + canonical framework_version on 46/46 features, Mechanism C session-event auto-instrumentation with active-feature attribution wired through /pm-workflow, Mechanism D pre-commit-self-test for header drift, Mechanism E git merge driver that auto-resolves append-only ledger conflicts, and Mechanism F advisory membrane-status smartlog. M3 schema bridge fields populated on 47/47 features. M4 honesty-ledger first entry FT2-FH-001 + cold-start entrypoint published. 9 PRs across 2 days (#173 + #185–#189 + #192–#194). 27 mechanical gates + 2 advisories + the Mechanism A coverage observability layer.'
 key_numbers:
   - label: 'CACHE_HITS_EMPTY_POST_V6 effective coverage at v7.7 ship'
     value: '0/46 (silent-pass)'
@@ -30,8 +30,8 @@ key_numbers:
   - label: 'Total mechanical gates + advisories'
     value: '25+1 → 27+2 (plus Mechanism A coverage layer + Mechanism E merge driver)'
     tier: T1
-  - label: 'PRs shipped (this session — Claude-supervised)'
-    value: '5 (#185, #186, #187, #188, #189)'
+  - label: 'PRs shipped (Claude-supervised across 2 sessions)'
+    value: '8 (#185, #186, #187, #188, #189, #192, #193, #194)'
     tier: T1
   - label: 'PRs shipped (predecessor — Regev direct)'
     value: '1 (#173)'
