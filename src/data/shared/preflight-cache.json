@@ -1,0 +1,70 @@
+{
+  "work_type": "feature",
+  "feature": "case-study-thread-visualization",
+  "generated_at": "2026-05-16T17:26:14Z",
+  "checks": [
+    {
+      "name": "W1_ssh_agent",
+      "status": "ok",
+      "detail": "ssh-add has loaded identities",
+      "blocking": false
+    },
+    {
+      "name": "pr_cache_fresh",
+      "status": "ok",
+      "detail": "PR citation cache fresh",
+      "blocking": false
+    },
+    {
+      "name": "branch_isolation",
+      "status": "ok",
+      "detail": "current branch: chore/ucc-cutover-doc-sync-2026-05-16",
+      "current_branch": "chore/ucc-cutover-doc-sync-2026-05-16",
+      "blocking": false
+    },
+    {
+      "name": "integrity_check",
+      "status": "ok",
+      "detail": "0 findings + 2 advisory",
+      "findings_count": 0,
+      "advisory_count": 2,
+      "blocking": false
+    },
+    {
+      "name": "integrity_diff",
+      "status": "ok",
+      "detail": "no regression vs 2026-05-14 anchor",
+      "regressions": [],
+      "blocking": false
+    },
+    {
+      "name": "documentation_debt",
+      "status": "info",
+      "detail": "1 open documentation-debt item(s)",
+      "open_count": 1,
+      "blocking": false
+    },
+    {
+      "name": "measurement_adoption",
+      "status": "info",
+      "detail": "post-v6 adoption: 8.3% (3/36) \u2014 baseline for any new shipped feature",
+      "fully_adopted_post_v6": 3,
+      "features_post_v6": 36,
+      "adoption_pct_post_v6": 8.3,
+      "blocking": false
+    },
+    {
+      "name": "feature_state_json",
+      "status": "info",
+      "detail": "feature 'case-study-thread-visualization' has no state.json yet (Phase 0 will create it)",
+      "blocking": false
+    }
+  ],
+  "summary": {
+    "total_checks": 8,
+    "blocking": 0,
+    "warnings": 0,
+    "ok": 5
+  },
+  "blocking_issues": []
+}
