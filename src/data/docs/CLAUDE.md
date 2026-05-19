@@ -51,7 +51,7 @@ Use `/pm-workflow {name}` and select the work type. Skipped phases are recorded 
 - **CI requirement:** both branches must pass before merge is approved
 - **High-risk areas** that require extra review: DomainModels.swift, EncryptionService.swift, SupabaseSyncService.swift, CloudKitSyncService.swift, SignInService.swift, AuthManager.swift, AIOrchestrator.swift
 
-## Data Integrity Framework (v7.5 → v7.6 → v7.7 → v7.8 → v7.8.1, shipped 2026-04-24 → 2026-04-25 → 2026-04-27 → 2026-05-04 → 2026-05-07)
+## Data Integrity Framework (v7.5 → v7.6 → v7.7 → v7.8 → v7.8.1 → v7.8.2, shipped 2026-04-24 → 2026-04-25 → 2026-04-27 → 2026-05-04 → 2026-05-07 → 2026-05-08)
 
 The 72h Integrity Cycle shipped at v7.1 is now one of **eight cooperating defenses** in the v7.5 Data Integrity Framework — triggered by the 2026-04-21 Google Gemini 2.5 Pro independent audit. v7.6 (Mechanical Enforcement, shipped 2026-04-25) closes the remaining Class B → Class A gap by promoting four silent agent-attention checks into pre-commit failures and adding two recurring CI defenses (per-PR review bot, weekly framework-status cron).
 
@@ -170,6 +170,33 @@ v7.8.1 closes two empirically-witnessed silent-pass failure modes via cooperatin
 **v7.7 case study:** [`docs/case-studies/framework-v7-7-validity-closure-case-study.md`](docs/case-studies/framework-v7-7-validity-closure-case-study.md).
 **v7.8 case study (live append-only journal):** [`docs/case-studies/framework-v7-8-bridge-case-study.md`](docs/case-studies/framework-v7-8-bridge-case-study.md).
 
+## v7.8.2 Cross-Repo Telemetry Asymmetry — Documented Disposition (shipped 2026-05-08)
+
+v7.8.2 is a **patch-level bump** that does NOT add new gates. It codifies a forward-looking policy decision and ships one operability fix. Closes 2 v7.9 candidates (F7 + F8) by documenting the "no-port" decision rather than building cross-repo gate parity.
+
+**Trigger:** during the 2026-05-08 fitme-story public-site audit session, the FT2 `PostToolUse:Read` hook fired `python3 scripts/observe-cache-hit.py` blindly even when cwd was in fitme-story (where the script doesn't exist), producing 30+ blocking-error notifications. Empirically confirmed F8 finding (Mechanism A telemetry is FT2-only).
+
+**What shipped:**
+
+- **Hook fix:** `.claude/settings.json` PostToolUse:Read command now has a Bash short-circuit existence guard (`[ -f scripts/observe-cache-hit.py ] && python3 ... || true`). Silently no-ops when the script is absent (cross-repo cwd, missing worktree, etc.).
+- **Disposition spec:** [`docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md`](docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md) — 7 sections explaining (1) the asymmetry, (2) why no full parity, (3) what we DO ship, (4) what does NOT change, (5) re-eval triggers (3 signals), (6) cross-references, (7) disposition record.
+
+**What does NOT change in v7.8.2:**
+- All v7.5 → v7.8.1 gates still fire on FT2 commits (no regression)
+- Mechanism A `gate-coverage.jsonl` still emits for every FT2 gate fire
+- Mechanism C session-attribution still works when cwd is FT2
+- Tier 2.2 contemporaneous logging still works for any feature in FT2
+
+**v7.9 candidates resolved at v7.8.2:**
+- **F7** (Tier 2.2 per-phase emission gate parity for fitme-story) — RESOLVED via documented exemption
+- **F8** (Mechanism A `gate-coverage.jsonl` parity for fitme-story) — RESOLVED via documented exemption
+
+**Re-evaluation cadence:** Annual (next 2027-05-08) OR earlier if any of 3 signals fire. See spec §5.
+
+**v7.8.2 ships via** PR #258 (FT2 chore). Tracks: [fitme-story-public-enhancements T22 + T23](https://github.com/Regevba/FitTracker2/issues/255).
+
+**Spec:** [`docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md`](docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md).
+
 ## Known Mechanical Limits
 
 v7.6 promoted 4 silent gaps to pre-commit failures and added 3 recurring CI defenses. v7.8 PR-1 ships **Mechanism C** (PostToolUse:Read hook + `scripts/observe-cache-hit.py`) which moves Gap 1 from Class B → A in advisory mode (capture only); v7.9 promotes the writer-path to enforced once 7+ days of session-ledger data calibrate the threshold. Four gaps remain mechanically unclosable:
@@ -246,6 +273,37 @@ Phase 3 + Phase 6 of the PM workflow now mechanically gate the spec ↔ code ↔
 **Folder convention:** `docs/prompts/ux/` for `/ux prompt` outputs, `docs/prompts/ui/` for `/design prompt` outputs, `docs/prompts/_legacy/` for hand-authored historical prompts.
 
 Full documentation: [`docs/skills/evolution.md`](docs/skills/evolution.md) §26.
+
+### v4.X+CC Cross-repo Code Connect bridge (added 2026-05-09 → 2026-05-10)
+
+Closes the loop in the OTHER direction: `/design build` pushes screens INTO Figma; the Code Connect bridge maps Figma library frames BACK to source code so Dev Mode shows the actual React/SwiftUI snippet for each component. Cross-repo, both web and iOS.
+
+**Foundation:**
+
+- **Web (fitme-story):** `.figma.tsx` mapping files → file `fsjHfFLAHELACZHku8Rfcl` (FitMe Story Web — Design System). Parsed by `@figma/code-connect` npm package directly. Foundation: fitme-story PR #75 (T20 of `fitme-story-public-enhancements` rollup) shipped 17 component node IDs + 4 new primitives (Button, Tag, CaseStudyCard, FrameworkVersionCard) + 12 mapping files; PR #80 fixed parser issues (inline URL literals, broader include glob, drop `figma.string()` props for components without named text properties).
+- **iOS (FitTracker2):** `.figma.swift` mapping files → file `0Ai7s3fCFqR5JXDW8JvgmD` (FitTracker-Design-System-Library). Foundation: FT2 PR #277 (`ios-code-connect` chore feature T1+T2+T3+T5) shipped `Figma.toml` + 5 mapping files covering 6 screen-level node IDs sourced from existing shipped features. Build-safety wrapper `#if canImport(Figma)` keeps Xcode green without the Swift package installed.
+
+**3-layer automation** (chore feature `code-connect-automation`, shipped via PRs #278/#279/#280/#281/#283 + fitme-story #77/#79):
+
+- **Layer A — scaffold scripts.** `scripts/scaffold-figma-mapping.py` (FT2) + `scripts/scaffold-figma-mapping.mjs` (fitme-story) auto-generate `.figma.{swift,tsx}` template files from any feature's `state.json::figma_node_ids` block. Coalesces multi-state variants of the same View/component into one mapping file. Override block `figma_node_ids.code_mapping` for keys that don't match the snake_case → PascalCase heuristic.
+- **Layer B — `/design build` skill extension.** After `figma_node_ids` is populated, the skill auto-invokes the scaffold script for the active repo. Closes the "manual mapping author per new UI feature" gap.
+- **Layer C — CI publish workflows.** `.github/workflows/figma-code-connect-publish.yml` in BOTH repos auto-runs `figma connect publish` on push to main when `*.figma.{swift,tsx}` or config changes. Web: ubuntu runner + `npx figma connect publish`. iOS: macos-15 runner + SPM cache + `npx figma connect publish` with `figma.config.json::swiftPackagePath` pointing at `.figma-cc-tools/Package.swift` (SPM wrapper subdir; the npm CLI calls `swift run --package-path .figma-cc-tools figma-swift` as a subprocess to parse `.figma.swift` files since the npm parser doesn't natively support Swift). Both gated on `FIGMA_ACCESS_TOKEN` repo secret (operator one-time setup); skip with clear log if missing.
+
+**Two new mechanical gates added 2026-05-10 to `/design` skill (PR #280):**
+
+- **`/design preflight` Step 3.5 — Code Connect write-access gate.** Verifies the publish path works end-to-end (not just MCP read access). Token presence check (local env + `gh api` for repo secret in BOTH repos) + publish dry-run probe (catches missing `Code Connect Write` scope or `file_dev_resources:write`). Records to `figma-bridge-status.json::code_connect_access`. Auth-failure → P1 advisory; token absent everywhere → P2 advisory.
+- **`/design pre-merge-review` Step 3.5 — Spec ↔ build parity check.** Verifies what was built matches what the spec said. Enumerates spec surfaces (parses `ux-spec.md` / `integration-spec.md`) and build surfaces (`state.json::figma_node_ids` + `.figma.{swift,tsx}` files), then cross-matches each spec surface (`complete` / `figma_only` / `mapping_only` / `missing`). BLOCK on `missing` or `mapping_only` (build incomplete). Records to `state.json.pre_merge_review.design_parity`.
+
+**Operator setup (one-time, both repos):** generate Figma Personal Access Token at <https://www.figma.com/settings> → Security → Personal access tokens. **Required scopes:** `file_content:read` + `file_dev_resources:read` + `file_dev_resources:write` (Code Connect mappings ARE dev resources in Figma's data model — there's no explicit "Code Connect" scope). `library_content:read` is recommended for team-library design systems. Add the token as `FIGMA_ACCESS_TOKEN` repo secret in BOTH `Regevba/FitTracker2` and `Regevba/fitme-story`. Until set, both publish workflows skip cleanly.
+
+**Companion docs:**
+
+- iOS operator runbook: [`docs/design-system/ios-code-connect-workflow.md`](docs/design-system/ios-code-connect-workflow.md)
+- Web architecture: [`docs/design-system/fitme-story-design-architecture.md`](docs/design-system/fitme-story-design-architecture.md)
+- Figma↔code matrix + Code Connect verification contract: [`docs/design-system/figma-code-sync-status.md`](docs/design-system/figma-code-sync-status.md)
+- Public showcase: fitme-story `/pm-flow` page §`#code-connect`
+
+**Manual steps per new UI feature: 2 → 0** once operator setup completes (which it has, as of 2026-05-10). Tracked feature: [`code-connect-automation`](.claude/features/code-connect-automation/) — 4/5 tasks done (T1-T4 shipped; T5 = end-to-end test on next real new UI feature).
 
 ### Verification Layer (added 2026-04-20)
 
@@ -471,3 +529,4 @@ The rule applies prospectively from 2026-04-08. Existing events that pre-date th
 - Dashboard activation: `docs/setup/dashboard-activation.md`
 - Integrations setup: `docs/setup/integrations-setup-guide.md`
 - Auth runtime verification: `docs/setup/auth-runtime-verification-playbook.md`
+- UCC passkey auth (going-live runbook): `docs/setup/ucc-passkey-auth-setup-guide.md`
