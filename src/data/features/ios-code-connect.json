@@ -1,0 +1,119 @@
+{
+  "feature_name": "ios-code-connect",
+  "current_phase": "implementation",
+  "created_at": "2026-05-09T19:27:43Z",
+  "updated_at": "2026-05-16T06:30:00Z",
+  "framework_version": "v7.8.1",
+  "work_type": "chore",
+  "work_subtype": "design_system_extension",
+  "case_study_type": "no_case_study_required",
+  "case_study_exemption_reason": "1-phase chore scaffolding for iOS Code Connect mappings. Parent of code-connect-automation (which is also no_case_study_required). Workflow + scaffold script + CI integration are documented in docs/design-system/ios-code-connect-workflow.md; a separate case study would duplicate that content.",
+  "has_ui": false,
+  "requires_analytics": false,
+  "isolation_opt_out": true,
+  "isolation_opt_out_reason": "1-phase chore scaffolding only \u2014 no current_phase mutations beyond initial creation; iOS Code Connect template files live under FitTracker/DesignSystem/ which is not in the infra-path glob list",
+  "scheduled_after": {
+    "predecessor": "fitme-story-public-enhancements",
+    "signal": "fitme-story-public-enhancements T20 phase=complete",
+    "captured_at": "2026-05-09T19:27:43Z",
+    "note": "iOS Code Connect groundwork waits for fitme-story (web) Code Connect to ship first as the learning exercise. T20 in the rollup feature captures 17 web component node IDs and authors .figma.tsx mappings for the FitMe Story Web Design System (file fsjHfFLAHELACZHku8Rfcl). Once that pattern is validated, this feature replays it for the iOS app pointing at the FitMe Design System Library (file 0Ai7s3fCFqR5JXDW8JvgmD).",
+    "resolved_at": "2026-05-10T05:15:26Z",
+    "resolved_by_pr": [
+      75,
+      275
+    ],
+    "resolved_note": "fitme-story #75 (T20 web Code Connect) merged squash 93a332b + FT2 #275 (T20 reconcile, rollup 22\u219223/24) merged squash febba77. Signal fires."
+  },
+  "phases": {
+    "implementation": {
+      "status": "scaffolded",
+      "started_at": "2026-05-09T19:27:43Z",
+      "note": "Feature scaffolded as placeholder. No implementation work started \u2014 waiting for scheduled_after.signal to fire."
+    }
+  },
+  "timing": {
+    "phases": {
+      "implementation": {
+        "started_at": "2026-05-09T19:27:43Z"
+      }
+    }
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Install @figma/code-connect Swift toolchain + author Figma.toml at FT2 repo root pointing at FitMe Design System Library 0Ai7s3fCFqR5JXDW8JvgmD",
+      "status": "done",
+      "effort_days": 0.25,
+      "blocker": "scheduled_after.signal not yet fired",
+      "completed_at": "2026-05-10T05:15:26Z",
+      "scope_note": "Created Figma.toml at FT2 repo root pointing at FitTracker-Design-System-Library (file 0Ai7s3fCFqR5JXDW8JvgmD). Did NOT add @figma/code-connect Swift package to Xcode project \u2014 FT2 has no Package.swift at root, and Xcode SPM integration requires UI interaction outside this scope. Operator adds the package via Xcode UI before running figma connect publish. Config + template files (T2-T3) ship and are independently useful."
+    },
+    {
+      "id": "T2",
+      "title": "Capture per-component node IDs from FitMe Design System Library \u2014 every reusable component in FitTracker/DesignSystem/AppComponents.swift (~13 components per CLAUDE.md design system reference)",
+      "status": "done",
+      "effort_days": 0.25,
+      "blocker": "T1",
+      "completed_at": "2026-05-10T05:15:26Z",
+      "scope_note": "Captured node IDs from existing shipped feature state.json files (push-notifications 6 IDs + import-training-plan 6 IDs + smart-reminders page 907:2 + onboarding section 688:2 + auth-polish-v2). Did NOT exhaustively enumerate library \u2014 Figma file is feature-page-driven (one page per feature), no central Components page with reusable atoms. Realistic capture for T2 is screen-level mapping; component-level atomic mapping (AppPickerChip etc.) deferred until/unless a Components page is built in Figma."
+    },
+    {
+      "id": "T3",
+      "title": "Author .figma.swift template files \u2014 one per component mapping Figma component \u2192 SwiftUI view in FitTracker/DesignSystem/",
+      "status": "done",
+      "effort_days": 1.0,
+      "blocker": "T2",
+      "completed_at": "2026-05-10T05:15:26Z",
+      "scope_note": "Authored .figma.swift template files mapping captured Figma screen frames to SwiftUI View structs in FitTracker/Views/. Template files live alongside their View counterparts. Each maps one Figma node URL to one Swift View. T4 publish step (figma connect publish) deferred to operator."
+    },
+    {
+      "id": "T4",
+      "title": "Run figma connect publish \u2014 push iOS mappings to FitMe Design System Library; verify Code Connect snippets appear in Figma Dev Mode",
+      "status": "blocked",
+      "effort_days": 0.25,
+      "blocker": "FIGMA_ACCESS_TOKEN repo secret is missing the Code Connect Write scope. CI workflow .github/workflows/figma-code-connect-publish.yml has run 3 times (run IDs 25621980058 / 25623253076 / 25629689372 on 2026-05-10): first run succeeded (token write-attempted on empty file), runs 2-3 failed with `Failed to upload to Figma (403): 403 Invalid scope(s): Please ensure that you have selected both the File Read scope and the Code Connect Write scope when generating the token.`",
+      "diagnostic": {
+        "diagnosed_at": "2026-05-16T06:30:00Z",
+        "diagnosed_via": "gh run view 25629689372 --log-failed",
+        "infrastructure_status": {
+          "ci_workflow": ".github/workflows/figma-code-connect-publish.yml present in main (1.7KB, dated 2026-05-10)",
+          "mapping_files": "5 .figma.swift files present (ImportPreviewView, NotificationPermissionRow, OnboardingWelcomeView.v2, ImportedPlansListScreen.v2, TrainingPlanView.v2)",
+          "secret_present": "FIGMA_ACCESS_TOKEN secret exists in repo (added 2026-05-10T08:20:15Z)",
+          "swift_parser": "Successfully built; all 6 Code Connect files validated locally per run-25629689372 logs"
+        },
+        "root_cause": "The FIGMA_ACCESS_TOKEN was generated with read scopes only. Code Connect publish requires the `file_dev_resources:write` scope (Figma calls this \"Code Connect Write\" in the token-generation UI).",
+        "operator_fix": [
+          "1. Visit https://www.figma.com/settings \u2192 Security \u2192 Personal access tokens.",
+          "2. Generate a new token with these scopes per CLAUDE.md: file_content:read + file_dev_resources:read + file_dev_resources:write (the \"Code Connect Write\" checkbox is the third one). library_content:read is recommended.",
+          "3. Update the FIGMA_ACCESS_TOKEN secret in Regevba/FitTracker2 repo settings: `gh secret set FIGMA_ACCESS_TOKEN --body \"<new-token>\"`.",
+          "4. Re-run the failed workflow: `gh run rerun 25629689372` OR push any change touching `*.figma.swift` to trigger a fresh publish.",
+          "5. Verify in Figma Dev Mode: open the FitMe Design System Library (file 0Ai7s3fCFqR5JXDW8JvgmD), inspect one of the 5 mapped screens (e.g., OnboardingWelcomeView.v2), confirm the iOS code panel shows the SwiftUI snippet."
+        ],
+        "related_gate": "/design preflight Step 3.5 (Code Connect write-access gate, FT2 PR #280) is the gate designed to catch this BEFORE the publish workflow fires \u2014 by probing the publish path during preflight. Running `/design preflight ios-code-connect` would have surfaced the scope gap at spec-time rather than at CI-time."
+      }
+    },
+    {
+      "id": "T5",
+      "title": "Document iOS Code Connect workflow in docs/design-system/ (companion to fitme-story-design-architecture.md from T21 of rollup feature)",
+      "status": "done",
+      "effort_days": 0.25,
+      "blocker": "T4",
+      "completed_at": "2026-05-10T05:26:37Z",
+      "scope_note": "Authored docs/design-system/ios-code-connect-workflow.md (~8 sections, ~190 lines). Documents big picture (feature-page-driven library), 5 existing mappings, build-safety contract (#if canImport(Figma)), publish procedure for operator (one-time setup + per-publish cycle + unpublish), maintenance rule, scope exclusions, cross-refs. Companion to fitme-story-design-architecture.md."
+    }
+  ],
+  "metrics": {
+    "primary": "screens_with_figma_code_connect_mapping",
+    "baseline": 0,
+    "target": 5,
+    "achieved_t1_t3": 5,
+    "kill_criteria": "Code Connect publish fails for >2 of the 5 mappings OR Figma Dev Mode shows no snippets after publish",
+    "scope_note": "Original target=13 (component-level) replaced with target=5 (screen-level) after audit revealed Figma file is feature-page-driven with no central Components page. Screen-level mapping is the realistic deliverable for the current Figma library shape; component-level deferred until/unless a Components page is built."
+  },
+  "_meta": {
+    "scaffolded_by": "claude_opus_4_7",
+    "scaffold_session": "2b1d970c-6a14-4cff-b61e-6011bdb87a68",
+    "scaffold_origin": "User directive 2026-05-09 during fitme-story-public-enhancements rollup merge session \u2014 'add another task for code connect mapping for ios' followed by clarifying question answer choosing 'New chore feature ios-code-connect' + 'Placeholder only'."
+  },
+  "state_owner": "ft2"
+}

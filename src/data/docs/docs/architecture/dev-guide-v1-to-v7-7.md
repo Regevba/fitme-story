@@ -1,9 +1,14 @@
-# PM Framework — Developer Guide (v1.0 → v7.8.1)
+# PM Framework — Developer Guide (v1.0 → v7.8.6)
 
 > **Audience:** developers landing in this codebase who need to understand how the PM framework actually works — not the marketing narrative, not the case-study story arc, but the wiring. If you are about to add a new feature, extend a check code, fix a CI workflow, or bump the framework version, start here.
 >
-> **Last updated:** 2026-05-07 — v7.8.1 ship adds 3 new write-time gates (BRANCH_ISOLATION_VIOLATION, FEATURE_CLOSURE_COMPLETENESS, ISOLATION_OPT_OUT_REASON_MISSING), 3 new cycle-time advisories, auto-isolation flow, 2 new make targets, /ux + /design pre-merge-review sub-step 6f. v7.8 baseline below remains the structural foundation; v7.8.1 is a gate-layer extension.
-> **Filename note:** the file stays `dev-guide-v1-to-v7-7.md` for ref-stability across 16+ cross-references in FT2 + fitme-story. Content tracks the latest framework version (v7.8.1).
+> **Last updated:** 2026-05-15 — **v7.8.6** ships the **cadence-batch observability surfaces** that close the 96-hour drift window between weekly framework-status cron and the 72-hour integrity cycle (per `docs/master-plan/data-integrity-and-rollback-2026-05-14.md` §2.1+§2.3). MUST-have additions: `make integrity-diff` (vs 2026-05-14 anchor), `make preflight WORK_TYPE=<type>` (unified per-work-type entry point writing `.claude/shared/preflight-cache.json` consumed by all 10 skills), W1 ssh-agent preflight via SessionStart hook, weekly Mechanism A gate-coverage zero-drift scan + per-dimension trend nudge (extension of `framework-status-weekly.yml`). Nice-to-have additions: weekly dependency audit workflow + daily stale-branch + PR-babysit sections in daily-integrity-checkpoint output. No new enforcement gates — pure read/diff/warn surfaces. Total framework mechanisms unchanged from v7.8.5: **33 mechanical gates + 5 advisories**. Shipped via PR #363 (MUST batch) + PR #365 (nice-to-have batch). See [CLAUDE.md "v7.8.6 Cadence Batch" section](../../CLAUDE.md).
+> **v7.8.5 baseline:** 2026-05-13 — observability layer: the Observed Patterns Catalog ([`.claude/integrity/observed-patterns.md`](../../.claude/integrity/observed-patterns.md), 23 gate patterns + 9 workflow patterns) and the **W9 branch-drift real-time alert** (PostToolUse:Bash hook at [`scripts/check-branch-drift.py`](../../scripts/check-branch-drift.py)). Shipped via PR #328 (catalog) + PR #341 (W9 hook). See [CLAUDE.md "v7.8.5 Observability Layer" section](../../CLAUDE.md).
+> **v7.8.4 baseline:** 2026-05-12 — single-session calibration patch closing the noise floor before the 2026-05-21 v7.9 promotion decision. Adds 1 operability gate (`PR_CACHE_STALE` auto-refresh — closes the 33-finding false-positive class observed 2026-05-12 when `.cache/gh-pr-cache.json` was empty), narrows the `TIER_TAG_LIKELY_INCORRECT` heuristic via 3 fixes (target/kill claim filter + unit `\b` word-boundary + intervening-tier-marker filter), introduces `.claude/shared/case-study-t1-references.json` reference ledger for T1 measurements not in default 2-ledger scope, backfills 2 cache_hits[] from Mechanism C attributions, closes 5 LOW doc-debt items, and resets stale `.claude/active-feature` lockfile. No new write-time gates beyond the operability check. **`make integrity-check` baseline at v7.8.4 ship: 0 findings + 0 advisory** (was 35+9 at session open). Total framework mechanisms at v7.8.4: **33 mechanical gates + 5 advisories**. See [CLAUDE.md "v7.8.4" section](../../CLAUDE.md) + [cold-start entrypoint](../../.claude/entrypoints/framework-v7-8-4.md) + [FT2-FH-002 honesty ledger entry](../case-studies/framework-honesty-ledger.md#ft2-fh-002--v783-pr-cache-staleness-silent-pass) + [PR #314](https://github.com/Regevba/FitTracker2/pull/314).
+> **v7.8.3 baseline:** 2026-05-11 — cross-repo state-sync umbrella, 5 phases × 10 PRs across 2 repos. Promotes V2 (`CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT`) advisory → enforced; extends V9 Mechanism E custom git merge driver to cover `.claude/logs/<feature>.log.json`; adds 3 new write-time gates for the cross-repo `state_owner` enum schema; ships D-3 unified cross-repo PR cite cache, C-4 telemetry aggregator, D-1 reverse-sync GitHub Action, `make snapshot-phase`. Cycle-time gate count: 13 → 16. See [v7.8.3 spec](../superpowers/specs/2026-05-11-cross-repo-state-sync-impl-design.md) and [case study](../case-studies/cross-repo-state-sync-impl-case-study.md).
+> **v7.8.2 baseline:** 2026-05-08 — patch-level (a) Bash short-circuit cwd-guard on PostToolUse:Read hook silences cross-repo Mechanism C noise, and (b) documented disposition spec resolving v7.9 candidates F7 + F8 (Tier 2.2 + Mechanism A cross-repo gate parity) as "documented exemption". NO new gates. See [`docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md`](../superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md).
+> **v7.8.1 baseline:** earlier on 2026-05-07 — 3 new write-time gates (BRANCH_ISOLATION_VIOLATION, FEATURE_CLOSURE_COMPLETENESS, ISOLATION_OPT_OUT_REASON_MISSING), 3 new cycle-time advisories, auto-isolation flow, 2 new make targets, /ux + /design pre-merge-review sub-step 6f.
+> **Filename note:** the file stays `dev-guide-v1-to-v7-7.md` for ref-stability across 16+ cross-references in FT2 + fitme-story. Content tracks the latest framework version (v7.8.6).
 > **Companion docs:** [`docs/architecture/feature-lifecycle-event-catalog.md`](./feature-lifecycle-event-catalog.md) (event/log/gate catalog with mermaid flow diagrams), [`docs/skills/architecture.md`](../skills/architecture.md) (skill-by-skill anatomy), [`docs/skills/evolution.md`](../skills/evolution.md) (full version-by-version history), [`CLAUDE.md`](../../CLAUDE.md) (project rules, fastest reference).
 > **Reading order:** §§ 1–3 give you the mental model. §§ 4–8 are the schemas and contracts you'll edit against. §§ 9–11 are the integrity layer (where failures get caught). § 12 is the compressed timeline. §§ 13–15 are operational walkthroughs.
 
@@ -14,7 +19,7 @@
 1. [Audience and how to read](#1-audience-and-how-to-read)
 2. [Big picture (current state — v7.8)](#2-big-picture-current-state--v78)
 3. [Where the code lives](#3-where-the-code-lives)
-4. [The skill ecosystem (hub + 10 spokes)](#4-the-skill-ecosystem-hub--10-spokes)
+4. [The skill ecosystem (hub + 11 spokes)](#4-the-skill-ecosystem-hub--11-spokes)
 5. [`state.json` — the canonical per-feature contract](#5-statejson--the-canonical-per-feature-contract)
 6. [Phase lifecycle (9 phases × 4 work types)](#6-phase-lifecycle-9-phases--4-work-types)
 7. [Dispatch model — how skills get invoked](#7-dispatch-model--how-skills-get-invoked)
@@ -139,7 +144,7 @@ FitTracker2/
 │   │   ├── case-study-monitoring.json        ← case-study health
 │   │   ├── skill-routing.json                ← skill phase routing config
 │   │   └── … (~24 shared state files total)
-│   ├── skills/<skill-name>/SKILL.md         ← agent-facing skill prompt (11 skills)
+│   ├── skills/<skill-name>/SKILL.md         ← agent-facing skill prompt (12 skills since 2026-05-14; was 11 through v7.8.4)
 │   ├── integrations/<service>/              ← per-service adapters (ga4, sentry…)
 │   ├── cache/                                ← learning cache (L1 + L2 _shared/ + L3 _project/)
 │   └── integrity/
@@ -183,12 +188,12 @@ FitTracker2/
 
 ---
 
-## 4. The skill ecosystem (hub + 10 spokes)
+## 4. The skill ecosystem (hub + 11 spokes)
 
-The framework runs as **11 skills** following a hub-and-spoke pattern:
+The framework runs as **12 skills** (since 2026-05-14; was 11 through v7.8.4) following a hub-and-spoke pattern:
 
 - **Hub:** `pm-workflow` — owns the lifecycle, dispatches work to spokes, gates phase transitions.
-- **Spokes:** `dev`, `qa`, `design`, `ux`, `analytics`, `cx`, `marketing`, `release`, `research`, `ops` — each owns a phase or cross-cutting responsibility.
+- **Spokes (11):** `brainstorm-pm` (added 2026-05-14, P1.0b — Phase 0 default new-feature entry point), `research`, `ux`, `design`, `dev`, `qa`, `analytics`, `cx`, `marketing`, `release`, `ops` — each owns a phase or cross-cutting responsibility.
 
 Each skill has:
 - An **agent-facing prompt** at `.claude/skills/<name>/SKILL.md`. The agent reads this when the skill is loaded.
@@ -197,7 +202,7 @@ Each skill has:
 
 ### 4.1 Skill loading model (v5.0+)
 
-Before v5.0, all 11 skills loaded into context on every session. After v5.0:
+Before v5.0, all 11 skills (the v2.0–v7.8.4 baseline) loaded into context on every session. After v5.0:
 - The `pm-workflow` hub always loads.
 - Spokes load **on demand** based on `phase_skills` in `skill-routing.json`.
 - Each spoke has a `compressed_view` field in its cache entry (~200 words) loaded by default; full expansion happens when the agent calls the skill.
@@ -723,6 +728,87 @@ bash scripts/test-v7-5-pipeline.sh
 ```
 
 All assertions should pass. If you added a new check code (per § 14), the count is now > 15.
+
+---
+
+## 15A. v4.X+CC — Cross-repo Code Connect bridge (added 2026-05-09 → 2026-05-10)
+
+This section documents a SKILL-LAYER capability orthogonal to the framework version axis (v7.8.x). It evolved on the `/design` skill (v4.X → v4.X+CC) and ships across BOTH FT2 and fitme-story.
+
+### 15A.1 Why it exists
+
+`/design build` (v4.X) closed the spec → Figma chain forward: every feature's screens get pushed into the design library, captured node IDs land in `state.json::figma_node_ids`, and the matrix in `figma-code-sync-status.md` records which Figma frame corresponds to which Swift View. v4.X+CC closes the OTHER direction — Figma library frame → "show me the actual React/SwiftUI code" — via Figma Code Connect mappings.
+
+Without v4.X+CC, opening any frame in Figma's Dev Mode shows no code snippet. With it, the right-pane shows the actual `Button(...)`, `<HonestDisclosure>{...}</HonestDisclosure>`, etc. that renders the frame in production. Designer ↔ developer feedback loop closes.
+
+### 15A.2 Architecture (both repos)
+
+```
+.figma.{swift,tsx} mapping files    ←  authored manually (PR #277, #75) OR
+                                       auto-scaffolded (Layer A, scripts/scaffold-figma-mapping.{py,mjs})
+       │
+       ▼
+figma.config.json (web) / figma.config.json + Figma.toml (iOS)
+       │
+       ▼
+npx @figma/code-connect figma connect publish
+       │
+       ├─ React parser (built into npm package) → publishes .figma.tsx
+       └─ Swift: npm CLI subprocess `swift run --package-path .figma-cc-tools figma-swift`
+              parses .figma.swift → JSON-RPC over stdio → npm CLI publishes
+       │
+       ▼
+Figma Dev Mode shows the snippet for each mapped frame
+```
+
+### 15A.3 The 3 automation layers
+
+- **Layer A — scaffold scripts.** `scripts/scaffold-figma-mapping.py` (FT2) + `scripts/scaffold-figma-mapping.mjs` (fitme-story). Reads `<feature>/state.json::figma_node_ids`, generates matching `.figma.{swift,tsx}` template files alongside the SwiftUI Views / React components. Coalesces multi-state variants into one mapping file with multiple `figma.connect()` calls. Override `code_mapping` in figma_node_ids for keys that don't match the snake_case → PascalCase heuristic. PRs #279 (iOS) + fitme-story #77 (web).
+- **Layer B — `/design build` skill extension.** `.claude/skills/design/SKILL.md` Step 4 appends an auto-scaffold sub-bullet: after `figma_node_ids` is populated, the skill invokes the scaffold script for the active repo. Closes the "manual mapping author per new UI feature" gap. PR #280.
+- **Layer C — CI publish workflows.** `.github/workflows/figma-code-connect-publish.yml` in BOTH repos runs `npx figma connect publish` on push to main when `*.figma.{swift,tsx}` or config changes. Web: ubuntu runner, npm CLI directly. iOS: macos-15 runner + SPM cache + npm CLI with `figma.config.json::swiftPackagePath` pointing at `.figma-cc-tools/Package.swift` (SPM wrapper subdir). Gated on `FIGMA_ACCESS_TOKEN` repo secret; skips with clear log if missing. PRs #281 + #283 fix + fitme-story #79.
+
+### 15A.4 Two new mechanical gates on `/design`
+
+| Gate | Phase | What it verifies | Block on |
+|---|---|---|---|
+| Code Connect write-access (Step 3.5 in `/design preflight`) | Phase 3.f | Token presence (local env + repo secret in BOTH repos) + publish dry-run probe (catches missing `file_dev_resources:write` scope) | Auth-failure → P1 advisory; token absent everywhere → P2 advisory |
+| Spec ↔ build parity (Step 3.5 in `/design pre-merge-review`) | Phase 6.c | Every spec'd surface (parsed from `ux-spec.md` / `integration-spec.md`) has BOTH a `state.json::figma_node_ids` entry AND a `.figma.{swift,tsx}` mapping file | `missing` or `mapping_only` parity status (build incomplete) |
+
+Records to `figma-bridge-status.json::code_connect_access` (preflight) + `state.json.pre_merge_review.design_parity` (pre-merge).
+
+### 15A.5 Critical Swift parser IPC discovery (worked example)
+
+The `@figma/code-connect@1.4.4` npm package only ships React, HTML, and Storybook parsers natively. Swift parsing is delegated via subprocess to a `figma-swift` binary built from the same GitHub repo via SPM.
+
+When `figma connect publish` is invoked from FT2:
+
+1. npm CLI reads `figma.config.json` → finds `parser: "swift"` + `swiftPackagePath: ".figma-cc-tools/Package.swift"`
+2. Calls `getSwiftParserDir()` → resolves to `.figma-cc-tools` (the wrapper subdirectory)
+3. Spawns subprocess: `swift run --package-path .figma-cc-tools figma-swift`
+4. Sends a JSON request over stdin to the subprocess: `{ mode: "PARSE", config: {...}, paths: [...] }`
+5. `figma-swift` parses the `.figma.swift` files (SwiftSyntax-based AST walk, extracts `FigmaConnect` protocol conformances + `figmaNodeUrl` literal + `body` example) and writes JSON response to stdout
+6. npm CLI receives the connections, then makes Figma API calls to publish each one
+
+**Implementation gotcha:** The `Package.swift` wrapper MUST live in a subdirectory (`.figma-cc-tools/`) — putting it at FT2 repo root would tempt SPM to scan FT2's Xcode app sources (which depend on Xcode-only modules) and fail to compile. The subdirectory needs an `Empty.swift` placeholder source to satisfy SPM's "needs at least one target" rule, even though that target is never built.
+
+**Failure mode caught during dry-run (2026-05-10):** without `figma.config.json` at FT2 root (only `Figma.toml`, which is the standalone Swift CLI's config format), the npm CLI fell back to the html parser, scanned 14817 files in the repo, and errored. PR #283 added the `figma.config.json` + SPM wrapper; PR #281's first attempt (ubuntu + npx-only) is the broken approach this replaces.
+
+### 15A.6 Operator setup (one-time)
+
+1. Generate Figma Personal Access Token at <https://www.figma.com/settings> → Security → Personal access tokens
+2. Required scopes: `file_content:read` + `file_dev_resources:read` + `file_dev_resources:write` (Code Connect mappings ARE dev resources in Figma's data model — there's no explicit "Code Connect" scope). `library_content:read` recommended.
+3. Add as `FIGMA_ACCESS_TOKEN` repo secret in BOTH `Regevba/FitTracker2` and `Regevba/fitme-story`
+4. Until set, both publish workflows skip cleanly with clear log message
+
+**Operator setup completed 2026-05-10T06:38–06:39Z.**
+
+### 15A.7 Companion docs
+
+- iOS operator runbook: [`docs/design-system/ios-code-connect-workflow.md`](../design-system/ios-code-connect-workflow.md)
+- Web architecture: [`docs/design-system/fitme-story-design-architecture.md`](../design-system/fitme-story-design-architecture.md)
+- Figma↔code matrix + Code Connect verification contract: [`docs/design-system/figma-code-sync-status.md`](../design-system/figma-code-sync-status.md)
+- Skill ecosystem evolution: [`docs/skills/evolution.md`](../skills/evolution.md) §27
+- Public showcase: fitme-story `/pm-flow` page §`#code-connect`
 
 ---
 

@@ -1,0 +1,437 @@
+{
+  "version": "1.0",
+  "feature": "analytics-observability",
+  "title": "Analytics Observability",
+  "work_type": "Feature",
+  "current_phase": "implementation",
+  "framework_version": "v7.8.5",
+  "started_at": "2026-05-13T09:00:00Z",
+  "updated_at": "2026-05-17T19:33:00Z",
+  "events": [
+    {
+      "timestamp": "2026-05-13T09:00:00Z",
+      "event_type": "phase_started",
+      "phase": "research",
+      "summary": "Phase 0 (Research) opened. /analytics validate skill invoked for full iOS + web GA4 audit across all features. Deliverable: in-conversation audit report.",
+      "artifacts": [],
+      "metrics": {},
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T13:00:00Z",
+      "event_type": "phase_approved",
+      "phase": "research",
+      "summary": "Audit complete. Findings: 114 iOS events (56 missing CSV rows), 4 declared-but-unfired events, 21 untested events, 81% test coverage; fitme-story web 12/14 events wired (2 declared-not-wired); GA4 MCP defined but not connected.",
+      "artifacts": [],
+      "metrics": {
+        "ios_events_declared": 114,
+        "csv_rows_missing": 56,
+        "events_unfired_in_app": 4,
+        "events_untested": 21,
+        "test_coverage_pct": 81,
+        "web_events_wired": 12,
+        "web_events_declared_not_wired": 2,
+        "ga4_mcp_connected": false
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T13:00:00Z",
+      "event_type": "phase_started",
+      "phase": "prd",
+      "summary": "Phase 1 (PRD) opened. Brainstorm + design via superpowers:brainstorming. 4 user decisions locked: Approach B phased, both debugger surfaces, both dashboard surfaces, CSV checkup gate; revised 3-window sequencing accepted; single canonical CSV in FT2; Approach A infra-plan fold-in; 3D Framework Universe parked at PRD waypoint.",
+      "artifacts": [
+        ".claude/features/analytics-observability/state.json",
+        "docs/master-plan/analytics-observability-decisions-log-2026-05-13.md",
+        "docs/master-plan/analytics-master-plan-2026-05-13.md"
+      ],
+      "metrics": {
+        "decisions_locked": 5,
+        "phases_planned": 3,
+        "sub_tracks": 9,
+        "v8_docket_candidates": 2
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T15:17:18Z",
+      "event_type": "phase_started",
+      "phase": "prd",
+      "summary": "Phase 1 (PRD) draft committed: feature state.json + decisions log + master plan spec + 3D Framework Universe parked. Awaiting PR review + operator approval to transition to Phase 2 Tasks.",
+      "artifacts": [
+        ".claude/features/analytics-observability/state.json",
+        "docs/master-plan/analytics-observability-decisions-log-2026-05-13.md",
+        "docs/master-plan/analytics-master-plan-2026-05-13.md",
+        "docs/master-plan/infra-master-plan-2026-05-12.md"
+      ],
+      "metrics": {},
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T15:51:46Z",
+      "event_type": "task_completed",
+      "phase": "prd",
+      "task_id": "1.A.1",
+      "summary": "Phase 1.A.1 CSV taxonomy backfill complete. Added 49 event rows + 7 screen rows + 1 user property row to docs/product/analytics-taxonomy.csv. Flat-scan verification: 0 missing events / 0 missing screens / 0 missing user properties (was 49+7+1).",
+      "artifacts": [
+        "docs/product/analytics-taxonomy.csv"
+      ],
+      "metrics": {
+        "events_backfilled": 49,
+        "screens_backfilled": 7,
+        "user_properties_backfilled": 1,
+        "csv_taxonomy_drift_before": 56,
+        "csv_taxonomy_drift_after": 0
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T16:15:37Z",
+      "event_type": "task_completed",
+      "phase": "prd",
+      "task_id": "1.A.3",
+      "summary": "Phase 1.A.3: deleted ai_recommendation_accepted + ai_recommendation_dismissed enum constants + CSV rows. Both were duplicates of home_ai_feedback_submitted (rating: positive/negative).",
+      "artifacts": [
+        "FitTracker/Services/Analytics/AnalyticsProvider.swift",
+        "docs/product/analytics-taxonomy.csv",
+        "docs/product/funnel-definitions.md",
+        "docs/master-plan/analytics-master-plan-2026-05-13.md"
+      ],
+      "metrics": {
+        "events_deleted": 2,
+        "declared_but_unfired_before": 4,
+        "declared_but_unfired_after_ios_only": 0
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T16:37:42Z",
+      "event_type": "task_completed",
+      "phase": "prd",
+      "task_id": "1.A.4",
+      "summary": "Phase 1.A.4: re-classified design_system_component_expand + design_system_code_copy as forward-declared (Option B per operator). Added [FORWARD-DECLARED] structured tag to 2 CSV Notes + new master plan \u00a75.4 convention section. Companion fitme-story PR (JSDoc on 2 helpers) follows.",
+      "artifacts": [
+        "docs/product/analytics-taxonomy.csv",
+        "docs/master-plan/analytics-master-plan-2026-05-13.md"
+      ],
+      "metrics": {
+        "web_events_re_classified": 2,
+        "convention_added": "[FORWARD-DECLARED] structured tag",
+        "phase_1b_gate_implication": "CSV_TAXONOMY_DRIFT must branch on [FORWARD-DECLARED] prefix"
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T17:04:49Z",
+      "event_type": "task_completed",
+      "phase": "prd",
+      "task_id": "1.A.5",
+      "summary": "Phase 1.A.5: added 19 XCTest methods covering previously-untested iOS events. Coverage 81% \u2192 100% (112/112). Notifications (7), onboarding_auth (3), onboarding_goal/success/permission (3), session_restore_result, deep_link_routed, home_body_comp_* (3), home_metric_tile_tap, import_mapping_confirmed.",
+      "artifacts": [
+        "FitTrackerTests/HomeAnalyticsTests.swift",
+        "FitTrackerTests/ImportPersistenceAndAnalyticsTests.swift",
+        "FitTrackerTests/AnalyticsTests.swift"
+      ],
+      "metrics": {
+        "tests_added": 19,
+        "coverage_before_pct": 81,
+        "coverage_after_pct": 100,
+        "events_total": 112,
+        "events_tested_after": 112
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T17:50:08Z",
+      "event_type": "task_completed",
+      "phase": "prd",
+      "task_id": "1.A.7",
+      "summary": "Phase 1.A.7: refreshed external-sync-status.json analytics block. Added analytics_taxonomy_status section with current Phase 1.A numbers (iOS 112/112 CSV-aligned, 100% test coverage, 0 unfired). Updated 'updated' timestamp from 2026-04-30 to current. Phase 1.A is now COMPLETE \u2014 Phase 2 (live debugger) can begin.",
+      "artifacts": [
+        ".claude/shared/external-sync-status.json"
+      ],
+      "metrics": {
+        "previous_updated": "2026-04-30T05:17:51Z",
+        "now_updated": "2026-05-13T17:50:08Z",
+        "stale_days": 13,
+        "phase_1a_complete": true
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T18:27:35Z",
+      "event_type": "phase_started",
+      "phase": "implementation",
+      "summary": "[bumped 2026-05-13T18:27:35Z] Phase 2 (live debugger) opens. Task 2.A.1 shipped: SSE mirror server at scripts/analytics-watch-server.py + 7 tests. Stdlib-only (no pip deps). Phase transition prd -> implementation.",
+      "artifacts": [
+        "scripts/analytics-watch-server.py",
+        "scripts/tests/test_analytics_watch_server.py"
+      ],
+      "metrics": {
+        "new_scripts": 1,
+        "new_tests": 7,
+        "test_results": "7/7 pass"
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T18:11:44Z",
+      "event_type": "task_completed",
+      "phase": "implementation",
+      "task_id": "2.A.1",
+      "summary": "Phase 2.A.1: scripts/analytics-watch-server.py + tests merged. Stdlib HTTP+SSE; localhost:8765 default; POST /event, GET /stream, GET /health.",
+      "artifacts": [
+        "scripts/analytics-watch-server.py",
+        "scripts/tests/test_analytics_watch_server.py"
+      ],
+      "metrics": {
+        "tests_pass": "7/7"
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T18:26:43Z",
+      "event_type": "task_completed",
+      "phase": "implementation",
+      "task_id": "2.A.1",
+      "summary": "Phase 2.A.1: SSE mirror server + 7 tests recovered onto isolated worktree (orphan recovery from parallel-agent branch-context collision in canonical worktree). 7/7 tests pass.",
+      "artifacts": [
+        "scripts/analytics-watch-server.py",
+        "scripts/tests/test_analytics_watch_server.py"
+      ],
+      "metrics": {
+        "tests_pass": "7/7",
+        "recovery_via": "isolated worktree"
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-13T18:54:50Z",
+      "event_type": "task_completed",
+      "phase": "implementation",
+      "task_id": "2.A.2",
+      "summary": "Phase 2.A.2: /analytics watch CLI shipped. scripts/analytics-watch.py + 12 tests + SKILL.md doc.",
+      "artifacts": [
+        "scripts/analytics-watch.py",
+        "scripts/tests/test_analytics_watch.py",
+        ".claude/skills/analytics/SKILL.md"
+      ],
+      "metrics": {
+        "tests_pass": "12/12",
+        "full_suite": "152/152"
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-14T03:21:11Z",
+      "event_type": "task_completed",
+      "phase": "implementation",
+      "task_id": "2.A.3",
+      "summary": "Phase 2.A.3: DebugSinkAdapter shipped. Wraps base provider; tees to localhost:8765 when DEBUG_ANALYTICS=1; PII-safe (user APIs never teed). 14 XCTests + project.pbxproj wired.",
+      "artifacts": [
+        "FitTracker/Services/Analytics/DebugSinkAdapter.swift",
+        "FitTracker/Services/Analytics/AnalyticsService.swift",
+        "FitTrackerTests/DebugSinkAdapterTests.swift",
+        "FitTracker.xcodeproj/project.pbxproj"
+      ],
+      "metrics": {
+        "new_swift_files": 2,
+        "swift_test_methods": 14,
+        "pbxproj_insertions": 8
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-14T04:07:22Z",
+      "event_type": "task_completed",
+      "phase": "implementation",
+      "task_id": "2.B.1",
+      "summary": "Phase 2.B.1: GA4 MCP setup runbook + /analytics poll SKILL.md procedure shipped. Phase 2 (live debugger) COMPLETE.",
+      "artifacts": [
+        "docs/setup/ga4-mcp-setup-guide.md",
+        ".claude/skills/analytics/SKILL.md"
+      ],
+      "metrics": {
+        "phase_2_complete": true,
+        "doc_lines_added": 320
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-14T04:00:00Z",
+      "event_type": "task_completed",
+      "phase": "implementation",
+      "task_id": "2.A.4",
+      "summary": "Phase 2.A.4 \u2014 fitme-story web mirror. NEW src/lib/analytics-debug-mirror.ts (~95 lines). Wired into design-system-analytics.ts + control-room/analytics.ts emit() functions. 8 node:test tests. Shipped via fitme-story PR #107 (squash 1ec463c).",
+      "artifacts": [
+        "fitme-story PR #107"
+      ],
+      "metrics": {
+        "tests_added_node": 8,
+        "files_touched": 4
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-14T04:25:17Z",
+      "event_type": "milestone",
+      "phase": "implementation",
+      "summary": "Phase 2 (Live Debugger) COMPLETE. All 5 sub-tasks shipped across 5 PRs: 2.A.1 SSE server (#342), 2.A.2 /analytics watch CLI (#345), 2.A.3 iOS DebugSinkAdapter (#349), 2.A.4 web mirror (fitme-story #107), 2.B.1 /analytics poll + GA4 MCP runbook (#351 squash 0b1f661). pytest 152/152 + iOS DebugSinkAdapterTests 14/14 + node:test 8/8 + schema-check 70/70.",
+      "artifacts": [
+        "#342",
+        "#345",
+        "#349",
+        "fitme-story #107",
+        "#351"
+      ],
+      "metrics": {
+        "phase_2_prs_shipped": 5,
+        "tests_added_total": 41
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-14T04:46:52Z",
+      "event_type": "task_completed",
+      "phase": "implementation",
+      "task_id": "3.A.0",
+      "summary": "Phase 3.A.0 \u2014 spec scaffold. Master plan \u00a75.5 + \u00a76.5 status updated to COMPLETE. NEW \u00a77.5 (green/yellow/red calibration safety classification) + \u00a77.6 (Phase 3 status). NEW docs/master-plan/analytics-dashboard-metric-definitions.md (5-tile contract + Looker cross-walk). NEW docs/analytics/looker-studio-template.json (3-page dashboard spec) + .md (operator import guide). NEW docs/setup/control-room-analytics-setup-guide.md (operator runbook). All Phase 3 docs ship before live-data wiring per \u00a77.5.",
+      "artifacts": [
+        "docs/master-plan/analytics-master-plan-2026-05-13.md",
+        "docs/master-plan/analytics-dashboard-metric-definitions.md",
+        "docs/analytics/looker-studio-template.json",
+        "docs/analytics/looker-studio-template.md",
+        "docs/setup/control-room-analytics-setup-guide.md"
+      ],
+      "metrics": {
+        "docs_added": 4,
+        "master_plan_sections_added": 2
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-14T09:28:20Z",
+      "event_type": "task_completed",
+      "phase": "implementation",
+      "task_id": "3.A.1",
+      "summary": "Phase 3.A.1 \u2014 fitme-story dashboard scaffold reconciled. PR #108 (squash 945e90c) merged 2026-05-14T09:01:51Z while session paused. /control-room/analytics route + 5 tile components + types + fixtures + 7 tests + sidebar nav all shipped. Companion FT2 PR #354 (squash 1168677) merged at 2026-05-14T09:01:34Z. Phase 3 green-bucket scaffold COMPLETE; live GA4 binding (yellow) deferred to 2026-06-04 per master plan \u00a77.5.",
+      "artifacts": [
+        "fitme-story #108",
+        "FT2 #354"
+      ],
+      "metrics": {
+        "phase_3_scaffold_prs_shipped": 2,
+        "fitme_story_files_added": 13,
+        "tile_components": 5
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "post_hoc"
+    },
+    {
+      "timestamp": "2026-05-16T14:19:07Z",
+      "event_type": "ga4_access_binding_diagnosis",
+      "phase": "implementation",
+      "summary": "GA4 access binding session 2026-05-16: PAUSED \u2014 multiple paths dead-ended. (1) SA path: confirmed April-23-2025 SA-create cutoff blocks the existing SA ga4-mcp-reader@fitme-490515 (UI rejects with 'doesn't match a Google account'); (2) Dedicated account fitmegaanalytics@gmail.com created + granted GA4 Admin on property 531124395 + GCP Service Usage Consumer on fitme-490515; (3) gcloud auth ADC login from dedicated WITHOUT --scopes: succeeded but token lacked analytics.readonly scope \u2192 403 ACCESS_TOKEN_SCOPE_INSUFFICIENT; (4) gcloud auth ADC login from dedicated WITH --scopes=analytics.readonly: 'This app is blocked' (Google young-account + sensitive-scope policy); (5) Custom OAuth client (ga4-playground-client) Test user add for dedicated: rejected with 'Email addresses must be associated with an active Google Account' (account pre-trust state). Documented blocker: dedicated account in <24h pre-trust state. Recommended next pivot: 5-min APP cycle on primary account (APP only blocks initial consent; refresh tokens survive). Estimated effort to resume: 5 min when operator is ready. B3 daily GA4 anomaly check status: SKIPPED until binding lands.",
+      "artifacts": [],
+      "metrics": {},
+      "actor": "claude_opus_4_7",
+      "status": "blocked",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-17T16:30:00Z",
+      "event_type": "ga4_access_binding_resolved",
+      "phase": "implementation",
+      "summary": "GA4 access binding RESOLVED via Google API Explorer 'Try it' panel for properties.accessBindings.create + brief APP cycle on primary account (regev.ba@gmail.com). Service account ga4-mcp-reader@fitme-490515 successfully granted predefinedRoles/viewer on property 531124395. Verification: mcp__ga4__getActiveUsers returns 200 + valid payload (was PERMISSION_DENIED). Closes the 2026-05-16T14:19:07Z 'blocked' event. Path used (now documented as Path 4 in ga4-access-binding-setup-guide.md): API Explorer is simpler than gcloud Pivot D — pre-filled request body + Google first-party OAuth client. Total APP-off window: ~2 minutes.",
+      "artifacts": [
+        "FIT-142 comment ceb5cb54-1acd-44c5-ac70-8a1b127c9f1c (Stage 2 readout + iOS-dark finding)",
+        "FIT-142 comment f42751ed-24cc-4e59-95ba-15683a19874b (final closure)",
+        "memory/project_session_2026_05_17_ga4_binding_resolved_ios_dark.md"
+      ],
+      "metrics": {
+        "app_off_window_seconds": 120,
+        "previous_attempts_failed": 5
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-17T19:30:00Z",
+      "event_type": "ios_firehose_verified",
+      "phase": "implementation",
+      "summary": "iOS analytics firehose verified end-to-end for the first time in project history. Stage 2 audit (FIT-142) discovered the iOS app had been DARK since inception: 30-day GA4 query returned 0 iOS events despite 112 declared events in the taxonomy. Root cause: GoogleService-Info.plist was on disk at FitTracker/GoogleService-Info.plist but NOT registered in the FitTracker target's Copy Bundle Resources phase. At runtime, Bundle.main.path(forResource: 'GoogleService-Info', ofType: 'plist') returned nil, causing AnalyticsRuntimeConfiguration.canUseFirebase=false, FirebaseApp.configure() never ran, and AnalyticsService.makeDefault() selected MockAnalyticsAdapter (events went to console only). Fix: re-added plist to target via Xcode 'Add Files' with target membership checked. Also resolved bundle-ID mismatch (Xcode com.fittracker.regev vs plist com.regevba.FitTracker) by adding new Firebase iOS app entry with correct bundle, downloading matching plist. Added defensive Analytics.setAnalyticsCollectionEnabled(true) override in FirebaseAnalyticsAdapter.configure() to bypass plist IS_ANALYTICS_ENABLED=false. Verified via Firebase DebugView: 26+ events flowing including consent_granted, onboarding_step_*, screen_view, home_action_tap, home_ai_insight_shown, select_content, tutorial_complete, reminder_suppressed + Firebase auto-events first_open/session_start/user_engagement. Lesson captured: when iOS analytics goes dark, FIRST step is request first 10 Xcode console lines — 'MockAnalytics configured' as line 1 = adapter selection wrong = plist not in bundle. This would have identified root cause in 30 seconds instead of 2h chasing IS_ANALYTICS_ENABLED + consent-gate red herrings.",
+      "artifacts": [
+        "FitTracker/Services/Analytics/FirebaseAnalyticsAdapter.swift (line 15: setAnalyticsCollectionEnabled override)",
+        "FitTracker.xcodeproj/project.pbxproj (GoogleService-Info.plist now in Resources build phase)",
+        "FitTracker.xcodeproj/xcshareddata/xcschemes/FitTracker.xcscheme (-FIRDebugEnabled launch arg)",
+        "FitTracker/GoogleService-Info.plist (new content: com.fittracker.regev / appId e0af823c1f876b0b3a908f)"
+      ],
+      "metrics": {
+        "debugview_distinct_events_observed": 11,
+        "debugview_total_events_observed": 26,
+        "ios_declared_events_in_taxonomy": 112,
+        "diagnostic_time_wasted_minutes": 120,
+        "fix_time_minutes": 5
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    },
+    {
+      "timestamp": "2026-05-17T19:35:00Z",
+      "event_type": "blocked_gates_unblocked",
+      "phase": "implementation",
+      "summary": "Today's GA4 access binding + iOS firehose work unblocks 4 downstream items that were waiting on real iOS event flow: (1) B3 daily GA4 anomaly check — was SKIPPED per 2026-05-16 log entry; now can run on real data. (2) Phase 1.B GA4 MCP verification — was calendar-gated to 2026-06-04 per master plan; with binding live + iOS firehose verified, earlier verification possible. (3) Tier 2.1 sign_in_surface runtime smoke gate — requires real iOS auth events; now possible. (4) External Audit #1 (2026-05-22) — was going to have thin iOS measurement evidence; now has empirical proof of end-to-end pipeline. Outstanding follow-ups filed: D-1 setup-guide doc patch (this commit closes it via Path 4 addition), D-2 GA4 conversions config (workout_complete + nutrition_meal_logged), D-3 screen-view tracking gap (no logScreenView outside onboarding views).",
+      "artifacts": [
+        "docs/setup/ga4-access-binding-setup-guide.md (new Path 4)",
+        "docs/setup/ga4-mcp-setup-guide.md Step 3 (already references this guide)",
+        ".claude/shared/external-sync-status.json (analytics block refreshed)"
+      ],
+      "metrics": {
+        "gates_unblocked": 4,
+        "doc_updates": 3
+      },
+      "actor": "claude_opus_4_7",
+      "status": "recorded",
+      "recording_mode": "contemporaneous"
+    }
+  ]
+}
