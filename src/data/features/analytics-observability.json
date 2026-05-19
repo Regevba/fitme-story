@@ -1,0 +1,412 @@
+{
+  "name": "analytics-observability",
+  "state_owner": "ft2",
+  "framework_version": "v7.8.5",
+  "current_phase": "implementation",
+  "work_type": "Feature",
+  "has_ui": true,
+  "requires_analytics": true,
+  "created_at": "2026-05-13T15:30:00Z",
+  "case_study_link": "docs/case-studies/analytics-observability-case-study.md",
+  "scope": "Three-phase analytics framework upgrade: (1.A) hygiene + (1.B) gates, (2) live event debugger (local mirror + GA4 Realtime MCP poll), (3) dashboards (control-room/analytics route + Looker Studio template). Closes 56-row CSV drift + 4 unfired events + 21 untested + disconnected GA4 MCP. Approach B (phased single feature) per 2026-05-13 brainstorm.",
+  "public_name": "Analytics Observability",
+  "launch_window": "Phase 1.A + Phase 2: 2026-05-15 \u2192 22 (between v7.8.5.1 ship and v7.9 Phase E start). Phase 3: 2026-05-21 \u2192 06-04 (parallel with v7.9 Phase E monitoring). Phase 1.B gates: 2026-06-04 \u2192 06-26 via 22d Calibration Protocol (advisory 06-04 \u2192 06-11; calibration 06-11 \u2192 06-18; promotion decision 06-18; Phase E exit 06-25).",
+  "decisions_log": "docs/master-plan/analytics-observability-decisions-log-2026-05-13.md",
+  "spec": "docs/master-plan/analytics-master-plan-2026-05-13.md",
+  "parent_master_plan": "docs/master-plan/infra-master-plan-2026-05-12.md",
+  "v8_docket_candidates": [
+    "F19",
+    "F20",
+    "F21"
+  ],
+  "blocker_resolutions": {
+    "sequencing": "Revised 3-window plan (1.A + 2 next week, 3 during Phase E, 1.B post Phase E)",
+    "csv_ownership": "Single canonical CSV in FT2; D-1 reverse-sync extends to fitme-story build read",
+    "live_debugger_flavor": "Both local mirror (websocket + /analytics watch CLI) and GA4 Realtime MCP poll",
+    "dashboard_surface": "Both /control-room/analytics route and Looker Studio template",
+    "infra_plan_fold_in": "Approach A \u2014 sub-doc of infra master plan; Phase 1.B becomes F19/F20 in v8.0 docket"
+  },
+  "phases": {
+    "research": {
+      "status": "approved",
+      "approved_at": "2026-05-13T13:00:00Z",
+      "sources": [
+        "iOS + web GA4 analytics audit (in-conversation 2026-05-13)",
+        "Cross-reference iOS enum (114 events) vs analytics-taxonomy.csv (58 rows)",
+        "Test coverage scan (93/114 = 81%)",
+        "fitme-story web analytics survey (12/14 events wired)",
+        "GA4 MCP adapter status (defined, not connected)"
+      ]
+    },
+    "prd": {
+      "status": "in_progress",
+      "approved_at": null,
+      "analytics_spec_complete": false,
+      "draft_path": "docs/master-plan/analytics-master-plan-2026-05-13.md"
+    },
+    "tasks": {
+      "status": "pending",
+      "count": 0
+    },
+    "ux_or_integration": {
+      "status": "pending",
+      "type": "integration",
+      "preflight_passed": null
+    },
+    "implementation": {
+      "status": "pending",
+      "commits": []
+    },
+    "testing": {
+      "status": "pending",
+      "ci_passed": false,
+      "tests_added": 0,
+      "instrumentation_verified": false,
+      "analytics_tests_added": 0,
+      "analytics_verification_passed": false
+    },
+    "review": {
+      "status": "pending",
+      "risks": [],
+      "ci_main": false,
+      "ci_feature": false
+    },
+    "merge": {
+      "status": "pending",
+      "pr_number": null,
+      "analytics_regression_passed": null
+    },
+    "documentation": {
+      "status": "pending"
+    },
+    "metrics": {
+      "primary": {
+        "name": "Analytics taxonomy drift (CSV-missing-rows count)",
+        "baseline": 56,
+        "target": 0,
+        "current": 0
+      },
+      "secondary": [
+        {
+          "name": "iOS event test coverage",
+          "baseline": 81,
+          "target": 100,
+          "current": 100,
+          "unit": "%"
+        },
+        {
+          "name": "Declared-but-unfired iOS events",
+          "baseline": 4,
+          "target": 0,
+          "current": 0
+        },
+        {
+          "name": "Declared-but-unwired web events (excluding intentional forward-declared)",
+          "baseline": 0,
+          "target": 0,
+          "current": 0,
+          "convention_reference": "docs/master-plan/analytics-master-plan-2026-05-13.md \u00a75.4",
+          "note": "Re-baselined 2026-05-13 Phase 1.A.4: the 2 declared-but-unwired web events (design_system_component_expand + design_system_code_copy) are intentional forward-declarations honored by the [FORWARD-DECLARED] CSV tag convention. They are no longer counted as drift."
+        },
+        {
+          "name": "GA4 MCP connectivity",
+          "baseline": "disconnected",
+          "target": "connected",
+          "current": "disconnected"
+        }
+      ],
+      "guardrails": [
+        {
+          "name": "Crash-free rate",
+          "min": 99.5,
+          "unit": "%"
+        },
+        {
+          "name": "iOS app cold-start",
+          "max": 2.0,
+          "unit": "s"
+        },
+        {
+          "name": "make verify-local time",
+          "max": 600,
+          "unit": "s"
+        }
+      ],
+      "instrumentation_ready": false,
+      "first_review_date": "2026-06-04",
+      "kill_criteria": "If Phase 1.B gates (CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED) produce >5% false positive rate in 7-day Phase C calibration window, defer gate enforcement to v7.10 and ship hygiene-only outcome."
+    }
+  },
+  "transitions": [
+    {
+      "from": "research",
+      "to": "prd",
+      "timestamp": "2026-05-13T13:00:00Z",
+      "approved_by": "user",
+      "note": "Approach B (phased single feature) + revised 3-window sequencing + single canonical CSV + both debugger surfaces + both dashboard surfaces + Approach A infra-plan fold-in. 4 decisions locked."
+    }
+  ],
+  "cu_v2": {
+    "factors": {
+      "complexity": 0.6,
+      "blast_radius": 0.5,
+      "novelty": 0.5,
+      "verification_difficulty": 0.7
+    },
+    "total": 2.3,
+    "tier_class": "B_medium"
+  },
+  "isolation_opt_out": false,
+  "cache_hits": [],
+  "tasks": [
+    {
+      "id": "1.A.1",
+      "title": "CSV taxonomy backfill (49 events + 7 screens + 1 user prop)",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-13T15:51:46Z",
+      "completed_at": "2026-05-13T15:51:46Z",
+      "outcome": "0 missing events (was 49). 0 missing screens (was 7). 0 missing user properties (was 1). All 114 enum events in CSV via flat-scan.",
+      "files_touched": [
+        "docs/product/analytics-taxonomy.csv"
+      ]
+    },
+    {
+      "id": "1.A.3",
+      "title": "Resolve declared-but-unfired ai_recommendation_* events",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-13T16:15:37Z",
+      "completed_at": "2026-05-13T16:15:37Z",
+      "outcome": "DELETED both events (aiRecommendationAccepted + aiRecommendationDismissed) \u2014 they were duplicates of home_ai_feedback_submitted which already carries rating: positive/negative. Removed enum constants, removed CSV rows, updated funnel-definitions.md + master plan \u00a75.1 task entry. Enum 114 \u2192 112; CSV stays aligned 112/112.",
+      "files_touched": [
+        "FitTracker/Services/Analytics/AnalyticsProvider.swift",
+        "docs/product/analytics-taxonomy.csv",
+        "docs/product/funnel-definitions.md",
+        "docs/master-plan/analytics-master-plan-2026-05-13.md"
+      ]
+    },
+    {
+      "id": "1.A.4",
+      "title": "Resolve declared-but-unwired fitme-story design_system_* events",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-13T16:37:42Z",
+      "completed_at": "2026-05-13T16:37:42Z",
+      "outcome": "RE-CLASSIFIED as forward-declared (per master plan \u00a75.4 new convention). Both helpers exist in fitme-story src/lib/design-system-analytics.ts awaiting UI (ComponentCard expand + Copy snippet button). Tagged [FORWARD-DECLARED] prefix in CSV Notes. Phase 1.B CSV_TAXONOMY_DRIFT gate logic will honor this structured tag. Metric re-baselined: 'Declared-but-unwired web events' from drift-counted to intent-honored.",
+      "files_touched": [
+        "docs/product/analytics-taxonomy.csv",
+        "docs/master-plan/analytics-master-plan-2026-05-13.md"
+      ],
+      "followup_fitme_story_pr": "JSDoc tags @forward-declared on the 2 helpers in src/lib/design-system-analytics.ts (separate PR for fitme-story repo)"
+    },
+    {
+      "id": "1.A.5",
+      "title": "Add 19 iOS analytics tests for previously-untested events",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-13T17:04:49Z",
+      "completed_at": "2026-05-13T17:04:49Z",
+      "outcome": "Coverage 81% \u2192 100% (93/112 \u2192 112/112). Added 19 new XCTest methods across 3 test files: HomeAnalyticsTests (4), ImportPersistenceAndAnalyticsTests (1), AnalyticsTests (14). Each test asserts event captured + enum constant + raw string match + key parameters. Pattern matches existing tests via MockAnalyticsAdapter + AnalyticsService convenience methods.",
+      "files_touched": [
+        "FitTrackerTests/HomeAnalyticsTests.swift",
+        "FitTrackerTests/ImportPersistenceAndAnalyticsTests.swift",
+        "FitTrackerTests/AnalyticsTests.swift"
+      ]
+    },
+    {
+      "id": "1.A.7",
+      "title": "Refresh external-sync-status.json analytics block",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-13T17:50:08Z",
+      "completed_at": "2026-05-13T17:50:08Z",
+      "outcome": "Updated 'updated' timestamp + added new analytics_taxonomy_status block reflecting Phase 1.A reality (CSV 112/112, test coverage 100%, 0 unfired iOS events, web events status). Replaced findings array with current Phase 1.A summary. Preserved instrumentation_summary as backward-compat reference (40-metric framework \u2014 separate from event-taxonomy work).",
+      "files_touched": [
+        ".claude/shared/external-sync-status.json"
+      ]
+    },
+    {
+      "id": "2.A.1",
+      "title": "Local analytics mirror SSE server (Phase 2 begins)",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-13T18:11:44Z",
+      "completed_at": "2026-05-13T18:11:44Z",
+      "outcome": "New scripts/analytics-watch-server.py (stdlib-only, no pip deps). HTTP/SSE design: POST /event, GET /stream (SSE), GET /health. iOS uses URLSession SSE; browser uses EventSource. Tests at scripts/tests/test_analytics_watch_server.py: 7/7 pass \u2014 health/POST/SSE/sequence/subscriber-count/404/JSON-validation. Server listens on localhost:8765 by default. Phase 2 (live debugger) begins.",
+      "files_touched": [
+        "scripts/analytics-watch-server.py",
+        "scripts/tests/test_analytics_watch_server.py"
+      ]
+    },
+    {
+      "id": "2.A.2",
+      "title": " CLI sub-command + skill docs",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-13T18:54:50Z",
+      "completed_at": "2026-05-13T18:54:50Z",
+      "outcome": "New scripts/analytics-watch.py (CLI client for the SSE server shipped in 2.A.1). Connects to localhost:8765/stream, prints events in real time. Supports --filter (substring OR-semantics), --raw (JSON output), --no-color, --server URL. Stdlib-only. Tests at scripts/tests/test_analytics_watch.py: 12/12 pass (7 pure-function + 5 integration). Skill docs added at .claude/skills/analytics/SKILL.md.",
+      "files_touched": [
+        "scripts/analytics-watch.py",
+        "scripts/tests/test_analytics_watch.py",
+        ".claude/skills/analytics/SKILL.md"
+      ]
+    },
+    {
+      "id": "2.A.3",
+      "title": "iOS DebugSinkAdapter \u2014 tee events to local SSE sink under DEBUG_ANALYTICS=1",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-14T03:21:11Z",
+      "completed_at": "2026-05-14T03:21:11Z",
+      "outcome": "New FitTracker/Services/Analytics/DebugSinkAdapter.swift wraps base AnalyticsProvider (Firebase/Mock); transparent passthrough when DEBUG_ANALYTICS env var unset. When set, tees logEvent + logScreenView to localhost:8765/event via fire-and-forget HTTP POST. NEVER tees user-identity APIs (PII safe). Wired into AnalyticsService.makeDefault. 14 XCTest methods at FitTrackerTests/DebugSinkAdapterTests.swift cover passthrough + tee + PII safety + env-driven sink resolution. Both files added to project.pbxproj (4 locations each).",
+      "files_touched": [
+        "FitTracker/Services/Analytics/DebugSinkAdapter.swift",
+        "FitTracker/Services/Analytics/AnalyticsService.swift",
+        "FitTrackerTests/DebugSinkAdapterTests.swift",
+        "FitTracker.xcodeproj/project.pbxproj"
+      ]
+    },
+    {
+      "id": "2.A.4",
+      "title": "fitme-story web mirror function \u2014 tee gtag emits when NEXT_PUBLIC_DEBUG_ANALYTICS=1",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-14T03:55:00Z",
+      "completed_at": "2026-05-14T04:00:00Z",
+      "outcome": "New fitme-story/src/lib/analytics-debug-mirror.ts. resolveSinkURL() reads NEXT_PUBLIC_DEBUG_ANALYTICS=1 at module load. teeToDebugMirror(eventName, params) called from design-system-analytics.ts + control-room/analytics.ts emit() functions after gtag emit. Fire-and-forget fetch with keepalive: true, credentials: 'omit', mode: 'cors'. Failures swallowed (production safety). 8 node:test tests at src/lib/__tests__/analytics-debug-mirror.test.ts. Shipped via fitme-story PR #107 (squash 1ec463c).",
+      "files_touched": [
+        "fitme-story/src/lib/analytics-debug-mirror.ts",
+        "fitme-story/src/lib/design-system-analytics.ts",
+        "fitme-story/src/lib/control-room/analytics.ts",
+        "fitme-story/src/lib/__tests__/analytics-debug-mirror.test.ts"
+      ]
+    },
+    {
+      "id": "2.B.1",
+      "title": "/analytics poll sub-command + GA4 MCP setup runbook",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-14T04:07:22Z",
+      "completed_at": "2026-05-14T04:07:22Z",
+      "outcome": "Doc-only deliverable. NEW docs/setup/ga4-mcp-setup-guide.md (~270 lines, 7 steps + troubleshooting + cross-refs) \u2014 operator runbook for installing mcp-server-ga4 + Google Cloud service account + property access. UPDATED .claude/skills/analytics/SKILL.md /analytics poll section from placeholder to full procedure (5-step MCP tool flow + failure modes + cross-references). Phase 2 (live debugger) is now COMPLETE \u2014 local-mirror surface (2.A.1-4) + GA4 Realtime poll surface (2.B.1) both shipped.",
+      "files_touched": [
+        "docs/setup/ga4-mcp-setup-guide.md",
+        ".claude/skills/analytics/SKILL.md"
+      ]
+    },
+    {
+      "id": "3.A.0",
+      "title": "Phase 3 spec scaffold \u2014 master plan \u00a77.5/\u00a77.6 + metric definitions + Looker template + control-room setup guide",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-14T04:30:00Z",
+      "completed_at": "2026-05-14T04:55:00Z",
+      "outcome": "Phase 3 docs landed before live-data wiring (per \u00a77.5 calibration safety classification). Master plan \u00a75.5 + \u00a76.5 status snapshots updated to COMPLETE. NEW \u00a77.5 (green/yellow/red work classification documenting which Phase 3 work is calibration-safe vs deferred to 2026-06-04). NEW \u00a77.6 (Phase 3 status snapshot). NEW docs/master-plan/analytics-dashboard-metric-definitions.md (5-tile contract: EventVolumeTile, DriftTrendTile, TaxonomyHealthTile, RecentEventsStream, ForwardDeclaredEventsTile + Looker cross-walk). NEW docs/analytics/looker-studio-template.json (3-page dashboard spec) + .md (operator import guide). NEW docs/setup/control-room-analytics-setup-guide.md (operator dashboard setup with calibration-window note).",
+      "files_touched": [
+        "docs/master-plan/analytics-master-plan-2026-05-13.md",
+        "docs/master-plan/analytics-dashboard-metric-definitions.md",
+        "docs/analytics/looker-studio-template.json",
+        "docs/analytics/looker-studio-template.md",
+        "docs/setup/control-room-analytics-setup-guide.md"
+      ]
+    },
+    {
+      "id": "3.A.1",
+      "title": "fitme-story dashboard scaffold \u2014 /control-room/analytics route + 5 tile components + types + fixtures + tests + sidebar nav",
+      "status": "complete",
+      "phase": "implementation",
+      "started_at": "2026-05-14T05:00:00Z",
+      "completed_at": "2026-05-14T09:01:51Z",
+      "scope_note": "Green-bucket items 1-4, 7 from master plan \u00a77.5. Live GA4 binding (yellow) deferred to 2026-06-04 per Calibration Protocol.",
+      "outcome": "Shipped via fitme-story PR #108 (squash 945e90c, merged 2026-05-14T09:01:51Z). New /control-room/analytics route (server component) renders 5 tiles + calibration banner: EventVolumeTile, DriftTrendTile, TaxonomyHealthTile, RecentEventsStream, ForwardDeclaredEventsTile. TypeScript contracts in src/lib/control-room/analytics-types.ts; fixture data in analytics-fixtures.ts; 7 fixture-shape tests pass via tsx --test. Sidebar nav entry added to SECONDARY_NAV. ControlRoomRoute union extended with 'analytics'. Loading skeleton + per-route README documenting calibration window. Build succeeds; route prerenders as static. All tile meta.status === 'fixture' (calibration-safety guarantee asserted by test).",
+      "files_touched": [
+        "fitme-story/src/app/control-room/analytics/page.tsx",
+        "fitme-story/src/app/control-room/analytics/loading.tsx",
+        "fitme-story/src/app/control-room/analytics/README.md",
+        "fitme-story/src/app/control-room/layout.tsx",
+        "fitme-story/src/lib/control-room/analytics.ts",
+        "fitme-story/src/lib/control-room/analytics-types.ts",
+        "fitme-story/src/lib/control-room/analytics-fixtures.ts",
+        "fitme-story/src/lib/control-room/__tests__/analytics-fixtures.test.ts",
+        "fitme-story/src/components/control-room/EventVolumeTile.tsx",
+        "fitme-story/src/components/control-room/DriftTrendTile.tsx",
+        "fitme-story/src/components/control-room/TaxonomyHealthTile.tsx",
+        "fitme-story/src/components/control-room/RecentEventsStream.tsx",
+        "fitme-story/src/components/control-room/ForwardDeclaredEventsTile.tsx",
+        "fitme-story/src/components/control-room/analytics-tile-primitives.tsx"
+      ]
+    },
+    {
+      "id": "D-2",
+      "title": "Configure GA4 conversions (workout_complete + nutrition_meal_logged)",
+      "status": "deferred",
+      "phase": "implementation",
+      "earliest_start": "2026-06-04",
+      "blocked_until": "v7.9 ships",
+      "effort": "5min",
+      "calibration_class": "yellow",
+      "outcome": "(pending) Per docs/product/analytics-taxonomy.csv `Conversion: Yes` column: mark workout_complete + nutrition_meal_logged as conversions in GA4 Property 531124395. Current state verified 2026-05-17: 0 of 8 received events have isConversionEvent=true. Path: GA4 \u2192 Admin \u2192 Events \u2192 toggle 'Mark as conversion'. Verify post-flip via mcp__ga4__runReport with isConversionEvent dimension.",
+      "files_touched": [],
+      "source_event": "FIT-142 closure 2026-05-17",
+      "v7_9_1_candidate": true
+    },
+    {
+      "id": "D-3",
+      "title": "Wire AnalyticsScreenModifier to main tabs (Home/Training/Stats/Nutrition/Settings) \u2014 screen-view tracking gap",
+      "status": "deferred",
+      "phase": "implementation",
+      "earliest_start": "2026-06-04",
+      "blocked_until": "v7.9 ships",
+      "effort": "1-2h",
+      "calibration_class": "yellow",
+      "outcome": "(pending) Discovered 2026-05-17 during FIT-142 iOS investigation: analytics.logScreenView only called from 15 onboarding views. Main app tabs have ZERO explicit screen-view tracking. AnalyticsScreenModifier exists at FitTracker/Services/Analytics/AnalyticsScreenModifier.swift:9 but isn't applied. Symptom in GA4: Firebase auto-screen_view fires with screen_class='SwiftUIView' for ALL non-onboarding views \u2192 no screen-prefix funnel possible per analytics-taxonomy convention. Fix: apply .trackedScreen(AnalyticsScreen.<name>) modifier to each tab's root view.",
+      "files_touched": [
+        "FitTracker/Views/Main/MainScreenView.swift (or v2)",
+        "FitTracker/Views/Training/v2/TrainingPlanView.swift",
+        "FitTracker/Views/Stats/...",
+        "FitTracker/Views/Nutrition/...",
+        "FitTracker/Views/Settings/v2/SettingsView.swift"
+      ],
+      "source_event": "FIT-142 closure 2026-05-17",
+      "v8_docket_candidate_id": "F21",
+      "v7_9_1_candidate": true
+    },
+    {
+      "id": "D-4",
+      "title": "Delete old com.regevba.FitTracker Firebase iOS app entry",
+      "status": "deferred",
+      "phase": "implementation",
+      "earliest_start": "2026-06-04",
+      "blocked_until": "v7.9 ships",
+      "effort": "1min",
+      "calibration_class": "green",
+      "outcome": "(pending) Firebase project fitme-467e7 still has legacy iOS app entry for bundle com.regevba.FitTracker. Now orphaned: runtime uses com.fittracker.regev. Safe to delete: no client points at old appId 1:98024066974:ios:ab500a1a1fc5deb63a908f. Removes Firebase Console confusion. Path: Firebase Console \u2192 Project Settings \u2192 Your apps \u2192 click old card \u2192 Remove this app.",
+      "files_touched": [],
+      "source_event": "FIT-142 closure 2026-05-17",
+      "v7_9_1_candidate": true
+    }
+  ],
+  "figma_node_ids": {},
+  "figma_build_status": null,
+  "pre_merge_review": {
+    "ux": null,
+    "design": null
+  },
+  "timing": {
+    "phases": {
+      "research": {
+        "started_at": "2026-05-13T09:00:00Z",
+        "ended_at": "2026-05-13T13:00:00Z"
+      },
+      "prd": {
+        "started_at": "2026-05-13T13:00:00Z",
+        "ended_at": "2026-05-13T18:11:44Z"
+      },
+      "implementation": {
+        "started_at": "2026-05-13T18:11:44Z"
+      }
+    }
+  }
+}

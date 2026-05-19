@@ -51,7 +51,7 @@ Use `/pm-workflow {name}` and select the work type. Skipped phases are recorded 
 - **CI requirement:** both branches must pass before merge is approved
 - **High-risk areas** that require extra review: DomainModels.swift, EncryptionService.swift, SupabaseSyncService.swift, CloudKitSyncService.swift, SignInService.swift, AuthManager.swift, AIOrchestrator.swift
 
-## Data Integrity Framework (v7.5 → v7.6 → v7.7 → v7.8 → v7.8.1, shipped 2026-04-24 → 2026-04-25 → 2026-04-27 → 2026-05-04 → 2026-05-07)
+## Data Integrity Framework (v7.5 → v7.6 → v7.7 → v7.8 → v7.8.1 → v7.8.2 → v7.8.3 → v7.8.4, shipped 2026-04-24 → 2026-04-25 → 2026-04-27 → 2026-05-04 → 2026-05-07 → 2026-05-08 → 2026-05-11 → 2026-05-12)
 
 The 72h Integrity Cycle shipped at v7.1 is now one of **eight cooperating defenses** in the v7.5 Data Integrity Framework — triggered by the 2026-04-21 Google Gemini 2.5 Pro independent audit. v7.6 (Mechanical Enforcement, shipped 2026-04-25) closes the remaining Class B → Class A gap by promoting four silent agent-attention checks into pre-commit failures and adding two recurring CI defenses (per-PR review bot, weekly framework-status cron).
 
@@ -170,6 +170,136 @@ v7.8.1 closes two empirically-witnessed silent-pass failure modes via cooperatin
 **v7.7 case study:** [`docs/case-studies/framework-v7-7-validity-closure-case-study.md`](docs/case-studies/framework-v7-7-validity-closure-case-study.md).
 **v7.8 case study (live append-only journal):** [`docs/case-studies/framework-v7-8-bridge-case-study.md`](docs/case-studies/framework-v7-8-bridge-case-study.md).
 
+## v7.8.2 Cross-Repo Telemetry Asymmetry — Documented Disposition (shipped 2026-05-08)
+
+v7.8.2 is a **patch-level bump** that does NOT add new gates. It codifies a forward-looking policy decision and ships one operability fix. Closes 2 v7.9 candidates (F7 + F8) by documenting the "no-port" decision rather than building cross-repo gate parity.
+
+**Trigger:** during the 2026-05-08 fitme-story public-site audit session, the FT2 `PostToolUse:Read` hook fired `python3 scripts/observe-cache-hit.py` blindly even when cwd was in fitme-story (where the script doesn't exist), producing 30+ blocking-error notifications. Empirically confirmed F8 finding (Mechanism A telemetry is FT2-only).
+
+**What shipped:**
+
+- **Hook fix:** `.claude/settings.json` PostToolUse:Read command now has a Bash short-circuit existence guard (`[ -f scripts/observe-cache-hit.py ] && python3 ... || true`). Silently no-ops when the script is absent (cross-repo cwd, missing worktree, etc.).
+- **Disposition spec:** [`docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md`](docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md) — 7 sections explaining (1) the asymmetry, (2) why no full parity, (3) what we DO ship, (4) what does NOT change, (5) re-eval triggers (3 signals), (6) cross-references, (7) disposition record.
+
+**What does NOT change in v7.8.2:**
+- All v7.5 → v7.8.1 gates still fire on FT2 commits (no regression)
+- Mechanism A `gate-coverage.jsonl` still emits for every FT2 gate fire
+- Mechanism C session-attribution still works when cwd is FT2
+- Tier 2.2 contemporaneous logging still works for any feature in FT2
+
+**v7.9 candidates resolved at v7.8.2:**
+- **F7** (Tier 2.2 per-phase emission gate parity for fitme-story) — RESOLVED via documented exemption
+- **F8** (Mechanism A `gate-coverage.jsonl` parity for fitme-story) — RESOLVED via documented exemption
+
+**Re-evaluation cadence:** Annual (next 2027-05-08) OR earlier if any of 3 signals fire. See spec §5.
+
+**v7.8.2 ships via** PR #258 (FT2 chore). Tracks: [fitme-story-public-enhancements T22 + T23](https://github.com/Regevba/FitTracker2/issues/255).
+
+**Spec:** [`docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md`](docs/superpowers/specs/2026-05-08-cross-repo-gate-asymmetry.md).
+
+## v7.8.3 Cross-Repo State Sync Implementation (in flight, per spec 2026-05-11)
+
+v7.8.3 is the umbrella release for the `cross-repo-state-sync-impl` Feature.
+Bundles all deferred Phase C/D state-sync work with two v7.9 candidates
+(V2 + V9) into a single 5-phase rollout. Gates HADF Phase 2-bis: that
+campaign cannot start until all 5 phases ship and per-phase calibration
+targets are met.
+
+**Phase 0 promotes (shipped 2026-05-11 PR #298):**
+- V2 — `CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT` advisory → enforced
+- V9 — Mechanism E custom git merge driver extends to `.claude/logs/<feature>.log.json`
+- New `make snapshot-phase` Makefile target + `scripts/snapshot-phase-completion.sh` for per-phase off-SSD backups
+
+**Phase 1 deliverables (shipped 2026-05-11 — D-3 PR #299 + C-4 fitme-story PR #86):**
+- D-3 — unified cross-repo PR cite cache: `scripts/refresh-pr-cache.py` + multi-repo `_load_pr_cache` + `REPO_MAP` whitelist + `resolve_pr_cite()` for routing match groups; closes BROKEN_PR_CITATION's silent-skip on `[fitme-story#N]` cites + URL-form mis-routing; 63/63 retroactive cite validation
+- C-4 — fitme-story control-room cross-repo gate-coverage aggregator: forward-sync extension mirrors FT2's `gate-coverage.jsonl` as `src/data/integrity/gate-coverage-ft2.jsonl`; `src/lib/control-room/gate-coverage-aggregator.ts` combines both repos' streams time-sorted; `/control-room/framework` page renders aggregated counts
+
+**Phase 2 deliverables (in flight 2026-05-11):**
+Every `state.json` now carries a top-level `state_owner` enum field
+(`{"ft2", "fitme-story"}`) per the cross-repo contract — value reflects
+WHERE the canonical state.json file lives, not where the feature's code
+lives. Required from 2026-05-13 forward; backfilled to all 62 existing
+features in a single mechanical commit. Three new write-time gates:
+- `STATE_OWNER_MISSING` — required field
+- `STATE_OWNER_INVALID` — must be in valid enum
+- `STATE_OWNER_LOCATION_MISMATCH` (morphed C-5) — file location must
+  match `state_owner`; sync mirrors with `state_owner_sync_origin`
+  ending in `-reverse` are exempted (D-1 reverse-sync compatibility)
+
+**Phases 3-4 (in flight):** D-1 reverse-sync GitHub Action (Phase 3) + cutover ceremony with first fitme-story-native feature (Phase 4).
+
+**Spec:** [`docs/superpowers/specs/2026-05-11-cross-repo-state-sync-impl-design.md`](docs/superpowers/specs/2026-05-11-cross-repo-state-sync-impl-design.md).
+**Plan:** [`docs/superpowers/plans/2026-05-11-cross-repo-state-sync-impl.md`](docs/superpowers/plans/2026-05-11-cross-repo-state-sync-impl.md).
+
+## v7.8.4 Pre-v7.9 Telemetry Calibration & Doc-Debt Cleanup (shipped 2026-05-12)
+
+v7.8.4 is a **patch-level hygiene release** that does NOT add new gates, with one exception: a small operability gate (`PR_CACHE_STALE` auto-refresh) closing the v7.8.3-era false-positive incident. The release exists to clean the noise floor before the **2026-05-21 v7.9 promotion-decision data freezes** — master plan §2.2 promotion criterion #2 ("no false positives") is more credible against a clean baseline.
+
+**What ships:**
+
+1. **PR cache freshness auto-refresh** — new `scripts/ensure-pr-cache-fresh.py` runs before every `make integrity-check` and inside `.github/workflows/integrity-cycle.yml`. Triggers a refresh when `.cache/gh-pr-cache.json` is empty, missing, or older than 24h. Refresh failure logs to stderr but does NOT abort the run (downstream BROKEN_PR_CITATION + PR_NUMBER_UNRESOLVED gates remain operative). Closes the **33-finding false-positive incident** observed 2026-05-12 when an empty-cache run flagged every PR citation as broken.
+2. **TIER_TAG_LIKELY_INCORRECT heuristic narrowed (3 fixes in `scripts/validate-tier-tags.py`):**
+   - `is_target_or_kill_claim()` filter — skips T1 claims whose context contains target/kill/threshold language (forward-looking declarations, not observations)
+   - Word-boundary `\b` after unit regex — eliminates false positives where the unit letter is the first char of a longer word (`h` in `hook`, `s` in `schema`, `d` in `declared`)
+   - Intervening tier-marker filter — skips claims whose context contains another T-tag (e.g., `T1 ... T2`) — number likely belongs to the second tier marker, not the first
+3. **New reference ledger** `.claude/shared/case-study-t1-references.json` — pinned numerical values for T1 claims that are correctly instrumented but whose values are derived/computed and not captured by `measurement-adoption.json` or `documentation-debt.json` (initial seed: 3 entries — 57% ui-audit P1 reduction, 92min stress-test wall time, 2/9 post-v6 adoption ratio at synthesis time)
+4. **cache_hits[] backfills** — `framework-v7-8-branch-isolation` (33 attributed Reads) + `import-training-plan` (95) populated from Mechanism C session-ledger attributions. Clears 2 CACHE_HITS_AUTO_INSTRUMENTATION_INACTIVE advisories.
+5. **Doc-debt LOW items closed (5/5):**
+   - `docs/case-studies/dual-outlet-pattern.md` — added YAML frontmatter (date_written, work_type, dispatch_pattern, success_metrics, kill_criteria, kill_criteria_resolution)
+   - `docs/case-studies/framework-v7-8-branch-isolation-case-study.md` — added `success_metrics` field (companion to existing `primary_metric`)
+   - `.claude/features/ios-code-connect/state.json` — added `case_study_type: no_case_study_required` + exemption reason
+6. **Stale lockfile cleared** — `.claude/active-feature` reset from `ios-ui-audit-p1-burndown` (closed) to empty so the next `/pm-workflow` invocation owns it cleanly.
+7. **Pre-v7.9 snapshot captured** — `make snapshot-phase PHASE=pre-v7-9-baseline FEATURE=framework-v7-8-branch-isolation` writes baseline to `~/Documents/FitTracker2-backups/2026-05-12-framework-v7-8-branch-isolation-pre-v7-9-baseline/` (12 files, sha256-verified).
+
+**Outcome:** `make integrity-check` baseline at v7.8.4 ship — **0 findings + 0 advisory** (was 35+9 at session open, 6 advisory after stale-cache fix, 0+0 post-v7.8.4).
+
+**What does NOT change in v7.8.4:**
+- All v7.5 → v7.8.3 gates fire identically (no regression)
+- v7.9 promotion calendar unchanged (decision 2026-05-21 per master plan §2.2)
+- Master plan v8.x F-candidate docket unchanged
+
+**v7.8.4 ships via** PR (TBD) on `chore/framework-v7-8-4-calibration-patch`. Lifecycle catalog entry mirrors v7.8.2's documented-disposition format.
+
+**Spec:** N/A — patch-level hygiene; rationale captured in this section + cold-start entrypoint [`.claude/entrypoints/framework-v7-8-4.md`](.claude/entrypoints/framework-v7-8-4.md).
+
+## v7.8.5 Observability Layer (shipped 2026-05-13)
+
+v7.8.5 adds two operator-facing observability surfaces — both are **documentation + a hook**, no new gates, no telemetry impact on the 2026-05-21 v7.9 promotion data:
+
+1. **Observed Patterns Catalog** — [`.claude/integrity/observed-patterns.md`](.claude/integrity/observed-patterns.md) is the canonical manifest of gate-firing patterns operators must recognize before debugging. 23 gate patterns + 9 workflow patterns documented. Auto-loaded as preflight by [`/pm-workflow`](.claude/skills/pm-workflow/SKILL.md). CLI: `make observed-patterns`. **Mandatory rule: any new pattern surfaced during a session MUST be appended to the catalog before the protocol closes the feature.** Shipped via PR #328 (initial 23-pattern catalog) + PR #341 (W9 detection mechanism).
+
+2. **W9 branch-drift real-time alert** — [`scripts/check-branch-drift.py`](scripts/check-branch-drift.py) runs as a `PostToolUse:Bash` hook. Detects when the current git branch has changed unexpectedly between tool calls within a session (typically because another concurrent Claude session sharing the same git working directory ran `git checkout`, flipping HEAD). Emits a LOUD stderr warning surfaced back to the assistant via tool output, with a 4-step recovery playbook. Per-session state at `.claude/_session-state/<session_id>-branch.txt` (gitignored). Disable: `CLAUDE_W9_DISABLE_DRIFT_CHECK=1`. Full playbook: [`observed-patterns.md`](.claude/integrity/observed-patterns.md) W9.
+
+**Operator obligation:** when any framework gate or advisory fires during a session, the FIRST step is to check the catalog (`make observed-patterns`). Apply documented remediation if pattern matches; investigate only if novel; ALWAYS append a new entry when surfacing a novel pattern.
+
+## v7.8.6 Cadence Batch (shipped 2026-05-15)
+
+v7.8.6 ships observability surfaces that close the **96-hour drift window** between the weekly framework-status cron (Mon 05:00 UTC) and the 72-hour integrity cycle (per `docs/master-plan/data-integrity-and-rollback-2026-05-14.md` §2.1+§2.3). No new enforcement gates; every addition is a read/diff/warn surface.
+
+**MUST-have batch (PR #363):**
+
+1. **`make integrity-diff`** — compares current platform state vs the 2026-05-14 pre-v7.9 baseline anchor. Anchored at `~/Documents/FitTracker2-backups/2026-05-14-analytics-observability-platform-integrity-baseline-2026-05-14/platform-baseline/`. Override via `INTEGRITY_DIFF_BASELINE=<path>`. CI mode: `EXIT_ON_REGRESSION=1` exits 1 on regression. Producer: [`scripts/integrity-diff.py`](scripts/integrity-diff.py).
+
+2. **Unified preflight entry point** — [`make preflight WORK_TYPE=<feature|enhancement|fix|chore> [FEATURE=<name>]`](Makefile). Aggregates every pre-work check (W1 ssh-agent, PR cache freshness, branch isolation, integrity findings, drift vs anchor, doc-debt, adoption baseline) into a single call. Writes `.claude/shared/preflight-cache.json` that all 10 downstream skills (ux, design, dev, qa, analytics, cx, ops, release, marketing, research) read from their `## Shared Data` section. Schema: [`docs/skills/preflight-cache-schema.md`](docs/skills/preflight-cache-schema.md). Mandatory Phase 0.0 step in `/pm-workflow`.
+
+3. **Weekly Mechanism A gate-coverage zero-drift scan** — extends `framework-status-weekly.yml`. Tracks distinct gates emitting telemetry week-over-week via `.claude/shared/gate-coverage-weekly.jsonl` (append-only). Surfaces any gate that previously emitted but stopped — opens the digest issue with reason `A2 gate-coverage`. Producer: [`scripts/weekly-trend-scan.py`](scripts/weekly-trend-scan.py).
+
+4. **Per-dimension adoption trend nudge** — same workflow extension. Diffs `timing_wall_time` / `per_phase_timing` / `cache_hits` / `cu_v2` / `fully_adopted_post_v6` against prior weekly snapshot. Opens digest issue on any decrease with reason `A4 per-dimension`. Addresses the documented `fully_adopted_post_v6` 27.3% → 8.3% regression + `cu_v2 ≥50%` chronic miss (master plan §2.5).
+
+5. **W1 ssh-agent preflight** — [`scripts/check-ssh-agent.sh`](scripts/check-ssh-agent.sh) wired into SessionStart. Loud stderr warning when `ssh-add -l` returns no identities — prevents the documented W1 silent-sign-hang failure mode. Disable: `CLAUDE_W1_DISABLE_SSH_CHECK=1`.
+
+**Nice-to-have batch (PR #365):**
+
+6. **Weekly dependency audit** — [`.github/workflows/dependency-audit-weekly.yml`](.github/workflows/dependency-audit-weekly.yml) (Mondays 06:00 UTC, 1h after framework-status-weekly). Runs `npm audit --omit=dev` across root + `website` + `dashboard` subdirs + counts Swift Package.resolved pins. Producer: [`scripts/aggregate-dependency-audit.py`](scripts/aggregate-dependency-audit.py). Opens an issue on any HIGH or CRITICAL. Complements Dependabot (which opens per-bump PRs) by surfacing a rolling weekly total.
+
+7. **Daily stale-branch + orphan-worktree warning** — appended to `scripts/daily-integrity-checkpoint.py` output. Lists local branches whose remote is gone (`[gone]`) + any isolated worktrees on disk in `.claude/worktrees/`. Suggests `commit-commands:clean_gone` skill for cleanup.
+
+8. **Daily open-PRs-idle-24h babysit** — same script. Calls `gh pr list` for FT2 + fitme-story; filters to PRs idle >24h (oldest first). Silent no-op when `gh` unavailable.
+
+**MUST-have follow-up tracker:** [`.claude/shared/must-have-cadence-followups.md`](.claude/shared/must-have-cadence-followups.md) — single ledger for calendar-anchored verifications (B1 v7.9 freeze 2026-05-21, B2 post-v7.9 baseline 2026-05-28, B4/B5 quarterly test audit) + feature-scope MUST items (C1 F14/F15 dispatch tests, C2 T6 web PR gate RICE 200.0, C3 T2 Sentry test). Daily checkpoint surfaces upcoming items ≤14d.
+
+**Spec / case study:** the v7.8.6 work ships against the existing infra-master-plan §4.1 calendar; no separate spec because every addition is a read-only observability surface (the spec/PRD requirement applies to enforcement gates). PR bodies (#363, #365) serve as the case-study source.
+
 ## Known Mechanical Limits
 
 v7.6 promoted 4 silent gaps to pre-commit failures and added 3 recurring CI defenses. v7.8 PR-1 ships **Mechanism C** (PostToolUse:Read hook + `scripts/observe-cache-hit.py`) which moves Gap 1 from Class B → A in advisory mode (capture only); v7.9 promotes the writer-path to enforced once 7+ days of session-ledger data calibrate the threshold. Four gaps remain mechanically unclosable:
@@ -246,6 +376,37 @@ Phase 3 + Phase 6 of the PM workflow now mechanically gate the spec ↔ code ↔
 **Folder convention:** `docs/prompts/ux/` for `/ux prompt` outputs, `docs/prompts/ui/` for `/design prompt` outputs, `docs/prompts/_legacy/` for hand-authored historical prompts.
 
 Full documentation: [`docs/skills/evolution.md`](docs/skills/evolution.md) §26.
+
+### v4.X+CC Cross-repo Code Connect bridge (added 2026-05-09 → 2026-05-10)
+
+Closes the loop in the OTHER direction: `/design build` pushes screens INTO Figma; the Code Connect bridge maps Figma library frames BACK to source code so Dev Mode shows the actual React/SwiftUI snippet for each component. Cross-repo, both web and iOS.
+
+**Foundation:**
+
+- **Web (fitme-story):** `.figma.tsx` mapping files → file `fsjHfFLAHELACZHku8Rfcl` (FitMe Story Web — Design System). Parsed by `@figma/code-connect` npm package directly. Foundation: fitme-story PR #75 (T20 of `fitme-story-public-enhancements` rollup) shipped 17 component node IDs + 4 new primitives (Button, Tag, CaseStudyCard, FrameworkVersionCard) + 12 mapping files; PR #80 fixed parser issues (inline URL literals, broader include glob, drop `figma.string()` props for components without named text properties).
+- **iOS (FitTracker2):** `.figma.swift` mapping files → file `0Ai7s3fCFqR5JXDW8JvgmD` (FitTracker-Design-System-Library). Foundation: FT2 PR #277 (`ios-code-connect` chore feature T1+T2+T3+T5) shipped `Figma.toml` + 5 mapping files covering 6 screen-level node IDs sourced from existing shipped features. Build-safety wrapper `#if canImport(Figma)` keeps Xcode green without the Swift package installed.
+
+**3-layer automation** (chore feature `code-connect-automation`, shipped via PRs #278/#279/#280/#281/#283 + fitme-story #77/#79):
+
+- **Layer A — scaffold scripts.** `scripts/scaffold-figma-mapping.py` (FT2) + `scripts/scaffold-figma-mapping.mjs` (fitme-story) auto-generate `.figma.{swift,tsx}` template files from any feature's `state.json::figma_node_ids` block. Coalesces multi-state variants of the same View/component into one mapping file. Override block `figma_node_ids.code_mapping` for keys that don't match the snake_case → PascalCase heuristic.
+- **Layer B — `/design build` skill extension.** After `figma_node_ids` is populated, the skill auto-invokes the scaffold script for the active repo. Closes the "manual mapping author per new UI feature" gap.
+- **Layer C — CI publish workflows.** `.github/workflows/figma-code-connect-publish.yml` in BOTH repos auto-runs `figma connect publish` on push to main when `*.figma.{swift,tsx}` or config changes. Web: ubuntu runner + `npx figma connect publish`. iOS: macos-15 runner + SPM cache + `npx figma connect publish` with `figma.config.json::swiftPackagePath` pointing at `.figma-cc-tools/Package.swift` (SPM wrapper subdir; the npm CLI calls `swift run --package-path .figma-cc-tools figma-swift` as a subprocess to parse `.figma.swift` files since the npm parser doesn't natively support Swift). Both gated on `FIGMA_ACCESS_TOKEN` repo secret (operator one-time setup); skip with clear log if missing.
+
+**Two new mechanical gates added 2026-05-10 to `/design` skill (PR #280):**
+
+- **`/design preflight` Step 3.5 — Code Connect write-access gate.** Verifies the publish path works end-to-end (not just MCP read access). Token presence check (local env + `gh api` for repo secret in BOTH repos) + publish dry-run probe (catches missing `Code Connect Write` scope or `file_dev_resources:write`). Records to `figma-bridge-status.json::code_connect_access`. Auth-failure → P1 advisory; token absent everywhere → P2 advisory.
+- **`/design pre-merge-review` Step 3.5 — Spec ↔ build parity check.** Verifies what was built matches what the spec said. Enumerates spec surfaces (parses `ux-spec.md` / `integration-spec.md`) and build surfaces (`state.json::figma_node_ids` + `.figma.{swift,tsx}` files), then cross-matches each spec surface (`complete` / `figma_only` / `mapping_only` / `missing`). BLOCK on `missing` or `mapping_only` (build incomplete). Records to `state.json.pre_merge_review.design_parity`.
+
+**Operator setup (one-time, both repos):** generate Figma Personal Access Token at <https://www.figma.com/settings> → Security → Personal access tokens. **Required scopes:** `file_content:read` + `file_dev_resources:read` + `file_dev_resources:write` (Code Connect mappings ARE dev resources in Figma's data model — there's no explicit "Code Connect" scope). `library_content:read` is recommended for team-library design systems. Add the token as `FIGMA_ACCESS_TOKEN` repo secret in BOTH `Regevba/FitTracker2` and `Regevba/fitme-story`. Until set, both publish workflows skip cleanly.
+
+**Companion docs:**
+
+- iOS operator runbook: [`docs/design-system/ios-code-connect-workflow.md`](docs/design-system/ios-code-connect-workflow.md)
+- Web architecture: [`docs/design-system/fitme-story-design-architecture.md`](docs/design-system/fitme-story-design-architecture.md)
+- Figma↔code matrix + Code Connect verification contract: [`docs/design-system/figma-code-sync-status.md`](docs/design-system/figma-code-sync-status.md)
+- Public showcase: fitme-story `/pm-flow` page §`#code-connect`
+
+**Manual steps per new UI feature: 2 → 0** once operator setup completes (which it has, as of 2026-05-10). Tracked feature: [`code-connect-automation`](.claude/features/code-connect-automation/) — 4/5 tasks done (T1-T4 shipped; T5 = end-to-end test on next real new UI feature).
 
 ### Verification Layer (added 2026-04-20)
 
@@ -453,6 +614,7 @@ The rule applies prospectively from 2026-04-08. Existing events that pre-date th
 - Pilot case study (Onboarding v2): `docs/case-studies/pm-workflow-showcase-onboarding.md`
 - Data quality tiers convention: `docs/case-studies/data-quality-tiers.md` (T1/T2/T3 labeling, est. 2026-04-21)
 - Meta-analyses + independent audits: `docs/case-studies/meta-analysis/`
+- External audit substrate: [`docs/audits/prompts/`](docs/audits/prompts/) — two operator-facing prompts + `scripts/audit/build_bundle.py` deterministic bundle helper. Powers the External Audits (2026-05-22, 2026-06-12, 2026-08-05, 2026-10-08) + quarterly Data Freshness Audits (2026-08-12, 2026-11-12, 2027-02-12, 2027-05-12) per infra master plan §5. Spec: [`docs/superpowers/specs/2026-05-18-impartial-audit-prompt-substrate-design.md`](docs/superpowers/specs/2026-05-18-impartial-audit-prompt-substrate-design.md).
 - **Publication + chronological-order rule (est. 2026-04-30):** every feature that transitions to `complete` MUST have BOTH a source case study at `docs/case-studies/<feature>-case-study.md` AND a published showcase MDX at `fitme-story/content/04-case-studies/`. The showcase's slot-number filename prefix AND `timeline_position.order` MUST reflect the framework version under which the feature shipped — not the publication date. A v5.1 feature published retroactively still slots in chronologically: use a fractional `order` (e.g. `8.5`) and an intercalating filename prefix (e.g. `08a-`) so existing slots don't get renumbered. At PR review, a showcase MDX claiming `version: '5.1'` placed below a `version: '6.0'` slot is a review block. Publication is verified via the `case_study_showcase` field in `state.json` pointing at a real MDX in fitme-story (the existing `STATE_NO_CASE_STUDY_LINK` write-time gate enforces the source case study; chronological position is enforced at PR review for now).
 
 ### Process docs (Gemini audit Tier groundwork)
@@ -471,3 +633,4 @@ The rule applies prospectively from 2026-04-08. Existing events that pre-date th
 - Dashboard activation: `docs/setup/dashboard-activation.md`
 - Integrations setup: `docs/setup/integrations-setup-guide.md`
 - Auth runtime verification: `docs/setup/auth-runtime-verification-playbook.md`
+- UCC passkey auth (going-live runbook): `docs/setup/ucc-passkey-auth-setup-guide.md`

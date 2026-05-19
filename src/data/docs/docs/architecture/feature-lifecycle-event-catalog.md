@@ -2,9 +2,11 @@
 
 > **Companion to** [`dev-guide-v1-to-v7-7.md`](./dev-guide-v1-to-v7-7.md). Where the dev-guide explains *how* the framework works (the four enforcement layers, schema, dispatch model), this catalog answers a different question: at any point in a feature's lifecycle, **what should be triggered, logged, measured, and persisted — and which gate enforces it?**
 >
-> **Authoritative for:** `FEATURE_CLOSURE_COMPLETENESS` gate spec — **gate now SHIPPED** in v7.8.1 (advisory mode) per [`framework-v7-8-branch-isolation` case study](../case-studies/framework-v7-8-branch-isolation-case-study.md). v7.9 promotion candidate decision: 2026-05-21.
+> **Authoritative for:** `FEATURE_CLOSURE_COMPLETENESS` gate spec — **gate now SHIPPED** in v7.8.1 (advisory mode) per [`framework-v7-8-branch-isolation` case study](../case-studies/framework-v7-8-branch-isolation-case-study.md). v7.9 promotion candidate decision: 2026-05-21. **Note (v7.8.3, 2026-05-11):** the gate caught two real closure violations on the v7.8.3 ship itself (field name `case_study_link` vs canonical `case_study`; missing top-level `related_prs` array on closure PR #304). Both fixed pre-merge — see [cross-repo-state-sync-impl case study](../case-studies/cross-repo-state-sync-impl-case-study.md) for the dogfood story.
 >
-> **Last verified against:** v7.8.1 (shipped 2026-05-07). Re-verify when the framework version bumps.
+> **Phase 0.0 — Unified Preflight (v7.8.6, MANDATORY)**: Before Phase 0 (Research) or any work-type-specific Phase 1 (Tasks / Implement), `/pm-workflow` runs `make preflight WORK_TYPE=<feature|enhancement|fix|chore> [FEATURE=<name>]`. This writes `.claude/shared/preflight-cache.json` with W1 ssh-agent state + PR cache freshness + branch isolation + integrity findings + drift vs 2026-05-14 anchor + doc-debt + adoption baseline + work-type-specific check (feature state.json / enhancement parent / fix high-risk-touch / chore infra-path). All 10 skills read this cache from their `## Shared Data` section instead of re-collecting. Schema: [`docs/skills/preflight-cache-schema.md`](../skills/preflight-cache-schema.md). Block phase advancement if the preflight reports `summary.blocking > 0`.
+>
+> **Last verified against:** v7.8.6 (shipped 2026-05-15). Re-verify when the framework version bumps. State.json schema gained a top-level `state_owner` enum (`{"ft2", "fitme-story"}`) at v7.8.3 Phase 2 — 62 features backfilled in a single mechanical commit. New required field on all features going forward.
 
 ---
 
@@ -234,6 +236,7 @@ Sorted by frequency (most frequent first).
 | Trigger | Source | Action |
 |---------|--------|--------|
 | `PostToolUse:Read` | [`.claude/settings.json`](../../.claude/settings.json) hook | Runs `scripts/observe-cache-hit.py` → appends to `_session-<id>.events.jsonl` (Mechanism C) |
+| `PostToolUse:Bash` (added v7.8.5 2026-05-13) | [`.claude/settings.json`](../../.claude/settings.json) hook | Runs `scripts/check-branch-drift.py` (W9 pattern detector) → records current branch on first call, compares + emits LOUD stderr warning on drift, updates baseline. Real-time alert surfaced back to assistant via tool output. Per-session state at `.claude/_session-state/<session_id>-branch.txt` (gitignored). Disable: `CLAUDE_W9_DISABLE_DRIFT_CHECK=1`. |
 
 ### 5.2 Per-commit (~seconds)
 
