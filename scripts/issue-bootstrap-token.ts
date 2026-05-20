@@ -14,7 +14,9 @@
 // The raw token is NEVER stored at rest. Only the hash sits in Redis.
 
 import { createHash, randomBytes } from 'node:crypto';
+import { hostname, userInfo } from 'node:os';
 import { Redis } from '@upstash/redis';
+import { logAuthEvent } from '../src/lib/auth/audit-log';
 
 const BOOTSTRAP_TTL_SECONDS = 15 * 60;
 
@@ -57,6 +59,26 @@ async function main() {
     { email, expiresAt, used: false },
     { ex: BOOTSTRAP_TTL_SECONDS },
   );
+
+  // G4 — audit the issuance (ucc-passkey-auth-security-hardening, 2026-05-20).
+  // user_agent uses the `cli/<user>@<host>` convention recognized by
+  // uaFamilyFromRaw which redacts to `cli/<user>` for the public blob export.
+  // logAuthEvent is fail-soft — a Redis blip on the audit-log path will NOT
+  // abort the token issuance (already-written ucc:bootstrap key remains valid).
+  try {
+    await logAuthEvent({
+      event_type: 'auth_bootstrap_token_issued',
+      operator_label: email,
+      outcome: 'success',
+      user_agent: `cli/${userInfo().username ?? 'unknown'}@${hostname()}`,
+    });
+  } catch (err) {
+    process.stderr.write(
+      `  ⚠ Audit event write failed (token issuance succeeded): ${
+        err instanceof Error ? err.message : String(err)
+      }\n`,
+    );
+  }
 
   process.stdout.write(`\n  ✓ Bootstrap token issued for ${email}\n`);
   process.stdout.write(`    TTL: 15 minutes (single-use)\n\n`);

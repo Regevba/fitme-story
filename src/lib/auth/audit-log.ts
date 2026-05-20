@@ -27,6 +27,7 @@
 
 import { sha256Truncated } from './util';
 import { pushEvent, readEvents } from './redis-audit-log';
+import { ipClassFromRaw, uaFamilyFromRaw } from './audit-log-redactors';
 
 const SCHEMA_VERSION = 1;
 
@@ -44,7 +45,11 @@ export type AuthEventType =
   | 'auth_passkey_revoked'
   | 'auth_session_minted'
   | 'auth_session_expired'
-  | 'auth_bootstrap_token_issued'
+  | 'auth_bootstrap_token_issued' // emitted by scripts/issue-bootstrap-token.ts at issuance time
+  | 'auth_bootstrap_token_consumed' // emitted by /api/auth/register/options at consumption time
+  | 'auth_lockout_triggered' // counter crossed threshold; lockout sentinel set
+  | 'auth_lockout_blocked_attempt' // incoming request rejected because lockout is active
+  | 'auth_lockout_cleared' // operator cleared via CLI OR sliding window expired
   | 'auth_basic_authenticated';
 
 export type AuthEventReason =
@@ -59,7 +64,15 @@ export type AuthEventReason =
   | 'server_error'
   | 'ttl'
   | 'revoked'
-  | 'tamper';
+  | 'tamper'
+  // Hardening enhancement (2026-05-20) — allowlist + lockout reasons
+  | 'email_not_allowlisted' // bootstrap token consumed for an email not in UCC_ALLOWED_EMAILS
+  | 'allowlist_unset' // registration attempted while UCC_ALLOWED_EMAILS is unset (fail-closed)
+  | 'email_threshold' // per-email failure counter ≥ 10
+  | 'ip_threshold' // per-IP failure counter ≥ 20
+  | 'email_locked' // request rejected; per-email lockout active
+  | 'ip_locked' // request rejected; per-IP lockout active
+  | 'manual_clear'; // operator ran scripts/clear-lockout.ts
 
 export interface AuthEventInput {
   event_type: AuthEventType;
@@ -98,24 +111,6 @@ function redactInput(input: AuthEventInput) {
     user_agent_family: user_agent ? uaFamilyFromRaw(user_agent) : undefined,
     rp_id: process.env.UCC_RP_ID ?? 'fitme-story.vercel.app',
   };
-}
-
-function ipClassFromRaw(rawIp: string): string {
-  const ip = rawIp.split(',')[0].trim();
-  if (ip.includes(':')) return `ipv6-${ip.split(':').slice(0, 3).join(':')}::/48`;
-  const parts = ip.split('.');
-  if (parts.length !== 4) return 'unknown';
-  return `ipv4-${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
-}
-
-function uaFamilyFromRaw(ua: string): string {
-  if (/safari/i.test(ua) && /macintosh/i.test(ua)) return 'Safari/macOS';
-  if (/safari/i.test(ua) && /iphone|ipad/i.test(ua)) return 'Safari/iOS';
-  if (/chrome/i.test(ua) && /macintosh/i.test(ua)) return 'Chrome/macOS';
-  if (/chrome/i.test(ua) && /windows/i.test(ua)) return 'Chrome/Windows';
-  if (/edg/i.test(ua)) return 'Edge/Windows';
-  if (/firefox/i.test(ua)) return 'Firefox';
-  return 'other';
 }
 
 export async function logAuthEvent(input: AuthEventInput): Promise<void> {

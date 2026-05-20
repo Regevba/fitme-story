@@ -22,6 +22,11 @@ import {
 import { mintSession } from '@/lib/auth/redis-ttl-store';
 import { sealSession, sessionConfig } from '@/lib/auth/iron-session-config';
 import { logAuthEvent } from '@/lib/auth/audit-log';
+import {
+  checkLockout,
+  clearFailures,
+  recordFailure,
+} from '@/lib/auth/redis-lockout';
 import { newSid } from '@/lib/auth/util';
 
 export const runtime = 'nodejs';
@@ -46,8 +51,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'missing_fields' }, { status: 400 });
   }
 
+  // G3 lockout gate — check before any verification work.
+  // ucc-passkey-auth-security-hardening, 2026-05-20.
+  const rawIp = req.headers.get('x-forwarded-for');
+  const targetEmail = body.email ?? null;
+  const lockState = await checkLockout(targetEmail, rawIp);
+  if (lockState.locked) {
+    await logAuthEvent({
+      event_type: 'auth_lockout_blocked_attempt',
+      operator_label: targetEmail ?? 'conditional',
+      outcome: 'error',
+      reason: lockState.reason ?? undefined,
+      ip: rawIp ?? undefined,
+    });
+    return NextResponse.json({ error: 'locked_out' }, { status: 429 });
+  }
+
   const expectedChallenge = await consumeChallenge(body.challengeKey);
   if (!expectedChallenge) {
+    await recordFailure(targetEmail, rawIp);
     await logAuthEvent({
       event_type: 'auth_passkey_authenticate_failed',
       operator_label: body.email ?? 'conditional',
@@ -62,6 +84,7 @@ export async function POST(req: NextRequest) {
   const credential = await getCredential(credentialID);
 
   if (!credential || credential.revokedAt) {
+    await recordFailure(targetEmail, rawIp);
     await logAuthEvent({
       event_type: 'auth_passkey_authenticate_failed',
       operator_label: body.email ?? 'conditional',
@@ -92,6 +115,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!verification.verified) {
+      await recordFailure(credential.ownerEmail, rawIp);
       await logAuthEvent({
         event_type: 'auth_passkey_authenticate_failed',
         operator_label: credential.label,
@@ -111,6 +135,7 @@ export async function POST(req: NextRequest) {
       verification.authenticationInfo.newCounter,
     );
     if (!cas.ok) {
+      await recordFailure(credential.ownerEmail, rawIp);
       await logAuthEvent({
         event_type: 'auth_passkey_authenticate_failed',
         operator_label: credential.label,
@@ -124,6 +149,11 @@ export async function POST(req: NextRequest) {
         { status: 401 },
       );
     }
+
+    // G3 — successful verify resets failure counters early
+    // (clears partial-failure history so a legitimate sign-in unwinds
+    // a near-lockout state).
+    await clearFailures(credential.ownerEmail, rawIp);
 
     // Mint session.
     const sid = newSid();

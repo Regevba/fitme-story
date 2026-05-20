@@ -13,6 +13,7 @@ import { consumeBootstrap, setChallenge } from '@/lib/auth/redis-ttl-store';
 import { getOperator, listCredentialsForEmail } from '@/lib/auth/redis-store';
 import { sha256Hex } from '@/lib/auth/util';
 import { logAuthEvent } from '@/lib/auth/audit-log';
+import { allowlistIsConfigured, isEmailAllowed } from '@/lib/auth/allowlist';
 
 export const runtime = 'nodejs';
 
@@ -47,6 +48,29 @@ export async function POST(req: NextRequest) {
       outcome: 'error',
     });
     return NextResponse.json({ error: 'bootstrap_invalid' }, { status: 401 });
+  }
+
+  // G1+G2 allowlist gate (ucc-passkey-auth-security-hardening, 2026-05-20).
+  // Distinguish "unset" (operator misconfigured) from "not in list" (potential
+  // leaked-token attack) so the calibration window can tell the two failure
+  // modes apart. Both fail-closed at 403.
+  if (!allowlistIsConfigured()) {
+    await logAuthEvent({
+      event_type: 'auth_passkey_register_failed',
+      operator_label: consumed.email,
+      reason: 'allowlist_unset',
+      outcome: 'error',
+    });
+    return NextResponse.json({ error: 'allowlist_unset' }, { status: 403 });
+  }
+  if (!isEmailAllowed(consumed.email)) {
+    await logAuthEvent({
+      event_type: 'auth_passkey_register_failed',
+      operator_label: consumed.email,
+      reason: 'email_not_allowlisted',
+      outcome: 'error',
+    });
+    return NextResponse.json({ error: 'email_not_allowlisted' }, { status: 403 });
   }
 
   try {
