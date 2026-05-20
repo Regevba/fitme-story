@@ -69,3 +69,9 @@ scripts/__pycache__/
 .claude/scheduled_tasks.lock
 .claude/worktrees/
 .env*.local
+
+# pnpm artifacts — fitme-story doesn't use pnpm as canonical pm; these
+# can appear locally if Corepack auto-installs pnpm. Ignore so they don't
+# show as drift on operator sessions.
+pnpm-lock.yaml
+pnpm-workspace.yaml
