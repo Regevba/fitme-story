@@ -17,6 +17,11 @@ import {
   getOperator,
 } from '@/lib/auth/redis-store';
 import { logAuthEvent } from '@/lib/auth/audit-log';
+import {
+  checkLockout,
+  clearFailures,
+  recordFailure,
+} from '@/lib/auth/redis-lockout';
 import { uaFamily } from '@/lib/auth/util';
 
 export const runtime = 'nodejs';
@@ -39,8 +44,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'missing_fields' }, { status: 400 });
   }
 
+  // G3 lockout gate — check before any verification work.
+  // Keyed on body.email (no credential row yet at first registration).
+  // ucc-passkey-auth-security-hardening, 2026-05-20.
+  const rawIp = req.headers.get('x-forwarded-for');
+  const lockState = await checkLockout(body.email, rawIp);
+  if (lockState.locked) {
+    await logAuthEvent({
+      event_type: 'auth_lockout_blocked_attempt',
+      operator_label: body.email,
+      outcome: 'error',
+      reason: lockState.reason ?? undefined,
+      ip: rawIp ?? undefined,
+    });
+    return NextResponse.json({ error: 'locked_out' }, { status: 429 });
+  }
+
   const expectedChallenge = await consumeChallenge(body.email);
   if (!expectedChallenge) {
+    await recordFailure(body.email, rawIp);
     await logAuthEvent({
       event_type: 'auth_passkey_register_failed',
       operator_label: body.email,
@@ -60,6 +82,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!verification.verified || !verification.registrationInfo) {
+      await recordFailure(body.email, rawIp);
       await logAuthEvent({
         event_type: 'auth_passkey_register_failed',
         operator_label: body.email,
@@ -104,6 +127,9 @@ export async function POST(req: NextRequest) {
       lastUsedAt: null,
       revokedAt: null,
     });
+
+    // G3 — successful registration resets failure counters early.
+    await clearFailures(body.email, rawIp);
 
     await logAuthEvent({
       event_type: 'auth_passkey_register_completed',
