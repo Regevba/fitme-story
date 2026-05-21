@@ -1,0 +1,148 @@
+---
+title: >-
+  Framework v7.9 — Promotion Release: 3 Advisory Gates → Enforced via
+  Single-Flag Flip After 14-Day Calibration
+slug: framework-v7-9-promotion
+upstream_path: docs/case-studies/framework-v7-9-promotion-case-study.md
+tier: light
+tldr: >-
+  v7.9 shipped 2026-05-21 via FT2 PR #417 (ea53ff4). A single-line edit
+  at scripts/check-state-schema.py:132 (BRANCH_ISOLATION_ADVISORY_MODE
+  True to False) promoted 3 v7.8.1 advisory gates simultaneously:
+  BRANCH_ISOLATION_VIOLATION Mode B (infra commit-level), Mode C
+  (per-state.json mutation), and FEATURE_CLOSURE_COMPLETENESS
+  (write-time). All four section 2.2 promotion criteria were met
+  against 14-day Mechanism A telemetry (18 + 13 + 13 firings, 0
+  zero-candidate rows, 0 false positives). First real-world Mode C
+  gate fire was caught + resolved in the same session — the
+  post-merge close-out commit hit the merged-dead
+  feature/v7-9-promotion branch declaration; resolved via 1-line
+  state.json::branch field update. Total framework mechanisms
+  post-promotion 37 mechanical gates plus 5 advisories. Reversibility
+  is single-line revert in under 5 min. Phase E validation soak runs
+  2026-05-21 through 2026-06-04. Section 99 synthesis lands 2026-05-28
+  post-B2 baseline snapshot.
+timeline_position:
+  version: '7.9'
+  order: 34
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+date: '2026-05-21'
+date_written: '2026-05-21'
+shipped_window: '2026-05-21 (freeze-day single-session ship, ~4h elapsed including post-merge close-out)'
+work_type: feature
+dispatch_pattern: operator-driven (decision) + agent-driven (per-gate flip implementation)
+framework_version: v7.9
+tier_tags_present: true
+external_audit_status: pending
+status: placeholder
+primary_metric: >-
+  Number of advisory gates successfully promoted to enforced with 0 false
+  positives in the 7-day post-flip soak (target 3 promoted, 0 rollbacks).
+success_metrics:
+  primary: >-
+    3 of 3 candidate gates flipped advisory to enforced on 2026-05-21; 0
+    rollbacks during Phase E soak 2026-05-21 through 2026-06-04 (T1,
+    instrumented via gate-coverage.jsonl + git log on
+    scripts/check-state-schema.py)
+  secondary:
+    - All 4 section 2.2 promotion criteria verified GREEN before flip (T1)
+    - Side-effects PR opens single-day; 6 doc surfaces updated in same commit (T1)
+    - Post-promotion T+7d baseline snapshot 2026-05-28 shows zero new findings vs 2026-05-14 platform anchor (T2 pending)
+kill_criteria:
+  - Mechanism A telemetry shows 0 percent coverage for any advisory-being-promoted gate at decision time (cannot promote what was never calibrated)
+  - False positive rate over 5 percent during 14-day calibration window for any proposed-promotion gate
+  - Post-promotion bug surfaces requiring rollback within T+7d soak — defer promotion or restore advisory mode
+kill_criteria_resolution: >-
+  pending — evaluated 2026-05-28 (B2 post-v7.9 baseline snapshot per
+  .claude/shared/must-have-cadence-followups.md section B2). Final
+  disposition (passed / partially_passed / tripped) lands here with
+  deltas.
+related_prs:
+  - 417
+  - 419
+  - 413
+  - 415
+  - 416
+predecessor_case_studies:
+  - docs/case-studies/framework-v7-8-branch-isolation-case-study.md
+  - docs/case-studies/framework-v7-8-bridge-case-study.md
+  - docs/case-studies/framework-v7-7-validity-closure-case-study.md
+key_numbers:
+  - label: Mechanism A telemetry rows (14d)
+    value: '18 (Mode B) + 13 (Mode C) + 13 (FEATURE_CLOSURE_COMPLETENESS) = 44'
+    tier: T1
+    note: From .claude/logs/gate-coverage.jsonl over 2026-05-07 to 2026-05-21
+  - label: Zero-candidate rows
+    value: 0 / 44
+    tier: T1
+    note: Every emission had non-zero candidates; no silent skips
+  - label: False positives during calibration
+    value: '0'
+    tier: T1
+    note: Operator review of all 44 firings — every fire matched a legitimate code path
+  - label: Total mechanical gates post-promotion
+    value: 34 → 37 (+3 promoted)
+    tier: T1
+    note: '34 mechanical at v7.8.6 + 3 promoted from advisory at v7.9 = 37'
+  - label: PRs landed (freeze day 2026-05-21)
+    value: '4 main + 1 close-out = 5'
+    tier: T1
+    note: '#413 e05eb32 + #415 424963f + #416 0178a9c + #417 ea53ff4 (v7.9) + #419 9bfb7bb (close-out)'
+  - label: Reversibility runbook
+    value: under 5 min
+    tier: T2
+    note: Single-line revert + commit + merge. Verified locally.
+---
+
+# Framework v7.9 — Promotion Release
+
+> **Placeholder slot (2026-05-21).** Full case study lives upstream at
+> [`docs/case-studies/framework-v7-9-promotion-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/framework-v7-9-promotion-case-study.md).
+> This MDX is the showcase index entry. Section 99 synthesis +
+> kill_criteria_resolution backfill land 2026-05-28 post-B2 baseline
+> snapshot, per case study section 99 design + Linear FIT-85 In Progress.
+
+## What v7.9 shipped (one paragraph)
+
+A single-line edit at `scripts/check-state-schema.py:132` flipped 3
+v7.8.1 advisory gates to enforced simultaneously: BRANCH_ISOLATION_VIOLATION
+Mode B (infra commit-level) + Mode C (per-state.json mutation) +
+FEATURE_CLOSURE_COMPLETENESS (write-time). All four section 2.2 promotion
+criteria met against 14-day Mechanism A telemetry. First real-world Mode C
+gate fire caught + resolved in the same session. Total framework
+mechanisms post-promotion: 37 mechanical gates + 5 advisories.
+
+## Why this matters
+
+v7.9 is the first framework version that used Mechanism A telemetry as a
+gate on its own promotion decision. FT2-FH-001 and FT2-FH-002 captured
+silent-pass incidents at v7.7 and v7.8.3 respectively. FT2-FH-003 (added
+2026-05-21) is the first honesty-ledger entry that is NOT a correction —
+it codifies the calibration discipline the framework used to AVOID a
+silent-pass at v7.9.
+
+## Cross-references
+
+- Upstream case study (FT2): [`docs/case-studies/framework-v7-9-promotion-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/framework-v7-9-promotion-case-study.md)
+- Cold-start entrypoint: [`.claude/entrypoints/framework-v7-9.md`](https://github.com/Regevba/FitTracker2/blob/main/.claude/entrypoints/framework-v7-9.md)
+- Honesty ledger FT2-FH-003: [`framework-honesty-ledger.md#ft2-fh-003`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/framework-honesty-ledger.md)
+- Infra master plan section 3.6.2: [`infra-master-plan-2026-05-12.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/infra-master-plan-2026-05-12.md)
+- v7.9 candidates spec: [`2026-05-08-framework-v7-9-candidates.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/specs/2026-05-08-framework-v7-9-candidates.md)
+
+## Phase E calendar (2026-05-21 through 2026-06-04)
+
+- 2026-05-21: v7.9 shipped (this commit)
+- 2026-05-22: B11 UCC hardening T+3d check + product feature work resumes
+- 2026-05-23: B8 parent UCC T+7d kill-criteria + HADF Phase 2-bis Sub-exp 1 launch
+- 2026-05-27: B12 UCC hardening T+7d advance to complete
+- 2026-05-28: **B2 post-v7.9 baseline snapshot** + B9 Part 8 eligibility + section 99 synthesis lands here
+- ~2026-06-04: Phase E exit + v7.9.1 build window opens
+
+## Status
+
+`placeholder` — full content + section 99 synthesis lands 2026-05-28
+when B2 baseline data is available. Linear FIT-85 tracks closure.

@@ -1,0 +1,97 @@
+{
+  "work_type": "enhancement",
+  "feature": "ucc-passkey-auth-security-hardening",
+  "generated_at": "2026-05-19T19:59:50Z",
+  "checks": [
+    {
+      "name": "W1_ssh_agent",
+      "status": "ok",
+      "detail": "ssh-add has loaded identities",
+      "blocking": false
+    },
+    {
+      "name": "pr_cache_fresh",
+      "status": "ok",
+      "detail": "PR citation cache fresh",
+      "blocking": false
+    },
+    {
+      "name": "branch_isolation",
+      "status": "ok",
+      "detail": "current branch: feat/ucc-passkey-security-hardening",
+      "current_branch": "feat/ucc-passkey-security-hardening",
+      "blocking": false
+    },
+    {
+      "name": "integrity_check",
+      "status": "ok",
+      "detail": "0 findings + 1 advisory",
+      "findings_count": 0,
+      "advisory_count": 1,
+      "blocking": false
+    },
+    {
+      "name": "integrity_diff",
+      "status": "warning",
+      "detail": "4 regression(s) vs 2026-05-14 anchor",
+      "regressions": [
+        {
+          "key": "adoption_pct_post_v6",
+          "baseline": 8.3,
+          "current": 7.7,
+          "delta": -0.6
+        },
+        {
+          "key": "timing_wall_time_pct_post_v6",
+          "baseline": 47.2,
+          "current": 43.6,
+          "delta": -3.6
+        },
+        {
+          "key": "per_phase_timing_pct_post_v6",
+          "baseline": 80.6,
+          "current": 79.5,
+          "delta": -1.1
+        },
+        {
+          "key": "cache_hits_pct_post_v6",
+          "baseline": 52.8,
+          "current": 48.7,
+          "delta": -4.1
+        }
+      ],
+      "blocking": false
+    },
+    {
+      "name": "documentation_debt",
+      "status": "info",
+      "detail": "1 open documentation-debt item(s)",
+      "open_count": 1,
+      "blocking": false
+    },
+    {
+      "name": "measurement_adoption",
+      "status": "info",
+      "detail": "post-v6 adoption: 7.7% (3/39) \u2014 baseline for any new shipped feature",
+      "fully_adopted_post_v6": 3,
+      "features_post_v6": 39,
+      "adoption_pct_post_v6": 7.7,
+      "blocking": false
+    },
+    {
+      "name": "enhancement_parent",
+      "status": "warning",
+      "detail": "parent='ucc-passkey-auth-security-hardening' phase=tasks, prd.md present=True",
+      "blocking": true
+    }
+  ],
+  "summary": {
+    "total_checks": 8,
+    "blocking": 1,
+    "warnings": 2,
+    "ok": 4
+  },
+  "blocking_issues": [
+    "enhancement_parent"
+  ]
+}
