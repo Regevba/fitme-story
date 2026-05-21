@@ -43,7 +43,9 @@ export default function AboutPage() {
         <p>
           I built an AI-orchestrated PM workflow — <code>/pm-workflow</code> — to enforce the planning discipline I kept
           abandoning. Then the workflow itself started evolving. Caches, eval layers, dispatch intelligence, measurement.
-          By v7.0 it was routing to hardware-aware models.
+          By v7.0 it was routing to hardware-aware models. By v7.9 (shipped 2026-05-21) the framework was using its own
+          Mechanism A telemetry as a gate on its own promotion decisions — the first version where the calibration
+          discipline applied to itself, codified in honesty-ledger entry FT2-FH-003.
         </p>
         <p>
           This site is the guided tour of that process. All docs are from real shipped work. All metrics are measured,
