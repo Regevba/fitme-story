@@ -149,9 +149,8 @@ const BRIDGE_TIMELINE: BridgeEntry[] = [
   },
   {
     version: 'v7.9',
-    date: '~2026-06-01',
-    summary: <>Promotion target after a +7d zero-false-positive measurement window.</>,
-    planned: true,
+    date: '2026-05-21',
+    summary: <>Promotion Release shipped: 3 advisory gates → enforced via single-flag flip at <code>scripts/check-state-schema.py:132</code> after 14-day Mechanism A calibration (18 + 13 + 13 firings, 0 zero-candidate rows, 0 false positives). 37 mechanical gates + 5 advisories post-promotion. Phase E validation soak 2026-05-21 → 2026-06-04.</>,
   },
 ];
 
