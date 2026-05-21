@@ -51,7 +51,7 @@ function loadGateCoverage() {
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
   description:
-    'Live dashboard for the FitMe PM framework v7.8.6: Tier 1.1 adoption trends, documentation-debt coverage, automation map (34 mechanical gates + 5 advisories), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.4 pre-v7.9 telemetry calibration baseline (0 findings + 0 advisory at ship), v7.8.5 Observed Patterns Catalog with W9 branch-drift real-time alert hook, and v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit).',
+    'Live dashboard for the FitMe PM framework v7.9 (Phase E validation soak 2026-05-21 → 2026-06-04): Tier 1.1 adoption trends, documentation-debt coverage, automation map (37 mechanical gates + 5 advisories — 3 promoted at v7.9 from advisory: BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.4 pre-v7.9 telemetry calibration baseline, v7.8.5 Observed Patterns Catalog with W9 branch-drift real-time alert hook + W15 MDX <digit parse failure pattern, v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit), and v7.9 promotion outcome with FT2-FH-003 honesty ledger calibration-discipline codification.',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -183,8 +183,16 @@ const PREDECESSOR_LINKS = [
     date: '2026-05-15',
     href: 'https://github.com/Regevba/FitTracker2/pull/363',
     external: true,
+    description: 'Patch-level. Closes the 96h drift window between weekly framework-status cron and 72h integrity cycle (data-integrity §2.1+§2.3). Adds make integrity-diff vs 2026-05-14 anchor; make preflight WORK_TYPE=<type> unified entry point writing .claude/shared/preflight-cache.json consumed by all 10 skills; W1 ssh-agent SessionStart preflight; weekly Mechanism A gate-coverage zero-drift scan + per-dimension trend nudge (cu_v2/fully_adopted_post_v6 watch); calendar reminders for B1/B2/B4/B5 follow-ups. Nice-to-have batch: weekly dependency audit workflow + daily stale-branch + PR babysit sections. No new enforcement gates. PRs #363 (MUST) + #365 (nice-to-have).',
+  },
+  {
+    label: 'v7.9 — Promotion Release (Phase E live)',
+    version: 'v7.9',
+    date: '2026-05-21',
+    href: 'https://github.com/Regevba/FitTracker2/pull/417',
+    external: true,
     current: true,
-    description: 'This dashboard. Patch-level. Closes the 96h drift window between weekly framework-status cron and 72h integrity cycle (data-integrity §2.1+§2.3). Adds make integrity-diff vs 2026-05-14 anchor; make preflight WORK_TYPE=<type> unified entry point writing .claude/shared/preflight-cache.json consumed by all 10 skills; W1 ssh-agent SessionStart preflight; weekly Mechanism A gate-coverage zero-drift scan + per-dimension trend nudge (cu_v2/fully_adopted_post_v6 watch); calendar reminders for B1/B2/B4/B5 follow-ups. Nice-to-have batch: weekly dependency audit workflow + daily stale-branch + PR babysit sections. No new enforcement gates. PRs #363 (MUST) + #365 (nice-to-have).',
+    description: 'SHIPPED 2026-05-21 via single-flag flip at scripts/check-state-schema.py:132 (BRANCH_ISOLATION_ADVISORY_MODE = True → False). Promotes 3 v7.8.1 advisory gates to enforced: BRANCH_ISOLATION_VIOLATION Mode B (infra commit-level) + Mode C (per-state.json mutation) + FEATURE_CLOSURE_COMPLETENESS (write-time). All 4 §2.2 promotion criteria met against 14d Mechanism A telemetry (18 + 13 + 13 firings, 0 zero-candidate). First real-world Mode C gate fire caught + resolved same-session. 37 mechanical gates + 5 advisories post-promotion. Phase E validation soak LIVE 2026-05-21 → 2026-06-04 (B2 baseline 2026-05-28). FT2-FH-003 honesty ledger codifies the calibration discipline. Reversibility: single-line revert in under 5 min.',
   },
 ];
 
