@@ -48,3 +48,31 @@ jobs:
 
       - name: Cycle-time integrity scan
         run: python3 scripts/integrity-check.py
+
+  mdx-render:
+    # W15 prevention gate (added 2026-05-21).
+    # Compiles every MDX file under content/framework/ + content/04-case-studies/
+    # via the same @mdx-js/mdx pipeline used at production build time. Catches
+    # the JSX-tag parse-failure class (<digit, <non-letter, <==, <-->, etc.)
+    # at PR time instead of at production deploy time.
+    # Trigger: fitme-story PR #129 (2026-05-21) shipped `<5 min` in
+    # content/framework/dev-guide.md, breaking /framework/dev-guide prerender;
+    # production was broken ~3h until hotfix #130. Full pattern docs at
+    # .claude/integrity/observed-patterns.md W15 (synced via prebuild).
+    # Safety: no untrusted user-input is interpolated into any run: step.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Render scoped MDX
+        run: node scripts/check-mdx-render.mjs
