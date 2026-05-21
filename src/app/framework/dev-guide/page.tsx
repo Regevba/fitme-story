@@ -10,9 +10,9 @@ import { useMDXComponents } from '@/mdx-components';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'PM Framework — Developer Guide (v1.0 → v7.8.6)',
+  title: 'PM Framework — Developer Guide (v1.0 → v7.9)',
   description:
-    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema (incl. v7.8.3 cross-repo state_owner enum), phase lifecycle, dispatch, cache, measurement protocol, 34 mechanical gates + 5 advisories, v7.8 bridge mechanisms (A–F), v7.8.3 cross-repo state-sync release umbrella (V2 enforced + V9 logs + D-3 unified PR cite cache + D-1 reverse-sync GH Action), v7.8.4 pre-v7.9 telemetry calibration (PR_CACHE_STALE auto-refresh + TIER_TAG heuristic narrowing), v7.8.5 observability layer (Observed Patterns Catalog of 23 gate patterns + 9 workflow patterns + W9 branch-drift real-time alert via PostToolUse:Bash hook), v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit + daily stale-branch/PR-babysit), 3 operational walkthroughs, and the compressed v1.0 → v7.8.6 timeline.',
+    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema (incl. v7.8.3 cross-repo state_owner enum), phase lifecycle, dispatch, cache, measurement protocol, 37 mechanical gates + 5 advisories, v7.8 bridge mechanisms (A–F), v7.8.3 cross-repo state-sync release umbrella (V2 enforced + V9 logs + D-3 unified PR cite cache + D-1 reverse-sync GH Action), v7.8.4 pre-v7.9 telemetry calibration (PR_CACHE_STALE auto-refresh + TIER_TAG heuristic narrowing), v7.8.5 observability layer (Observed Patterns Catalog of 23 gate patterns + 9 workflow patterns + W9 branch-drift real-time alert via PostToolUse:Bash hook), v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit + daily stale-branch/PR-babysit), v7.9 promotion release (single-flag flip at scripts/check-state-schema.py:132 promotes 3 v7.8.1 advisory gates to enforced — BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS — after 14d Mechanism A calibration; Phase E validation soak 2026-05-21 → 2026-06-04; first real-world gate fire caught + resolved same-session), 3 operational walkthroughs, and the compressed v1.0 → v7.9 timeline.',
   slug: '/framework/dev-guide',
   type: 'article',
 });
@@ -22,8 +22,8 @@ const UPSTREAM_URL =
 const LIFECYCLE_CATALOG_URL =
   'https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/feature-lifecycle-event-catalog.md';
 const TRUST_AUDIT_URL = '/trust/audits/2026-04-21-gemini';
-const CASE_STUDY_URL = '/case-studies/framework-v7-7-validity-closure';
-const PRIOR_CASE_STUDY_URL = '/case-studies/mechanical-enforcement-v7-6';
+const CASE_STUDY_URL = '/case-studies/framework-v7-9-promotion';
+const PRIOR_CASE_STUDY_URL = '/case-studies/framework-v7-7-validity-closure';
 
 export default async function DevGuidePage() {
   const filePath = path.resolve('content/framework/dev-guide.md');
@@ -77,7 +77,7 @@ export default async function DevGuidePage() {
           Developer guide
         </p>
         <h1 className="mt-2 font-serif text-[length:var(--text-display-lg)]">
-          PM Framework — Developer Guide (v1.0 → v7.8.6)
+          PM Framework — Developer Guide (v1.0 → v7.9)
         </h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Technical reference for developers onboarding to the framework. Not the
@@ -108,11 +108,11 @@ export default async function DevGuidePage() {
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Length:</dt>
-            <dd>~790 lines, 16 sections (incl. v7.8 §2.4 mechanism inventory + v7.8.1 gates in §10.1)</dd>
+            <dd>~830 lines, 16 sections (incl. v7.8 §2.4 mechanism inventory + v7.8.1 gates in §10.1 + v7.9 §2.4.1 promoted sub-section)</dd>
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Last updated:</dt>
-            <dd>2026-05-07 at v7.8.1 ship — branch-isolation + closure-completeness gates</dd>
+            <dd>2026-05-21 at v7.9 promotion ship — 3 advisory gates → enforced (Phase E live 2026-05-21 → 2026-06-04)</dd>
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Canonical source:</dt>
@@ -121,7 +121,7 @@ export default async function DevGuidePage() {
                 docs/architecture/dev-guide-v1-to-v7-7.md
               </a>{' '}
               <span className="text-[var(--color-neutral-500)]">
-                (filename retained for ref-stability; content tracks v7.8.1)
+                (filename retained for ref-stability; content tracks v7.9)
               </span>
             </dd>
           </div>
@@ -134,13 +134,13 @@ export default async function DevGuidePage() {
           </a>{' '}
           (the event/log/gate catalog with mermaid flow diagrams — 12 sections, paired with this guide),{' '}
           <Link className="underline" href={CASE_STUDY_URL}>
+            v7.9 case study
+          </Link>{' '}
+          (Advisory → Enforced Promotion: single-flag flip ships 3 gates after 14d calibration),{' '}
+          <Link className="underline" href={PRIOR_CASE_STUDY_URL}>
             v7.7 case study
           </Link>{' '}
-          (Validity Closure synthesis),{' '}
-          <Link className="underline" href={PRIOR_CASE_STUDY_URL}>
-            v7.6 case study
-          </Link>{' '}
-          (Mechanical Enforcement), and{' '}
+          (Validity Closure synthesis), and{' '}
           <Link className="underline" href={TRUST_AUDIT_URL}>
             Gemini audit on /trust
           </Link>{' '}
