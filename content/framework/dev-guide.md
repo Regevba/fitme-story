@@ -18,7 +18,7 @@
 ## Table of Contents
 
 1. [Audience and how to read](#1-audience-and-how-to-read)
-2. [Big picture (current state — v7.8)](#2-big-picture-current-state--v78)
+2. [Big picture (current state — v7.9, Phase E soak)](#2-big-picture-current-state--v79-phase-e-soak)
 3. [Where the code lives](#3-where-the-code-lives)
 4. [The skill ecosystem (hub + 11 spokes)](#4-the-skill-ecosystem-hub--11-spokes)
 5. [`state.json` — the canonical per-feature contract](#5-statejson--the-canonical-per-feature-contract)
@@ -28,7 +28,7 @@
 9. [Measurement protocol (CU formula, cache_hits, timing)](#9-measurement-protocol-cu-formula-cache_hits-timing)
 10. [Integrity layer — write-time + per-PR + cycle-time + weekly](#10-integrity-layer--write-time--per-pr--cycle-time--weekly)
 11. [Pre-commit hooks and GitHub Actions](#11-pre-commit-hooks-and-github-actions)
-12. [Compressed evolution timeline (v1.0 → v7.8)](#12-compressed-evolution-timeline-v10--v78)
+12. [Compressed evolution timeline (v1.0 → v7.9)](#12-compressed-evolution-timeline-v10--v79)
 13. [Operational walkthrough — adding a new feature](#13-operational-walkthrough--adding-a-new-feature)
 14. [Operational walkthrough — extending an integrity check code](#14-operational-walkthrough--extending-an-integrity-check-code)
 15. [Operational walkthrough — bumping the framework version](#15-operational-walkthrough--bumping-the-framework-version)
@@ -51,13 +51,13 @@ There is **no compiled binary**. The framework is the union of the conventions a
 
 ---
 
-## 2. Big picture (current state — v7.8)
+## 2. Big picture (current state — v7.9, Phase E soak)
 
 ### 2.1 What the framework does, in one sentence
 
 It enforces that every feature passes through a defined lifecycle (Research → PRD → Tasks → UX → Implement → Test → Review → Merge → Docs), records its state and timing in a machine-readable file, and is gated by automated checks at write-time, per-PR, and on a 72h schedule so that drift between code and documentation is caught fast.
 
-### 2.2 The four enforcement layers (v7.8)
+### 2.2 The four enforcement layers (v7.9 — 3 advisories promoted to enforced 2026-05-21)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -97,9 +97,9 @@ It enforces that every feature passes through a defined lifecycle (Research → 
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.3 The 4 mechanically unclosable Class B gaps (v7.8 closed Gap 1 in advisory)
+### 2.3 The 4 mechanically unclosable Class B gaps (v7.8 closed Gap 1 in advisory; v7.9 promoted it to enforced)
 
-The four layers above catch what a deterministic script can catch. Five gaps remain Class B (agent-attention, judgment, or external-dependency) at v7.7. v7.8 closed Gap 1 (`cache_hits[]` writer-path) in advisory mode via Mechanism C — capture is automatic, but writer-path adoption is not yet enforced. v7.9 promotes that to enforced once 7+ days of session-ledger data calibrate the threshold (window opens 2026-05-11). The list is documented in [`docs/case-studies/meta-analysis/unclosable-gaps.md`](../case-studies/meta-analysis/unclosable-gaps.md):
+The four layers above catch what a deterministic script can catch. Five gaps remained Class B (agent-attention, judgment, or external-dependency) at v7.7. v7.8 closed Gap 1 (`cache_hits[]` writer-path) in advisory mode via Mechanism C — capture is automatic, but writer-path adoption was not yet enforced. **v7.9 (2026-05-21) promoted Gap 1 to enforced** via `CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT` (cycle-time gate, advisory → enforced once 14-day Mechanism A telemetry showed 0 zero-candidate firings). Same release also promoted 2 v7.8.1 branch-isolation advisories — `BRANCH_ISOLATION_VIOLATION` Mode B (infra commit-level) + Mode C (per-state.json mutation) + `FEATURE_CLOSURE_COMPLETENESS` (write-time). The list is documented in [`docs/case-studies/meta-analysis/unclosable-gaps.md`](../case-studies/meta-analysis/unclosable-gaps.md):
 
 1. ~~`cache_hits[]` writer-path adoption — agent must remember to log hits (issue #140).~~ **v7.8 advisory** via `PostToolUse:Read` hook (Mechanism C). v7.9 promotes to enforced. Pre-Mechanism-C features (`created_at < 2026-05-02`) are exempt from `CACHE_HITS_EMPTY_POST_V6`.
 2. `cu_v2` factor *correctness* — magnitudes are judgment-based.
@@ -426,7 +426,16 @@ Forward-only: case studies dated `>= 2026-04-21` get file-level tag-presence enf
 
 ## 10. Integrity layer — write-time + per-PR + cycle-time + weekly
 
-### 10.1 Check codes (12 write-time + 13 cycle-time + 3 advisory in v7.8)
+### 10.1 Check codes (37 mechanical + 5 advisories at v7.9, 2026-05-21)
+
+> **v7.9 promotion (2026-05-21):** 3 v7.8.1 advisories promoted to enforced:
+> `BRANCH_ISOLATION_VIOLATION` Mode B (infra commit-level) + Mode C
+> (per-state.json mutation) + `FEATURE_CLOSURE_COMPLETENESS` (write-time).
+> Single-flag flip at `scripts/check-state-schema.py:132`
+> (`BRANCH_ISOLATION_ADVISORY_MODE = True → False`). All 4 §2.2 promotion
+> criteria met against 14-day Mechanism A telemetry (18 + 13 + 13 firings,
+> 0 zero-candidate, 0 false positives). Phase E validation soak runs
+> 2026-05-21 → 2026-06-04. Reversibility: single-line revert.
 
 | Code | Layer | Script | What it checks |
 |---|---|---|---|
@@ -514,7 +523,7 @@ All dynamic values used inside `run:` blocks **MUST** be routed through the `env
 
 ---
 
-## 12. Compressed evolution timeline (v1.0 → v7.8)
+## 12. Compressed evolution timeline (v1.0 → v7.9)
 
 Full per-version detail: [`docs/skills/evolution.md`](../skills/evolution.md). This section is the compressed dev-only summary — what each version changed structurally.
 
@@ -537,7 +546,8 @@ Full per-version detail: [`docs/skills/evolution.md`](../skills/evolution.md). T
 | v7.5 | 2026-04-24 | Data Integrity Framework (8 cooperating defenses). Pre-commit schema gates, PR-resolution check, runtime smoke gates, contemporaneous logging, T1/T2/T3 data quality tiers, documentation-debt + measurement-adoption ledgers, 3 new Auditor Agent check codes. Triggered by Gemini 2.5 Pro audit. | 7 of Gemini's 9 Tier 1/2/3 items shipped fully or effectively, 2 partial/pilot, 1 deferred to v7.6. The pre-commit hook and the `make` targets (`integrity-check`, `measurement-adoption`, `documentation-debt`, `runtime-smoke`) date from here. |
 | v7.6 | 2026-04-25 | Mechanical Enforcement. 4 new write-time check codes (`PHASE_TRANSITION_NO_LOG`, `PHASE_TRANSITION_NO_TIMING`, `BROKEN_PR_CITATION` write-time, `CASE_STUDY_MISSING_TIER_TAGS`). Per-PR review bot with `pm-framework/pr-integrity` status check. Weekly framework-status cron. Append-only adoption history. 5 explicit Class B gaps documented in `unclosable-gaps.md`. | The point where mechanical enforcement reached steady-state. The Class B inventory crystallized here. |
 | v7.7 | 2026-04-27 | Validity Closure. 5 new check codes (4 gating + 1 advisory): `CACHE_HITS_EMPTY_POST_V6` (write — closes #140 writer-path), `CU_V2_INVALID` (write+cycle — schema validator), `STATE_NO_CASE_STUDY_LINK` (write — mirrors cycle-time `NO_CS_LINK`), `CASE_STUDY_MISSING_FIELDS` (write — forward-only ≥ 2026-04-28), `TIER_TAG_LIKELY_INCORRECT` (cycle advisory permanent — kill-2 fired at baseline). Cycle-time codes 12 → 13. Linkage 95.5% → 100% (gated). Doc-debt fields 4–61% → 95.7–100% (gated forward). Framework-health dashboard live at fitme-story `/control-room/framework`. Reduces unclosable Class B gaps from 5 to 4. | The first version to gate the full closure-time chain (linkage + case-study fields + cu_v2 schema). The 2026-05-01 honesty-fixes patch (PR #169) revealed v7.7's `CACHE_HITS_EMPTY_POST_V6` had 0/46 effective coverage because the gate read `created_at` while 43/46 features used legacy `created` — surfaced the silent-pass class of failure that v7.8 set out to close. |
-| v7.8 | 2026-05-04 | Bridge to v7.9 — silent-pass prevention + inter-agent awareness. Six cooperating mechanisms (A–F): coverage-asserting gates (Mech A → `gate-coverage.jsonl`), schema field-rename detection + dual-read (Mech B → `migrate-state-v7-8-bridge.py`), PostToolUse:Read attribution (Mech C → `_session-<id>.events.jsonl` + `.claude/active-feature` lockfile; closes Gap 1 in advisory), pre-commit hook header self-audit (Mech D → `pre-commit-self-test.py`), custom git merge driver for append-only ledgers (Mech E → `merge-driver-dedup.py`), membrane status advisory (Mech F → `membrane-status.py`). 2 new write-time gates (`SCHEMA_DRIFT_LEGACY_CREATED`, `FRAMEWORK_VERSION_FORMAT`). 2 new cycle-time advisories (`CACHE_HITS_AUTO_INSTRUMENTATION_INACTIVE`, `GATE_COVERAGE_ZERO`). Schema bridges (`agent_manifest`, `_meta.deprecation_warnings`, `path-reducers.json`, `agent-leases.json`) ship populated but un-validated. Shipped via 9 PRs: #173 + #185–#189 + #193–#195. | **The current state.** Writing code today: expect the same v7.7 write-time gates to fire on every commit, plus 2 new gates (`SCHEMA_DRIFT_LEGACY_CREATED`, `FRAMEWORK_VERSION_FORMAT`). On every Read tool call, `PostToolUse:Read` hook captures the event into the session ledger via `scripts/observe-cache-hit.py` (Mechanism C). On every commit, every write-time gate emits coverage telemetry into `.claude/logs/gate-coverage.jsonl` (Mechanism A). v7.9 measurement window opens 2026-05-11; promotes the proven mechanisms to enforced once 7+ days of session-ledger data calibrate the threshold. The full event-and-trigger catalog: [`docs/architecture/feature-lifecycle-event-catalog.md`](./feature-lifecycle-event-catalog.md). |
+| v7.8 | 2026-05-04 | Bridge to v7.9 — silent-pass prevention + inter-agent awareness. Six cooperating mechanisms (A–F): coverage-asserting gates (Mech A → `gate-coverage.jsonl`), schema field-rename detection + dual-read (Mech B → `migrate-state-v7-8-bridge.py`), PostToolUse:Read attribution (Mech C → `_session-<id>.events.jsonl` + `.claude/active-feature` lockfile; closes Gap 1 in advisory), pre-commit hook header self-audit (Mech D → `pre-commit-self-test.py`), custom git merge driver for append-only ledgers (Mech E → `merge-driver-dedup.py`), membrane status advisory (Mech F → `membrane-status.py`). 2 new write-time gates (`SCHEMA_DRIFT_LEGACY_CREATED`, `FRAMEWORK_VERSION_FORMAT`). 2 new cycle-time advisories (`CACHE_HITS_AUTO_INSTRUMENTATION_INACTIVE`, `GATE_COVERAGE_ZERO`). Schema bridges (`agent_manifest`, `_meta.deprecation_warnings`, `path-reducers.json`, `agent-leases.json`) ship populated but un-validated. Shipped via 9 PRs: #173 + #185–#189 + #193–#195. | The bridge release. Writing code on v7.8: expect the v7.7 write-time gates plus 2 new gates (`SCHEMA_DRIFT_LEGACY_CREATED`, `FRAMEWORK_VERSION_FORMAT`). On every Read tool call, `PostToolUse:Read` hook captures the event into the session ledger via `scripts/observe-cache-hit.py` (Mechanism C). On every commit, every write-time gate emits coverage telemetry into `.claude/logs/gate-coverage.jsonl` (Mechanism A). |
+| v7.9 | 2026-05-21 | **Promotion release.** Single-flag flip at `scripts/check-state-schema.py:132` (`BRANCH_ISOLATION_ADVISORY_MODE = True → False`) promotes 3 v7.8.1 advisory gates simultaneously: `BRANCH_ISOLATION_VIOLATION` Mode B (infra commit-level), Mode C (per-state.json mutation), and `FEATURE_CLOSURE_COMPLETENESS` (write-time). All 4 promotion criteria met against 14-day Mechanism A telemetry (18 + 13 + 13 firings, 0 zero-candidate, 0 false positives). First real-world Mode C gate fire caught + resolved same-session (captured in honesty ledger FT2-FH-003). Phase E validation soak runs 2026-05-21 → 2026-06-04. Reversibility: single-line revert in under 5 min. Shipped via [FT2 PR #417](https://github.com/Regevba/FitTracker2/pull/417) (`ea53ff4`) + close-out [PR #419](https://github.com/Regevba/FitTracker2/pull/419). | **The current state.** Writing code today: expect the v7.8 baseline plus the 3 promoted gates **enforced** — infra paths (`.githooks/*`, `.github/workflows/*`, `scripts/*`, `.claude/skills/*`, `.claude/shared/*`, `CLAUDE.md`, `docs/architecture/*`, `Makefile`) trigger `BRANCH_ISOLATION_VIOLATION` on chore branches unless an isolated worktree pattern is used. `state.json::current_phase=complete` transitions trigger `FEATURE_CLOSURE_COMPLETENESS` validation of 7 frontmatter fields + bidirectional PR-list parity. Same release shipped GitHub Security Tier S (PR #435): `required_signatures=true` on `main`, CODEOWNERS, Dependabot for GH Actions SHA-pin upgrades, pre-commit secret-regex + file-size guard, `make doctor` security checks. Plus YubiKey FIDO2 hardware-signing cut-over end-to-end. |
 
 ### 12.1 Version-bump policy
 
