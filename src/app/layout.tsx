@@ -7,9 +7,36 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { PersonaProvider } from '@/lib/persona-context';
 import './globals.css';
 
+// P1.3 (2026-05-21): explicit OpenGraph + Twitter Card blocks added per
+// discoverability plan. metadataBase resolves the /opengraph-image PNG
+// emitted by src/app/opengraph-image.tsx (already in place) into an
+// absolute URL that social platforms can fetch.
+const SITE_URL = 'https://fitme-story.vercel.app';
+const SITE_TITLE =
+  'fitme-story — how an AI-orchestrated PM framework grew up alongside a fitness app';
+const SITE_DESCRIPTION =
+  'Case studies, framework evolution, and research from building FitMe.';
+
 export const metadata: Metadata = {
-  title: 'fitme-story — how an AI-orchestrated PM framework grew up alongside a fitness app',
-  description: 'Case studies, framework evolution, and research from building FitMe.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: '%s | fitme-story',
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: 'fitme-story',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
