@@ -39,12 +39,19 @@ async function main() {
     exitWith(2, 'Usage: pnpm tsx scripts/issue-bootstrap-token.ts <email>');
   }
 
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Read Upstash REST creds. Fall back to KV_REST_API_* (the variable
+  // names Vercel's Upstash Marketplace integration auto-provisions) per
+  // C6 cadence-followup. Runtime code uses Redis.fromEnv() which already
+  // tries both, but this CLI predates the marketplace rename and only
+  // checked the original UPSTASH_* names.
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
   if (!url || !token) {
     exitWith(
       2,
-      'UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN env vars must be set.',
+      'Redis credentials missing. Set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN, or KV_REST_API_URL + KV_REST_API_TOKEN. Run `vercel env pull .env.local --yes` then retry with `pnpm tsx --env-file=.env.local scripts/issue-bootstrap-token.ts <email>`.',
     );
   }
 
