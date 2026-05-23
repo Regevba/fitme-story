@@ -1,0 +1,105 @@
+---
+title: >-
+  Roadmap Stress Test — Compressing 10 Weeks of Backlog Through the v7.8.1 Protocol
+slug: roadmap-stress-test-2026-05-07
+upstream_path: docs/case-studies/roadmap-stress-test-2026-05-07-case-study.md
+tier: light
+tldr: >-
+  Single-session experiment measuring throughput + protocol overhead of the
+  v7.8.1 framework against ~10 weeks of sequenced backlog work. The meta-feature
+  itself opted out of Mode C isolation (Q3 override) because nesting isolated
+  worktrees inside an isolated worktree is excessive. Sub-features auto-isolated
+  normally. Result: 1 sub-feature fully shipped (case-study comparison table
+  via fitme-story #58) + 1 pre-complete (push-notifications-v2) + 1 partial
+  (UCC passkey auth went 95% through cutover Parts 1-6 same session) + 6
+  deferred. Total: 1 fully + 1 pre-complete + 1 partial / 9 in scope. The
+  experiment SURFACED 10 v7.9 candidates (F1-F10) which became the docket
+  ranking input for the 2026-05-21 v7.9 promotion decision.
+timeline_position:
+  version: '7.8.1'
+  order: 25.5
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+date: '2026-05-07'
+date_written: '2026-05-07'
+shipped_window: '2026-05-07 (single ~3-hour session)'
+work_type: feature
+work_subtype: experiment
+case_study_type: experiment_journal
+external_audit_status: pending
+key_numbers:
+  - label: Sub-features in scope
+    value: '9'
+    tier: T1
+    note: 'Per the sequenced roadmap added to docs/product/backlog.md via PR #252.'
+  - label: Calendar effort estimated
+    value: '~10 weeks'
+    tier: T2
+    note: 'Sum of per-step estimates; declared, not measured.'
+  - label: Sub-features fully shipped in session
+    value: '1 (case-study comparison table)'
+    tier: T1
+    note: 'fitme-story PR #58.'
+  - label: Sub-features pre-complete or partial
+    value: '2 (push-notifications-v2 pre-complete + UCC passkey auth Parts 1-6)'
+    tier: T1
+    note: 'PRs #239 + #248; UCC continued post-session via cutover ceremony 2026-05-16.'
+  - label: v7.9 candidates surfaced
+    value: '10 (F1-F10)'
+    tier: T1
+    note: "Became the docket ranking input for 2026-05-21 v7.9 promotion. F14+F15 shipped 2026-05-23; F16+F17+F2+F6 queued for v7.9.1 build window opening ~2026-06-04."
+  - label: Pre-experiment baseline backup
+    value: 55 state.json + repo HEADs + master plan + CLAUDE + MEMORY
+    tier: T1
+    note: 'Captured to ~/Documents/FitTracker2-backups/2026-05-07-pre-roadmap-stress-test/ before any feature work began.'
+predecessor_chain:
+  - framework-v7-8-branch-isolation
+  - ucc-passkey-auth
+successor_links:
+  - case_study: 26-ucc-passkey-auth.mdx
+    relationship: continued_post_session
+  - case_study: 23c-push-notifications-v2.mdx
+    relationship: continued_post_session
+  - lifecycle_artifact: docs/master-plan/v8-0-docket-ranking-2026-05-13.md
+    relationship: docket_input_for_v7_9_decision
+honest_disclosures:
+  - >-
+    This is a single-session compressed run; 10 weeks of backlog cannot
+    finish in one session. The experiment measures THROUGHPUT and protocol
+    overhead, not completion.
+  - >-
+    The meta-feature itself opted out of v7.8.1 isolation Mode C (Q3
+    override) — nesting isolated worktrees inside an isolated worktree
+    is excessive. Sub-features auto-isolated normally.
+  - >-
+    All measurements timestamped at moment of capture; no retroactive
+    measurements.
+---
+
+## What this proved
+
+The v7.8.1 protocol (Mechanism C session attribution + isolated worktree from Phase 1 onward + Tier 2.2 logging on every phase transition + Mechanism A coverage telemetry verification) **scales** through nested sub-features without protocol overhead exceeding the per-step work itself. The experiment was the empirical input that justified the 2026-05-21 v7.9 promotion decision (3 gates advisory → enforced).
+
+## The 10 candidates this experiment surfaced
+
+F1-F10 (v7.9 candidates docket from `docs/superpowers/specs/2026-05-08-framework-v7-9-candidates.md`):
+
+| ID | Domain | Status |
+|---|---|---|
+| F1-F5 | Various framework gaps | mostly closed via v7.8.x cycle |
+| F11-F13 | Cross-repo state sync | shipped via v7.8.3 (2026-05-11) |
+| F14 | Per-gate dispatch test enforcement | SHIPPED 2026-05-22→05-23 via PR #451 |
+| F15 | Zero-coverage gate unit tests | SHIPPED 2026-05-22→05-23 via PR #451 (joint) |
+| F16 | pre-commit try-repo harness | v7.9.1 build window (~2026-06-04) |
+| F17 | last_fired_at index | v7.9.1 build window |
+| F18 | Mutation testing | v8.0/v8.1 advisory→enforced |
+
+## Full source
+
+See [`docs/case-studies/roadmap-stress-test-2026-05-07-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/roadmap-stress-test-2026-05-07-case-study.md) for the full live append-only experiment journal including §99 resolution log + per-sub-feature timing data captured in `.claude/features/roadmap-stress-test-2026-05-07/data-collection.json`.
+
+## Why slot 25.5
+
+This MDX showcase is being added retroactively on 2026-05-23 to close drift D-RECON-12 from `docs/audits/internal/2026-05-23-comprehensive-pr-sync-audit.md`. The case study itself shipped 2026-05-07 (v7.8.1 era) — slot 25 (`framework-v7-8-1-branch-isolation`) already exists for the predecessor v7.8.1 feature; this stress-test experiment ran the same day v7.8.1 shipped (parallel evening session) so it slots between v7.8.1 (slot 25) and v7.8.2 (slot 26 ucc-passkey-auth which the stress test continued).
