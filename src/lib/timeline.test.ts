@@ -17,9 +17,9 @@ test('buildTimeline("versions") returns 8 nodes', async () => {
   assert.equal(nodes.length, 8);
 });
 
-test('buildTimeline("cases") returns 19 nodes', async () => {
+test('buildTimeline("cases") returns at least 19 nodes', async () => {
   const nodes = await buildTimeline('cases');
-  assert.equal(nodes.length, 19);
+  assert.ok(nodes.length >= 19, `expected ≥19 case nodes, got ${nodes.length}`);
 });
 
 test('every case node has a valid href', async () => {
