@@ -10,7 +10,7 @@
     "lint": "eslint",
     "sync-content": "tsx scripts/sync-content.ts",
     "sync-from-fittracker2": "tsx scripts/sync-from-fittracker2.ts",
-    "test": "tsx --test 'scripts/*.test.ts' 'src/**/*.test.ts'",
+    "test": "tsx --test $(find scripts src -type f \\( -name '*.test.ts' -o -name '*.test.tsx' \\))",
     "validate-content": "tsx scripts/validate-frontmatter.ts",
     "audit-case-studies": "node scripts/audit-frontmatter.mjs",
     "case-study-audit": "npm run validate-content && npm run audit-case-studies",

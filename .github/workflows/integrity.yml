@@ -76,3 +76,26 @@ jobs:
 
       - name: Render scoped MDX
         run: node scripts/check-mdx-render.mjs
+
+  unit-tests:
+    # C2 — JS/TS unit test gate (added 2026-05-23, test-coverage-master-plan T6, RICE 200.0).
+    # Runs the entire `tsx --test` suite on every PR + push to main.
+    # Closes the documented gap where fitme-story had 19+ test files but
+    # zero of them ran in CI.
+    # Safety: no untrusted user-input is interpolated into any run: step.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
