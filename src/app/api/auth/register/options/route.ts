@@ -93,6 +93,13 @@ export async function POST(req: NextRequest) {
       authenticatorSelection: {
         residentKey: 'preferred',
         userVerification: 'preferred',
+        // TEMP-FORCE (2026-05-23, C4 break-glass registration ceremony):
+        // macOS WebAuthn handler hides USB security-key picker option when
+        // authenticatorAttachment is omitted (both Safari + Chrome). Forcing
+        // 'cross-platform' bypasses the OS handler and surfaces the YubiKey.
+        // REVERT after the operator registers their break-glass YubiKey
+        // (target: same-day revert PR after registration succeeds).
+        authenticatorAttachment: 'cross-platform',
       },
     });
 
