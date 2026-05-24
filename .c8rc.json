@@ -1,0 +1,35 @@
+{
+  "$comment": [
+    "R9 (FT2 dev-env-master-plan-2026-05-24) — c8 coverage config for fitme-story.",
+    "Companion to FT2 .slather.yml (iOS) + ai-engine pyproject.toml [tool.coverage.*] (Python).",
+    "",
+    "Tests use node:test via `tsx --test`. c8 wraps the runner via V8's built-in",
+    "coverage collection. Reports land at .coverage/ and coverage/ (html). Both",
+    "gitignored.",
+    "",
+    "Run:",
+    "  npm run test:coverage          # text + lcov summary",
+    "  npm run test:coverage:html     # full HTML browseable report at ./coverage/",
+    "",
+    "Fail-thresholds intentionally absent for R9 ship. v8.0 T1 GATE_TEST_MISSING",
+    "meta-gate sets per-module thresholds once a 30-day baseline accumulates."
+  ],
+  "all": true,
+  "include": ["src/**/*.{ts,tsx}", "scripts/**/*.{ts,tsx,mjs}"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
+    "**/*.figma.tsx",
+    "**/*.figma.swift",
+    "src/data/**",
+    ".next/**",
+    "node_modules/**"
+  ],
+  "extension": [".ts", ".tsx", ".mjs"],
+  "reporter": ["text", "lcov", "text-summary"],
+  "report-dir": "./coverage",
+  "temp-directory": "./.coverage",
+  "skip-full": false,
+  "clean": true
+}
