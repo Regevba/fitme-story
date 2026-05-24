@@ -270,10 +270,10 @@ export default function FrameworkPage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
-                  Developer guide (v1.0 → v7.8.6) →
+                  Developer guide (v1.0 → v7.9) →
                 </h2>
                 <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                  Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema (incl. v7.8.3 cross-repo <code>state_owner</code> enum), phase lifecycle, dispatch model, cache architecture, measurement protocol, 34 mechanical gates + 5 advisories, v7.8 bridge mechanisms A–F, v7.8.3 cross-repo state-sync, v7.8.5 Observed Patterns Catalog + W9 branch-drift alert, v7.8.5+S skills-review execution (12 skills + <code>make skills-audit</code>), v7.8.6 cadence batch (unified preflight + integrity-diff + weekly trend scan + dependency audit), 3 operational walkthroughs, compressed v1.0 → v7.8.6 timeline.
+                  Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema (incl. v7.8.3 cross-repo <code>state_owner</code> enum), phase lifecycle, dispatch model, cache architecture, measurement protocol, 34 mechanical gates + 5 advisories, v7.8 bridge mechanisms A–F, v7.8.3 cross-repo state-sync, v7.8.5 Observed Patterns Catalog + W9 branch-drift alert, v7.8.5+S skills-review execution (12 skills + <code>make skills-audit</code>), v7.8.6 cadence batch (unified preflight + integrity-diff + weekly trend scan + dependency audit), 3 operational walkthroughs, compressed v1.0 → v7.9 timeline.
                 </p>
               </div>
               <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
