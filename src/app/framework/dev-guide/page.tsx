@@ -65,7 +65,7 @@ export default async function DevGuidePage() {
   });
 
   return (
-    <article className="max-w-[var(--measure-wide)] mx-auto px-6 py-16">
+    <article className="max-w-[min(110ch,calc(100vw-3rem))] mx-auto px-6 py-16">
       <nav className="mb-8 text-sm">
         <Link href="/framework" className="underline">
           ← Back to /framework
@@ -148,7 +148,7 @@ export default async function DevGuidePage() {
         </p>
       </header>
 
-      <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)]">
+      <div className="prose prose-lg dark:prose-invert max-w-none dev-guide-prose">
         {content}
       </div>
 
