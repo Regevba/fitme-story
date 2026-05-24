@@ -12,11 +12,21 @@
 
 export type GateOutcome = 'PASS' | 'FAIL' | 'WARN' | 'SKIP';
 
+// FT2's gate_coverage.py emits `timestamp`; legacy fixtures used `ts`.
+// We normalize at parse time so callers see a single field.
 export interface GateEvent {
   gate: string;
-  outcome: GateOutcome | string;
-  ts: string;
+  outcome?: GateOutcome | string;
+  timestamp: string;
   source_repo?: 'ft2' | 'fitme-story';
+  [key: string]: unknown;
+}
+
+interface RawGateEvent {
+  gate: string;
+  outcome?: GateOutcome | string;
+  timestamp?: string;
+  ts?: string;
   [key: string]: unknown;
 }
 
@@ -25,15 +35,20 @@ function parseLines(content: string, source: 'ft2' | 'fitme-story'): GateEvent[]
     .split('\n')
     .filter((line) => line.trim().length > 0)
     .map((line) => {
-      const parsed = JSON.parse(line) as GateEvent;
-      parsed.source_repo = source;
-      return parsed;
+      const raw = JSON.parse(line) as RawGateEvent;
+      const event: GateEvent = {
+        ...raw,
+        gate: raw.gate,
+        timestamp: raw.timestamp ?? raw.ts ?? '',
+        source_repo: source,
+      };
+      return event;
     });
 }
 
 export function aggregateGateCoverage(ft2Content: string, fsContent: string): GateEvent[] {
   const all = [...parseLines(ft2Content, 'ft2'), ...parseLines(fsContent, 'fitme-story')];
-  all.sort((a, b) => a.ts.localeCompare(b.ts));
+  all.sort((a, b) => (a.timestamp ?? '').localeCompare(b.timestamp ?? ''));
   return all;
 }
 
