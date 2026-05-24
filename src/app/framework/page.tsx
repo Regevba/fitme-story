@@ -72,7 +72,7 @@ const FLOORS: Floor[] = [
     title: 'Enforcement (v7.x)',
     summary: (
       <>
-        <strong>34 mechanical gates + 5 advisories</strong> — write-time pre-commit hooks, 72h integrity cycle, per-PR review bot, weekly framework-status cron, Tier 1 / 2 / 3 readouts.
+        <strong>37 mechanical gates + 5 advisories</strong> (3 advisories promoted to enforced via v7.9 promotion 2026-05-21) — write-time pre-commit hooks, 72h integrity cycle, per-PR review bot, weekly framework-status cron, Tier 1 / 2 / 3 readouts.
       </>
     ),
   },
