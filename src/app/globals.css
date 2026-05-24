@@ -264,3 +264,21 @@ html.dark .prose td {
 html.dark .prose tbody tr:hover {
   background: rgba(255, 255, 255, 0.02);
 }
+
+/* dev-guide: wide content (tables + ASCII art in <pre>) bleeds past the
+   default --measure-body / display:block + overflow-x:auto behaviour so
+   it uses the full article width. The dev-guide article container at
+   src/app/framework/dev-guide/page.tsx already uses
+   max-w-[min(110ch,calc(100vw-3rem))]. Per user 2026-05-24: extend the
+   scheme so the entire content lives inside the container without
+   horizontal scrolling. */
+.dev-guide-prose table {
+  display: table;
+  width: 100%;
+  overflow-x: visible;
+}
+.dev-guide-prose pre {
+  white-space: pre;
+  overflow-x: auto;
+  max-width: 100%;
+}
