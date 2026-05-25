@@ -1,0 +1,189 @@
+---
+title: >-
+  When gh pr view Lies — The Stale-Base Branch Trap and a 33-Zombie Cleanup
+slug: stale-base-branch-trap-w17
+upstream_path: .claude/integrity/observed-patterns.md#w17
+tier: light
+tldr: >-
+  Two drafts that looked clean (~6 files each per gh API) would have reverted
+  23 files / -2157 lines on merge — including the same session's HADF runbook
+  + oldSSD migration addendum + R-track configs. GitHub computes a draft PR's
+  file list against the branch's original base SHA, not current main; when
+  main advances via squash-merges after fork, post-fork additions appear as
+  "DELETED" in the merge-time diff. Ground-truth test is cherry-pick onto
+  fresh main — empty results mean zombie, conflicts mean either content-zombie
+  (branch older than main on the same file) or genuinely live. Pattern was
+  documented as catalog entry W17 with a proposed v7.9.1 prevention gate.
+  Cleanup at scale: 35 ahead-of-main local branches audited, 33 deleted as
+  zombies, 2 worktrees pruned (123 MB), 3 stashes dropped. The team's
+  session-close discipline of the prior week had been so effective that
+  every "unpushed work" branch turned out to be residue rather than unfinished
+  work.
+timeline_position:
+  version: '7.9'
+  order: 34.5
+persona_emphasis:
+  hr: outcomes
+  pm: process
+  dev: tooling
+date: '2026-05-25'
+date_written: '2026-05-25'
+shipped_window: '2026-05-25 (single late-evening session)'
+work_type: chore
+work_subtype: process_pattern
+case_study_type: pattern_observation
+external_audit_status: pending
+key_numbers:
+  - label: Draft PRs near-miss
+    value: '2 (#484 + #488)'
+    tier: T1
+    note: 'Closed via Path 2 = close + regenerate fresh off current main.'
+  - label: Replacement PR diff after Path 2 regen
+    value: '+149 / -58 across 3 files (clean)'
+    tier: T1
+    note: 'PR #491 — same intent, fresh base. Original draft #484: +38 / -827.'
+  - label: Phantom-revert blast radius (PR #488 if merged)
+    value: '23 files / -2157 lines'
+    tier: T1
+    note: 'Including HADF runbook (-183), oldSSD addendum (-208), env template (-54), pre-reg lock, 12 R-track configs, integrity snapshot (-1172), UCC hardening case study.'
+  - label: Files gh API reported for PR #488
+    value: '6'
+    tier: T1
+    note: 'gh pr view --json files counts commit-touched files; merge-time diff is much larger.'
+  - label: Local branches ahead of main at session-open
+    value: '35'
+    tier: T1
+    note: 'Surfaced via git for-each-ref enumeration.'
+  - label: Zombies deleted via cherry-pick audit
+    value: '33'
+    tier: T1
+    note: '4 confirmed-clean + 10 MANUAL-conflict content-zombies + 11 bulk-audit + 7 pr-* tracking branches of CLOSED PRs + 1 claude/* session branch.'
+  - label: Genuinely live branches found
+    value: '0'
+    tier: T1
+    note: 'Only survivors: 5 worktree-active + 1 explicitly deferred (chore/dev-guide-v7-9-readability-pass).'
+  - label: Disk reclaimed (worktree GC)
+    value: '~123 MB'
+    tier: T1
+    note: '2 stale worktrees removed: infra-dispatch-test-coverage + claude/zealous-zhukovsky-50d6c6.'
+  - label: Catalog entries before vs after
+    value: '32 → 33 (added W17)'
+    tier: T1
+    note: 'observed-patterns.md PR #492; proposes v7.9.1 candidate F-STALE-BASE-DETECTION as the enforcement layer.'
+---
+
+## The narrow miss
+
+Two draft PRs opened earlier in the day looked routine:
+
+- **PR #484** — `chore(daily-digest): framework cycle outputs 2026-05-25`
+- **PR #488** — `chore(integrity): stale-state-sweep run 2026-05-25 — noop_no_candidates`
+
+Both showed all CI checks green. Both had clean per-commit content. The `gh pr view --json files` API reported 2 and 6 files changed respectively. The PR descriptions matched what the operator intended.
+
+The mergeStateStatus on both was `BEHIND`. That was the only public warning.
+
+Then a closer look at `git diff origin/main..<branch> --shortstat`:
+
+| PR | gh API files | Actual merge-time diff |
+|---|---|---|
+| #484 | 2 | **9 files / +38 / -2638** |
+| #488 | 6 | **23 files / +211 / -2157** |
+
+Merging either would have reverted ~10 of the same day's earlier merged PRs — including the HADF Sub-exp 1A key acquisition runbook, the OldSSD ↔ DevSSD migration verification addendum, the `.env.local` template the cloud-AI campaign was reading from, and all of the R-track lint config files (SwiftLint + ruff + markdownlint).
+
+## Why this happens
+
+GitHub computes a PR's `--json files` against the branch's **original base SHA**, not against current `origin/main`. When main advances via squash-merges of unrelated work, every file added to main after the branch forked appears as "DELETED" in the merge-time effective diff. The branch isn't actively deleting them — it just doesn't have them, so merging as-is reverts them all.
+
+The high merge velocity of the prior week amplified this: 7 PRs merged into main between 06:00 and 16:00 UTC the same day. Any branch that hadn't been rebased in those 10 hours accumulated phantom reverts.
+
+## The diagnostic that doesn't lie
+
+`git cherry-pick` onto a fresh worktree off current `origin/main`. Cherry-pick uses **patch-id matching** — it can tell when a commit's content is already on main even if the SHA is different (e.g., the same change shipped via a different branch's squash-merge).
+
+```bash
+git worktree add -b _audit /tmp/audit origin/main
+cd /tmp/audit
+for c in $(git log origin/main..<branch> --reverse --format=%H); do
+  git cherry-pick --keep-redundant-commits $c
+done
+git rev-list --count origin/main..HEAD     # 0 → ZOMBIE; >0 → has real content
+```
+
+Three outcomes:
+
+| Class | Cherry-pick result | Action |
+|---|---|---|
+| **Zombie** | all commits → empty | delete (content already on main) |
+| **Content-zombie** | conflicts, but branch is older subset of main | delete (intent fulfilled via different path) |
+| **Live** | new content produced | rebase onto main, open fresh PR |
+
+## What the audit at scale revealed
+
+35 ahead-of-main local branches enumerated at session close. After applying the audit:
+
+```
+4   confirmed clean zombies   (cherry-pick → all empty)
+11  bulk-audit zombies         (commits matched main via git cherry)
+10  content-zombies            (conflicts revealed branch is older subset of main)
+7   pr-* tracking branches     (all referenced CLOSED PRs)
+1   claude/* session branch    (week-old, content shipped via main)
+---
+33  total deleted (94%)
+```
+
+The 2 survivors:
+
+- **5 worktree-active branches** — actively being developed (HADF, R9 coverage, analytics D3, UCC hardening, in-flight chore-green-items)
+- **1 explicitly deferred branch** — `chore/dev-guide-v7-9-readability-pass-ft2-2026-05-24`, intentionally paused per Mode B / Phase E hygiene
+
+**Genuinely live unmerged work: zero.**
+
+## The validating meta-pattern
+
+The team's session-close discipline of the prior 2-3 days had been so effective that **most ahead-of-main branches in a high-merge-velocity repo are residue, not unfinished work**. Each day's work cascaded into main via that day's PRs, leaving the local branch list to accumulate zombies.
+
+This inverts the intuition. You'd assume an unpushed branch represents pending work — but in a healthy fast-moving repo, the more accurate prior is the opposite: assume zombie until proven live.
+
+## The fix is the diagnostic
+
+Three operator actions, no new code:
+
+1. **At session close**, enumerate ahead-of-main branches: `git for-each-ref --format='%(refname:short)' refs/heads/`
+2. **For each**, run the cherry-pick audit (above)
+3. **Zombies + content-zombies → delete locally**. Live → rebase + open fresh PR.
+
+A 35-branch audit takes about 20 minutes. Skipping it saves nothing — the zombies will keep piling up, and the next near-miss will be a real merge instead of a draft.
+
+## Path 2: close + regenerate
+
+For the two trapped drafts, the resolution was **Path 2** — close the stale-base draft with an explanatory comment, then regenerate the intended change from scratch off current `origin/main`. PR #491 was the regen of #484: 3 files / +149 / -58 with no phantom reverts. The intended data update shipped cleanly within 30 minutes of the original draft closure.
+
+Path 2 is the natural fix because the intended content is usually **regenerable** — daily-digest data is computed from current state via `make documentation-debt` + `make measurement-adoption`; integrity sweeps are computed fresh from current state.json files. The branch you'd rebase IS the branch you'd regenerate — so just regenerate.
+
+## What ships and what's queued
+
+**Shipped same session:**
+
+- **W17 catalog entry** (`.claude/integrity/observed-patterns.md`, PR #492) — full trigger / diagnosis / three-class taxonomy / silence path / examples / operator workflow
+- **PR #491** — the Path 2 regen of the closed #484 daily-digest
+- **33 branches** — deleted (zombies + content-zombies + closed PR tracking branches + stale session branches)
+- **2 worktrees** — pruned (123 MB reclaimed)
+- **3 stashes** — dropped
+
+**Queued as v7.9.1 candidate F-STALE-BASE-DETECTION:**
+
+A pre-merge gate extending the per-PR review bot — already worktree-captures `origin/main baseline`, so extending it to surface a P0 advisory when `gh pr view --json files` count vs `git diff origin/main..<head> --stat` count diverges by >2× is incremental work. Stacks with F-CONTRACT-FIXTURE-SAMPLING (W16) as the "PR-time sanity check" family — both close the silent-pass class of "the artifact you reviewed ≠ the artifact that ships."
+
+## Where this fits in the framework arc
+
+W17 sits in a recurring family: **the gap between what the agent sees and what the system ships**.
+
+- W9 (branch drift from concurrent-session collision) — agent thinks it's on branch A, another session checked out branch B in the same worktree
+- W11 (incomplete PR cache) — agent reasons over a partial dataset, treats missing rows as absent rather than uncached
+- W12 (vercel env pull returns empty for Sensitive vars) — agent reads env vars that look set but are silently undefined at runtime
+- W16 (contract-boundary fixture sampling) — consumer tests pass against fixtures that encode the consumer's invented schema, not the producer's real one
+- **W17 (stale-base branches)** — agent reviews a PR's file list that's correct against the branch's original base but misleading against current main
+
+Each pattern looks unique on the surface but shares the same shape: **a tool's output reflects a snapshot that's no longer the live state**. The catalog discipline (CLAUDE.md v7.8.5 mandatory append-on-discovery rule) is the framework's response to this class. The next pattern in this family won't be the last.
