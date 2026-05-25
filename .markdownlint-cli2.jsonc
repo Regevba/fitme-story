@@ -1,0 +1,75 @@
+// R12 (FT2 dev-env-master-plan-2026-05-24) — markdownlint-cli2 config for
+// fitme-story. Companion to FT2 PR #481 (which adds the same config to FT2
+// root). Track A only: ships config + devDep. Track B (CI workflow + verify
+// integration) is infra-glob, isolated worktree, post-Phase-E.
+//
+// USAGE (operator):
+//   npm run lint:md            — text output
+//   npm run lint:md:fix        — auto-fix where supported
+//
+// PHILOSOPHY: warn-only baseline. v7.9 Phase E forbids new enforcement
+// gates. Findings surface for operator visibility without blocking.
+//
+// Sources of pre-existing lint noise (per editor MD060/MD032 hints in
+// recent PRs): master-plan tables use compact pipe style → MD060 disabled;
+// audit reports use long prose lines → MD013 disabled; MDX content includes
+// JSX → MD033 disabled.
+
+{
+  "globs": [
+    "**/*.md",
+    "**/*.mdx"
+  ],
+
+  "ignores": [
+    "node_modules/**",
+    ".next/**",
+    "out/**",
+    ".vercel/**",
+    "coverage/**",
+    ".coverage/**",
+    // Synced FT2 docs ship verbatim — lint upstream, not the mirror
+    "src/data/docs/**",
+    // Auto-generated content
+    "**/.cache/**"
+  ],
+
+  "config": {
+    "default": true,
+
+    // ── Disabled rules with reasoning ──────────────────────────────────────
+    // MD013 line-length — case studies + MDX prose run long
+    "MD013": false,
+
+    // MD060 / MD056 table style — pre-existing inconsistency across files
+    "MD060": false,
+    "MD056": false,
+
+    // MD040 fenced-code-language — ASCII diagrams / mermaid use untagged
+    "MD040": false,
+
+    // MD041 first-line H1 — MDX files lead with frontmatter
+    "MD041": false,
+
+    // MD033 inline-html — MDX is JSX-flavored Markdown by design
+    "MD033": false,
+
+    // MD024 no-duplicate-headings — long case studies have repeated
+    // section names ("Files", "Verification", "Cross-references")
+    "MD024": false,
+
+    // ── Tuned rules ────────────────────────────────────────────────────────
+    "MD007": { "indent": 2 },
+
+    "MD025": {
+      "level": 1,
+      "front_matter_title": "^\\s*title\\s*[:=]"
+    },
+
+    "MD029": { "style": "ordered" },
+
+    // Catch real readability issues
+    "MD032": true,
+    "MD031": true
+  }
+}
