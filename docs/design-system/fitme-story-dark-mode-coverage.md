@@ -1,7 +1,7 @@
 # fitme-story Dark-Mode Coverage Matrix
 
 **Created:** 2026-05-10
-**Last audited:** 2026-05-10
+**Last audited:** 2026-05-26 (C10 sync — 3 manifest flips: AuditEventRow + AuditLogPanel + DevicesTable now `darkModeStatus: 'Designed'`)
 **Source of truth:** [`src/lib/design-system.ts`](../../src/lib/design-system.ts) → `darkModeStatus` field per component
 
 > Per the v6.0 design-tokens convention + audit A-018 (2026-05-08): every public component must pass WCAG AA contrast (4.5:1 body, 3.0:1 large text) in BOTH Light AND Dark mode. This matrix tracks which components have been intentionally **designed** for Dark mode vs. relying on automatic token swap vs. needing attention.
@@ -22,10 +22,10 @@
 ## Summary (auto-computed from manifest)
 
 - **Total components:** 31
-- **Designed:** 17 (55%)
+- **Designed:** 21 (68%)
 - **AutoDerived:** 6 (19%)
 - **NotApplicable:** 0
-- **TODO:** 8 (26%)
+- **TODO:** 4 (13%)
 
 **Public-component breakdown (excludes Internal):**
 
@@ -34,7 +34,7 @@
 - AutoDerived: 0
 - TODO: 0
 
-**All 8 TODO entries are Internal components** (control-room operator surfaces). Per the Internal-deferral policy codified in `src/lib/design-system.ts`, Dark-mode treatment of Internal surfaces follows code-first design — designers don't iterate visually in Figma. The TODO flag here means: contrast spot-check still pending; not a P0 because operator surfaces have a smaller user surface area + are gated behind UCC auth.
+**All 4 remaining TODO entries are Internal control-room components** (FeatureCard, TaskCard, TaskTree, AlertsBanner). The 4 Internal components in the UCC passkey-auth path (AuthPasskeyForm, DevicesTable, AuditEventRow, AuditLogPanel) were verified 2026-05-16 (contrast measurements in the Internal table below) and the manifest flips landed 2026-05-26 (this audit, completing C10 of the UI/UX Master Plan). Per the Internal-deferral policy codified in `src/lib/design-system.ts`, Dark-mode treatment of Internal surfaces follows code-first design — designers don't iterate visually in Figma. The TODO flag here means: contrast spot-check still pending; not a P0 because operator surfaces have a smaller user surface area + are gated behind UCC auth.
 
 ---
 

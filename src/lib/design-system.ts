@@ -376,7 +376,7 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     status: 'Internal',
     figmaNodeIds: null,
     hasFigmaConnect: false,
-    darkModeStatus: 'TODO',
+    darkModeStatus: 'Designed',
   },
   {
     name: 'AuditLogPanel',
@@ -387,7 +387,7 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     status: 'Internal',
     figmaNodeIds: null,
     hasFigmaConnect: false,
-    darkModeStatus: 'TODO',
+    darkModeStatus: 'Designed',
   },
   {
     name: 'AuthPasskeyForm',
@@ -412,7 +412,7 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     status: 'Internal',
     figmaNodeIds: null,
     hasFigmaConnect: false,
-    darkModeStatus: 'TODO',
+    darkModeStatus: 'Designed',
   },
   {
     name: 'TrackedDocLink',
