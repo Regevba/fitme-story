@@ -1,0 +1,721 @@
+{
+  "generated_at": "2026-05-26T16:51:04+00:00",
+  "epoch": 0,
+  "lease_count": 1,
+  "feature_count": 79,
+  "branch_count": 6,
+  "features": [
+    {
+      "slug": "analytics-observability",
+      "current_phase": "implementation",
+      "framework_version": "v7.8.5",
+      "branch": "",
+      "last_touched_utc": "2026-05-25T11:33:23+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-passkey-auth-audit-log-redis-fix",
+      "current_phase": "implementation",
+      "framework_version": "v7.8.6",
+      "branch": "feature/ucc-passkey-auth-audit-log-redis-fix",
+      "last_touched_utc": "2026-05-25T04:57:44+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-public-enhancements",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "feature/fitme-story-public-enhancements",
+      "last_touched_utc": "2026-05-24T14:27:30+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-f14-f15-dispatch-test-coverage",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "feature/framework-f14-f15-dispatch-test-coverage",
+      "last_touched_utc": "2026-05-24T14:27:30+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "3d-interactive-framework-flow-diagram",
+      "current_phase": "prd",
+      "framework_version": "v7.8.3",
+      "branch": "",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-engine-v2",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "fix/design-system-token-compliance",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-recommendation-ui",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "fix/design-system-token-compliance",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "audit-1-corrections",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/audit-1-corrections",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-design-system-p2-cleanup",
+      "current_phase": "complete",
+      "framework_version": "v7.8.2",
+      "branch": "feature/fitme-story-design-system-p2-cleanup",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-story-site",
+      "current_phase": "complete",
+      "framework_version": "v6.0",
+      "branch": "main",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-7-validity-closure",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "main",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-9-promotion",
+      "current_phase": "docs",
+      "framework_version": "v7.9",
+      "branch": "chore/v7-9-promotion-close-out",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-phase2-cloud-fingerprinting",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "feature/hadf-phase2-fingerprint",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "home-status-goal-card",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/home-status-goal-card",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "import-training-plan",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/import-training-plan-resume",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "metric-tile-deep-linking",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/metric-tile-deep-linking",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "orchid-v1-5",
+      "current_phase": "implementation",
+      "framework_version": "v7.7",
+      "branch": "feature/orchid-v1-5",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "readiness-score-v2",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "fix/design-system-token-compliance",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "roadmap-stress-test-2026-05-07",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "feature/roadmap-stress-test-2026-05-07",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "smart-reminders-behavioral-learning",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "feature/smart-reminders-behavioral-learning",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-passkey-auth",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "feature/ucc-passkey-auth",
+      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "meta-analysis-refresh-phase-1",
+      "current_phase": "implementation",
+      "framework_version": "v7.9",
+      "branch": "chore/meta-analysis-refresh-phase-1",
+      "last_touched_utc": "2026-05-22T07:49:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-passkey-auth-security-hardening",
+      "current_phase": "documentation",
+      "framework_version": "v7.8.6",
+      "branch": "docs/ucc-hardening-post-merge-2026-05-20",
+      "last_touched_utc": "2026-05-22T07:30:47+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-sign-in-figma-mapping",
+      "current_phase": "implementation",
+      "framework_version": "v7.8.6",
+      "branch": "chore/ucc-sign-in-figma-mapping-reconcile-2026-05-20",
+      "last_touched_utc": "2026-05-21T12:04:06+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ios-code-connect",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "",
+      "last_touched_utc": "2026-05-20T07:42:27+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "adaptive-intelligence",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "fix/design-system-token-compliance",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-cohort-intelligence",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-engine-architecture-adaptation",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "android-design-system",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/android-design-system",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "app-store-assets",
+      "current_phase": "implementation",
+      "framework_version": "v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "auth-polish-v2",
+      "current_phase": "complete",
+      "framework_version": "v7.6",
+      "branch": "feature/auth-polish-v2",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "authentication",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "case-study-comparison-table",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "feature/case-study-comparison-table",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "case-study-presentation",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "feature/case-study-presentation",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "code-connect-automation",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "cross-repo-state-sync-impl",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "data-integrity-framework-v7-6",
+      "current_phase": "complete",
+      "framework_version": "v7.6",
+      "branch": "main",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "data-sync",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "design-system-v2",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "development-dashboard",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/development-dashboard",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "dispatch-intelligence-v5.2",
+      "current_phase": "complete",
+      "framework_version": "v5.2",
+      "branch": "",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-ds-p2-deferred",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "feature/fitme-story-ds-p2-deferred",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-ds-p2-final-sweep",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "feature/fitme-story-ds-p2-final-sweep",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-website-design-system",
+      "current_phase": "complete",
+      "framework_version": "v7.8.2",
+      "branch": "feature/fitme-story-website-design-system",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-honesty-fixes-2026-05-01",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "chore/framework-honesty-fixes-2026-05-01",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-measurement-v6",
+      "current_phase": "complete",
+      "framework_version": "v6.0",
+      "branch": "feature/framework-measurement-v6",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v5-0-soc",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "main",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-1-integrity-cycle",
+      "current_phase": "complete",
+      "framework_version": "v7.1",
+      "branch": "main",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-5-data-integrity",
+      "current_phase": "complete",
+      "framework_version": "v7.5",
+      "branch": "main",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-8-branch-isolation",
+      "current_phase": "complete",
+      "framework_version": "v7.8",
+      "branch": "feature/framework-v7-8-branch-isolation",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-8-bridge",
+      "current_phase": "complete",
+      "framework_version": "v7.8",
+      "branch": "main",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "gdpr-compliance",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/gdpr-compliance",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "google-analytics",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/google-analytics",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-infrastructure",
+      "current_phase": "complete",
+      "framework_version": "v6.0",
+      "branch": "feature/hadf-infrastructure",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-phase2bis-replication",
+      "current_phase": "tasks_phase",
+      "framework_version": "v7.8.3",
+      "branch": "",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "home-today-screen",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/home-today-screen-v2",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ios-ui-audit-p1-burndown",
+      "current_phase": "complete",
+      "framework_version": "v7.8.2",
+      "branch": "feature/ios-ui-audit-p1-burndown",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ios-ui-audit-p1-drift-cleanup",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "feature/ios-ui-audit-p1-drift-cleanup",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "marketing-website",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "meta-analysis-audit",
+      "current_phase": "complete",
+      "framework_version": "v6.0",
+      "branch": "main",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "nutrition-logging",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "nutrition-v2",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/nutrition-v2",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "onboarding",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "main",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "onboarding-v2-auth-flow",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/onboarding-v2-auth-flow",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "onboarding-v2-retroactive",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/onboarding-v2-retroactive",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "parallel-write-safety-v5.2",
+      "current_phase": "complete",
+      "framework_version": "v5.2",
+      "branch": "",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "push-notifications",
+      "current_phase": "complete",
+      "framework_version": "v7.8",
+      "branch": "feature/push-notifications-v2",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "recovery-biometrics",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "settings",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "settings-v2",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/settings-v2",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "smart-reminders",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "stats-progress-hub",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "stats-v2",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/stats-v2",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "training-plan-v2",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/training-plan-v2",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "training-tracking",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ui-audit-baseline-burndown",
+      "current_phase": "complete",
+      "framework_version": "v7.1",
+      "branch": "claude/review-ui-consistency-zSkvJ",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ui-ux-final-sweep-2026-05-12",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "feature/ui-ux-final-sweep-2026-05-12",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "unified-control-center",
+      "current_phase": "complete",
+      "framework_version": "v7.6",
+      "branch": "main",
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "user-profile-settings",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    }
+  ],
+  "_advisory_note": "v7.8 Mechanism F is advisory — no lease acquisition is required. v7.9 will wire /pm-workflow to call membrane-acquire.py at session start."
+}
