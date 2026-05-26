@@ -13,7 +13,7 @@
  */
 
 import type { Metadata } from 'next';
-import featuresData from '@/data/control-room-seeds/features.json';
+import { loadFeaturesFromState } from '@/lib/control-room/load-features-from-state';
 import { TableViewClient, type FeatureSeed } from './TableViewClient';
 import { TrackPageView } from '@/components/control-room/TrackPageView';
 
@@ -22,19 +22,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-interface FeaturesSeedFile {
-  shipped: FeatureSeed[];
-  planned: FeatureSeed[];
-  backlog: FeatureSeed[];
-}
-
 export default function ControlRoomTablePage() {
-  const seed = featuresData as unknown as FeaturesSeedFile;
-  const allFeatures: FeatureSeed[] = [
-    ...(seed.shipped ?? []),
-    ...(seed.planned ?? []),
-    ...(seed.backlog ?? []),
-  ];
+  // Sourced from synced `src/data/features/*.json` (mirror of FT2's
+  // `.claude/features/*/state.json`). Replaces the static seed shipped
+  // 2026-05-08 in PR #20 which had only 21 features and froze at that
+  // snapshot. Live count: 79 features.
+  const allFeatures: FeatureSeed[] = loadFeaturesFromState();
 
   return (
     <article className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">

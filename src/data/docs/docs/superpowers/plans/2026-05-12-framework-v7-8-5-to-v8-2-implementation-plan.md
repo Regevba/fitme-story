@@ -18,7 +18,7 @@
 |---|---|---|---|
 | **v7.8.5** | 2026-05-12 → 13 | 1 task (cache_hits fix) | ✅ SHIPPED PR #320 |
 | **v7.9** | 2026-05-18 → 21 | 5 enforcement flips | Calibration window OPEN |
-| **v7.9.1** | 2026-06-04 → 11 | 4 items (F16, F17, F2, F6) | Pending v7.9 Phase E |
+| **v7.9.1** | 2026-06-04 → 11 | 4 items (F16, F17, F2, F6) + **E-14** (F-LAUNCHD-DRIFT-EXTENSION, filed 2026-05-24 per W11.b) | Pending v7.9 Phase E. F2 + F6 **spec-defined** (verified 2026-05-24 per post-v7-9-candidate-plan §7 sub-plan refresh) — F2 at T7.9.1.3 (`.claude/skills/pm-workflow/SKILL.md` Phase 0 reality-check sub-step + new SUBSKILL doc), F6 at T7.9.1.4 (CLAUDE.md Work Item Types B_medium tier doc). Both ≤1h effort; not placeholders. |
 | **v8.0** | 2026-06-18 → 07-31 | 6 items (top-per-theme docket) | Pending 2026-05-21 ranking |
 | **v8.1** | 2026-08 → 09 | 5–7 deferred F-items + early V8-I triggers | Pending v8.0 Phase E |
 | **v8.2+** | 2026-12+ | Long-tail V8-I icebox per triggers | Pending re-eval |
@@ -81,11 +81,13 @@ N/A. This is a fix, not a new layer. No Phase B–E walk needed.
 
 ---
 
-## §4 v7.9 — Promotion Release (decision 2026-05-21)
+## §4 v7.9 — Promotion Release (SHIPPED 2026-05-21 via PR #417 `ea53ff4`)
+
+> **Outcome:** 3 advisory gates promoted (not 5 — see notes below) via single-flag flip at [`scripts/check-state-schema.py:132`](../../../scripts/check-state-schema.py). Mechanism A + Mechanism C were already enforced at v7.8 / v7.8.3 ship dates, so v7.9 only flipped the remaining 3: `BRANCH_ISOLATION_VIOLATION` Mode B + Mode C + `FEATURE_CLOSURE_COMPLETENESS`. Phase E validation soak 2026-05-21 → 2026-06-04; case study at [`docs/case-studies/framework-v7-9-promotion-case-study.md`](../../case-studies/framework-v7-9-promotion-case-study.md). v7.9.1 build window opens ~2026-06-04 (F16 + F17 + F2 + F6 + D-2 + D-4 first wave per [infra-plan §3.6.3](../../master-plan/infra-master-plan-2026-05-12.md)).
 
 ### Goal
 
-Flip 5 currently-advisory gates to enforced based on 7+ days of clean `gate-coverage.jsonl` telemetry.
+Flip 5 currently-advisory gates to enforced based on 7+ days of clean `gate-coverage.jsonl` telemetry. **Actual:** only 3 needed flipping (Mechanism A + C already enforced earlier).
 
 ### Pre-decision state (as of 2026-05-12)
 
