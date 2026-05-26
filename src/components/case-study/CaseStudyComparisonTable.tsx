@@ -177,7 +177,7 @@ export default function CaseStudyComparisonTable({ rows }: { rows: ComparisonRow
           />
           <input
             type="search"
-            placeholder="Search title or TL;DR…"
+            placeholder="Search title or overview…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search case studies"
@@ -213,7 +213,7 @@ export default function CaseStudyComparisonTable({ rows }: { rows: ComparisonRow
                 Tier <SortIcon k="tier" />
               </SortableTh>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/50">
-                TL;DR
+                Overview
               </th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/50">
                 Headline
