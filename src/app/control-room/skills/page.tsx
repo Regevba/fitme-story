@@ -71,6 +71,44 @@ const PHASE_MAPPING: Record<string, string> = {
   'brainstorm-pm': 'Phase 0 (default new-feature entry point)',
 };
 
+// Editorial: each skill's PRIMARY phase ownership — drives the accordion grouping.
+// Multi-phase skills surface their secondary phases via PHASE_MAPPING on the card.
+type PhaseKey =
+  | 'phase-0'
+  | 'phase-1'
+  | 'phase-3'
+  | 'phase-4'
+  | 'phase-5'
+  | 'phase-7'
+  | 'phase-8'
+  | 'all-phases';
+
+const PRIMARY_PHASE: Record<string, PhaseKey> = {
+  'pm-workflow': 'all-phases',
+  ops: 'all-phases',
+  'brainstorm-pm': 'phase-0',
+  research: 'phase-0',
+  analytics: 'phase-1',
+  ux: 'phase-3',
+  design: 'phase-3',
+  dev: 'phase-4',
+  qa: 'phase-5',
+  release: 'phase-7',
+  cx: 'phase-8',
+  marketing: 'phase-8',
+};
+
+const PHASES: ReadonlyArray<{ key: PhaseKey; label: string; sublabel: string }> = [
+  { key: 'phase-0', label: 'Phase 0', sublabel: 'Research & Discovery' },
+  { key: 'phase-1', label: 'Phase 1', sublabel: 'PRD' },
+  { key: 'phase-3', label: 'Phase 3', sublabel: 'UX / Integration' },
+  { key: 'phase-4', label: 'Phase 4', sublabel: 'Implement' },
+  { key: 'phase-5', label: 'Phase 5', sublabel: 'Test' },
+  { key: 'phase-7', label: 'Phase 7', sublabel: 'Merge' },
+  { key: 'phase-8', label: 'Phase 8 + 9', sublabel: 'Post-launch & Learn' },
+  { key: 'all-phases', label: 'All phases', sublabel: 'Dispatch + infra monitoring' },
+];
+
 const MANIFEST = loadSkillsManifest();
 const MANIFEST_DATE = MANIFEST.syncedAt.slice(0, 10) || '(no sync)';
 
@@ -92,6 +130,80 @@ const STATUS_BADGE_STYLES: Record<SkillStatus | 'unknown', string> = {
 
 function statusKey(s: SkillStatus | ''): SkillStatus | 'unknown' {
   return s === '' ? 'unknown' : s;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Skill card — disclosure pattern via native <details>/<summary>, no JS needed.
+// Summary surfaces highest-signal axes (name, status, framework, last-updated,
+// phase prose). Description (long trigger paragraph from SKILL.md frontmatter)
+// + adapters + GitHub link live in the expanded body.
+// ────────────────────────────────────────────────────────────────────────────
+
+function SkillCard({ skill }: { skill: PageSkillRow }) {
+  return (
+    <details className="group rounded border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] open:bg-[var(--color-neutral-0,#fff)] dark:open:bg-[var(--color-neutral-950,#0a0a0a)]">
+      <summary className="flex cursor-pointer list-none items-start justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-mono text-sm text-[var(--color-brand-indigo)]">
+              /{skill.name}
+            </span>
+            <span
+              className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-mono ${STATUS_BADGE_STYLES[statusKey(skill.status)]}`}
+            >
+              {skill.status || '—'}
+            </span>
+          </div>
+          <p className="mt-1 text-xs font-mono text-[var(--color-neutral-500)]">
+            {skill.frameworkVersion} · {skill.lastUpdated} · {skill.loc} LoC
+          </p>
+          {skill.phase !== '—' && (
+            <p className="mt-1 text-xs text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
+              {skill.phase}
+            </p>
+          )}
+        </div>
+        <span className="ml-2 mt-0.5 shrink-0 font-mono text-xs text-[var(--color-neutral-500)] group-open:hidden">
+          Triggers ▾
+        </span>
+        <span className="ml-2 mt-0.5 hidden shrink-0 font-mono text-xs text-[var(--color-neutral-500)] group-open:inline">
+          Hide ▴
+        </span>
+      </summary>
+      <div className="border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] px-4 py-3">
+        <p className="text-xs leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+          {skill.description}
+        </p>
+        {skill.adaptersUsed.length > 0 && (
+          <div className="mt-3">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--color-neutral-500)]">
+              Adapters
+            </p>
+            <ul className="mt-1 flex flex-wrap gap-1">
+              {skill.adaptersUsed.map((a) => (
+                <li
+                  key={a}
+                  className="inline-block rounded bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] px-1.5 py-0.5 font-mono text-xs"
+                >
+                  {a}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <p className="mt-3">
+          <Link
+            href={`${FT2_GH}/blob/main/.claude/skills/${skill.name}/SKILL.md`}
+            className="text-xs text-[var(--color-brand-indigo)] underline decoration-[var(--color-brand-indigo)] underline-offset-4 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View SKILL.md on GitHub ↗
+          </Link>
+        </p>
+      </div>
+    </details>
+  );
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -134,6 +246,16 @@ export default function SkillsActivityPage() {
   const activeCount = SKILLS.filter((s) => s.status === 'active').length;
   const stableCount = SKILLS.filter((s) => s.status === 'stable').length;
   const totalAdapters = new Set(SKILLS.flatMap((s) => s.adaptersUsed)).size;
+
+  // Group by primary phase ownership for the accordion layout.
+  const skillsByPhase = new Map<PhaseKey, PageSkillRow[]>();
+  for (const phase of PHASES) {
+    skillsByPhase.set(phase.key, []);
+  }
+  for (const s of SKILLS) {
+    const key = PRIMARY_PHASE[s.name] ?? 'all-phases';
+    skillsByPhase.get(key)!.push(s);
+  }
 
   return (
     <article className="max-w-[var(--measure-body)]">
@@ -200,72 +322,34 @@ export default function SkillsActivityPage() {
 
       <Section
         id="inventory"
-        title="Inventory"
-        subtitle="Dynamic frontmatter sync at prebuild (PR #111). v7.8.6: all 10 skills carry the preflight-cache pointer in their Shared Data section. Click a skill to open its SKILL.md on GitHub."
+        title="Skills by lifecycle phase"
+        subtitle="Grouped by primary phase ownership. Each card shows status + framework version + last-updated up front; click a card to reveal its trigger description (the long paragraph from SKILL.md frontmatter) and adapter list. Source: prebuild sync from FT2 SKILL.md."
       >
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-[var(--color-neutral-300)] dark:border-[var(--color-neutral-700)] text-left font-mono text-xs uppercase tracking-wider text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
-                <th className="px-3 py-3">Skill</th>
-                <th className="px-3 py-3">Status</th>
-                <th className="px-3 py-3">Last updated</th>
-                <th className="px-3 py-3">Framework</th>
-                <th className="px-3 py-3">Adapters</th>
-                <th className="px-3 py-3 text-right">LoC</th>
-                <th className="px-3 py-3">Phase ownership</th>
-              </tr>
-            </thead>
-            <tbody>
-              {SKILLS.map((s) => (
-                <tr
-                  key={s.name}
-                  className="border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)]"
-                >
-                  <td className="px-3 py-3 align-top">
-                    <Link
-                      href={`${FT2_GH}/blob/main/.claude/skills/${s.name}/SKILL.md`}
-                      className="font-mono text-[var(--color-brand-indigo)] underline-offset-4 hover:underline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      /{s.name}
-                    </Link>
-                    <p className="mt-1 text-xs text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] font-sans">
-                      {s.description}
-                    </p>
-                  </td>
-                  <td className="px-3 py-3 align-top">
-                    <span className={`inline-block rounded px-2 py-0.5 text-xs font-mono ${STATUS_BADGE_STYLES[statusKey(s.status)]}`}>
-                      {s.status || '—'}
-                    </span>
-                  </td>
-                  <td className="px-3 py-3 align-top font-mono text-xs">{s.lastUpdated}</td>
-                  <td className="px-3 py-3 align-top font-mono text-xs">{s.frameworkVersion}</td>
-                  <td className="px-3 py-3 align-top">
-                    {s.adaptersUsed.length === 0 ? (
-                      <span className="text-xs italic text-[var(--color-neutral-500)]">none</span>
-                    ) : (
-                      <ul className="flex flex-wrap gap-1">
-                        {s.adaptersUsed.map((a) => (
-                          <li
-                            key={a}
-                            className="inline-block rounded bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] px-1.5 py-0.5 text-xs font-mono"
-                          >
-                            {a}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </td>
-                  <td className="px-3 py-3 align-top text-right font-mono text-xs tabular-nums">
-                    {s.loc}
-                  </td>
-                  <td className="px-3 py-3 align-top text-xs">{s.phase}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-10">
+          {PHASES.map((phase) => {
+            const skills = skillsByPhase.get(phase.key) ?? [];
+            if (skills.length === 0) return null;
+            return (
+              <div key={phase.key} id={phase.key}>
+                <div className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] pb-2">
+                  <h3 className="font-serif text-lg text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)]">
+                    {phase.label}
+                  </h3>
+                  <p className="text-sm text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
+                    {phase.sublabel}
+                  </p>
+                  <span className="ml-auto font-mono text-xs text-[var(--color-neutral-500)]">
+                    {skills.length} {skills.length === 1 ? 'skill' : 'skills'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {skills.map((s) => (
+                    <SkillCard key={s.name} skill={s} />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </Section>
 
