@@ -51,21 +51,29 @@ T-candidates compete with F-candidates at the 2026-05-21 ranking pass (Phase 9 o
 
 ## 2. Per-Layer Inventory (as of 2026-05-13)
 
-### 2.1 Framework (Python) — 133 methods / 13 files
+### 2.1 Framework (Python) — 161 methods / 17 files (as of 2026-05-23)
 
-**Already on the docket via infra plan F14–F18.** Highlights:
+**Updated 2026-05-24 to reflect F14 + F15 ship via `framework-f14-f15-dispatch-test-coverage` — PR #451 squash `86084c4` (merged 2026-05-23T04:55:46Z) + backfill PR #452 (`3686f98`) + closure PR #455 (`98ca1ad7`). 161/161 pytest pass; combined dispatch-test coverage 1/19 → 10/19 = 53% (write-time 1/16→8/16; cycle-time 0/3→2/3 = 67%). Closes D-PLAN-5 (was: "PR pending operator").** Baseline at plan authorship (2026-05-13) was 133 methods / 13 files; F14/F15 added the `conftest.py` shared fixtures, 9 new dispatch tests, and 3 new test files. Highlights:
 
 | Gate / Script | Test File | Status |
 |---|---|---|
-| `CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT` | test_gate_coverage.py | **KEYING DRIFT** — v7.8.5 blocker |
-| `STATE_NO_CASE_STUDY_LINK` + 3 others | test_check_state_schema.py | Missing `test_main_dispatch_*` (F14) |
-| `PHASE_TRANSITION_NO_LOG`, `PHASE_TRANSITION_NO_TIMING` | — | **ZERO COVERAGE** — F15 candidate, highest-risk (guards most-frequent state mutation) |
-| `BRANCH_ISOLATION_HISTORICAL`, `BRANCH_ISOLATION_LAUNCHD_DRIFT` | — | **ZERO COVERAGE** — advisory by design, but no regression harness |
-| `PR_CACHE_STALE` (v7.8.4) | — | **ZERO COVERAGE** — F15 candidate |
-| `integrity-check.py` (16 cycle-time codes) | partial via test_gate_coverage.py | Most codes lack dedicated tests |
-| `refresh-pr-cache.py`, `append-feature-log.py`, `ui-audit.py`, `scaffold-figma-mapping.py`, 10+ HADF scripts | — | **ZERO COVERAGE** |
+| `CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT` | test_gate_coverage.py + **`test_check_state_schema.py::test_main_dispatch_*` (NEW F14)** | Keying drift closed at v7.8.5 + dispatch test added F14 |
+| `CU_V2_INVALID`, `STATE_NO_CASE_STUDY_LINK`, `CASE_STUDY_MISSING_FIELDS` | test_check_state_schema.py + **`test_main_dispatch_*` (NEW F14)** | All 4 F14 gates now have dispatch tests |
+| `PHASE_TRANSITION_NO_LOG`, `PHASE_TRANSITION_NO_TIMING` | **`test_check_state_schema.py::test_main_dispatch_*` (NEW F15)** | Was ZERO COVERAGE; now covered |
+| `BRANCH_ISOLATION_HISTORICAL`, `BRANCH_ISOLATION_LAUNCHD_DRIFT` | **`test_integrity_check_dispatch.py` (NEW F15)** | Was ZERO COVERAGE; cycle-time advisory now covered |
+| `PR_CACHE_STALE` (v7.8.4) | **`test_ensure_pr_cache_fresh.py` (NEW F15)** | Was ZERO COVERAGE; now covered via `os.utime`-based age simulation |
+| `integrity-check.py` (16 cycle-time codes) | partial via test_gate_coverage.py + 2 dispatch tests | 2 codes now have dedicated dispatch tests; 14 still lack dedicated tests |
+| `refresh-pr-cache.py`, `append-feature-log.py`, `ui-audit.py`, `scaffold-figma-mapping.py`, 10+ HADF scripts | — | **ZERO COVERAGE** (out of F14/F15 scope) |
 
-**Judgment:** ~30% compliance on documented gates; ~60% on auxiliary scripts. v7.8.5 is the immediate unblocker; F14/F15 are the structural fix.
+**Coverage delta (2026-05-13 → 2026-05-23):**
+
+| Surface | Pre-F14/F15 | Post-F14/F15 | Δ |
+|---|---|---|---|
+| Write-time gates with `test_main_dispatch_*` | 1/16 = 6% | **8/16 = 50%** | +44 pp |
+| Cycle-time advisory gates with `test_main_dispatch_*` | 0/3 = 0% | **2/3 = 67%** | +67 pp |
+| **Combined dispatch-test coverage (19 total)** | **1/19 = 5%** | **10/19 = 53%** | **+48 pp** |
+
+**Judgment (updated 2026-05-23):** Per-gate dispatch test discipline now ≥50% on enforced write-time gates; the structural drift class (PR #317's silent-pass shape) is preventatively closed for the 9 covered gates. Remaining work: 6 enforced write-time gates without dispatch tests (sequential follow-on; see backlog), 1 cycle-time advisory without dispatch test (`FEATURE_CLOSURE_COMPLETENESS` mirror), and the T1 meta-gate (`GATE_TEST_MISSING`) which prevents the NEXT new gate from shipping without its dispatch test. T1 unblocks at F14 Phase E (T+90d = 2026-08-22). v7.8.5 cache_hits keying patch shipped at v7.8.5; no further blocker on framework layer ahead of v7.9.1.
 
 ### 2.2 iOS (Swift) — 549 methods / 56 files
 
@@ -183,8 +191,8 @@ Eleven candidates surfaced. RICE-est uses the same convention as infra plan §3.
 
 | ID | Layer | Item | Pattern | RICE-est | Notes |
 |---|---|---|---|---|---|
-| **T1** | Framework metadata | **Per-gate dispatch test enforcement gate** — extend F14 with a meta-gate `GATE_TEST_MISSING` that fails CI when a new gate function in `scripts/check-state-schema.py` ships without a paired `test_main_dispatch_*` in `scripts/tests/`. Filename-pairing contract from Semgrep. | P7 partial | H (R=10 I=2 C=80% E=0.3w → 53.3) | Closes the drift class that produced the cache_hits keying bug. Depends on F14 being in Phase E. |
-| **T2** | iOS | **Sentry integration test pass** — wire Sentry SDK reachability tests (mirror of `PushNotificationsReachabilityTests` for `crash_free_rate`). Closes the CLAUDE.md silent-pass that Sentry has zero tests + zero prod references. | — | H (R=10 I=3 C=100% E=0.3w → 80.0) | Pre-launch crash gate. High blast radius if Sentry actually disconnected. |
+| **T1** | Framework metadata | **Per-gate dispatch test enforcement gate** — extend F14 with a meta-gate `GATE_TEST_MISSING` that fails CI when a new gate function in `scripts/check-state-schema.py` (or `integrity-check.py` / `check-case-study-preflight.py` / `ensure-pr-cache-fresh.py`) ships without a paired `test_main_dispatch_*` in `scripts/tests/`. Filename-pairing contract from Semgrep. Inventory source: `scripts/tests/conftest.py` 9 violation recipes + the test files added by F14/F15. | P7 partial | H (R=10 I=2 C=80% E=0.3w → 53.3) | Closes the drift class that produced the cache_hits keying bug. F14 shipped 2026-05-22→05-23 → Phase E exit ≈ 2026-08-22 (T+90d). Ticket opened in `docs/product/backlog.md` Framework v7.8.5+v7.9+ track on 2026-05-23. |
+| **T2** ⏸ **DEFERRED to App Store launch** | iOS | **Sentry integration test pass** — wire Sentry SDK reachability tests (mirror of `PushNotificationsReachabilityTests` for `crash_free_rate`). Closes the CLAUDE.md silent-pass that Sentry has zero tests + zero prod references. **Deferred 2026-05-21 alongside the parent Sentry integration pause:** iOS app is pre-launch (TestFlight beta only — not real-user signal per `feedback-ios-app-not-in-production` memory). No value landing a reachability test against an inactive service. Resume trigger = App Store submission. Cadence ledger §C3 closed 2026-05-23 with this deferral. | — | H (R=10 I=3 C=100% E=0.3w → 80.0) | Pre-launch crash gate (post-launch). High blast radius if Sentry actually disconnected. |
 | **T3** | iOS | **SignInService passkey/WebAuthn unit tests** — 8–12 tests covering credential registration, assertion, fallback to email, error states. Closes the highest-risk zero-coverage backend service. | — | H (R=10 I=3 C=100% E=0.5w → 48.0) | Mirrors `AuthManagerTests` scope. |
 | **T4** | iOS | **Swift snapshot testing on v2 views** — add `pointfreeco/swift-snapshot-testing` SPM dep; baseline 6 v2 screens (Home/Stats/Settings/Nutrition/Training/Readiness) + 4 auth views; snapshot diff as PR gate. Covers ~130-file View layer drift. | P2 | M (R=8 I=3 C=60% E=0.5w → 28.8 initial; grows per-feature) | Replaces deferred XCUITest expansion. Single-shot deterministic — no parallel-clone hang. |
 | **T5** | iOS | **Mock-protocol drift detection** — wrap `MockKeychainStorage`, `MockSupabaseClient`, `StubAIEngineClient`, `CountingAIEngineClient` in a shared `MockValidation.swift` that fails build if protocol surface drifts beyond mock conformance. Lightweight. | — | M (R=6 I=2 C=100% E=0.3w → 40.0) | Closes the "Last audit touch: 2026-04-18" concern. |

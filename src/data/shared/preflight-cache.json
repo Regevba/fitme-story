@@ -1,12 +1,18 @@
 {
-  "work_type": "enhancement",
-  "feature": "ucc-passkey-auth-security-hardening",
-  "generated_at": "2026-05-19T19:59:50Z",
+  "work_type": "feature",
+  "feature": "framework-f14-f15-dispatch-test-coverage",
+  "generated_at": "2026-05-22T19:08:32Z",
   "checks": [
     {
       "name": "W1_ssh_agent",
       "status": "ok",
       "detail": "ssh-add has loaded identities",
+      "blocking": false
+    },
+    {
+      "name": "ssd_health",
+      "status": "ok",
+      "detail": "OK \u2014 re-run `bash scripts/check-ssd-health.sh` for full output",
       "blocking": false
     },
     {
@@ -17,47 +23,41 @@
     },
     {
       "name": "branch_isolation",
-      "status": "ok",
-      "detail": "current branch: feat/ucc-passkey-security-hardening",
-      "current_branch": "feat/ucc-passkey-security-hardening",
+      "status": "warning",
+      "detail": "current branch: main (on main \u2014 infra commits will trigger BRANCH_ISOLATION_VIOLATION advisory)",
+      "current_branch": "main",
       "blocking": false
     },
     {
       "name": "integrity_check",
-      "status": "ok",
-      "detail": "0 findings + 1 advisory",
-      "findings_count": 0,
-      "advisory_count": 1,
+      "status": "blocking",
+      "detail": "-1 findings + -1 advisory",
+      "findings_count": -1,
+      "advisory_count": -1,
       "blocking": false
     },
     {
       "name": "integrity_diff",
       "status": "warning",
-      "detail": "4 regression(s) vs 2026-05-14 anchor",
+      "detail": "3 regression(s) vs 2026-05-14 anchor",
       "regressions": [
         {
           "key": "adoption_pct_post_v6",
           "baseline": 8.3,
-          "current": 7.7,
-          "delta": -0.6
+          "current": 7.3,
+          "delta": -1.0
         },
         {
           "key": "timing_wall_time_pct_post_v6",
           "baseline": 47.2,
-          "current": 43.6,
-          "delta": -3.6
-        },
-        {
-          "key": "per_phase_timing_pct_post_v6",
-          "baseline": 80.6,
-          "current": 79.5,
-          "delta": -1.1
+          "current": 41.5,
+          "delta": -5.7
         },
         {
           "key": "cache_hits_pct_post_v6",
           "baseline": 52.8,
-          "current": 48.7,
-          "delta": -4.1
+          "current": 48.8,
+          "delta": -4.0
         }
       ],
       "blocking": false
@@ -72,26 +72,24 @@
     {
       "name": "measurement_adoption",
       "status": "info",
-      "detail": "post-v6 adoption: 7.7% (3/39) \u2014 baseline for any new shipped feature",
+      "detail": "post-v6 adoption: 7.3% (3/41) \u2014 baseline for any new shipped feature",
       "fully_adopted_post_v6": 3,
-      "features_post_v6": 39,
-      "adoption_pct_post_v6": 7.7,
+      "features_post_v6": 41,
+      "adoption_pct_post_v6": 7.3,
       "blocking": false
     },
     {
-      "name": "enhancement_parent",
-      "status": "warning",
-      "detail": "parent='ucc-passkey-auth-security-hardening' phase=tasks, prd.md present=True",
-      "blocking": true
+      "name": "feature_state_json",
+      "status": "info",
+      "detail": "feature 'framework-f14-f15-dispatch-test-coverage' has no state.json yet (Phase 0 will create it)",
+      "blocking": false
     }
   ],
   "summary": {
-    "total_checks": 8,
-    "blocking": 1,
+    "total_checks": 9,
+    "blocking": 0,
     "warnings": 2,
-    "ok": 4
+    "ok": 3
   },
-  "blocking_issues": [
-    "enhancement_parent"
-  ]
+  "blocking_issues": []
 }

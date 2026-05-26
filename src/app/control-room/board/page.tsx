@@ -26,7 +26,7 @@
  */
 
 import type { Metadata } from 'next';
-import featuresData from '@/data/control-room-seeds/features.json';
+import { loadFeaturesGrouped } from '@/lib/control-room/load-features-from-state';
 import { TrackPageView } from '@/components/control-room/TrackPageView';
 import { TrackedExternalLink } from '@/components/control-room/TrackedExternalLink';
 
@@ -46,22 +46,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-interface FeatureSeed {
-  name: string;
-  slug: string;
-  phase: string | null;
-  priority: string | null;
-  rice: number | null;
-  category: string | null;
-  shipped: string | null;
-  prd: string | null;
-}
-
-interface FeaturesSeedFile {
-  shipped: FeatureSeed[];
-  planned: FeatureSeed[];
-  backlog: FeatureSeed[];
-}
+import type { FeatureSeed, GroupedFeatures } from '@/lib/control-room/load-features-from-state';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Column definitions (verbatim from dashboard/src/components/KanbanBoard.jsx)
@@ -88,9 +73,19 @@ function bucketByColumn(features: FeatureSeed[], columnId: string): FeatureSeed[
   return features.filter((f) => {
     const phase = f.phase ?? 'backlog';
     if (columnId === 'backlog') return phase === 'backlog';
-    if (columnId === 'ux') return phase === 'ux' || phase === 'integration' || phase === 'tasks';
+    if (columnId === 'ux')
+      // state.json uses 'ux_or_integration'; legacy seed used 'ux' or 'integration'.
+      // 'tasks' belongs here per dashboard/KanbanBoard.jsx convention.
+      return phase === 'ux' || phase === 'integration' || phase === 'ux_or_integration' || phase === 'tasks';
     if (columnId === 'done')
-      return phase === 'done' || phase === 'docs' || phase === 'merge' || phase === 'complete';
+      // state.json uses 'documentation' before 'complete'; legacy used 'docs'.
+      return (
+        phase === 'done' ||
+        phase === 'docs' ||
+        phase === 'documentation' ||
+        phase === 'merge' ||
+        phase === 'complete'
+      );
     if (columnId === 'implement') return phase === 'implement' || phase === 'implementation';
     return phase === columnId;
   });
@@ -191,11 +186,11 @@ function Column({ column, features }: { column: ColumnDef; features: FeatureSeed
 // ────────────────────────────────────────────────────────────────────────────
 
 export default function ControlRoomBoardPage() {
-  const seed = featuresData as unknown as FeaturesSeedFile;
+  const grouped: GroupedFeatures = loadFeaturesGrouped();
   const allFeatures: FeatureSeed[] = [
-    ...(seed.shipped ?? []),
-    ...(seed.planned ?? []),
-    ...(seed.backlog ?? []),
+    ...grouped.shipped,
+    ...grouped.planned,
+    ...grouped.backlog,
   ];
 
   const columns = COLUMNS.map((col) => ({
@@ -213,8 +208,11 @@ export default function ControlRoomBoardPage() {
           Board
         </h2>
         <p className="mt-2 max-w-2xl font-sans text-sm leading-6 text-slate-600 dark:text-white/65">
-          Every feature, bucketed by current phase. Counts reflect the seed snapshot built at deploy
-          time; live drag-to-update lands in a follow-up PR.
+          Every feature, bucketed by current phase. Sourced live from{' '}
+          <code className="rounded bg-[var(--color-neutral-100)] px-1 dark:bg-white/[0.06]">
+            src/data/features/*.json
+          </code>{' '}
+          (synced from FT2 <code className="rounded bg-[var(--color-neutral-100)] px-1 dark:bg-white/[0.06]">.claude/features/*/state.json</code> at prebuild time). Drag-to-update lands in a follow-up PR.
         </p>
       </header>
 
