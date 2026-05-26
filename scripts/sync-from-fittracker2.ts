@@ -29,6 +29,7 @@ import {
   statSync,
 } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
 const FITME_STORY_ROOT = resolve(SCRIPT_DIR, '..');
@@ -293,6 +294,62 @@ function walkDir(dir: string): string[] {
   });
 }
 
+/**
+ * Phase F (2026-05-26): invoke FT2's `scripts/membrane-status.py --format=json`
+ * at prebuild time and emit the parsed result to `<localShared>/membrane-status.json`.
+ *
+ * Required by the Framework Health dashboard's `MembraneStatusPanel`. Without this,
+ * the panel falls back to "Membrane status unavailable" on Vercel because the
+ * serverless runtime doesn't have Python, the FT2 repo, or filesystem access to
+ * execFile the script at request time.
+ *
+ * Soft-fail strategy: if the script is missing OR Python is missing OR the script
+ * errors OR the output isn't valid JSON, write an empty placeholder so the loader
+ * + panel can render a graceful empty state.
+ */
+function syncMembraneStatus(
+  ft2Root: string,
+  localShared: string,
+): { wrote: boolean; bytes: number; checked: string[]; error?: string } {
+  const checked: string[] = [];
+  const script = join(ft2Root, 'scripts', 'membrane-status.py');
+  const dst = join(localShared, 'membrane-status.json');
+
+  if (!existsSync(script)) {
+    // Script not on disk (fresh repo, or v7.8 not yet merged). Leave any
+    // prior synced file in place; reporter records skip reason.
+    return { wrote: false, bytes: 0, checked, error: 'script_missing' };
+  }
+
+  try {
+    const stdout = execFileSync('python3', [script, '--format=json'], {
+      cwd: ft2Root,
+      timeout: 15_000,
+      maxBuffer: 10 * 1024 * 1024,
+      encoding: 'utf8',
+      // Inherit stderr so prebuild logs surface any Python errors; stdout
+      // is the JSON we capture.
+      stdio: ['ignore', 'pipe', 'inherit'],
+    });
+    // Defensive parse — if the script crashed mid-output or wrote non-JSON,
+    // we'd rather write nothing than corrupt the panel's loader.
+    const parsed = JSON.parse(stdout) as Record<string, unknown>;
+    if (
+      typeof parsed.feature_count !== 'number' ||
+      !Array.isArray(parsed.features)
+    ) {
+      return { wrote: false, bytes: 0, checked, error: 'invalid_shape' };
+    }
+    const out = JSON.stringify(parsed, null, 2) + '\n';
+    writeFileSync(dst, out, 'utf8');
+    checked.push('shared/membrane-status.json');
+    return { wrote: true, bytes: Buffer.byteLength(out, 'utf8'), checked };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { wrote: false, bytes: 0, checked, error: `exec_failed: ${msg}` };
+  }
+}
+
 async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<FreshnessReport> {
   const startedAt = Date.now();
   const {
@@ -500,6 +557,21 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
   const skillsSync = syncSkillsManifest(ft2Skills, localSkills);
   bytesTotal += skillsSync.bytes;
   checked.push(...skillsSync.checked);
+
+  // Phase F (2026-05-26): invoke FT2's scripts/membrane-status.py and emit
+  // src/data/shared/membrane-status.json so the MembraneStatusPanel can
+  // render from a static JSON file rather than execFile-ing Python at
+  // request time (which doesn't work in Vercel's serverless runtime).
+  // Soft-fail: missing script / missing python / invalid shape just skips.
+  const membraneSync = syncMembraneStatus(ft2Root, localShared);
+  bytesTotal += membraneSync.bytes;
+  checked.push(...membraneSync.checked);
+  if (membraneSync.error) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[sync] membrane-status emission skipped: ${membraneSync.error}`,
+    );
+  }
 
   const sharedFiles = checked.filter((c) => c.startsWith('shared/')).length;
   const featureFiles = checked.filter((c) => c.startsWith('features/')).length;

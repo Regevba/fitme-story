@@ -1,16 +1,16 @@
 {
-  "syncedAt": "2026-05-26T16:35:51.626Z",
-  "durationMs": 412,
+  "syncedAt": "2026-05-26T16:51:04.545Z",
+  "durationMs": 578,
   "source": "/Volumes/DevSSD/FitTracker2",
   "counts": {
-    "sharedFiles": 46,
+    "sharedFiles": 47,
     "featureFiles": 79,
     "logFiles": 47,
     "docFiles": 4,
     "kbFiles": 407,
     "integritySnapshotFiles": 9,
     "skillFiles": 12,
-    "bytesTotal": 17874471
+    "bytesTotal": 17897441
   },
   "checkedFiles": [
     "shared/agent-leases.json",
@@ -617,6 +617,7 @@
     "skills/release/SKILL.md",
     "skills/research/SKILL.md",
     "skills/ux/SKILL.md",
-    "skills/manifest.json"
+    "skills/manifest.json",
+    "shared/membrane-status.json"
   ]
 }
