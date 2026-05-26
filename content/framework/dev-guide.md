@@ -11,7 +11,7 @@
 
 ## Table of Contents
 
-- [§0. TL;DR — 90-second tour](#0-tldr--90-second-tour)
+- [§0. Overview — 90-second tour](#0-overview--90-second-tour)
 - [§1. Audience and how to read](#1-audience-and-how-to-read)
 - [§1.5 Glossary](#15-glossary)
 - [§2. Big picture (current state — v7.9, Phase E soak)](#2-big-picture-current-state--v79-phase-e-soak)
@@ -32,7 +32,7 @@
 
 ---
 
-## 0. TL;DR — 90-second tour
+## 0. Overview — 90-second tour
 
 **What this framework does.** Every feature passes through a 9-phase lifecycle (Research → PRD → Tasks → UX → Implement → Test → Review → Merge → Docs) and is gated by automated checks at four cadences. Drift between code and documentation is caught fast.
 
