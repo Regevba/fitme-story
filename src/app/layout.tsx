@@ -39,7 +39,14 @@ export const metadata: Metadata = {
   },
 };
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+// 2026-05-27 fix: `.trim()` defends against trailing whitespace in the env
+// var value. The deployed env had `G-XE4E1JGWRZ\n` (with embedded
+// newline), which Next.js Script-component-injected into the gtag/js URL
+// as `?id=G-XE4E1JGWRZ%0A`. Google rejected every event silently → GA4
+// Realtime + Reports showed 0 web sessions for ~6 days despite iOS app
+// events flowing fine into the same property. Discovered 2026-05-27
+// during DISCO Phase 1 P1.5 operator-verification check.
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID?.trim();
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
