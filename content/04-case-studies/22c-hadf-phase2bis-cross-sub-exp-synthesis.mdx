@@ -1,0 +1,125 @@
+---
+title: 'HADF Phase 2-bis — Cross-Sub-Exp Synthesis (3 Sub-Experiments)'
+slug: hadf-phase2bis-cross-sub-exp-synthesis
+upstream_path: docs/case-studies/hadf-phase2bis-cross-sub-exp-synthesis-case-study.md
+tier: light
+tldr: >-
+  Successor to HADF Phase 2 (slot 22b). Three pre-registered sub-experiments
+  test orthogonal aspects of the HADF dispatch claim: Sub-exp 1 (cloud
+  generalization, silhouette ≥ 0.5), Sub-exp 2 (cloud-vs-local separability,
+  KS p < 0.01), Sub-exp 3 (Bedrock vs Anthropic-direct same-model routing,
+  signature delta > 2.0). Sub-exp 3 is the falsification test for the central
+  HADF claim. Skeleton authored 2026-05-27 as Block C pre-work; verdicts
+  populate as each sub-exp closes (Sub-exp 1 ~2026-05-28, Sub-exp 2 ~2026-05-31,
+  Sub-exp 3 ~2026-06-04). Synthesis verdict combines all three into a
+  confirmed / partially-supported / refuted disposition for the HADF dispatch
+  premise. **Status: DRAFT — verdicts pending.**
+timeline_position:
+  version: '7.8.3'
+  order: 22.7
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: measurement
+  academic: measurement
+date: '2026-05-27'
+date_written: '2026-05-27'
+external_audit_status: pending
+key_numbers:
+  - label: 'Sub-experiments'
+    value: '3'
+    tier: T1
+  - label: 'Total nominal records target'
+    value: '9,750 (Sub-exp 1: 6,750 + Sub-exp 2: 750 + Sub-exp 3: 2,250)'
+    tier: T1
+  - label: 'Total expected valid records'
+    value: '~5,600'
+    tier: T2
+  - label: 'Total cost (expected)'
+    value: '~$5 / $20 ceiling'
+    tier: T2
+  - label: 'Wall-clock duration (expected)'
+    value: '~15 days (9 collection + 6 buffer)'
+    tier: T2
+  - label: 'Sub-exp 1 launch'
+    value: '2026-05-25 (LIVE; 1,800+ records at 2026-05-27)'
+    tier: T1
+  - label: 'Sub-exp 1 narrowing decision'
+    value: '9 endpoints → 4 endpoints (1A); 1B follow-up queued for full matrix'
+    tier: T1
+  - label: 'Predecessor: Phase 2 silhouette (k=5)'
+    value: '0.5566 over n=700'
+    tier: T1
+  - label: 'Sub-exp 3 falsification floor (suggested)'
+    value: 'delta_ratio < 1.0 → HADF dispatch premise REFUTED'
+    tier: T2
+honest_disclosures:
+  - 'Skeleton authored 2026-05-27 (Phase E Day 6) as Block C task C16 pre-work; verdict cells populate as each sub-exp closes. The skeleton exists to ensure the synthesis is mechanical-not-creative at closure — every analytical section is pre-structured before data lands, eliminating after-the-fact narrative drift.'
+  - 'Sub-exp 1 launched 2026-05-25 with a narrowed 4-endpoint matrix (openai gpt-4o-mini + gpt-4o + anthropic claude-haiku-4-5 + claude-sonnet-4-6) instead of the originally-specified 9 endpoints. Operator decision 2026-05-25 per smoke-fire findings (Gemini reasoning-model TTFT distortion; placeholder API keys not minted for Vercel AI Gateway + Mistral + xAI). Sub-exp 1B queued for full 9-endpoint follow-up after key acquisition + reasoning-model investigation.'
+  - 'Sub-exp 2 and Sub-exp 3 prereg `verdict_thresholds` carry suggested values (KS p < 0.01 / delta_ratio > 2.0) — operator finalizes at each go/no-go ceremony. The TBD fields in §3.B and §3.C of this case study mirror those pending decisions.'
+  - 'Sub-exp 3 is structurally different from Sub-exps 1+2: it is a FALSIFICATION test for the central HADF dispatch claim. Same model id (anthropic.claude-haiku-4-5) served by Anthropic-direct + AWS Bedrock; if signatures differ enough to clear within-provider noise floor → HADF dispatch premise holds; if indistinguishable → HADF refuted on this metric. The verdict_thresholds.fail_if_signature_delta_ratio_lt is the pre-registered binary against which the central HADF claim stands or falls.'
+  - 'External Audit #2 is scheduled 2026-06-12 and covers raw .jsonl data integrity + verdict scripts + this case study + anchor-drift check output. No independent reassessment has occurred yet.'
+kill_criteria:
+  - 'Any sub-exp tripped per-sub-exp kill criteria (n_valid floor, rate-limit cascade, mid-collection protocol change, wrapper preflight failures) — see per-sub-exp prereg JSONs'
+  - 'Sub-exp 3 anchor drift > 2σ from Sub-exp 1 — invalidates routing-test comparison (halt + investigate before drawing routing conclusions)'
+  - 'Sub-exp 3 signature_delta_ratio < 1.0 — HADF dispatch premise REFUTED on this metric (operator decides claim revision)'
+kill_criterion_fired: false
+status: draft
+deferred_items:
+  - title: 'Sub-exp 1 verdict-script run + case study'
+    ledger: 'gated on 3-day collection window close ~2026-05-28'
+    reason: 'Block B task B13.5 — verdict-script run executes silhouette + cluster count + threshold check'
+  - title: 'Sub-exp 2 launch + verdict'
+    ledger: 'gated on Sub-exp 1 verdict = PASS'
+    reason: 'Block B task B14 — Ollama local fingerprinting; prereg fill-in ready at #506'
+  - title: 'Sub-exp 3 launch + verdict'
+    ledger: 'gated on Sub-exp 2 verdict = PASS'
+    reason: 'Block B task B15 — Bedrock vs Anthropic-direct routing test; prereg fill-in ready at #507'
+  - title: 'Cross-sub-exp synthesis (this case study) finalization'
+    ledger: 'gated on Sub-exp 3 closure ~2026-06-04'
+    reason: 'Block C — populates §3.A, §3.B, §3.C verdicts + §4 anchor-drift + §5 overall HADF claim status'
+  - title: 'External Audit #2'
+    ledger: 'scheduled 2026-06-12 per audit substrate'
+    reason: 'Independent operator reviews raw .jsonl + verdict scripts + this case study'
+spec: docs/superpowers/specs/2026-05-11-hadf-phase2bis-replication-design.md
+plan: docs/superpowers/plans/2026-05-12-hadf-phase2bis-replication.md
+predecessor_case_studies:
+  - 22b-hadf-phase2-cloud-fingerprinting
+related_prs: [506, 507]
+---
+
+## TLDR
+
+Successor to [HADF Phase 2](./22b-hadf-phase2-cloud-fingerprinting) (cloud fingerprinting measurement, silhouette 0.5566 at k=5 over n=700, shipped 2026-05-01). Phase 2-bis tests three orthogonal aspects of the HADF dispatch claim via independent pre-registered sub-experiments:
+
+1. **Sub-exp 1 — Cloud generalization:** Does the Phase 2 single-endpoint signature reproduce across multiple cloud providers? (silhouette ≥ 0.5 with cluster count ≥ 3 across 9 endpoints, narrowed to 4 at smoke-fire)
+2. **Sub-exp 2 — Cloud-vs-local separability:** Can we distinguish Ollama-on-M2 from cloud endpoints by signature alone? (KS-distinguishability p < 0.01)
+3. **Sub-exp 3 — Same-model routing (FALSIFICATION TEST):** Does AWS Bedrock haiku-4-5 fingerprint differently from Anthropic-direct haiku-4-5? (signature_delta_ratio > 2.0; the central HADF dispatch claim stands or falls here)
+
+**Each sub-exp ships an independent verdict.** Sub-exp 2 launches only if Sub-exp 1 passes; Sub-exp 3 only if Sub-exp 2 passes. The synthesis (this case study) combines all three verdicts into a confirmed / partially-supported / refuted disposition.
+
+## Status
+
+**DRAFT.** This case study is a Block C pre-work skeleton authored 2026-05-27 (Phase E Day 6) before sub-exp data is collected. Verdict cells populate as each sub-exp closes. Anchor-drift analysis (§4) populates after Sub-exp 3 closure. Overall HADF claim status (§5) populates after all three sub-exp verdicts + anchor-drift are in (~2026-06-04).
+
+The skeleton exists to **prevent after-the-fact narrative drift** — every analytical section is structured pre-data so the operator's role at synthesis time is mechanical fill-in, not creative reframing.
+
+## Reference
+
+- Source case study (FT2 upstream): [`docs/case-studies/hadf-phase2bis-cross-sub-exp-synthesis-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/hadf-phase2bis-cross-sub-exp-synthesis-case-study.md)
+- Spec: [`docs/superpowers/specs/2026-05-11-hadf-phase2bis-replication-design.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/specs/2026-05-11-hadf-phase2bis-replication-design.md)
+- Predecessor: [HADF Phase 2 case study](./22b-hadf-phase2-cloud-fingerprinting)
+- Per-sub-exp preregs: [Sub-exp 1](https://github.com/Regevba/FitTracker2/blob/main/.claude/shared/hadf/preregistration-phase2bis-subexp1.json) (LOCKED) / [Sub-exp 2](https://github.com/Regevba/FitTracker2/blob/main/.claude/shared/hadf/preregistration-phase2bis-subexp2.json) (DRAFT pending B14 ceremony) / [Sub-exp 3](https://github.com/Regevba/FitTracker2/blob/main/.claude/shared/hadf/preregistration-phase2bis-subexp3.json) (DRAFT pending B15 ceremony)
+- External Audit #2 substrate target: 2026-06-12
+
+## Verdict logic preview (populated at synthesis time)
+
+| Sub-exp 1 | Sub-exp 2 | Sub-exp 3 | Synthesis disposition |
+|---|---|---|---|
+| PASS | PASS | PASS (delta > 2.0) | HADF dispatch claim **CONFIRMED** |
+| PASS | PASS | INCONCLUSIVE (1.0 ≤ delta ≤ 2.0) | HADF dispatch claim **PARTIALLY SUPPORTED** |
+| PASS | PASS | REFUTED (delta < 1.0) | HADF dispatch claim **REFUTED on routing axis** |
+| PASS | FAIL | n/a | HADF dispatch claim **PARTIALLY SUPPORTED** (cloud generalization only) |
+| FAIL | n/a | n/a | HADF dispatch claim **CANNOT be confirmed by this measurement** |
+
+Observed combination: TBD.
