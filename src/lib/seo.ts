@@ -35,7 +35,11 @@ export interface BuildMetadataParams {
   slug?: string;
   /** og:type. 'article' for case studies + dev-guide; 'website' for everything else. */
   type?: 'website' | 'article';
-  /** Override the default `/og.png` fallback. Pass a fully-qualified URL. */
+  /** Override the default `/opengraph-image` (Next.js auto-generated
+   * 1200×630 PNG from `src/app/opengraph-image.tsx`) fallback. Pass a
+   * fully-qualified URL. 2026-05-27 fix: previous default was `/og.png`
+   * which 404s — the Next.js Metadata API auto-emits the OG image at
+   * `/opengraph-image`, not at `/og.png`. */
   image?: string;
   /** ISO 8601. Only honored when type='article'. */
   publishedAt?: string;
@@ -54,7 +58,7 @@ export function buildMetadata({
 }: BuildMetadataParams): Metadata {
   const path = slug.startsWith('/') ? slug : slug ? `/${slug}` : '';
   const url = path ? `${SITE_BASE}${path}` : SITE_BASE;
-  const ogImage = image ?? `${SITE_BASE}/og.png`;
+  const ogImage = image ?? `${SITE_BASE}/opengraph-image`;
   // Append site name unless caller already included it (avoids "X — fitme-story — fitme-story")
   const fullTitle = title.includes(SITE_NAME) ? title : `${title} — ${SITE_NAME}`;
 
@@ -108,7 +112,7 @@ export function blogPostingJsonLd({
 }: BlogPostingJsonLdParams) {
   const path = slug.startsWith('/') ? slug : `/${slug}`;
   const url = `${SITE_BASE}${path}`;
-  const ogImage = image ?? `${SITE_BASE}/og.png`;
+  const ogImage = image ?? `${SITE_BASE}/opengraph-image`;
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -120,7 +124,7 @@ export function blogPostingJsonLd({
     publisher: {
       '@type': 'Organization',
       name: SITE_NAME,
-      logo: { '@type': 'ImageObject', url: `${SITE_BASE}/og.png` },
+      logo: { '@type': 'ImageObject', url: `${SITE_BASE}/opengraph-image` },
     },
     ...(publishedAt ? { datePublished: publishedAt } : {}),
     ...(updatedAt ? { dateModified: updatedAt } : {}),
