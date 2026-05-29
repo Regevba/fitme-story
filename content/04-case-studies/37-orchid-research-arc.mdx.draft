@@ -1,0 +1,295 @@
+---
+# ============================================================================
+# STAGED / DORMANT DRAFT — NOT FOR PUBLISH.
+# This file ends in `.mdx.draft`, so the fitme-story content loader
+# (src/lib/content.ts: name.endsWith('.mdx')) NEVER reads it: no route, no
+# build parse, cannot be reached by URL. Publish-day flip is a single step:
+#   git mv 37-orchid-research-arc.mdx.draft 37-orchid-research-arc.mdx
+#   + set `date:` + replace the <!-- FILL ON ... --> markers with the selected
+#   both-outcomes branch.  See the publication-readiness plan.
+# Frontmatter shape resolved 2026-05-30 against src/lib/content-schema.ts +
+# 22c-...mdx: timeline_position is NESTED ({version, order:number}); the gate
+# needs visual_aid OR non-empty key_numbers, plus tldr.
+# ============================================================================
+title: 'Orchid — From Dispatch Patterns to Silicon, Validated by Measurement'
+slug: orchid-research-arc
+upstream_path: docs/research/2026-05-29-hadf-activation-orchid-validation-analysis.md
+tier: standard
+tldr: >-
+  The capstone of the Orchid research arc: how a fitness app's PM-framework
+  dispatch intelligence became a RISC-V accelerator design (Orchid v1 → v1.5),
+  how the v7.x software defenses mapped to silicon units, and how the HADF
+  measurement program supplied the empirical evidence that validates those unit
+  decisions. Honest disposition at authorship: the central dispatch claim is
+  PARTIALLY SUPPORTED — cloud generalization confirmed (silhouette 0.5566 →
+  0.7003), device-local and routing-layer axes PENDING on HADF Sub-exps 2 & 3.
+  Sub-exp 3 is a falsification test that can refute a v2 design dimension.
+timeline_position:
+  version: '7.9'
+  order: 37
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+  academic: measurement
+# date: SET ON PUBLISH DAY (omitted while dormant — no publication date yet)
+date_written: '2026-05-30'
+status: draft
+external_audit_status: pending
+spec: docs/superpowers/specs/2026-05-30-orchid-research-capstone-design.md
+plan: docs/superpowers/plans/2026-05-30-orchid-research-capstone-publication-readiness.md
+predecessor_case_studies:
+  - 12-hadf
+  - 22b-hadf-phase2-cloud-fingerprinting
+  - 22c-hadf-phase2bis-cross-sub-exp-synthesis
+key_numbers:
+  - label: 'Orchid v1 behavioral runs'
+    value: '25,305 (0 invariant violations)'
+    tier: T1
+  - label: 'Functional units modeled (v1 / v1.5)'
+    value: '7 (U1–U7) / +4 (U8, U9, tier-propagation, U3-PMU)'
+    tier: T1
+  - label: 'HADF Phase 2 silhouette (k=5, n=700)'
+    value: '0.5566'
+    tier: T1
+  - label: 'HADF Phase 2-bis Sub-exp 1 silhouette (k=5, n=2,600)'
+    value: '0.7003 (+25.8% vs Phase 2; 4 endpoints / 2 providers)'
+    tier: T1
+  - label: 'Sub-exp 1 cost (actual)'
+    value: '$0.324 over 2,600 valid records (92.86% valid rate)'
+    tier: T1
+  - label: 'Central dispatch claim disposition (at authorship)'
+    value: 'PARTIALLY SUPPORTED — cloud generalization only'
+    tier: T3
+  # FILL ON SUB-EXP 2: add device-local KS p-value verdict row [T1]
+  # FILL ON SUB-EXP 3: add routing-layer delta_ratio verdict row [T1]
+honest_disclosures:
+  - 'Disposition at authorship is PARTIALLY SUPPORTED — cloud generalization only. Only HADF Phase 2-bis Sub-exp 1 has closed (PASS). Sub-exp 2 (cloud-vs-local separability) and Sub-exp 3 (routing-layer falsification) are PENDING, and the Phase 2-bis synthesis verdict is PENDING. No claim here should be read as closing them.'
+  - 'The strongest interpretive claims are T3 narrative over T1 data, scoped to the 4-endpoint matrix. The full 9-endpoint matrix (Sub-exp 1B) is queued pending API-key acquisition + reasoning-model handling.'
+  - 'Sub-exp 3 is a FALSIFICATION test: a pre-registered delta_ratio < 1.0 REFUTES the HADF dispatch premise on the routing axis and would contraindicate building the corresponding Orchid v2 units (U2 routing-class field, U6 multi-layer coherence).'
+  - 'Orchid is a research vehicle, not a product. Layer B (Chisel RTL, Track R) is BLOCKED on toolchain install; Track D D3 (26K-run DSE sweep) is deferred. The behavioral / DSE / mapping evidence is the only forward motion available, by design (Option B additive plan).'
+  - 'External Audit #2 (2026-06-12) covers the raw HADF .jsonl integrity + verdict scripts + anchor-drift before any v7.9.1 ship. No independent reassessment of Sub-exp 1 has occurred yet.'
+kill_criteria:
+  - 'Orchid v1.5: U8 patrol cost > 5% of the dispatch path (per v1.5 spec).'
+  - 'Orchid v1.5: U9 arbiter starvation observed across the DSE sweep.'
+  - 'Orchid v1.5: tier propagation widens the TileLink critical path > 2 cycles.'
+  - 'HADF Sub-exp 3: signature delta_ratio < 1.0 — HADF dispatch premise REFUTED on the routing axis (operator decides claim + v2-unit revision).'
+kill_criterion_fired: false
+deferred_items:
+  - title: 'HADF Sub-exp 2 verdict (device-local separability)'
+    ledger: 'launch ~2026-05-30; KS p < 0.01 threshold; fills §5 / §6 device rows'
+    reason: 'Activating the on-device branch ahead of this verdict would be activation ahead of evidence.'
+  - title: 'HADF Sub-exp 3 verdict (routing-layer falsification)'
+    ledger: 'launch ~2026-05-31; delta_ratio > 2.0 confirms / < 1.0 REFUTES'
+    reason: 'Can refute a v2 design dimension; both-outcomes branches pre-written.'
+  - title: 'Phase 2-bis synthesis verdict + Orchid v2 change matrix'
+    ledger: 'gated on Sub-exp 3 closure ~2026-06-04'
+    reason: 'Synthesis replaces the PARTIALLY-SUPPORTED disposition with the final result and recomputes the activation posture.'
+  - title: 'Orchid Track R (Layer B Chisel RTL Phases 6-9)'
+    ledger: 'blocked on Orchid v1 Phase 5 SoC integration + Chisel toolchain install'
+    reason: 'Out of scope; the behavioral/empirical case stands on its own per Option B.'
+---
+
+## TLDR
+
+This is the capstone of the **Orchid** research arc. Orchid (Orchestration
+Intelligence Device) asks a strange question seriously: if a PM framework's
+dispatch intelligence — which model, which skill, which batch, for which task —
+is a real optimization problem, what would it look like *as silicon*? The arc
+runs from a behavioral proof (Orchid v1, [25,305 runs](./12-hadf)) through an
+additive, ABI-stable hardware spec (Orchid v1.5), through a mapping of the
+framework's v7.x software defenses onto silicon units, and finally to the
+**HADF** measurement program, which supplies the empirical evidence those unit
+decisions need.
+
+The honest disposition at authorship: the central dispatch claim is
+**PARTIALLY SUPPORTED — cloud generalization only.** The cloud-provider
+fingerprint *strengthened* under endpoint diversity (silhouette
+**0.5566 → 0.7003**), but the device-local and routing-layer axes are PENDING on
+two unfinished HADF sub-experiments — one of which can *refute* a v2 design
+dimension.
+
+## 1 — Thesis: orchestration as a silicon problem
+
+Most of this site is about a fitness app and the PM framework that builds it.
+Orchid is the framework looking in a mirror. Every dispatch decision the
+framework makes — route to Opus or Sonnet, hit cache or recompute, batch or run
+serial, trust a hardware hint or ignore it — is a scheduling-and-routing problem,
+the same *kind* of problem a CPU's front-end solves in hardware.
+
+**Orchid IS:** a RISC-V research accelerator; a cloud-emulated, open,
+parameterizable design vehicle; a way to pressure-test the framework's own
+patterns by forcing them through the discipline of an instruction-set
+architecture.
+
+**Orchid IS NOT:** a product, a chip we are taping out, or a claim that FitMe
+needs custom silicon. It is a research instrument whose value is the rigor it
+imposes on the framework's self-model.
+
+## 2 — v1: the behavioral proof [T1]
+
+Orchid v1 modeled seven functional units (U1 Dispatch Scorer, U2 Skill Router,
+U3 Cache Controller, U4 Batch Scheduler, U5 Speculative Prefetcher, U6 Coherence
+Unit, U7 Systolic Array) as Python behavioral models — Layer A in a
+Layer A → B (RTL) → C (SoC) progression. The point of Layer A is to find out
+whether the design space even has structure before paying for RTL.
+
+It does. Across **25,305 benchmark runs** [T1] there were **0 invariant
+violations** [T1]. The design-space exploration surfaced real, actionable
+structure: `prefetch_ahead` was the dominant variance lever, and a cache below
+~10 entries fell off a thrashing cliff. Mesh dimensions showed no effect on the
+synthetic traces — a null result worth knowing before sizing the systolic array.
+This is the empirical floor the rest of the arc builds on.
+
+## 3 — v1.5: additive units, ABI-stable [T1/T2]
+
+Orchid v1.5 chose **Option B** — land new capability *additively* without
+disturbing the v1 U1–U7 CSR allocation — over a v2.0 rewrite. Four primitives:
+
+- **U8 Patrol Scrubber** — periodic self-audit that detects and *raises* rather
+  than masks; the silicon analogue of the framework's 72h integrity cycle.
+- **U9 Validation Bus** — a mandatory trap channel plus an advisory counter
+  channel; the silicon analogue of pre-registered pass/fail (mandatory) vs.
+  interpretive narrative (advisory).
+- **Tier propagation** — T1/T2/T3 data tiers carried as 2-bit `user[1:0]` on
+  TileLink, with `user[7:2]` reserved for v2.0 (a reserve-don't-spend ABI bet).
+- **U3 PMU exposure** — read-only counters (cache hits/misses/evictions) so the
+  dispatch layer can observe what the cache controller actually did.
+
+Tracks **L** (Layer A behavioral models) and **D** (tier-aware DSE end-to-end)
+shipped (PRs #179, #180, #182, #183, #184). Honestly pending: **Track R** (Layer
+B Chisel RTL) is blocked on toolchain install, and **Track D D3** (the 26K-run
+sweep) is deferred. That is by design — Option B's whole point was that the
+behavioral and mapping work does not block on RTL.
+
+## 4 — Mapping v7.x software defenses to silicon [T2/T3]
+
+The framework's data-integrity work (v7.1 → v7.9) is, abstractly, a set of
+self-checking disciplines. Each has a hardware analogue, and the v1.5 unit set is
+that mapping made concrete:
+
+| Framework capability | Silicon analogue | Orchid unit |
+|---|---|---|
+| v7.1 — 72h integrity cycle | periodic detect-and-raise scrubber | **U8** |
+| v7.5 — cooperating defenses | mandatory + advisory validation channels | **U9** |
+| v7.5 — T1/T2/T3 data tiers | 2-bit tier field on the interconnect | **tier propagation** |
+| v7.6 — Class B→A promotion | per-unit `assertion_mode` (advisory→fatal) | **assertion_mode CSR** |
+| v7.7 — advisory vs mandatory | split validation channels | **U9 (two channels)** |
+
+The bridge runs both ways: the software discipline tells the hardware what to
+check, and the hardware framing tells the software which of its checks are
+load-bearing enough to be worth a trap.
+
+## 5 — HADF: the empirical validation
+
+A design mapping is a hypothesis. **HADF** (Hardware-Aware Dispatch Framework) is
+the measurement program that tests it on real endpoints. The contract is explicit:
+*"HADF generates the empirical evidence Orchid v2 needs for design decisions on
+units U1–U9."*
+
+**What has landed [T1]:** cloud endpoints cluster cleanly by latency fingerprint.
+HADF Phase 2 measured silhouette **0.5566** at k=5 over **n=700**; Phase 2-bis
+Sub-exp 1 measured **0.7003** at k=5 over **n=2,600** across 4 endpoints and 2
+providers — the signal *strengthened* by +25.8% as n grew 3.7× and provider count
+doubled, with the k=5 cluster structure preserved, at an actual cost of **$0.324**
+(92.86% valid rate). The kill criteria did not fire.
+
+**What this validates in Orchid [T3 over T1 data]:**
+
+- **U1 Dispatch Scorer — 13-bit input bus.** Clean, well-separated k=5 clusters
+  mean endpoints are distinguishable by *separation*, not by dynamic range — so
+  the narrower, cheaper 13-bit bus is empirically defensible (no need to widen
+  to 16 bits for cloud variance).
+- **U4/U5 scheduling — per-endpoint stability.** Stable, separable per-endpoint
+  TTFT/TPS profiles over ~700 dispatches each are the precondition U4's
+  round-robin arbiter and U5's BTB-style predictor assume — strengthening the
+  DSE-reduced 16-entry prediction table over the original 64.
+- **Tier ABI bet.** HADF's own experiments are rigorously tier-tagged at
+  n=2,600, demonstrating the 2-bit tier vocabulary survives real measurement at
+  scale — field evidence for the reserve-don't-spend choice.
+
+**What is still PENDING (explicit):**
+
+<!-- FILL ON SUB-EXP 2 -->
+<!-- STUB — select ONE at closure (device-local separability, KS p-value):
+ (a) SEPARABLE (KS p < 0.01): local (Ollama llama3.2:3b on M2) and cloud anchors
+     occupy distinct fingerprint regions → device_modifier eligible for the >0.7
+     band; U7 systolic-array sizing leans toward the 8×8 compute-bound profile;
+     U3 cache model = "local fits in RAM, cloud does not."
+ (b) NOT SEPARABLE: the on-device branch stays advisory (≤0.7); this revives the
+     U8 DRAM-patrol question deferred in v1.5; U7/U3 forks stay open.
+ Fill the [T1] KS p-value, the verdict, and the U7/U3 disposition here, and add
+ the matching key_numbers row in frontmatter.
+-->
+
+<!-- FILL ON SUB-EXP 3 -->
+<!-- STUB — select ONE at closure (routing-layer falsification, delta_ratio):
+ (a) CONFIRM (delta_ratio > 2.0): Bedrock-haiku and Anthropic-direct-haiku (same
+     model id) fingerprint differently beyond the within-provider noise floor →
+     the routing layer carries signal → BUILD U2 routing-class field + U6
+     multi-routing-layer coherence.
+ (b) INCONCLUSIVE (1.0 ≤ ratio ≤ 2.0): hold U2/U6; routing modifier advisory only.
+ (c) REFUTE (delta_ratio < 1.0): HADF dispatch premise FALSIFIED on the routing
+     axis → do NOT build the U2 routing-aware mode; document the negative result
+     prominently — this is the protective value of pre-committing the negative case.
+ Fill the [T1] delta_ratio, the verdict, and the U2/U6 disposition here, and add
+ the matching key_numbers row in frontmatter.
+-->
+
+## 6 — Activation posture: what the data licenses
+
+HADF v7.0 shipped inert (`enabled: false`) as a `hardware_context` *input* to the
+existing v5.2/v6.0 dispatch engine — Extension-not-Replacement. A three-band
+confidence gate governs effect: **< 0.4** ignored (dispatch bit-for-bit identical
+to v5.2, zero regression); **0.4–0.7** advisory only; **> 0.7** hardware scores
+multiply routing weights.
+
+**Licensed now by closed data:** a **scoped partial activation** — flip the
+cloud-provider discrimination modifier into the >0.7 band (silhouette 0.7003 @
+k=5 defensibly clears it), and keep the device-local and routing-layer modifiers
+≤0.7 (advisory) until Sub-exps 2 & 3 close. The zero-regression gate guarantees
+the staged flip carries no risk to the system-wide guardrails (crash-free >99.5%,
+dispatch unchanged below threshold).
+
+<!-- FILL ON SUB-EXP 2 -->
+<!-- STUB: on (a) SEPARABLE → device_modifier becomes eligible for >0.7, state the
+     revised posture; on (b) NOT SEPARABLE → device_modifier stays advisory,
+     state that the cloud-only posture is unchanged on this axis. -->
+
+<!-- FILL ON SUB-EXP 3 -->
+<!-- STUB: on (a) CONFIRM → routing-layer modifier eligible for >0.7; on (b)
+     INCONCLUSIVE → routing stays advisory; on (c) REFUTE → routing-layer
+     modifier permanently held at advisory/ignored and the refutation is recorded
+     as a design constraint, not a gap. -->
+
+## 7 — Honest close
+
+<!-- FILL ON SYNTHESIS VERDICT -->
+<!-- STUB — on Phase 2-bis synthesis (~2026-06-04), replace the disposition below
+     with the final result across the Sub-exp 1/2/3 combination (mirror the 22c
+     verdict-logic table) and recompute the recommended activation posture against
+     the full modifier set. Do not soften a refutation if Sub-exp 3 returns (c). -->
+
+At authorship, the arc stands at **PARTIALLY SUPPORTED — cloud generalization
+only.** That is the honest ceiling the closed data supports, and it is a real
+result: a fitness app's PM framework produced a falsifiable, pre-registered,
+externally-auditable hardware hypothesis, and the first axis of it held and
+strengthened under replication.
+
+Two standing caveats travel with every claim above: (1) the strongest
+interpretive claims are **T3 narrative over T1 data, scoped to 4 endpoints** —
+the full 9-endpoint matrix (Sub-exp 1B) is queued; (2) the Phase 2-bis synthesis
+verdict is **PENDING** and must not be read as closed.
+
+The forward path: HADF Sub-exps 2 & 3 close the device-local and routing-layer
+axes; External Audit #2 (2026-06-12) independently checks the raw data; and the
+Orchid v2 spec stub — gated on the Chisel toolchain — turns whichever unit
+decisions survive into RTL intent. Track R waits; the evidence does not.
+
+## Reference
+
+- Research anchor (FT2 upstream): [`docs/research/2026-05-29-hadf-activation-orchid-validation-analysis.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/research/2026-05-29-hadf-activation-orchid-validation-analysis.md)
+- Predecessors: [HADF v7.0](./12-hadf) · [HADF Phase 2](./22b-hadf-phase2-cloud-fingerprinting) · [HADF Phase 2-bis synthesis](./22c-hadf-phase2bis-cross-sub-exp-synthesis)
+- Orchid v1.5 spec: [`docs/superpowers/specs/2026-05-03-orchid-v1-5-design.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/superpowers/specs/2026-05-03-orchid-v1-5-design.md)
+- Framework-v7 silicon mapping: [`docs/research/2026-04-28-orchid-framework-v7-mapping.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/research/2026-04-28-orchid-framework-v7-mapping.md)
+- HADF↔Orchid integration contract: [`docs/research/2026-05-12-hadf-phase2bis-orchid-integration.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/research/2026-05-12-hadf-phase2bis-orchid-integration.md)
