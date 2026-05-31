@@ -1,0 +1,75 @@
+# .github/workflows/lighthouse-ci.yml
+#
+# Linear FIT-193 — the sole genuine-open item from the Post-v7.9 Phase E
+# "PERF-1->6" bucket (next/font + Vercel SpeedInsights + next/image already
+# shipped; only Lighthouse/web-vitals reporting was missing).
+#
+# Advisory: assertions in .lighthouserc.cjs are all `warn`, so this never
+# blocks a merge -- it surfaces perf / a11y / best-practices / seo regressions
+# for review while budgets calibrate.
+#
+# Listens for `deployment_status` events fired by Vercel's GitHub integration
+# when a preview build finishes -- same idiom as verify-blind-switch.yml. We
+# probe the real preview deploy rather than building Next.js in the runner
+# (the app is environment-dependent and a CI build would be both slow and a
+# poor proxy for real Vercel-served performance).
+#
+# Vercel SSO gates preview URLs; VERCEL_AUTOMATION_BYPASS_SECRET (already a
+# repo secret, used by verify-blind-switch.yml) lets Lighthouse past the SSO
+# challenge. Reports upload as a PRIVATE artifact (not temporary-public-storage)
+# so the bypass context is never published.
+#
+# Security: github.event.* values that flow into shell are routed via env: vars
+# and shell-quoted ("$base"). deployment.sha used in actions/checkout is a SHA.
+
+name: lighthouse-ci
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    # Only on a successful Vercel Preview deploy.
+    if: |
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'Preview'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout deployed commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+
+      - name: Build public route list from preview URL
+        id: urls
+        env:
+          # Routed via env (not inlined into the run script) + shell-quoted
+          # below, per the repo's untrusted-input handling convention.
+          PREVIEW_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          set -e
+          base="${PREVIEW_URL%/}"
+          echo "Preview base: $base"
+          {
+            echo "urls<<EOF"
+            echo "$base/"
+            echo "$base/case-studies"
+            echo "$base/case-studies/framework-v7-9-promotion"
+            echo "$base/glossary"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          # NOTE: /control-room/* is auth-gated (proxy.ts redirects unauthenticated
+          # requests to /control-room/sign-in) -- excluded from the public budget run.
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: ${{ steps.urls.outputs.urls }}
+          configPath: ./.lighthouserc.cjs
+          uploadArtifacts: true
+          temporaryPublicStorage: false
+        env:
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
