@@ -1,0 +1,142 @@
+---
+title: >-
+  Readiness-Aware Training Alert — A Second Observer for Today's Training-Day
+  Decision Aid (C2)
+slug: readiness-aware-training-alert
+upstream_path: docs/case-studies/readiness-aware-training-alert-case-study.md
+tier: light
+tldr: >-
+  C2 shipped 2026-06-01 in a single session as a 4-phase Enhancement on
+  feature/readiness-aware-training-alert (merged via FT2 PR #560, squash
+  commit dcf30c9). Adds a second notification observer alongside the
+  existing ReadinessAlertObserver (score-crossing). The new
+  ReadinessAwareTrainingObserver fires daily at the user's learned
+  training start time and surfaces one of three smart recommendations on
+  Home AIInsightCard + push + AIIntelligenceSheet Why? affordance —
+  continueAsPlanned, adaptEasierLoad, or restDaySwap. Avatar mode mapping
+  inline shimmer for swap, pulse for adapt, breathe for continue.
+  Pure-function trigger evaluator means 12 of 25 new tests are trivial.
+  C4 (the multi-day trend-alert sibling) ships next, fills the
+  rest-day-pattern gap C2 deliberately excludes.
+timeline_position:
+  version: '7.9'
+  order: 35
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+date: '2026-06-01'
+date_written: '2026-06-01'
+shipped_window: '2026-06-01 (single-session full 4-phase Enhancement cycle; ~2.5h kickoff-to-PR-open)'
+work_type: enhancement
+work_subtype: sub_feature
+parent_feature: smart-reminders
+dispatch_pattern: serial
+framework_version: v7.9
+tier_tags_present: true
+external_audit_status: pending
+status: shipped
+primary_metric: >-
+  Action-taken rate of the daily readiness advisory (percent of shown
+  banners where the user picks one of the three CTAs versus dismisses).
+  Target 35 percent against the Smart Reminders v1 home_action_tap
+  baseline of 32 percent.
+success_metrics:
+  primary: >-
+    Action-taken rate ≥ 35 percent at T+14d (T2 declared baseline,
+    instrumented via home_readiness_alert_shown + home_readiness_alert_action_taken)
+  secondary:
+    - User-reported false-positive rate < 15 percent via in-app feedback (T3 narrative; 30d window)
+    - rest-day-swap recovery quality delta ≥ 5 points on next training day average readiness (T3 retrospective)
+kill_criteria:
+  - Action-taken rate < 5 percent after 14 days of organic exposure (advisory ignored)
+  - User-reported false-positive rate > 20 percent (algorithm too noisy)
+  - Daily push-fatigue rate (read-but-no-action) > 60 percent (advisory treated as spam)
+kill_criteria_resolution: >-
+  pending — first evaluation 2026-06-15 (T+14d).
+related_prs:
+  - 560
+predecessor_case_studies:
+  - docs/case-studies/smart-reminders-system-case-study.md
+  - docs/case-studies/push-notifications-v2-case-study.md
+key_numbers:
+  - label: New source files
+    value: '5 (ReadinessAlertRecommendation + ReadinessAwareTrainingTrigger + TrainingStartTimeLearner + ReadinessAwareTrainingObserver + ReadinessAwareAlertStore)'
+    tier: T1
+  - label: Modified source files
+    value: '6 (AnalyticsProvider + AnalyticsService + AIInsightCard + AIIntelligenceSheet + ReminderPreferencesStore + NotificationsSettingsScreen)'
+    tier: T1
+  - label: New tests
+    value: '25 across 3 files (12 trigger + 7 learner + 6 observer)'
+    tier: T1
+  - label: Time end-to-end
+    value: '~2.5 hours kickoff-to-PR-open'
+    tier: T1
+    note: Single session covered Phases 1 + 2 + 3 + 4 prep — full Enhancement cycle
+  - label: New analytics events
+    value: '4 home_-prefixed (shown / tap / action_taken / dismissed)'
+    tier: T1
+---
+
+# Readiness-Aware Training Alert — C2
+
+## The gap C2 fills
+
+Before C2 shipped, FitMe had **one** notification observer:
+
+- **ReadinessAlertObserver** (push-notifications-v2, shipped 2026-05-07) — fires when the readiness score *crosses* the ≥80 high or ≤40 low threshold. A score-change event.
+
+That's an **observation**, not a **decision aid**. A user on a stable mid-band score (50-70) gets no nudge — even though that's the band where intraday swings matter most for "train hard / lighten / swap" judgment on a scheduled training day.
+
+C2 adds the second observer: **ReadinessAwareTrainingObserver**, distinct in three dimensions:
+
+| Dimension | Score-crossing (existing) | C2 (new) |
+|---|---|---|
+| Trigger | Event-driven (≥80 / ≤40) | Scheduled (at learned training time) |
+| Window | Single-day spike | Single-day decision aid |
+| Recommendation | Direction only (high/low) | One of three CTAs |
+| Cap-tag routing | `.critical` on low+workout | `.standard` (always advisory) |
+| Re-fire window | Per-direction per-day | Per local day |
+
+The three recommendations:
+
+- **Train now (continueAsPlanned)** — readiness ≥ 65 + confidence ≥ medium + no adverse flag
+- **Lighten (adaptEasierLoad)** — readiness 50-65 OR any adverse `BodyCompFlag` (hydrationWarning / visceralTrend)
+- **Swap to rest (restDaySwap)** — readiness ≤ 35 AND adverse flag present (the rare combo)
+
+## Three design decisions
+
+**1. Keep separate from ReadinessAlertObserver.** Different trigger semantics → second consumer of `NotificationGateway` with its own `typeIdentifier` (`readinessAwareTrainingAlert`), distinct cap tag, distinct de-dupe key. Composing them into one observer would bloat `evaluate()` with conflicting trigger logic.
+
+**2. Pure-function trigger.** `ReadinessAwareTrainingTrigger.evaluate(...)` takes (ReadinessResult, DayType, suggestedSwapTarget, scheduledTime, generatedAt) and returns `ReadinessAlertContext?`. No `Date()` calls, no `UserDefaults` reads, no side effects. 12 of the 25 new tests are trivial because every input is reproducible.
+
+**3. Reuse existing UI primitives.** `AIIntelligenceSheet.readinessSection` already renders HRV/Sleep/Training/RHR bars. The "Why?" affordance is "scroll a bit further in the existing sheet." The new UI is one banner with three CTAs at the top of the sheet — about 50 lines.
+
+## What ships in PR #560
+
+| Layer | New | Modified |
+|---|---|---|
+| Models | `ReadinessAlertRecommendation.swift` (enum + Context) | — |
+| Services/Reminders | `ReadinessAwareTrainingTrigger` (pure-function), `TrainingStartTimeLearner` (median-from-30d), `ReadinessAwareTrainingObserver` (gateway wiring), `ReadinessAwareAlertStore` (UI observable) | — |
+| Views/AI | — | `AIInsightCard` (avatar mode + title/subtitle override), `AIIntelligenceSheet` (3-CTA banner + Why? wiring) |
+| Settings | — | `ReminderPreferencesStore.readinessAwareAlertsEnabled` + `NotificationsSettingsScreen` toggle |
+| Analytics | — | `AnalyticsProvider` (4 events + 2 params) + `AnalyticsService` (4 `logHomeReadinessAlert*` methods) |
+| Tests | 3 files, 25 tests | — |
+
+## What's deliberately not in C2
+
+- **Multi-day trend pattern** — sustained HRV drop over 3+ days. That's C4 (`trend-alerts-hrv`, slot 41), which fills the gap on rest days when C2 doesn't fire.
+- **Behavioral learning of optimal dispatch time per user** — C2 uses the median of last-30-day `DailyLog.sessionStartTime` (fallback 18:00 local). Bayesian per-user posterior is the smart-reminders behavioral-learning PR-2 follow-on (gated on App Store launch — needs real-user data).
+- **AIOrchestrator integration** — C2's recommendation is computed pure-function-style from `ReadinessResult`, not from the AI engine. AI engine routing for adaptive recommendations is in the D1 (adaptive-intelligence) docket.
+
+## Phase E discipline
+
+C2 shipped during the v7.9 Phase E 14-day soak (2026-05-21 → 2026-06-04). The release **adds no enforcement gates** — it's a new feature consuming existing v7.8.6 + v7.9 infrastructure exclusively (NotificationGateway, NotificationConsumerRegistry, screen-prefixed analytics convention, Tier 2.2 logging, Mechanism C cache-hit attribution). Phase E compliant.
+
+## Cross-references
+
+- Source case study — `docs/case-studies/readiness-aware-training-alert-case-study.md`
+- PRD — `docs/product/prd/smart-reminders.md` (parent)
+- Sibling C4 (slot 41) — sustained-trend HRV observer
+- Phase E context — slot 34 (`framework-v7-9-promotion.mdx`)
+- v7.8.6 cadence batch — slot 32 (`fitme-story-ds-p2-final-sweep.mdx`)
