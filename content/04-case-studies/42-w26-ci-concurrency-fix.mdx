@@ -48,7 +48,7 @@ success_metrics:
     - Mac-restart-required CoreSim env-flake catalogued as W28 with
       recovery-gate notes (HADF Sub-exp 2 closure)
     - W26 catalog entry corrects the 2026-05-31 placeholder which
-      mis-attributed the cause to `cancel-in-progress: true` alone
+      mis-attributed the cause to the cancel-in-progress flag alone
 kill_criteria:
   - Fix introduces NEW redundant CI runs costing >5 min per mixed PR
   - Branch protection breaks because the two workflows produce two `Build and Test` checks (would imply per-name match isn't N-of-1 — branch protection ACCEPTS multiple successes by same name)
