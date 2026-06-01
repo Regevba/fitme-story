@@ -138,6 +138,34 @@ export function websiteJsonLd() {
     name: SITE_NAME,
     description: SITE_DESCRIPTION,
     url: SITE_BASE,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_BASE}/search?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+
+// Pairs naturally with websiteJsonLd() on the homepage. Schema.org
+// recommends both the WebSite + Organization entities for branded
+// sites with an "About" or "Contact" surface. The fitme-story logo
+// + sameAs (linked profiles) help Google's Knowledge Graph resolve
+// the brand.
+export function organizationJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_BASE,
+    logo: `${SITE_BASE}/opengraph-image`,
+    sameAs: [
+      'https://github.com/Regevba/fitme-story',
+      'https://github.com/Regevba/FitTracker2',
+    ],
   };
 }
 
@@ -151,5 +179,32 @@ export function breadcrumbJsonLd(items: { name: string; href: string }[]) {
       name: item.name,
       item: `${SITE_BASE}${item.href}`,
     })),
+  };
+}
+
+// Declares the /search page as a SearchResultsPage to search crawlers.
+// Optional `query` populates the about-pattern: when present, Google's
+// rich-results parser treats the page as a query-scoped surface and
+// can render result-count snippets.
+export function searchResultsPageJsonLd(query?: string, resultCount?: number) {
+  const url = query
+    ? `${SITE_BASE}/search?q=${encodeURIComponent(query)}`
+    : `${SITE_BASE}/search`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SearchResultsPage',
+    url,
+    name: query ? `Search results for "${query}"` : 'Search',
+    description: query
+      ? `Results for "${query}" across case studies, glossary, research, and framework docs.`
+      : SITE_DESCRIPTION,
+    ...(typeof resultCount === 'number' && resultCount >= 0
+      ? {
+          mainEntity: {
+            '@type': 'ItemList',
+            numberOfItems: resultCount,
+          },
+        }
+      : {}),
   };
 }
