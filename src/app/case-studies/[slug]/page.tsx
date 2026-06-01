@@ -105,7 +105,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
     description: fm.tldr ?? `Case study from the FitMe PM framework evolution.`,
     slug: `/case-studies/${fm.slug}`,
     publishedAt: fm.date,
-    updatedAt: fm.date_written ?? fm.date,
+    updatedAt: fm.date,
   });
   const crumbsJsonLd = breadcrumbJsonLd([
     { name: 'Home', href: '/' },

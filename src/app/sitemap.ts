@@ -15,9 +15,11 @@ type ChangeFrequency = NonNullable<MetadataRoute.Sitemap[number]['changeFrequenc
 // emit. Priority is RELATIVE within the sitemap (default 0.5; we use
 // 0.4-1.0 to reflect the home/case-studies/framework hierarchy).
 //
-// Per-case-study lastModified prefers frontmatter.date_written, falls back
-// to frontmatter.date. Lets crawlers prioritize fresh case studies over
-// the chronological-order legacy slot numbers.
+// Per-case-study lastModified uses frontmatter.date (the Zod schema in
+// src/lib/content-schema.ts exposes `date` but strips `date_written` —
+// the latter exists in raw MDX frontmatter but never reaches the typed
+// surface). Lets crawlers prioritize fresh case studies over the
+// chronological-order legacy slot numbers.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = 'https://fitme-story.vercel.app';
   const now = new Date();
@@ -47,17 +49,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const studyRoutes = studies
     .filter((c) => ['flagship', 'standard', 'light', 'appendix'].includes(c.frontmatter.tier))
     .map((c) => {
-      const fm = c.frontmatter as {
-        slug: string;
-        tier: string;
-        date?: string;
-        date_written?: string;
-      };
+      const fm = c.frontmatter;
       return {
         path: `/case-studies/${fm.slug}`,
         changeFrequency: 'monthly' as ChangeFrequency,
         priority: fm.tier === 'flagship' ? 0.8 : 0.6,
-        lastModifiedRaw: fm.date_written ?? fm.date,
+        lastModifiedRaw: fm.date,
       };
     });
 
