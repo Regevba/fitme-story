@@ -1,0 +1,174 @@
+---
+title: >-
+  When Two Workflows Share a Name — The `${{ github.workflow }}` Concurrency
+  Trap (W26)
+slug: w26-ci-concurrency-fix
+upstream_path: .claude/integrity/observed-patterns.md#w26
+tier: light
+tldr: >-
+  Every mixed-content PR (touching both FitTracker source AND docs)
+  produced two Build and Test status checks — one CANCELLED, one
+  SUCCESS — blocking merge even with admin override. Diagnosed
+  2026-06-01 as W26 in the observed-patterns catalog. Root cause both
+  ci.yml and ci-docs-skip.yml declared name CI, so their
+  concurrency.group expressions using ${{ github.workflow }} resolved
+  identically (ci-CI-refs/pull/N/merge) and the two files raced into
+  mutual cancellation. Fix file-specific hardcoded group prefixes
+  (ci-yml- and ci-docs-skip-). Now both run independently. Side benefit
+  uncovered W28 (CoreSimulator out-of-date local env-flake) in the
+  same session — Mac restart blocked on HADF Sub-exp 2 closure.
+timeline_position:
+  version: '7.9'
+  order: 36.5
+persona_emphasis:
+  hr: process
+  pm: tooling
+  dev: tooling
+date: '2026-06-01'
+date_written: '2026-06-01'
+shipped_window: '2026-06-01 (single-PR diagnosis-to-fix; ~30 min including diagnostic + fix + catalog entry + PR)'
+work_type: chore
+work_subtype: ci_infra_fix
+dispatch_pattern: serial
+framework_version: v7.9
+tier_tags_present: true
+external_audit_status: pending
+status: shipped
+primary_metric: >-
+  Mixed-content PRs ship without spurious CANCELLED Build and Test
+  status checks. Pre-fix every mixed PR showed CANCELLED + SUCCESS;
+  post-fix verified clean on PR #561 itself + the next 3 mixed PRs
+  (C2 #560, C4 #562/#564, dev-guide #563).
+success_metrics:
+  primary: >-
+    0 spurious CANCELLED Build and Test statuses across all mixed-content
+    PRs post-fix (T1 instrumented; verified on PR #561 + 3 subsequent
+    mixed PRs in the same session)
+  secondary:
+    - Mac-restart-required CoreSim env-flake catalogued as W28 with
+      recovery-gate notes (HADF Sub-exp 2 closure)
+    - W26 catalog entry corrects the 2026-05-31 placeholder which
+      mis-attributed the cause to the cancel-in-progress flag alone
+kill_criteria:
+  - Fix introduces NEW redundant CI runs costing >5 min per mixed PR
+  - Branch protection breaks because the two workflows produce two `Build and Test` checks (would imply per-name match isn't N-of-1 — branch protection ACCEPTS multiple successes by same name)
+kill_criteria_resolution: >-
+  passed — fix verified clean on PR #561 self + 3 subsequent mixed PRs
+  (C2 #560 after rerun, C4 #564 after merge, dev-guide #563 after
+  rebase). Cost delta ~5 sec ubuntu runner per mixed PR (acceptable).
+  Branch protection cleanly accepted two `Build and Test` SUCCESS
+  statuses per PR.
+related_prs:
+  - 561
+predecessor_case_studies:
+  - docs/case-studies/framework-v7-9-promotion-case-study.md
+key_numbers:
+  - label: Affected PRs in the session
+    value: '4 (C2 #560, C4 #562 + #564, dev-guide #563 — all hit the cancellation race before the fix)'
+    tier: T1
+  - label: Fix diff size
+    value: '4 lines (2 in ci.yml + 2 in ci-docs-skip.yml — concurrency.group only)'
+    tier: T1
+  - label: Catalog entries added
+    value: '2 (W26 the fix itself + W28 the discovered-along-the-way CoreSim env-flake)'
+    tier: T1
+  - label: Cost delta per mixed PR
+    value: '~5 seconds extra ubuntu-latest runner (negligible vs the merge-block it eliminated)'
+    tier: T2
+    note: T2 declared — depends on PR diff shape; pure-iOS PRs are unaffected (only ci.yml fires)
+  - label: End-to-end diagnose-fix-to-merge
+    value: '~30 minutes (most of which was diagnosis from CANCELLED status check + finding the github.workflow expression resolving to identical strings)'
+    tier: T1
+---
+
+# W26 — The `${{ github.workflow }}` Concurrency Trap
+
+## The symptom
+
+PR #560 (C2 readiness-aware-training-alert) sat with:
+
+```text
+Build and Test | CANCELLED | CI
+Build and Test | SUCCESS   | CI
+mergeable=MERGEABLE state=BLOCKED
+```
+
+Two checks with the same name. One green, one cancelled. The cancelled one was sufficient to block branch-protection merge even with `--admin`.
+
+This was the second instance in the session. The first hit was the dispatcher pattern's own validation — PR #560's CI run on the W26 fix commit also produced a CANCELLED status before the fix landed on main.
+
+## The root cause
+
+GitHub's workflow concurrency `group` expression evaluates `${{ github.workflow }}` to the workflow **name**, not the **file**. Both files in the dispatcher pair declare `name: CI`:
+
+```yaml
+# Before fix — ci.yml
+name: CI
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}  # → "ci-CI-refs/pull/N/merge"
+  cancel-in-progress: true
+
+# Before fix — ci-docs-skip.yml
+name: CI
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}  # → "ci-CI-refs/pull/N/merge" — IDENTICAL
+  cancel-in-progress: true
+```
+
+On every mixed-content PR (touching both `FitTracker/**` AND `docs/**` or `.claude/**`):
+
+1. `ci.yml` fires (paths include `FitTracker/**`)
+2. `ci-docs-skip.yml` ALSO fires (paths-ignore not satisfied — `.claude/**` is outside the ignore list)
+3. Both enter the same concurrency group
+4. The second arrival cancels the first per `cancel-in-progress: true`
+5. The cancelled status persists in the PR's required-status-check rollup
+6. Branch protection refuses to merge
+
+## The (4-line) fix
+
+Replace `${{ github.workflow }}` with file-specific hardcoded prefixes:
+
+```yaml
+# ci.yml
+concurrency:
+  group: ci-yml-${{ github.ref }}
+  cancel-in-progress: true
+
+# ci-docs-skip.yml
+concurrency:
+  group: ci-docs-skip-${{ github.ref }}
+  cancel-in-progress: true
+```
+
+Each workflow keeps its own intra-workflow cancellation behavior (a new push cancels the prior run of THAT workflow on the same branch) without colliding with the sibling. Mixed PRs continue to fire both workflows; both now run to completion; branch protection accepts both `Build and Test` SUCCESS statuses.
+
+**Trade-off acknowledged:** mixed PRs cost an extra ~5 seconds of `ubuntu-latest` runner time per PR. The full mutual-exclusivity fix (`dorny/paths-filter` job-level skip) is a separate, larger PR — deferred unless ubuntu cost becomes a real concern.
+
+## What the original 2026-05-31 W26 placeholder got wrong
+
+The placeholder note in the 2026-05-31 carryover memory attributed the cause to `cancel-in-progress: true` alone. That was the symptom. The actual root cause is the cross-workflow group collision. `cancel-in-progress: true` per workflow is correct + desirable (a new push to the same branch should cancel the prior run of the same workflow). Only the cross-workflow group sharing was wrong.
+
+## The W28 side discovery
+
+While diagnosing W26, every local `xcodebuild` invocation produced:
+
+```text
+CoreSimulator is out of date. Current version (1051.50.0) is older than build version (1051.54.0).
+xcodebuild: error: Unable to find a destination matching ...
+  iOS 26.5 is not installed.
+```
+
+Cataloged as W28 — operator-side `CoreSimulator.framework` daemon binary out of date (loaded at boot before Xcode bumped the on-disk version). Fix is a full Mac restart, **blocked on HADF Sub-exp 2 closure** (Sub-exp 2 dispatch state doesn't survive reboot). Until then: `swiftc -parse` for syntax validation + `xcodebuild -list` for pbxproj integrity + delegate the real build to CI.
+
+## Sibling patterns
+
+- **W17** (slot 36) — "Stale-base branch trap." Same "trust the explicit diagnostic, don't paper over with workarounds" class.
+- **W28** — operator-side macOS daemon class. Both W17 + W26 + W28 reinforce that **fresh-process state is the reliable recovery path** on macOS-side tooling drifts.
+- The 2026-05-31 EOD session-close memory's W26 placeholder — corrected by this case study to identify the cross-workflow group sharing as the actual root cause.
+
+## Cross-references
+
+- Catalog entry — `.claude/integrity/observed-patterns.md` W26
+- W28 sibling — same catalog, env-flake entry added in PR #565
+- Sibling case study slot 36 (`stale-base-branch-trap-w17.mdx`)
+- v7.9 promotion context — slot 34 (`framework-v7-9-promotion.mdx`)
