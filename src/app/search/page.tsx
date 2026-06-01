@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, searchResultsPageJsonLd } from '@/lib/seo';
+import { JsonLd } from '@/components/JsonLd';
 import { getSearchIndex, getSearchIndexFacets, type SearchCategory } from '@/lib/search-index';
 import { search, type SearchFilters, type SearchHit } from '@/lib/search';
 import { Tag } from '@/components/ui/Tag';
@@ -22,14 +23,35 @@ interface SearchPageProps {
   }>;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  return buildMetadata({
-    title: 'Search',
-    description:
-      'Search across case studies, the glossary, research notes, and the framework dev guide.',
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const query = (params.q ?? '').trim();
+
+  // Dynamic title makes the browser tab + bookmarks + share-cards
+  // informative ("Results for 'readiness'" vs static "Search").
+  const title = query ? `Results for "${query}"` : 'Search';
+  const description = query
+    ? `Search results for "${query}" across case studies, the glossary, research notes, and the framework dev guide.`
+    : 'Search across case studies, the glossary, research notes, and the framework dev guide.';
+
+  const meta = buildMetadata({
+    title,
+    description,
     slug: 'search',
     type: 'website',
   });
+
+  // SEO best practice (Google Search Central): dynamic search-results
+  // pages should be noindex to avoid duplicate-content penalties and
+  // to keep the SERP clean. The base /search route (no query) stays
+  // indexable so users can land on it from sitelinks.
+  if (query) {
+    meta.robots = { index: false, follow: true };
+  }
+
+  return meta;
 }
 
 function isCategory(value: string | undefined): value is SearchCategory {
@@ -52,6 +74,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+      <JsonLd data={searchResultsPageJsonLd(query || undefined, query ? hits.length : undefined)} />
       <header className="mb-6">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-50)]">
           Search
