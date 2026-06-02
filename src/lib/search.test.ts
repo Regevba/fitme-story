@@ -113,3 +113,164 @@ test('case-insensitive matching', () => {
   assert.equal(lower.length, upper.length);
   assert.equal(lower[0].entry.id, upper[0].entry.id);
 });
+
+// --- Track A: fuzzy typo tolerance ---
+
+test('fuzzy: a single-character typo still surfaces the entry', () => {
+  // 'framwork' is missing the 'e' in 'framework' — not a substring of any field.
+  const hits = search(FIXTURES, 'framwork', {});
+  assert.ok(hits.length >= 1, 'expected at least one fuzzy hit');
+  assert.ok(
+    hits.some((h) => h.entry.title.toLowerCase().includes('framework')),
+    'expected a framework entry among fuzzy hits',
+  );
+});
+
+test('fuzzy hits score strictly below the equivalent exact hit', () => {
+  const exact = search(FIXTURES, 'framework', {});
+  const fuzzy = search(FIXTURES, 'framwork', {});
+  assert.ok(exact.length >= 1 && fuzzy.length >= 1);
+  assert.ok(
+    exact[0].score > fuzzy[0].score,
+    `exact top (${exact[0].score}) should outscore fuzzy top (${fuzzy[0].score})`,
+  );
+});
+
+test('fuzzy does not rescue unrelated gibberish', () => {
+  const hits = search(FIXTURES, 'zzzunmatchableqqq', {});
+  assert.equal(hits.length, 0);
+});
+
+test('fuzzy is suppressed for very short tokens', () => {
+  // 'soc' (len 3) must not fuzzy-match 'gpu'/'cpu'/'path' etc.; only the exact SoC entry.
+  const hits = search(FIXTURES, 'soc', {});
+  assert.equal(hits.length, 1);
+  assert.equal(hits[0].entry.id, 'soc');
+});
+
+// --- Track A: quoted phrase search ---
+
+test('quoted phrase matches contiguous text', () => {
+  const hits = search(FIXTURES, '"path b"', {});
+  assert.equal(hits.length, 1);
+  assert.equal(hits[0].entry.id, 'hadf-phase2');
+});
+
+test('quoted phrase does NOT match non-contiguous words', () => {
+  // dev-guide body is 'state.json schema phase lifecycle dispatch model cache'
+  // — 'cache schema' never appears contiguously.
+  const hits = search(FIXTURES, '"cache schema"', {});
+  assert.equal(hits.length, 0);
+});
+
+// --- Track A: tier / recency boost ---
+
+test('tier boost lifts flagship above an equally-matching lighter tier', () => {
+  const fx: SearchEntry[] = [
+    {
+      id: 'a',
+      title: 'Alpha',
+      description: '',
+      body: 'widget',
+      url: '/a',
+      category: 'case-study',
+      tags: { tier: 'light', version: '7.0' },
+    },
+    {
+      id: 'b',
+      title: 'Beta',
+      description: '',
+      body: 'widget',
+      url: '/b',
+      category: 'case-study',
+      tags: { tier: 'flagship', version: '7.0' },
+    },
+  ];
+  const hits = search(fx, 'widget', {});
+  assert.equal(hits.length, 2);
+  assert.equal(hits[0].entry.id, 'b', 'flagship should rank first');
+});
+
+// --- Track A: heading-anchor deep links ---
+
+test('deep-links to the section whose body contains the match', () => {
+  const fx: SearchEntry[] = [
+    {
+      id: 'doc',
+      title: 'Doc',
+      description: '',
+      body: 'intro widget gizmo',
+      url: '/framework/dev-guide',
+      category: 'framework',
+      tags: {},
+      sections: [
+        { anchor: 'overview', heading: 'Overview', body: 'overview intro text' },
+        { anchor: 'the-gizmo', heading: 'The Gizmo', body: 'gizmo deep details here' },
+      ],
+    },
+  ];
+  const hits = search(fx, 'gizmo', {});
+  assert.equal(hits.length, 1);
+  assert.equal(hits[0].url, '/framework/dev-guide#the-gizmo');
+});
+
+test('falls back to top-level url when no section matches', () => {
+  const fx: SearchEntry[] = [
+    {
+      id: 'doc',
+      title: 'Widget Doc',
+      description: '',
+      body: 'widget content',
+      url: '/framework/dev-guide',
+      category: 'framework',
+      tags: {},
+      sections: [{ anchor: 'intro', heading: 'Intro', body: 'unrelated words' }],
+    },
+  ];
+  // Matches the title token 'widget' but no section body contains it.
+  const hits = search(fx, 'widget', {});
+  assert.equal(hits.length, 1);
+  assert.equal(hits[0].url, '/framework/dev-guide');
+});
+
+test('does not append an anchor to a url that already has one', () => {
+  const fx: SearchEntry[] = [
+    {
+      id: 'g',
+      title: 'Term',
+      description: '',
+      body: 'definition widget',
+      url: '/glossary#term',
+      category: 'glossary',
+      tags: {},
+      sections: [{ anchor: 'def', heading: 'Def', body: 'widget definition' }],
+    },
+  ];
+  const hits = search(fx, 'widget', {});
+  assert.equal(hits[0].url, '/glossary#term');
+});
+
+test('recency boost lifts a newer version above an equally-matching older one', () => {
+  const fx: SearchEntry[] = [
+    {
+      id: 'old',
+      title: 'Old',
+      description: '',
+      body: 'widget',
+      url: '/old',
+      category: 'case-study',
+      tags: { tier: 'light', version: '5.0' },
+    },
+    {
+      id: 'new',
+      title: 'New',
+      description: '',
+      body: 'widget',
+      url: '/new',
+      category: 'case-study',
+      tags: { tier: 'light', version: '7.9' },
+    },
+  ];
+  const hits = search(fx, 'widget', {});
+  assert.equal(hits[0].entry.id, 'new', 'newer version should rank first');
+});

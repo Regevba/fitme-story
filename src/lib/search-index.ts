@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
+import GithubSlugger from 'github-slugger';
 import { getAllCaseStudies } from './content';
 import { GLOSSARY } from './glossary';
 
@@ -9,6 +10,16 @@ export type SearchCategory =
   | 'glossary'
   | 'research'
   | 'framework';
+
+/** A heading-scoped slice of an entry, used for deep-linking to the matched section. */
+export interface SearchSection {
+  /** github-slugger / rehype-slug anchor (no leading '#'). Matches rendered heading ids. */
+  anchor: string;
+  /** Heading text. */
+  heading: string;
+  /** Cleaned text of this section (heading + content up to the next heading). */
+  body: string;
+}
 
 export interface SearchEntry {
   /** Stable identifier — slug or relative path. */
@@ -32,13 +43,23 @@ export interface SearchEntry {
     persona?: string[];
     glossary_category?: 'hardware-analog' | 'framework' | 'methodology' | 'web';
   };
+  /** Heading-scoped sections for deep-linking a body match to the matched anchor. */
+  sections?: SearchSection[];
 }
 
 const RESEARCH_DIR = path.resolve('content/05-research');
-const DOCS_DIR = path.resolve('src/data/docs');
+const ARCH_DOCS_DIR = path.resolve('src/data/docs/docs/architecture');
+const GITHUB_DOCS_BASE = 'https://github.com/Regevba/FitTracker2/blob/main/docs/architecture';
 
-const DEV_GUIDE_REL_PATH = 'docs/architecture/dev-guide-v1-to-v7-7.md';
-const LIFECYCLE_CATALOG_REL_PATH = 'docs/architecture/feature-lifecycle-event-catalog.md';
+/**
+ * Architecture docs that have a real on-site route. Everything else in the
+ * architecture folder links to its GitHub blob URL — the same place the
+ * on-site dev-guide page sends readers for the full document — instead of an
+ * on-site path that would 404.
+ */
+const ON_SITE_DOC_ROUTES: Record<string, string> = {
+  'dev-guide-v1-to-v7-7.md': '/framework/dev-guide',
+};
 
 function truncate(text: string, max: number): string {
   if (text.length <= max) return text;
@@ -54,6 +75,43 @@ function stripMdx(body: string): string {
     .replace(/[#*_>`]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/**
+ * Split raw markdown into heading-scoped sections. Anchors are generated with
+ * github-slugger using one slugger per document, matching exactly what
+ * rehype-slug emits on the rendered page (and GitHub's blob anchors). Fenced
+ * code blocks are skipped so a `# comment` inside code isn't treated as a
+ * heading.
+ */
+function extractSections(rawMarkdown: string): SearchSection[] {
+  const slugger = new GithubSlugger();
+  const collected: Array<{ heading: string; anchor: string; lines: string[] }> = [];
+  let inFence = false;
+  let current: { heading: string; anchor: string; lines: string[] } | null = null;
+
+  for (const line of rawMarkdown.split('\n')) {
+    const trimmed = line.trimStart();
+    if (trimmed.startsWith('```') || trimmed.startsWith('~~~')) {
+      inFence = !inFence;
+      if (current) current.lines.push(line);
+      continue;
+    }
+    const headingMatch = !inFence ? line.match(/^(#{1,6})\s+(.+?)\s*#*\s*$/) : null;
+    if (headingMatch) {
+      const heading = headingMatch[2].trim();
+      current = { heading, anchor: slugger.slug(heading), lines: [] };
+      collected.push(current);
+    } else if (current) {
+      current.lines.push(line);
+    }
+  }
+
+  return collected.map((s) => ({
+    anchor: s.anchor,
+    heading: s.heading,
+    body: stripMdx(`${s.heading}\n${s.lines.join('\n')}`),
+  }));
 }
 
 async function loadCaseStudies(): Promise<SearchEntry[]> {
@@ -80,6 +138,7 @@ async function loadCaseStudies(): Promise<SearchEntry[]> {
         tier: fm.tier,
         persona: fm.persona_emphasis ? Object.keys(fm.persona_emphasis) : undefined,
       },
+      sections: extractSections(entry.body),
     };
   });
 }
@@ -127,58 +186,45 @@ async function loadResearchMdx(): Promise<SearchEntry[]> {
   return results;
 }
 
-async function loadFrameworkDoc(
-  relPath: string,
-  url: string,
-  fallbackTitle: string,
-): Promise<SearchEntry | null> {
-  const fullPath = path.join(DOCS_DIR, relPath);
+/**
+ * Index every architecture doc, not just two hardcoded ones. Each doc links to
+ * its real on-site route when one exists ({@link ON_SITE_DOC_ROUTES}); the rest
+ * link to their GitHub blob URL so a result never points at a 404.
+ */
+async function loadFrameworkDocs(): Promise<SearchEntry[]> {
+  const fs = await import('node:fs/promises');
+  let files: string[];
   try {
-    const raw = await readFile(fullPath, 'utf8');
+    files = (await fs.readdir(ARCH_DOCS_DIR)).filter((f) => f.endsWith('.md'));
+  } catch {
+    return [];
+  }
+
+  const results: SearchEntry[] = [];
+  for (const file of files.sort()) {
+    const raw = await readFile(path.join(ARCH_DOCS_DIR, file), 'utf8');
     const { data, content } = matter(raw);
-    const cleanBody = stripMdx(content);
     const fm = data as Record<string, unknown>;
+    const cleanBody = stripMdx(content);
     const titleMatch = content.match(/^#\s+(.+)$/m);
     const title =
       typeof fm.title === 'string'
         ? fm.title
         : titleMatch
           ? titleMatch[1].trim()
-          : fallbackTitle;
-    const descRaw =
-      typeof fm.description === 'string'
-        ? fm.description
-        : cleanBody;
-    return {
-      id: relPath,
+          : file.replace(/\.md$/, '');
+    const descRaw = typeof fm.description === 'string' ? fm.description : cleanBody;
+    results.push({
+      id: `architecture/${file}`,
       title,
       description: truncate(descRaw, 280),
       body: cleanBody,
-      url,
+      url: ON_SITE_DOC_ROUTES[file] ?? `${GITHUB_DOCS_BASE}/${file}`,
       category: 'framework',
       tags: {},
-    };
-  } catch {
-    return null;
+      sections: extractSections(content),
+    });
   }
-}
-
-async function loadFrameworkDocs(): Promise<SearchEntry[]> {
-  const results: SearchEntry[] = [];
-  const devGuide = await loadFrameworkDoc(
-    DEV_GUIDE_REL_PATH,
-    '/framework/dev-guide',
-    'Framework Dev Guide',
-  );
-  if (devGuide) results.push(devGuide);
-
-  const lifecycleCatalog = await loadFrameworkDoc(
-    LIFECYCLE_CATALOG_REL_PATH,
-    '/framework/dev-guide#lifecycle-event-catalog',
-    'Feature Lifecycle Event Catalog',
-  );
-  if (lifecycleCatalog) results.push(lifecycleCatalog);
-
   return results;
 }
 

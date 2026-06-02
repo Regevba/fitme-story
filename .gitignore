@@ -75,3 +75,7 @@ scripts/__pycache__/
 # show as drift on operator sessions.
 pnpm-lock.yaml
 pnpm-workspace.yaml
+
+# Generated search index (built by scripts/build-search-index.ts during
+# prebuild/predev; regenerated each build, not source-of-truth).
+/public/search-index.json
