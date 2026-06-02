@@ -62,14 +62,44 @@ assert() {
 printf "Verifying blind-switch on %s\n\n" "$BASE_URL"
 
 # ── Assertion 1 ──────────────────────────────────────────────────────
-# /control-room without auth → 401 with WWW-Authenticate Basic realm.
-# Verifies Layer 1 (proxy.ts) is gating the route.
+# /control-room without auth must be gated. The proxy.ts implements 3
+# auth modes (basic / passkey / both). The HTTP signature differs:
+#   - basic mode:   401 + WWW-Authenticate: Basic realm="control-room"
+#   - passkey mode: 307 redirect to /control-room/sign-in
+#   - both mode:    prefers the 307 redirect (per proxy.ts line 126)
+# All three are valid Layer 1 gates — none of them serve the dashboard
+# to an unauthenticated caller. The script accepts either 401 or 307
+# and requires the corresponding signature (basic realm OR sign-in
+# redirect target). Updated 2026-06-01 after UCC passkey cutover (PR
+# #380 + cutover Parts 1-6) — pre-cutover the script tested only the
+# 401+Basic signature, leaving the passkey path uncovered. Mode-aware
+# verification keeps the assertion strict without locking us into the
+# obsolete basic-only behavior.
 status=$(curl -s "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" -o /dev/null -w "%{http_code}" "$BASE_URL/control-room")
-assert "Layer 1: /control-room without auth returns 401" "401" "$status"
 
-www_auth=$(curl -sI "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" "$BASE_URL/control-room" | grep -i "^www-authenticate:" | tr -d '\r' | awk '{print $2, $3}' | tr -d ' ')
-assert "Layer 1: WWW-Authenticate header is 'Basic realm=...'" \
-  "Basicrealm=\"control-room\"" "$www_auth"
+if [ "$status" = "401" ]; then
+  assert "Layer 1: /control-room without auth returns 401 (basic mode)" "401" "$status"
+  www_auth=$(curl -sI "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" "$BASE_URL/control-room" | grep -i "^www-authenticate:" | tr -d '\r' | awk '{print $2, $3}' | tr -d ' ')
+  assert "Layer 1: WWW-Authenticate header is 'Basic realm=...'" \
+    "Basicrealm=\"control-room\"" "$www_auth"
+elif [ "$status" = "307" ] || [ "$status" = "302" ]; then
+  assert "Layer 1: /control-room without auth redirects (passkey/both mode)" "redirect" "redirect"
+  # Validate the redirect target is /control-room/sign-in (not anywhere else).
+  location=$(curl -sI "${BYPASS_HEADER[@]+"${BYPASS_HEADER[@]}"}" "$BASE_URL/control-room" | grep -i "^location:" | tr -d '\r' | awk '{print $2}')
+  # The Location header may be absolute or relative. Extract the path.
+  location_path="${location#http*://*/}"
+  location_path="/${location_path#/}"
+  case "$location_path" in
+    */control-room/sign-in*) actual_target="/control-room/sign-in" ;;
+    *)                       actual_target="$location_path" ;;
+  esac
+  assert "Layer 1: redirect target is /control-room/sign-in" \
+    "/control-room/sign-in" "$actual_target"
+else
+  # Any other status fails fast — the proxy must gate the route.
+  assert "Layer 1: /control-room without auth must be 401 or 307" \
+    "401 or 307" "$status"
+fi
 
 # ── Assertion 2 ──────────────────────────────────────────────────────
 # / showcase root → 200, public. Verifies the matcher is properly scoped to

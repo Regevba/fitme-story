@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Wrench } from 'lucide-react';
 import { getAllCaseStudies, type ContentEntry } from '@/lib/content';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, breadcrumbJsonLd } from '@/lib/seo';
+import { JsonLd } from '@/components/JsonLd';
 import { Disclosure } from '@/components/ui/Disclosure';
 
 export const metadata = buildMetadata({
@@ -10,6 +11,11 @@ export const metadata = buildMetadata({
     'Six milestone case studies from the FitMe PM framework evolution, plus supporting studies and developer deep-dives.',
   slug: '/case-studies',
 });
+
+const CASE_STUDIES_BREADCRUMBS = breadcrumbJsonLd([
+  { name: 'Home', href: '/' },
+  { name: 'Case Studies', href: '/case-studies' },
+]);
 
 // Six framework inflection points — the studies where something fundamental
 // changed. Hooks, impact metrics, short-labels and a dedicated accent color
@@ -269,6 +275,7 @@ export default async function CaseStudiesIndex() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
+      <JsonLd data={CASE_STUDIES_BREADCRUMBS} />
       <header className="mb-12">
         <h1 className="font-serif text-[length:var(--text-display-lg)] mb-4">Case studies</h1>
         <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)] leading-relaxed">

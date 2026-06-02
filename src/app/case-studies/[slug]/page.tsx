@@ -11,6 +11,8 @@ import { useMDXComponents } from '@/mdx-components';
 import { LightTemplate } from '@/components/case-study/LightTemplate';
 import { StandardTemplate } from '@/components/case-study/StandardTemplate';
 import { FlagshipTemplate } from '@/components/case-study/FlagshipTemplate';
+import { JsonLd } from '@/components/JsonLd';
+import { blogPostingJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 
 export async function generateStaticParams() {
   const all = await getAllCaseStudies();
@@ -94,26 +96,55 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
 
   const siblings = await getSiblings(slug);
 
+  // JSON-LD payloads. BlogPosting describes the case study to Google's
+  // article-card parser; BreadcrumbList feeds the SERP breadcrumb trail
+  // (Home → Case Studies → {title}).
+  const fm = entry.frontmatter;
+  const articleJsonLd = blogPostingJsonLd({
+    title: fm.title,
+    description: fm.tldr ?? `Case study from the FitMe PM framework evolution.`,
+    slug: `/case-studies/${fm.slug}`,
+    publishedAt: fm.date,
+    updatedAt: fm.date,
+  });
+  const crumbsJsonLd = breadcrumbJsonLd([
+    { name: 'Home', href: '/' },
+    { name: 'Case Studies', href: '/case-studies' },
+    { name: fm.title, href: `/case-studies/${fm.slug}` },
+  ]);
+
   switch (entry.frontmatter.tier) {
     case 'flagship':
       return (
-        <FlagshipTemplate entry={entry} siblings={siblings}>
-          {content}
-        </FlagshipTemplate>
+        <>
+          <JsonLd data={articleJsonLd} />
+          <JsonLd data={crumbsJsonLd} />
+          <FlagshipTemplate entry={entry} siblings={siblings}>
+            {content}
+          </FlagshipTemplate>
+        </>
       );
     case 'standard':
       return (
-        <StandardTemplate entry={entry} siblings={siblings}>
-          {content}
-        </StandardTemplate>
+        <>
+          <JsonLd data={articleJsonLd} />
+          <JsonLd data={crumbsJsonLd} />
+          <StandardTemplate entry={entry} siblings={siblings}>
+            {content}
+          </StandardTemplate>
+        </>
       );
     case 'light':
     case 'appendix':
     default:
       return (
-        <LightTemplate entry={entry} siblings={siblings}>
-          {content}
-        </LightTemplate>
+        <>
+          <JsonLd data={articleJsonLd} />
+          <JsonLd data={crumbsJsonLd} />
+          <LightTemplate entry={entry} siblings={siblings}>
+            {content}
+          </LightTemplate>
+        </>
       );
   }
 }

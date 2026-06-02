@@ -14,45 +14,77 @@
 # (the app is environment-dependent and a CI build would be both slow and a
 # poor proxy for real Vercel-served performance).
 #
+# Also supports manual `workflow_dispatch` runs against production
+# (https://fitme-story.vercel.app). Use this to get the real SEO scorecard
+# — preview deploys auto-emit `X-Robots-Tag: noindex` which forces
+# Lighthouse's `is-crawlable` audit to 0 and drags the SEO category from
+# ~1.0 to ~0.63. The preview path suppresses that audit in
+# .lighthouserc.cjs; production keeps it enforced. Operator-triggered:
+# `gh workflow run lighthouse-ci.yml -f target=production`.
+#
 # Vercel SSO gates preview URLs; VERCEL_AUTOMATION_BYPASS_SECRET (already a
 # repo secret, used by verify-blind-switch.yml) lets Lighthouse past the SSO
 # challenge. Reports upload as a PRIVATE artifact (not temporary-public-storage)
 # so the bypass context is never published.
 #
-# Security: github.event.* values that flow into shell are routed via env: vars
-# and shell-quoted ("$base"). deployment.sha used in actions/checkout is a SHA.
+# Security: every github.event.* value used in shell flows via env: vars with
+# shell-quoted access ("$base", "$MANUAL_TARGET"). workflow_dispatch input
+# `target` is constrained to a `choice` type with fixed values
+# (production|preview) — no free-form text reaches the run script.
+# deployment.sha used in actions/checkout is a SHA.
 
 name: lighthouse-ci
 
 on:
   deployment_status:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target environment (production = real SEO score; preview = is-crawlable suppressed)'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - preview
 
 permissions:
   contents: read
 
 jobs:
   lighthouse:
-    # Only on a successful Vercel Preview deploy.
+    # Trigger conditions:
+    #   - deployment_status: only on successful Vercel Preview deploys
+    #   - workflow_dispatch: always (operator-initiated)
     if: |
-      github.event.deployment_status.state == 'success' &&
-      github.event.deployment.environment == 'Preview'
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Preview')
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout deployed commit
+      - name: Checkout deployed commit (preview) or main (manual)
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.deployment.sha }}
+          ref: ${{ github.event.deployment.sha || github.sha }}
 
-      - name: Build public route list from preview URL
+      - name: Build public route list from target URL
         id: urls
         env:
           # Routed via env (not inlined into the run script) + shell-quoted
           # below, per the repo's untrusted-input handling convention.
           PREVIEW_URL: ${{ github.event.deployment_status.target_url }}
+          MANUAL_TARGET: ${{ github.event.inputs.target }}
         run: |
           set -e
-          base="${PREVIEW_URL%/}"
-          echo "Preview base: $base"
+          if [ "$MANUAL_TARGET" = "production" ]; then
+            base="https://fitme-story.vercel.app"
+          elif [ "$MANUAL_TARGET" = "preview" ]; then
+            # Manual preview run probes the latest preview alias for main.
+            base="https://fitme-story-git-main-regevba-3729s-projects.vercel.app"
+          else
+            base="${PREVIEW_URL%/}"
+          fi
+          echo "Target base: $base"
           {
             echo "urls<<EOF"
             echo "$base/"
@@ -72,4 +104,11 @@ jobs:
           uploadArtifacts: true
           temporaryPublicStorage: false
         env:
-          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          # Bypass header only set on preview targets (production doesn't need it
+          # and including it would be a no-op leak). The .lighthouserc.cjs reads
+          # this env var conditionally.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ github.event.inputs.target == 'production' && '' || secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          # Tells .lighthouserc.cjs whether to suppress the preview-only
+          # is-crawlable false-positive. Production runs enforce it; preview
+          # runs suppress it.
+          LIGHTHOUSE_TARGET: ${{ github.event.inputs.target || 'preview' }}

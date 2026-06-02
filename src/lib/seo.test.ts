@@ -14,6 +14,10 @@ import assert from 'node:assert/strict';
 import {
   buildMetadata,
   blogPostingJsonLd,
+  websiteJsonLd,
+  organizationJsonLd,
+  breadcrumbJsonLd,
+  searchResultsPageJsonLd,
   SITE_BASE,
 } from './seo';
 
@@ -113,4 +117,74 @@ test('buildMetadata() handles empty slug (homepage)', () => {
 
   assert.equal(meta.alternates?.canonical, SITE_BASE);
   assert.equal(meta.openGraph?.url, SITE_BASE);
+});
+
+// ── C1 (2026-06-01) JSON-LD generator tests ────────────────────────
+
+test('websiteJsonLd() declares WebSite + SearchAction for Sitelinks Search Box', () => {
+  const ld = websiteJsonLd();
+  assert.equal(ld['@type'], 'WebSite');
+  assert.equal(ld.url, SITE_BASE);
+  // SearchAction enables Google's in-result Sitelinks Search Box.
+  const action = ld.potentialAction as Record<string, unknown>;
+  assert.equal(action['@type'], 'SearchAction');
+  const target = action.target as Record<string, unknown>;
+  assert.equal(target['@type'], 'EntryPoint');
+  assert.equal(
+    target.urlTemplate,
+    `${SITE_BASE}/search?q={search_term_string}`,
+    'SearchAction.target.urlTemplate must match the /search?q= route',
+  );
+  assert.equal(action['query-input'], 'required name=search_term_string');
+});
+
+test('organizationJsonLd() declares Organization with logo + sameAs', () => {
+  const ld = organizationJsonLd();
+  assert.equal(ld['@type'], 'Organization');
+  assert.equal(ld.url, SITE_BASE);
+  assert.equal(ld.logo, `${SITE_BASE}/opengraph-image`,
+    'Organization.logo must point at /opengraph-image (locks the V-012 fix)');
+  assert.ok(Array.isArray(ld.sameAs), 'Organization.sameAs must be an array');
+  assert.ok(
+    (ld.sameAs as string[]).every((s) => s.startsWith('https://')),
+    'sameAs entries must be absolute https URLs',
+  );
+});
+
+test('breadcrumbJsonLd() emits ListItem entries with absolute URLs', () => {
+  const ld = breadcrumbJsonLd([
+    { name: 'Home', href: '/' },
+    { name: 'Case Studies', href: '/case-studies' },
+    { name: 'Example', href: '/case-studies/example' },
+  ]);
+  assert.equal(ld['@type'], 'BreadcrumbList');
+  const items = ld.itemListElement as Array<Record<string, unknown>>;
+  assert.equal(items.length, 3);
+  assert.equal(items[0].position, 1);
+  assert.equal(items[2].position, 3);
+  assert.equal(items[2].item, `${SITE_BASE}/case-studies/example`,
+    'BreadcrumbList items must be absolute URLs');
+});
+
+test('searchResultsPageJsonLd() returns query-scoped SearchResultsPage when query present', () => {
+  const ld = searchResultsPageJsonLd('readiness', 12);
+  assert.equal(ld['@type'], 'SearchResultsPage');
+  assert.equal(ld.url, `${SITE_BASE}/search?q=readiness`);
+  assert.equal(ld.name, 'Search results for "readiness"');
+  const mainEntity = ld.mainEntity as Record<string, unknown>;
+  assert.equal(mainEntity['@type'], 'ItemList');
+  assert.equal(mainEntity.numberOfItems, 12);
+});
+
+test('searchResultsPageJsonLd() omits mainEntity when no result count', () => {
+  const ld = searchResultsPageJsonLd();
+  assert.equal(ld['@type'], 'SearchResultsPage');
+  assert.equal(ld.url, `${SITE_BASE}/search`);
+  assert.equal(ld.name, 'Search');
+  assert.equal((ld as Record<string, unknown>).mainEntity, undefined);
+});
+
+test('searchResultsPageJsonLd() URL-encodes the query string', () => {
+  const ld = searchResultsPageJsonLd('a b&c');
+  assert.equal(ld.url, `${SITE_BASE}/search?q=a%20b%26c`);
 });

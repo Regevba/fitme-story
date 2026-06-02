@@ -1,0 +1,172 @@
+---
+title: >-
+  Trend Alerts (HRV) — A Third Observer for the Multi-Day Sustained Pattern
+  (C4)
+slug: trend-alerts-hrv
+upstream_path: docs/case-studies/trend-alerts-hrv-case-study.md
+tier: light
+tldr: >-
+  C4 shipped 2026-06-01 in a single session as a full 9-phase Feature on
+  feature/trend-alerts-hrv (FT2 PR #564). Adds the third notification
+  observer alongside the score-crossing observer (single-day spike) and
+  the C2 ReadinessAwareTrainingObserver (single-day training-day
+  advisory). The new TrendAlertObserver fires daily at 08:00 local when
+  HRV stays below the user's personal baseline (median ± 1σ over 30
+  days, hardFloor 25 ms RMSSD) for 3+ consecutive days. Surfaces via
+  Home AIInsightCard banner + push (cap tag .standard) + Your HRV Trend
+  section in AIIntelligenceSheet with 7-day mini-chart and baseline +
+  floor overlays. Catches the sustained pattern the other two observers
+  silently miss — a Layer-≥2 user with HRV stable at 55 dropping to 38
+  for three days running.
+timeline_position:
+  version: '7.9'
+  order: 36
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+date: '2026-06-01'
+date_written: '2026-06-01'
+shipped_window: '2026-06-01 (single-session full 9-phase Feature cycle; ~3.5h kickoff-to-PR-open)'
+work_type: feature
+work_subtype: standalone
+dispatch_pattern: serial
+framework_version: v7.9
+tier_tags_present: true
+external_audit_status: pending
+status: shipped
+primary_metric: >-
+  Adoption rate among the Layer ≥2 cohort (users with 4+ weeks of HRV
+  history). Target ≥ 15 percent of Layer ≥2 cohort with at least one C4
+  fire in 30-day window. T1 instrumented via home_trend_alert_shown ×
+  distinct users / Layer ≥2 cohort size.
+success_metrics:
+  primary: >-
+    Adoption rate ≥ 15 percent of Layer ≥2 cohort at T+30d (T1
+    instrumented; computed via home_trend_alert_shown event uniqueness
+    against the HealthKit-Layer cohort size from
+    measurement-adoption.json)
+  secondary:
+    - Trend-alert action-taken rate ≥ 30 percent at T+14d (T2 declared baseline vs Smart Reminders v1 32 percent home_action_tap)
+    - User-reported false-positive rate < 15 percent via in-app feedback (T3 narrative)
+    - HRV recovery within 7 days of fire — descriptive only (T1 instrumented via HealthKit hrv reads, no target)
+    - Push-fatigue rate ≤ 60 percent (T2 declared, vs ReadinessAlertObserver baseline)
+kill_criteria:
+  - Action-taken rate < 5 percent after 14 days of organic exposure
+  - User-reported false-positive rate > 20 percent via in-app feedback
+  - Push-fatigue rate > 75 percent (advisory treated as spam)
+  - Adoption rate < 5 percent of Layer ≥2 cohort (personal-baseline computation broken or threshold too restrictive)
+kill_criteria_resolution: >-
+  pending — first evaluation 2026-07-01 (T+30d adoption review).
+related_prs:
+  - 564
+  - 562
+predecessor_case_studies:
+  - docs/case-studies/readiness-aware-training-alert-case-study.md
+  - docs/case-studies/push-notifications-v2-case-study.md
+  - docs/case-studies/smart-reminders-system-case-study.md
+key_numbers:
+  - label: New source files
+    value: '6 (TrendAlertContext + TrendAlertTrigger + TrendAlertDispatchTimeLearner + TrendAlertObserver + TrendAlertStore + HRVTrendChart)'
+    tier: T1
+  - label: Modified source files
+    value: '8 (AnalyticsProvider + AnalyticsService + AIInsightCard + AIIntelligenceSheet + ReminderPreferencesStore + NotificationsSettingsScreen + FitTrackerApp + pbxproj)'
+    tier: T1
+  - label: New tests
+    value: '~31 across 4 files (19 trigger + 2 dispatch-time + 6 observer + 4 store)'
+    tier: T1
+  - label: Time end-to-end
+    value: '~3.5 hours kickoff-to-PR-open'
+    tier: T1
+    note: Phases 0 + 1 + 2 + 4 in one session; Phase 3 (UX) skipped per Feature discretion (reused existing AI sheet primitives); Phases 5-8 covered by T13-T14 task plan + the merge ceremony
+  - label: New analytics events
+    value: '4 home_-prefixed (shown / tap / action_taken / dismissed)'
+    tier: T1
+  - label: pbxproj slots wired
+    value: '10 (6 source + 4 test)'
+    tier: T1
+---
+
+# Trend Alerts (HRV) — C4
+
+## The gap C4 fills
+
+Pre-C4, FitMe had **two** notification observers. C2 (slot 40) added the second; C4 makes three:
+
+| Observer | Trigger | Window | Catches |
+|---|---|---|---|
+| `ReadinessAlertObserver` (v2) | Score crosses ≥80 OR ≤40 | Single-day event | Acute readiness spikes/drops |
+| `ReadinessAwareTrainingObserver` (C2) | Readiness + scheduled training day | Today only, at learned start time | "Should I train today?" decision aid |
+| **`TrendAlertObserver` (C4 — this)** | **HRV ≤ personal floor for ≥3 days** | **Rolling 3-day window** | **Sustained accumulating fatigue** |
+
+The gap before C4: a Layer ≥2 user with HRV stable at 55 (their normal) drops to 38 for three days running. ReadinessAlertObserver doesn't fire (never crossed ≤40). C2 fires only on training days. The accumulating-fatigue pattern is silent until the user manually checks Stats — too late to act.
+
+Surfaced empirically in the 2026-04-21 Gemini independent audit Tier-2 finding "multi-day HRV trend silently absent from notification surface". Deferred to backlog L346 until v7.9 Phase E created the post-C2 build window.
+
+## The frozen algorithm
+
+PRD §"Requirements" freezes these constants (changing requires re-Phase-1):
+
+```text
+baselineWindow      = 30 days  (median; matches ReadinessEngine Layer 1+ window)
+baselinePercentile  = 50       (median resists single-day outliers)
+sustainedDays       = 3        (2 = noise; 4 = too late; 3 captures pre-crash pattern)
+hardFloor           = 25 ms    (~10th percentile across general population)
+refireWindow        = 7 days   (avoid spam during multi-week dips)
+requiredDataQuality = 3 / 3    (don't infer from missing reads)
+```
+
+The trigger:
+
+```text
+let baseline = median(last-30-day HRV samples)
+let stddev   = populationStdDev(last-30-day HRV samples)
+let floor    = max(baseline - stddev, hardFloor)
+let recent3  = last-3-completed-day HRV daily reads
+let fires    = recent3.count == 3 AND recent3.all(<= floor) AND !alreadyFiredThisWeek()
+```
+
+Cold-start (Layer 0): users with < 14 days of HRV history use `hardFloor = 25 ms` only. Notification body switches to cautious copy.
+
+## Three design decisions
+
+**1. Third consumer, distinct cap tag, distinct de-dupe.** Each observer fires through `NotificationGateway` independently. C4 registers as `push-notifications.trendAlert` with `.standard` cap tag (not `.critical`), ISO-week-keyed de-dupe (vs C2's per-day, vs ReadinessAlertObserver's per-day-per-direction). The in-app single-banner slot resolves precedence at the view layer (C2 wins on training days; C4 fills the gap on rest days).
+
+**2. Pure-function helpers in `TrendAlertTrigger.swift`, not in `ReadinessEngine.swift`.** The PRD's Phase 0 research called for extending `ReadinessEngine.personalBaseline(stddev:)`. Phase 4 scope-shifted the median + population-stddev helpers into the new trigger file. Per [CLAUDE.md "Branching Strategy"](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md), `ReadinessEngine.swift` is a **high-risk-area** file — zero touch is better than a small extension. 19 of the 31 new tests cover the trigger + median + population-stddev edge cases (empty, single, identical, large-variance, NaN, infinity).
+
+**3. Reuse `AIIntelligenceSheet.readinessSection` pattern for "Your HRV Trend".** Adds one new section (`hrvTrendSection`) between the existing readiness bars and the AI feedback row. Uses Swift Charts (already imported by stats-v2) for the 7-day mini-chart with baseline (dotted) + floor (solid) overlays. Point colors: green ≥ baseline, amber between floor + baseline, red ≤ floor.
+
+## C2 vs C4 precedence (PRD OQ-4)
+
+When both observers have a context ready on the same morning, the **in-app banner shows C2** (training-day priority). The push notifications fire from both observers independently — they live in separate cap-tag groups + de-dupe windows. The view layer resolves the single-slot collision at render time in `AIInsightCard.body`.
+
+## What ships in PR #564
+
+| Layer | New | Modified |
+|---|---|---|
+| Models | `TrendAlertContext.swift` (TrendAlertKind enum + Context struct) | — |
+| Services/Reminders | `TrendAlertTrigger` (pure-function evaluator + median + stddev), `TrendAlertDispatchTimeLearner` (v1 stub at 08:00), `TrendAlertObserver` (gateway wiring + 7-day de-dupe), `TrendAlertStore` (UI observable) | — |
+| Views/AI | `HRVTrendChart.swift` (7-day Swift Charts view) | `AIInsightCard` (3-way precedence + avatar mode `.pulse` for trend), `AIIntelligenceSheet` (Your HRV Trend section + feedback affordance) |
+| Settings | — | `ReminderPreferencesStore.trendAlertsEnabled` + `NotificationsSettingsScreen` toggle |
+| Analytics | — | `AnalyticsProvider` (4 events + 4 params) + `AnalyticsService` (4 `logHomeTrendAlert*` methods) |
+| App init | — | `FitTrackerApp` (consumer registration for C2 + C4 stores wired into env-object hierarchy) |
+| Tests | 4 files, ~31 tests | — |
+
+## What's deliberately not in C4
+
+- **Multi-signal fusion (C4.b)** — HRV ∩ RHR ∩ Sleep composite. One signal at a time keeps the user-facing explanation clear.
+- **Predictive overlay (C4.c)** — "you'll bottom out tomorrow at 28 ms". T1/T3 confidence insufficient for v1 surfacing.
+- **Learned dispatch time (C4.c sibling)** — `TrendAlertDispatchTimeLearner` is a stub returning fixed 08:00 in v1. Future C4.c will learn from app-open patterns.
+- **Cohort-aware baseline (C4.e)** — compare against demographics-matched population, not just personal history. Privacy-impacting aggregation; needs separate GDPR review.
+
+## Phase E discipline
+
+C4 shipped during the v7.9 Phase E 14-day soak (2026-05-21 → 2026-06-04). The release **adds no enforcement gates** — consumes existing v7.8.6 + v7.9 infrastructure exclusively. Phase E compliant.
+
+## Cross-references
+
+- Source case study — `docs/case-studies/trend-alerts-hrv-case-study.md`
+- PRD — `docs/product/prd/trend-alerts-hrv.md`
+- Sibling C2 (slot 40) — single-day training-day decision aid
+- Phase E context — slot 34 (`framework-v7-9-promotion.mdx`)
+- Phase 0 research baseline — `docs/case-studies/readiness-aware-training-alert-case-study.md` (sibling pattern, established the observer architecture)
