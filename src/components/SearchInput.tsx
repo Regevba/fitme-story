@@ -3,6 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
+import { trackSearchQuerySubmitted, type SearchSource } from '@/lib/search-analytics';
+
+const VARIANT_SOURCE: Record<'compact' | 'full' | 'expandable', SearchSource> = {
+  compact: 'compact',
+  full: 'mobile',
+  expandable: 'nav',
+};
 
 export interface SearchInputProps {
   /**
@@ -56,6 +63,10 @@ export function SearchInput({ variant = 'full', className = '' }: SearchInputPro
     event.preventDefault();
     const trimmed = inputRef.current?.value.trim() ?? '';
     if (!trimmed) return;
+    trackSearchQuerySubmitted({
+      query_length: trimmed.length,
+      source: VARIANT_SOURCE[variant],
+    });
     router.push(`/search?q=${encodeURIComponent(trimmed)}`);
   }
 

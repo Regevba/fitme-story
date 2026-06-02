@@ -6,6 +6,8 @@ import { JsonLd } from '@/components/JsonLd';
 import { getSearchIndex, getSearchIndexFacets, type SearchCategory } from '@/lib/search-index';
 import { search, type SearchFilters, type SearchHit } from '@/lib/search';
 import { Tag } from '@/components/ui/Tag';
+import { SearchResultsTracker } from '@/components/SearchResultsTracker';
+import { TrackedResultLink } from '@/components/TrackedResultLink';
 
 const CATEGORY_LABELS: Record<SearchCategory, string> = {
   'case-study': 'Case Study',
@@ -72,10 +74,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const index = await getSearchIndex();
   const facets = getSearchIndexFacets(index);
   const hits = search(index, query, filters, 100);
+  const hasFilters = Boolean(
+    filters.category || filters.version || filters.tier || filters.glossaryCategory,
+  );
+  const queryLength = query.length;
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
       <JsonLd data={searchResultsPageJsonLd(query || undefined, query ? hits.length : undefined)} />
+      <SearchResultsTracker query={query} resultCount={hits.length} hasFilters={hasFilters} />
       <header className="mb-6">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-50)]">
           Search
@@ -90,7 +97,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <FilterBar facets={facets} active={filters} query={query} />
 
-      <ResultsList hits={hits} query={query} />
+      <ResultsList hits={hits} query={query} queryLength={queryLength} />
     </main>
   );
 }
@@ -224,7 +231,15 @@ function FilterSelect({
   );
 }
 
-function ResultsList({ hits, query }: { hits: SearchHit[]; query: string }) {
+function ResultsList({
+  hits,
+  query,
+  queryLength,
+}: {
+  hits: SearchHit[];
+  query: string;
+  queryLength: number;
+}) {
   if (hits.length === 0) {
     return (
       <div className="rounded-md border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-6 text-center text-sm text-[var(--color-neutral-700)] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)] dark:text-[var(--color-neutral-300)]">
@@ -242,8 +257,13 @@ function ResultsList({ hits, query }: { hits: SearchHit[]; query: string }) {
 
   return (
     <ul className="space-y-4">
-      {hits.map((hit) => (
-        <ResultItem key={`${hit.entry.category}:${hit.entry.id}`} hit={hit} />
+      {hits.map((hit, index) => (
+        <ResultItem
+          key={`${hit.entry.category}:${hit.entry.id}`}
+          hit={hit}
+          rank={index}
+          queryLength={queryLength}
+        />
       ))}
     </ul>
   );
@@ -282,12 +302,26 @@ function highlight(text: string, tokens: string[]): ReactNode {
   return nodes;
 }
 
-function ResultItem({ hit }: { hit: SearchHit }) {
+function ResultItem({
+  hit,
+  rank,
+  queryLength,
+}: {
+  hit: SearchHit;
+  rank: number;
+  queryLength: number;
+}) {
   const { entry } = hit;
   const snippet = hit.snippet || entry.description;
   return (
     <li className="rounded-md border border-[var(--color-neutral-200)] bg-[var(--color-neutral-0)] p-4 transition hover:border-[var(--color-brand-indigo)] hover:shadow-sm dark:border-[var(--color-neutral-800)] dark:bg-[var(--color-neutral-950)]">
-      <Link href={hit.url} className="block focus-visible:outline-none">
+      <TrackedResultLink
+        href={hit.url}
+        resultCategory={entry.category}
+        resultRank={rank}
+        queryLength={queryLength}
+        className="block focus-visible:outline-none"
+      >
         <div className="mb-1 flex flex-wrap items-baseline gap-2">
           <h2 className="text-lg font-semibold text-[var(--color-neutral-900)] hover:underline dark:text-[var(--color-neutral-50)]">
             {highlight(entry.title, hit.matchedTokens)}
@@ -302,7 +336,7 @@ function ResultItem({ hit }: { hit: SearchHit }) {
         <p className="mt-1 font-mono text-xs text-[var(--color-neutral-500)] dark:text-[var(--color-neutral-400)]">
           {hit.url}
         </p>
-      </Link>
+      </TrackedResultLink>
     </li>
   );
 }
