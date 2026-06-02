@@ -1,0 +1,218 @@
+---
+title: >-
+  AI User Feedback Loop — Closing Audit UI-024 with a Per-User Reinforcement
+  Cycle (C5)
+slug: ai-user-feedback-loop
+upstream_path: docs/case-studies/ai-user-feedback-loop-case-study.md
+tier: light
+tldr: >-
+  C5 shipped 2026-06-01/02 in a single session as a full 5-phase Feature
+  on feature/ai-user-feedback-loop (FT2 PR #572 merged 2026-06-02
+  ec5dff9). Closes audit UI-024 — a deferred comment block at
+  AIInsightCard.swift:230-235 carried since PR #79 / 2026-04-10 because
+  RecommendationMemory was owned per-AIOrchestrator-instance, not a
+  shared env-object. C5 promotes it to a @StateObject via
+  RecommendationFeedbackController facade, wires
+  AIInsightCard.recordFeedback to actually call record(outcome:), and
+  adds an AIOrchestrator reinforcement-loop block that suppresses
+  per-segment signals after 3 dismissals in a 30-day window and boosts
+  segments where acceptanceRate exceeds 0.70 (5-outcome quorum). Three
+  surfaces ship together — UI-024 wire + reinforcement loop +
+  Settings → AI Feedback management screen with dismiss-reason picker
+  (5 enum + 80-char on-device free-text). Audit UI-024 closed on main.
+timeline_position:
+  version: '7.9'
+  order: 37
+persona_emphasis:
+  hr: outcomes
+  pm: lifecycle
+  dev: architecture
+date: '2026-06-02'
+date_written: '2026-06-02'
+shipped_window: '2026-06-01 → 2026-06-02 (single-session full 5-phase Feature cycle; ~3 hours kickoff-to-PR-open + merge ceremony next morning)'
+work_type: feature
+work_subtype: standalone
+dispatch_pattern: serial
+framework_version: v7.9
+tier_tags_present: true
+external_audit_status: pending
+status: shipped
+primary_metric: >-
+  home_ai_feedback_submitted events per WAU. Target ≥ 0.10 at T+30d
+  (baseline 0.03 measured 2026-05-31 → 2026-06-01 GA4 window: 47 events
+  / ~35 testers / 6 weeks). T1 instrumented.
+success_metrics:
+  primary: >-
+    home_ai_feedback_submitted events per WAU ≥ 0.10 at T+30d (T1
+    instrumented; baseline 0.03)
+  secondary:
+    - Acceptance rate ≥ 0.6 in ≥ 2 segments at T+30d (T1 instrumented via RecommendationMemory.acceptanceRate(for:))
+    - Recommendation-fatigue rate declining trend over 14d window (T2 declared)
+    - Settings → AI Feedback opt-out rate ≤ 20 percent (T2 declared, kill criterion guard)
+    - Suppression-accuracy operator-observation (T3 narrative, ≥ 1 positive observation)
+kill_criteria:
+  - Acceptance rate at T+14d below pre-C5 baseline (loop made things worse)
+  - home_ai_feedback_submitted event volume declines vs baseline (UX broke the feedback surface)
+  - Settings → AI Feedback opt-out rate > 20 percent (signal overcorrection)
+  - User-reported wrong-suppression via dismiss-reason 'disagree' count > 20 percent of total dismissals
+kill_criteria_resolution: >-
+  pending — first evaluation 2026-06-15 (T+14d acceptance-rate
+  regression check); T+30d full review 2026-07-01.
+related_prs:
+  - 572
+  - 579
+predecessor_case_studies:
+  - docs/case-studies/readiness-aware-training-alert-case-study.md
+  - docs/case-studies/trend-alerts-hrv-case-study.md
+  - docs/case-studies/onboarding-v2-auth-flow-v5.1-case-study.md
+key_numbers:
+  - label: Closes deferred audit
+    value: 'UI-024 (FitTracker/Views/AI/AIInsightCard.swift:230-235; carried since PR #79 / 2026-04-10)'
+    tier: T1
+  - label: Phase 4 commits
+    value: '7 standalone-buildable commits — T1+T3+T11 infra (6a00984), T2+T4 plumbing (be993f8), T5 orchestrator (571881d), T6 UI-024 closure (c476572), T7+T8 picker (f95e85b), T9+T10 settings (438e02c), T12 tests + case study + state→testing (20de5f2)'
+    tier: T1
+  - label: Time end-to-end
+    value: '~3 hours kickoff-to-PR-open + merge ceremony next morning'
+    tier: T1
+    note: Phase 0 + 1 + 2 + 4 + 5 in one session; Phases 6-8 covered by the merge ceremony 2026-06-02 (revert #579 sandwich + per-PR approval + final merge)
+  - label: Tests
+    value: '14 tests across 4 new test files — RecommendationMemoryWindow (2) + RecommendationFeedbackController (4) + AIOrchestratorReinforcementHelpers (7) + AIRecommendationWithConfidence (1); 14/14 PASS on iPhone 17 Simulator (101s test runtime)'
+    tier: T1
+  - label: LoC actual
+    value: '670 (PRD estimated 870 — came in under)'
+    tier: T1
+  - label: New analytics events
+    value: '3 home_-prefixed (home_ai_feedback_signal_suppressed, home_ai_feedback_segment_boosted, home_ai_feedback_history_cleared); joining existing home_ai_feedback_submitted'
+    tier: T1
+  - label: Frozen algorithm constants
+    value: 'acceptanceUpgradeThreshold=0.70 / dismissalSuppressionThreshold=3 in 30-day window / quorumCount=5 outcomes per segment / adjustmentMode=confidenceTierOnly / 5-enum dismissReasonOptions / 200-LRU per segment'
+    tier: T1
+---
+
+# AI User Feedback Loop — C5
+
+## The audit UI-024 deferred-comment problem
+
+When PR #79 (2026-04-10) shipped the AI insight infrastructure, `AIInsightCard.swift:230-235` carried this block at the bottom of `recordFeedback`:
+
+```swift
+// Note (audit UI-024): Local RecommendationMemory recording deferred —
+// RecommendationMemory is owned per-AIOrchestrator instance, not a
+// shared singleton. Wiring requires either an EnvironmentObject pattern
+// or a dedicated DI container. Tracked separately; analytics signal
+// already captures the feedback event server-side.
+```
+
+The analytics signal (`home_ai_feedback_submitted`) fired every tap. The on-device storage layer (`RecommendationMemory`) was fully implemented + tested. The UI surface (`AIFeedbackView` thumbs-up/down) existed. **None of them were wired to each other.**
+
+Result: 47+ feedback events fired during the 2026-05-31 → 2026-06-01 GA4 window, but `RecommendationMemory.totalCount` on every user's device stayed at 0. The home screen kept surfacing the same recommendation patterns regardless of user response — `"Your sleep quality could use a boost"` could appear on day 50 even though the user dismissed it 49 times. No mechanical learning.
+
+## The three closures C5 ships
+
+### Closure A — UI-024 wire (the headline)
+
+Promote `RecommendationMemory` from per-`AIOrchestrator`-instance to an app-lifecycle `@StateObject` via the new `RecommendationFeedbackController` facade. `AIInsightCard.recordFeedback` reads it via `@EnvironmentObject` and calls `record(outcome:)` directly. The deferred comment block is fully removed.
+
+### Closure B — Reinforcement loop in `AIOrchestrator`
+
+`AIOrchestrator.process(segment:jwt:overrideSnapshot:)` gains an `applyReinforcementLoop(recommendation:segment:)` block between the `finalRecommendation` resolution and the `latestRecommendations[segment]` publish. Per-signal-per-segment confidence-tier-only adjustment:
+
+```text
+For each signal in recommendation.signals:
+  if dismissed >=3 times in last 30d for this segment:
+    confidence = downgrade(confidence)   // high → medium → low
+    fire home_ai_feedback_signal_suppressed
+  else if acceptanceRate(segment) > 0.70 with >=5 outcomes:
+    confidence = upgrade(confidence)     // low → medium → high
+    fire home_ai_feedback_segment_boosted
+```
+
+Gated on `AppSettings.aiFeedbackLoopEnabled` (default ON). When OFF the orchestrator skips the block entirely — feedback is still recorded so re-enable doesn't lose history.
+
+### Closure C — Settings → AI Feedback management surface
+
+New `SettingsCategory.aiFeedback` row in the Settings v2 dashboard. Detail screen has 4 sections:
+
+1. **Feedback Activity** — total outcomes recorded (or empty-state copy)
+2. **Acceptance Rate by Topic** — iterates `AISegment.allCases`:
+   - ≥ 5 outcomes → `"X% · N outcomes"`
+   - < 5 outcomes → `"N of 5 (below quorum)"`
+   - 0 outcomes → `"—"`
+3. **Currently Suppressed (last 30 days)** — collected from `frequentlyDismissedSignals` across all 4 segments
+4. **Controls** — opt-out toggle + clear-history button (with confirmation dialog firing `home_ai_feedback_history_cleared`)
+
+### Bonus surface — dismiss-reason picker
+
+When the user taps thumbs-down in the sheet's `AIFeedbackView` (NOT on the home card — keeps card tap latency at 1 tap per PRD OQ-2), a `confirmationDialog` surfaces 5 options: not-relevant / already-aware / disagree / repetitive / other. "Other" opens a secondary sheet with `TextField` capped at 80 chars (stored on-device, never sent to GA4 per PRD §"GDPR/Privacy").
+
+## Frozen algorithm constants
+
+PRD §"FROZEN constants" locks these — changing requires re-Phase-1:
+
+| Constant | Value |
+|---|---|
+| `acceptanceUpgradeThreshold` | 0.70 |
+| `dismissalSuppressionThreshold` | 3 dismissals / 30-day window |
+| `quorumCount` | 5 outcomes per segment |
+| `adjustmentMode` | `confidenceTierOnly` (no signal synthesis) |
+| `dismissReasonOptions` | not_relevant / already_aware / disagree / repetitive / other |
+| `outcomeRetentionPerSegment` | 200 LRU |
+
+## Three new analytics events
+
+All screen-prefixed `home_` per the 2026-04-08 project convention. Join the existing `home_ai_feedback_submitted` (unchanged).
+
+| Event | Trigger | Params |
+|---|---|---|
+| `home_ai_feedback_signal_suppressed` | Reinforcement loop suppresses a signal | `segment`, `signal`, `dismissal_count` |
+| `home_ai_feedback_segment_boosted` | Reinforcement loop upgrades segment confidence | `segment`, `acceptance_rate` (int 0-100), `outcome_count` |
+| `home_ai_feedback_history_cleared` | User taps "Clear feedback history" in Settings | `total_outcomes_cleared` |
+
+## Single-session lifecycle (5 phases in ~3 hours)
+
+| Phase | Artifact | Duration |
+|---|---|---|
+| 0 Research | `.claude/features/ai-user-feedback-loop/research.md` (11 sections) | ~70 min |
+| 1 PRD | `docs/product/prd/ai-user-feedback-loop.md` (349 lines, frozen constants) | ~20 min |
+| 2 Tasks | `.claude/features/ai-user-feedback-loop/tasks.md` (12 units T1-T12 + dependency graph + 7-commit Phase 4 landing order) | ~10 min |
+| 4 Implement | 6 standalone-buildable commits | ~67 min |
+| 5 Test | 4 new test files, 14 tests PASS on iPhone 17 Sim (101s); 7th commit | ~10 min |
+
+**Total wall time:** ~3 hours session-1 (Phases 0-5) + merge ceremony 2026-06-02 (Phases 6-8 with revert #579 sandwich — see below).
+
+## The Dependabot revert sandwich (2026-06-02 merge ceremony)
+
+The merge ceremony surfaced a Dependabot bump that broke main mid-flight:
+
+1. **#575 E4 backlog drift correction** → ✅ MERGED `d774dc2`
+2. **#577 Dependabot style-dictionary 3.9.2 → 5.4.2 bump** → ✅ MERGED `91979f8` — **BUT** v5 API removed `StyleDictionary.extend()` and top-level `.registerTransform()`. `sd.config.js` uses both. `make tokens` started failing on every PR.
+3. **#579 Revert #577** → ✅ MERGED `cee8801` (single-step `git revert`; main green again)
+4. **#572 C5 full lifecycle** → ✅ MERGED `ec5dff9` (after update-branch pulled in revert)
+
+The C5 merge took 4 actions to land because of the intervening Dependabot incident. Followup queued: a proper style-dictionary v5 migration PR (rewrite `sd.config.js` for `new StyleDictionary()` constructor + instance `.registerTransform()`) shipped separately later.
+
+## What's deliberately not in C5
+
+- **Time-decay weighting** — recent feedback weighted more than 30d-old. C5.b track (D1.a covers this).
+- **Cohort-level reinforcement** — feedback from other users informing your recommendations. Privacy-impacting; D1.b (deferred to v8.0).
+- **Signal generation from feedback** — AI-suggested replacement when suppressed. D1.c (deferred to v8.0+; mapping table vs LLM gateway open question).
+- **Suppression-transparency UX inside the home card** — D1.d (deferred to v8.0+).
+- **Push notification reinforcement** — C2 + C4 banner `action_taken` events route into RecommendationMemory. C5.c track (D1.c sibling).
+- **Server-side dismiss-reason aggregation** — privacy boundary per PRD §"GDPR/Privacy".
+
+## Phase E discipline
+
+C5 shipped + merged during the v7.9 Phase E 14-day soak (2026-05-21 → 2026-06-04). The release **adds no enforcement gates** and **adds no new schema fields**. Consumes existing v7.8.6 + v7.9 infrastructure exclusively. Phase E compliant — Day 13/14 at merge.
+
+## Cross-references
+
+- Source case study — `docs/case-studies/ai-user-feedback-loop-case-study.md`
+- PRD — `docs/product/prd/ai-user-feedback-loop.md`
+- Phase 0 research — `.claude/features/ai-user-feedback-loop/research.md`
+- Phase 2 tasks — `.claude/features/ai-user-feedback-loop/tasks.md`
+- Sibling C2 (slot 40) — single-day readiness-aware training advisory
+- Sibling C4 (slot 41) — sustained-trend HRV observer
+- W26 CI concurrency fix (slot 42) — the previous merge-day sandwich
+- Phase E context — slot 34 (`framework-v7-9-promotion.mdx`)
+- Successor D1 (PR #576 draft) — adaptive-intelligence-next-pass; recommended v1 pair: D1.a time-decay + D1.d transparency UX
