@@ -39,8 +39,8 @@ function emit(eventName: string, params: object): void {
   teeToDebugMirror(eventName, params);
 }
 
-/** Where the query was submitted from — maps to SearchInput's variant. */
-export type SearchSource = 'nav' | 'mobile' | 'compact';
+/** Where the query was submitted from — SearchInput variant, or the ⌘K palette. */
+export type SearchSource = 'nav' | 'mobile' | 'compact' | 'palette';
 
 export interface SearchQuerySubmittedEvent {
   /** Length of the trimmed query — never the query text itself (PII-safe). */
@@ -64,6 +64,16 @@ export interface SearchResultClickedEvent {
   /** 0-based rank of the clicked result within the list. */
   result_rank: number;
   query_length: number;
+}
+
+export interface SearchPaletteOpenedEvent {
+  /** How the palette was opened. */
+  trigger: 'hotkey' | 'click';
+}
+
+/** Fired when the ⌘K instant-search palette opens. */
+export function trackSearchPaletteOpened(payload: SearchPaletteOpenedEvent): void {
+  emit('search_palette_opened', payload);
 }
 
 /** Fired when a user submits a query from any search input. */

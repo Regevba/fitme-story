@@ -4,6 +4,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { serif, sans } from './fonts';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
+import { SearchPalette } from '@/components/SearchPalette';
 import { PersonaProvider } from '@/lib/persona-context';
 import './globals.css';
 
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PersonaProvider>{children}</PersonaProvider>
         </main>
         <SiteFooter />
+        <SearchPalette />
         <SpeedInsights />
       </body>
       {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
