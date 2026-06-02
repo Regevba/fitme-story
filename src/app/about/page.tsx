@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { buildMetadata } from '@/lib/seo';
 import { Card } from '@/components/ui/Card';
 
@@ -51,33 +50,6 @@ export default function AboutPage() {
           This site is the guided tour of that process. All docs are from real shipped work. All metrics are measured,
           not estimated. The regressions are as public as the successes.
         </p>
-        <h2>Links</h2>
-        <ul>
-          <li>
-            <a href="https://github.com/Regevba/fitme-showcase">fitme-showcase</a> — canonical markdown docs (GitHub)
-          </li>
-          <li>
-            <Link href="/pm-flow">pm flow</Link> — the phases, skills, and shared-state model
-          </li>
-          <li>
-            <Link href="/framework">framework</Link> — the six-floor architecture
-          </li>
-          <li>
-            <Link href="/design-system">design system</Link> — tokens, principles, and shipped UI
-          </li>
-          <li>
-            <Link href="/case-studies">case studies</Link> — chronological deep-dives
-          </li>
-          <li>
-            <Link href="/research">research</Link> — where the framework pointed next
-          </li>
-        </ul>
-        <h2>Contact</h2>
-        <ul>
-          <li>Email: <a href="mailto:Regev.ba@gmail.com">Regev.ba@gmail.com</a></li>
-          <li>LinkedIn: <a href="https://www.linkedin.com/in/regev-barak/" target="_blank" rel="noopener noreferrer">linkedin.com/in/regev-barak</a></li>
-          <li>Resume: <a href="/resume.pdf" download>Download PDF</a></li>
-        </ul>
       </div>
     </article>
   );
