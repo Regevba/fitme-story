@@ -1,10 +1,13 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { buildMetadata, searchResultsPageJsonLd } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
 import { getSearchIndex, getSearchIndexFacets, type SearchCategory } from '@/lib/search-index';
 import { search, type SearchFilters, type SearchHit } from '@/lib/search';
 import { Tag } from '@/components/ui/Tag';
+import { SearchResultsTracker } from '@/components/SearchResultsTracker';
+import { TrackedResultLink } from '@/components/TrackedResultLink';
 
 const CATEGORY_LABELS: Record<SearchCategory, string> = {
   'case-study': 'Case Study',
@@ -71,10 +74,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const index = await getSearchIndex();
   const facets = getSearchIndexFacets(index);
   const hits = search(index, query, filters, 100);
+  const hasFilters = Boolean(
+    filters.category || filters.version || filters.tier || filters.glossaryCategory,
+  );
+  const queryLength = query.length;
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
       <JsonLd data={searchResultsPageJsonLd(query || undefined, query ? hits.length : undefined)} />
+      <SearchResultsTracker query={query} resultCount={hits.length} hasFilters={hasFilters} />
       <header className="mb-6">
         <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-50)]">
           Search
@@ -89,7 +97,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <FilterBar facets={facets} active={filters} query={query} />
 
-      <ResultsList hits={hits} query={query} />
+      <ResultsList hits={hits} query={query} queryLength={queryLength} />
     </main>
   );
 }
@@ -223,7 +231,15 @@ function FilterSelect({
   );
 }
 
-function ResultsList({ hits, query }: { hits: SearchHit[]; query: string }) {
+function ResultsList({
+  hits,
+  query,
+  queryLength,
+}: {
+  hits: SearchHit[];
+  query: string;
+  queryLength: number;
+}) {
   if (hits.length === 0) {
     return (
       <div className="rounded-md border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] p-6 text-center text-sm text-[var(--color-neutral-700)] dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)] dark:text-[var(--color-neutral-300)]">
@@ -241,33 +257,86 @@ function ResultsList({ hits, query }: { hits: SearchHit[]; query: string }) {
 
   return (
     <ul className="space-y-4">
-      {hits.map((hit) => (
-        <ResultItem key={`${hit.entry.category}:${hit.entry.id}`} hit={hit} />
+      {hits.map((hit, index) => (
+        <ResultItem
+          key={`${hit.entry.category}:${hit.entry.id}`}
+          hit={hit}
+          rank={index}
+          queryLength={queryLength}
+        />
       ))}
     </ul>
   );
 }
 
-function ResultItem({ hit }: { hit: SearchHit }) {
+/**
+ * Wrap each case-insensitive occurrence of a matched query token in <mark>.
+ * Longer tokens (quoted phrases) are tried first so a phrase wins over its
+ * constituent words. Fuzzy-matched tokens that don't appear verbatim simply
+ * don't highlight — which is correct, since there's nothing exact to mark.
+ */
+function highlight(text: string, tokens: string[]): ReactNode {
+  const escaped = tokens
+    .filter((t) => t.length > 0)
+    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .sort((a, b) => b.length - a.length);
+  if (escaped.length === 0 || !text) return text;
+
+  const re = new RegExp(`(${escaped.join('|')})`, 'gi');
+  const nodes: ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(re)) {
+    const idx = m.index ?? 0;
+    if (idx > last) nodes.push(text.slice(last, idx));
+    nodes.push(
+      <mark
+        key={`${idx}-${m[0]}`}
+        className="rounded-[2px] bg-[color-mix(in_srgb,var(--color-brand-indigo)_18%,transparent)] px-0.5 text-inherit"
+      >
+        {m[0]}
+      </mark>,
+    );
+    last = idx + m[0].length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
+
+function ResultItem({
+  hit,
+  rank,
+  queryLength,
+}: {
+  hit: SearchHit;
+  rank: number;
+  queryLength: number;
+}) {
   const { entry } = hit;
+  const snippet = hit.snippet || entry.description;
   return (
     <li className="rounded-md border border-[var(--color-neutral-200)] bg-[var(--color-neutral-0)] p-4 transition hover:border-[var(--color-brand-indigo)] hover:shadow-sm dark:border-[var(--color-neutral-800)] dark:bg-[var(--color-neutral-950)]">
-      <Link href={entry.url} className="block focus-visible:outline-none">
+      <TrackedResultLink
+        href={hit.url}
+        resultCategory={entry.category}
+        resultRank={rank}
+        queryLength={queryLength}
+        className="block focus-visible:outline-none"
+      >
         <div className="mb-1 flex flex-wrap items-baseline gap-2">
           <h2 className="text-lg font-semibold text-[var(--color-neutral-900)] hover:underline dark:text-[var(--color-neutral-50)]">
-            {entry.title}
+            {highlight(entry.title, hit.matchedTokens)}
           </h2>
           <Tag variant="muted">{CATEGORY_LABELS[entry.category]}</Tag>
           {entry.tags.version && <Tag variant="muted">v{entry.tags.version}</Tag>}
           {entry.tags.tier && <Tag variant="muted">{entry.tags.tier}</Tag>}
         </div>
         <p className="text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          {hit.snippet || entry.description}
+          {highlight(snippet, hit.matchedTokens)}
         </p>
         <p className="mt-1 font-mono text-xs text-[var(--color-neutral-500)] dark:text-[var(--color-neutral-400)]">
-          {entry.url}
+          {hit.url}
         </p>
-      </Link>
+      </TrackedResultLink>
     </li>
   );
 }
