@@ -1,44 +1,76 @@
 {
   "subexp_id": "phase2bis-subexp2",
-  "rq": "TBD — fill before lock per spec §1",
-  "endpoints": [],
+  "rq": "Can we distinguish Ollama-on-M2 from cloud endpoints by signature alone? (Per spec \u00a71 RQ2. Sub-exp 1 establishes the cloud-side signature baseline; Sub-exp 2 collects an Ollama local-execution distribution and tests KS-distinguishability vs the cloud anchor distributions at p<0.01. Hypothesis: local execution produces a distinguishably different streaming TTFT/TPS signature than any cloud-hosted endpoint because the model is loaded locally with no rate-limiting / no network round-trip / different memory hierarchy.)",
+  "endpoints": [
+    {
+      "provider": "ollama",
+      "endpoint": "llama3.2:3b",
+      "api_kind": "local"
+    }
+  ],
   "per_call_controls": {
     "calls_per_fire": 50,
     "max_output_tokens": 200,
     "temperature": 0.7,
-    "timeout_s": 60,
+    "timeout_s": 600,
     "streaming_required": true,
     "system_prompt": null,
     "tools": null,
     "prompt_set_path": ".claude/shared/hadf/phase2bis-prompt-set.json",
-    "prompt_set_sha256": "TBD — computed at lock time"
+    "prompt_set_sha256": "7b4d9dc9000893fcbec1fde7c75c9e25b41bc2e7c8b05046d6f8a9dfd71c69a4"
   },
   "campaign_schedule": {
     "fires_per_day": 5,
-    "fire_times_utc": ["02:00", "08:00", "14:00", "18:00", "22:00"],
-    "duration_days": 3
+    "fire_times_utc": [
+      "02:00",
+      "08:00",
+      "14:00",
+      "18:00",
+      "22:00"
+    ],
+    "duration_days": 3,
+    "expected_endpoints_per_fire": 1
   },
-  "primary_metric": "silhouette score at k=5",
-  "expected_yield_threshold": 600,
+  "primary_metric": "KS-distinguishability p-value vs Sub-exp 1 anchor distributions (openai/gpt-4o-mini + anthropic/claude-haiku-4-5)",
+  "expected_yield_threshold": 200,
   "kill_criteria": [
-    "n_valid < 600",
-    "all endpoints simultaneously rate-limited > 2 fires consecutively",
-    "ANY endpoint changes streaming protocol or model id mid-collection",
-    "wrapper preflight fails 3+ times consecutively"
+    "n_valid < 200",
+    "Ollama endpoint rate-limited > 2 fires consecutively (note: rate-limiting on local Ollama only happens via OOM / thermal throttling / process termination; if observed, halt \u2014 indicates hardware instability, not random fluctuation)",
+    "Endpoint changes streaming protocol or model id mid-collection (e.g., operator pulls a different llama3.2 variant \u2014 invalidates the run)",
+    "Wrapper preflight fails 3+ times consecutively"
   ],
   "trip_wires": [
-    {"name": "anchor_drift", "applies_to": "subexp3 only", "action": "methodology note, do not abort"},
-    {"name": "cost_overrun_3x", "action": "pause for operator review"}
+    {
+      "name": "anchor_drift",
+      "applies_to": "subexp3 only",
+      "action": "methodology note, do not abort"
+    },
+    {
+      "name": "cost_overrun_3x",
+      "action": "pause for operator review (note: Sub-exp 2 has $0 cloud cost; cost_overrun trip is N/A here but kept for schema consistency)"
+    },
+    {
+      "name": "ollama_thermal_anomaly",
+      "applies_to": "subexp2 only",
+      "action": "if fire latency > 2\u00d7 p50 of first 10 calls, log methodology note; do not abort \u2014 variance IS part of the local-vs-cloud signature we measure"
+    }
   ],
   "verdict_thresholds": {
-    "pass_silhouette_min": 0.5,
-    "pass_yield_min": 600,
-    "fail_clusters_lt": 3
+    "pass_ks_p_max": 0.01,
+    "pass_yield_min": 250,
+    "fail_if_ks_p_greater_than": 0.05
   },
   "harness_hardening_proof": {
-    "env_local_sha256_at_deploy": "TBD — computed at lock time",
-    "fix1_commit_hash": "TBD — git SHA where worktree-local venv was introduced",
+    "env_local_sha256_at_deploy": "0a62dee261cec28f0a2c5b601972d718c4dfcd24871544999bc5b6ddf438ac4c",
+    "fix1_commit_hash": "442427d feat(hadf-phase2bis-replication): Block A \u2014 soak window scaffolding \u2014 carries forward from Sub-exp 1 lock (worktree-local venv pattern unchanged for Sub-exp 2)",
     "preflight_test_log_path": ".claude/shared/hadf/phase2bis-deploy-verification/subexp2-deliberate-break.log",
     "state_owner_at_creation": "ft2"
-  }
+  },
+  "endpoints_full_design": [
+    {
+      "provider": "ollama",
+      "endpoint": "llama3.2:3b",
+      "api_kind": "local"
+    }
+  ]
 }

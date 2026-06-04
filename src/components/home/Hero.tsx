@@ -15,7 +15,7 @@ export function Hero() {
           <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--color-brand-indigo)] opacity-75 motion-safe:animate-ping" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-brand-indigo)]" />
         </span>
-        v7.9 shipped 2026-05-21 — Phase E live through 2026-06-04
+        v7.9 promotion HELD across Phase E (2026-05-21 → 06-04) — v7.9.1 build window open
       </Link>
       <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[length:var(--text-display-xl)] leading-[1.1] sm:leading-[1.05] font-serif break-words">
         How <span className="text-[var(--color-brand-indigo)]">/pm-flow</span> became a framework, and grew up alongside a fitness app.

@@ -79,3 +79,4 @@ pnpm-workspace.yaml
 # Generated search index (built by scripts/build-search-index.ts during
 # prebuild/predev; regenerated each build, not source-of-truth).
 /public/search-index.json
+.worktrees/

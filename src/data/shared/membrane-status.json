@@ -1,43 +1,93 @@
 {
-  "generated_at": "2026-05-26T16:51:04+00:00",
+  "generated_at": "2026-06-04T05:17:29+00:00",
   "epoch": 0,
   "lease_count": 1,
-  "feature_count": 79,
-  "branch_count": 6,
+  "feature_count": 85,
+  "branch_count": 11,
   "features": [
     {
-      "slug": "analytics-observability",
-      "current_phase": "implementation",
-      "framework_version": "v7.8.5",
-      "branch": "",
-      "last_touched_utc": "2026-05-25T11:33:23+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ucc-passkey-auth-audit-log-redis-fix",
-      "current_phase": "implementation",
-      "framework_version": "v7.8.6",
-      "branch": "feature/ucc-passkey-auth-audit-log-redis-fix",
-      "last_touched_utc": "2026-05-25T04:57:44+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "fitme-story-public-enhancements",
-      "current_phase": "complete",
-      "framework_version": "v7.8.1",
-      "branch": "feature/fitme-story-public-enhancements",
-      "last_touched_utc": "2026-05-24T14:27:30+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-f14-f15-dispatch-test-coverage",
+      "slug": "trend-alerts-hrv",
       "current_phase": "complete",
       "framework_version": "v7.9",
-      "branch": "feature/framework-f14-f15-dispatch-test-coverage",
-      "last_touched_utc": "2026-05-24T14:27:30+00:00",
+      "branch": "chore/trend-alerts-hrv-t14-closure",
+      "last_touched_utc": "2026-06-03T18:19:04+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": [],
+      "branch_meta": {
+        "commit": "f8d6a2a",
+        "committer_date": "2026-06-03T21:01:20+03:00",
+        "age_seconds": 40569
+      }
+    },
+    {
+      "slug": "ai-user-feedback-loop",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
+      "last_touched_utc": "2026-06-03T15:35:41+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "exercise-search-filter",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
+      "last_touched_utc": "2026-06-03T15:35:41+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "readiness-aware-training-alert",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
+      "last_touched_utc": "2026-06-03T15:35:41+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "training-program-customization",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
+      "last_touched_utc": "2026-06-03T15:35:41+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "adaptive-intelligence-next-pass",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/d1-post-merge-closure",
+      "last_touched_utc": "2026-06-02T19:58:53+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-phase2bis-replication",
+      "current_phase": "tasks_phase",
+      "framework_version": "v7.8.3",
+      "branch": "",
+      "last_touched_utc": "2026-06-02T09:43:23+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "meta-analysis-refresh-phase-1",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/meta-analysis-refresh-phase-1",
+      "last_touched_utc": "2026-05-31T05:55:25+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-9-promotion",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/v7-9-promotion-close-out",
+      "last_touched_utc": "2026-05-28T18:48:21+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -46,7 +96,61 @@
       "current_phase": "prd",
       "framework_version": "v7.8.3",
       "branch": "",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T15:46:01+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-recommendation-ui",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "fix/design-system-token-compliance",
+      "last_touched_utc": "2026-05-28T15:46:01+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "analytics-observability",
+      "current_phase": "testing",
+      "framework_version": "v7.8.5",
+      "branch": "",
+      "last_touched_utc": "2026-05-28T15:46:01+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "android-design-system",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/android-design-system",
+      "last_touched_utc": "2026-05-28T15:46:01+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-passkey-auth-audit-log-redis-fix",
+      "current_phase": "complete",
+      "framework_version": "v7.8.6",
+      "branch": "feature/ucc-passkey-auth-audit-log-redis-fix",
+      "last_touched_utc": "2026-05-28T15:46:01+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-passkey-auth-security-hardening",
+      "current_phase": "complete",
+      "framework_version": "v7.8.6",
+      "branch": "chore/ucc-hardening-b12-promote-2026-05-27",
+      "last_touched_utc": "2026-05-28T15:46:01+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-sign-in-figma-mapping",
+      "current_phase": "complete",
+      "framework_version": "v7.8.6",
+      "branch": "chore/ucc-sign-in-figma-mapping-reconcile-2026-05-20",
+      "last_touched_utc": "2026-05-28T15:46:01+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -55,16 +159,7 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "fix/design-system-token-compliance",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ai-recommendation-ui",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "fix/design-system-token-compliance",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -73,7 +168,7 @@
       "current_phase": "complete",
       "framework_version": "v7.9",
       "branch": "chore/audit-1-corrections",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -82,7 +177,25 @@
       "current_phase": "complete",
       "framework_version": "v7.8.2",
       "branch": "feature/fitme-story-design-system-p2-cleanup",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-public-enhancements",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "feature/fitme-story-public-enhancements",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-f14-f15-dispatch-test-coverage",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "feature/framework-f14-f15-dispatch-test-coverage",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -91,7 +204,7 @@
       "current_phase": "complete",
       "framework_version": "v6.0",
       "branch": "main",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -100,17 +213,8 @@
       "current_phase": "complete",
       "framework_version": "v7.7",
       "branch": "main",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v7-9-promotion",
-      "current_phase": "docs",
-      "framework_version": "v7.9",
-      "branch": "chore/v7-9-promotion-close-out",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
-      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {
@@ -118,7 +222,7 @@
       "current_phase": "complete",
       "framework_version": "v7.7",
       "branch": "feature/hadf-phase2-fingerprint",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -127,7 +231,7 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "feature/home-status-goal-card",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -136,7 +240,7 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "feature/import-training-plan-resume",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -145,7 +249,7 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "feature/metric-tile-deep-linking",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -154,7 +258,7 @@
       "current_phase": "implementation",
       "framework_version": "v7.7",
       "branch": "feature/orchid-v1-5",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -163,7 +267,7 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "fix/design-system-token-compliance",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -172,7 +276,7 @@
       "current_phase": "complete",
       "framework_version": "v7.8.1",
       "branch": "feature/roadmap-stress-test-2026-05-07",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -181,7 +285,7 @@
       "current_phase": "complete",
       "framework_version": "v7.7",
       "branch": "feature/smart-reminders-behavioral-learning",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -190,34 +294,7 @@
       "current_phase": "complete",
       "framework_version": "v7.8.1",
       "branch": "feature/ucc-passkey-auth",
-      "last_touched_utc": "2026-05-24T12:12:07+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "meta-analysis-refresh-phase-1",
-      "current_phase": "implementation",
-      "framework_version": "v7.9",
-      "branch": "chore/meta-analysis-refresh-phase-1",
-      "last_touched_utc": "2026-05-22T07:49:16+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ucc-passkey-auth-security-hardening",
-      "current_phase": "documentation",
-      "framework_version": "v7.8.6",
-      "branch": "docs/ucc-hardening-post-merge-2026-05-20",
-      "last_touched_utc": "2026-05-22T07:30:47+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ucc-sign-in-figma-mapping",
-      "current_phase": "implementation",
-      "framework_version": "v7.8.6",
-      "branch": "chore/ucc-sign-in-figma-mapping-reconcile-2026-05-20",
-      "last_touched_utc": "2026-05-21T12:04:06+00:00",
+      "last_touched_utc": "2026-05-28T14:53:49+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -253,15 +330,6 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": null,
-      "last_touched_utc": "2026-05-19T11:38:38+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "android-design-system",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": "feature/android-design-system",
       "last_touched_utc": "2026-05-19T11:38:38+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
@@ -489,15 +557,6 @@
       "branch": "feature/hadf-infrastructure",
       "last_touched_utc": "2026-05-19T11:38:38+00:00",
       "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "hadf-phase2bis-replication",
-      "current_phase": "tasks_phase",
-      "framework_version": "v7.8.3",
-      "branch": "",
-      "last_touched_utc": "2026-05-19T11:38:38+00:00",
-      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {

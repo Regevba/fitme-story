@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-26T16:51:04.402Z",
+  "syncedAt": "2026-06-04T05:17:29.532Z",
   "source": "/Volumes/DevSSD/FitTracker2/.claude/skills",
   "skills": [
     {
@@ -15,12 +15,12 @@
     },
     {
       "name": "brainstorm-pm",
-      "description": "Use when starting a new feature without a clear PRD shape, deciding whether the problem is real before investing in a solution, surfacing hidden assumptions in a proposed feature, or doing strategic framing (e.g. why this feature now, why not the alternative). PM-flavored brainstorming with 4 modes (problem / solution / assumption / strategy) and 4 frameworks (HMW / JTBD / First Principles / OST). Distinct from /superpowers:brainstorming which is generic creative work. Default Phase 0 (Research & Discovery) entry point for /pm-workflow on any new-feature work whose problem shape is not obvious.",
+      "description": "Use when starting a new feature without a clear PRD shape, deciding whether the problem is real before investing in a solution, surfacing hidden assumptions in a proposed feature, or doing strategic framing (e.g. why this feature now, why not the alternative). PM-flavored brainstorming with 4 modes (problem / solution / assumption / strategy), 1 trade-off mode (three-option), and 4 frameworks (HMW / JTBD / First Principles / OST). Distinct from /superpowers:brainstorming which is generic creative work. Default Phase 0 (Research & Discovery) entry point for /pm-workflow on any new-feature work whose problem shape is not obvious.",
       "status": "active",
-      "lastUpdated": "2026-05-15",
-      "frameworkVersion": "v7.8.6",
+      "lastUpdated": "2026-06-03",
+      "frameworkVersion": "v7.9",
       "adaptersUsed": [],
-      "loc": 227
+      "loc": 302
     },
     {
       "name": "cx",
@@ -90,7 +90,7 @@
       "adaptersUsed": [
         "ga4"
       ],
-      "loc": 1752
+      "loc": 1808
     },
     {
       "name": "qa",

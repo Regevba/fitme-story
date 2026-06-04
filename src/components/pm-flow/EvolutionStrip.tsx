@@ -86,7 +86,7 @@ const MILESTONES: Milestone[] = [
     version: 'v7.9',
     date: '2026-05-21',
     headline: 'Promotion Release — 3 gates flip to enforced',
-    what: 'Single-line change at scripts/check-state-schema.py:132 (BRANCH_ISOLATION_ADVISORY_MODE = True → False) promotes 3 v7.8.1 advisory gates to enforced simultaneously: BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS. All 4 §2.2 promotion criteria met after 14-day Mechanism A telemetry calibration (18 + 13 + 13 firings, 0 zero-candidate). First real-world Mode C gate fire caught + resolved same-session. 37 mechanical gates + 5 advisories post-promotion. Phase E validation soak 2026-05-21 → 2026-06-04. Honesty ledger entry FT2-FH-003 codifies the calibration discipline.',
+    what: 'Single-line change at scripts/check-state-schema.py:132 (BRANCH_ISOLATION_ADVISORY_MODE = True → False) promotes 3 v7.8.1 advisory gates to enforced simultaneously: BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS. All 4 §2.2 promotion criteria met after 14-day Mechanism A telemetry calibration (18 + 13 + 13 firings, 0 zero-candidate). First real-world Mode C gate fire caught + resolved same-session. 37 mechanical gates + 5 advisories post-promotion. Phase E validation soak 2026-05-21 → 06-04 PASSED (16 gates with telemetry, 0 GATE_COVERAGE_ZERO, 0 data regressions); v7.9.1 build window open. Honesty ledger entry FT2-FH-003 codifies the calibration discipline.',
     caseStudyHref: '/case-studies/framework-v7-9-promotion',
     tintVar: 'var(--skill-ops)',
   },

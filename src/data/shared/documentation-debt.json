@@ -1,50 +1,50 @@
 {
   "version": "1.0",
-  "updated": "2026-05-26T05:49:50Z",
+  "updated": "2026-06-04T03:00:20Z",
   "description": "Baseline documentation-debt report for case-study structure, state linkage, and integrity-cycle readiness.",
   "summary": {
-    "case_studies_scanned": 80,
-    "features_scanned": 79,
-    "integrity_snapshot_files": 8,
-    "integrity_cycle_snapshots": 6,
+    "case_studies_scanned": 87,
+    "features_scanned": 85,
+    "integrity_snapshot_files": 12,
+    "integrity_cycle_snapshots": 10,
     "trend_ready": true,
     "open_debt_items": 1
   },
   "coverage": {
     "date_written": {
-      "present": 80,
+      "present": 87,
       "missing": 0,
       "percent": 100.0,
       "examples": []
     },
     "work_type": {
-      "present": 80,
+      "present": 87,
       "missing": 0,
       "percent": 100.0,
       "examples": []
     },
     "dispatch_pattern": {
-      "present": 80,
+      "present": 87,
       "missing": 0,
       "percent": 100.0,
       "examples": []
     },
     "success_metrics": {
-      "present": 80,
+      "present": 87,
       "missing": 0,
       "percent": 100.0,
       "examples": []
     },
     "kill_criteria": {
-      "present": 80,
+      "present": 87,
       "missing": 0,
       "percent": 100.0,
       "examples": []
     },
     "kill_criteria_resolution": {
-      "present": 21,
+      "present": 28,
       "missing": 59,
-      "percent": 26.2,
+      "percent": 32.2,
       "examples": [
         "docs/case-studies/ai-engine-architecture-v5.1-case-study.md",
         "docs/case-studies/android-design-system-case-study.md",
@@ -54,9 +54,9 @@
       ]
     },
     "pr_citation_exempt": {
-      "present": 11,
+      "present": 18,
       "missing": 69,
-      "percent": 13.8,
+      "percent": 20.7,
       "examples": [
         "docs/case-studies/ai-engine-architecture-v5.1-case-study.md",
         "docs/case-studies/android-design-system-case-study.md",
@@ -66,15 +66,15 @@
       ]
     },
     "state_case_study_linkage": {
-      "present": 79,
+      "present": 85,
       "missing": 0,
       "percent": 100.0,
       "examples": []
     }
   },
   "integrity_cycle": {
-    "snapshot_files_available": 8,
-    "snapshots_available": 6,
+    "snapshot_files_available": 12,
+    "snapshots_available": 10,
     "legacy_snapshot_files_without_context": 1,
     "trend_ready": true,
     "status": "trend_ready",

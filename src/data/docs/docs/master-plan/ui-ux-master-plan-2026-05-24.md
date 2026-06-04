@@ -10,27 +10,29 @@
 
 ## 0. TL;DR
 
-**26 shipped, 8 in-flight, ~26 open backlog items across all three platforms (iOS + website + Android).**
+**30 shipped, 3 in-flight, ~26 open backlog items across all three platforms (iOS + website + Android).**
 
-### Headline counts (2026-05-24 fs + memory cross-reference; platform-comprehensive revision)
+### Headline counts (2026-05-31 freshness reconcile; platform-comprehensive revision)
 
 | Category | iOS | Website | Android | Cross-cutting | Total |
 |---|---|---|---|---|---|
-| **Shipped features** | 16 | 6 | 1 | 2 | 25 |
+| **Shipped features** | 16 | 10 | 1 | 2 | 29 |
 | **Shipped enhancements** | 5 | 3 | — | — | 8 |
 | **Shipped chores** | 3 | — | — | 2 | 5 |
-| **In-flight (need attention)** | 2 | 6 | — | — | 8 |
+| **In-flight (need attention)** | 2 | 1 | — | — | 3 |
 | **Open backlog items** | ~17 | ~6 | ~3 | 1 | ~27 |
 
 ### Top 5 next actions
 
-1. **Verify + backfill `ai-recommendation-ui` case_study link** — state.json has `case_study: null`; next mutation will trip `STATE_NO_CASE_STUDY_LINK`. ~10 min fix; today-advanceable
-2. **C9 + C10 fitme-story-only polish bundle** (~3h) — UCC coral-pulse animation + 4 control-room dark-mode contrast verifications; no Phase E conflict, no infra-glob
+1. **Verify + backfill `ai-recommendation-ui` case_study link** — RESOLVED 2026-05-31: state.json has `case_study` pointing at parent `ai-engine-architecture-v5.1-case-study.md`. May need `case_study_type: parent` field to silence `STATE_NO_CASE_STUDY_LINK` advisory cleanly
+2. **C9 + C10 fitme-story-only polish bundle** — CLOSED 2026-05-24 PR-2B (see §3.4 row strikethroughs)
 3. **Resume app-store-assets** (5/10 done per `paused_app_store_assets.md`) — needed for App Store launch surface; operator-paced
-4. **Open the 3 memory-only design rules as backlog rows** — AI avatar / orbital pm-flow rollback / failure-recognition-layer currently invisible outside memory
+4. **Open the 3 memory-only design rules as backlog rows** — AI avatar / orbital pm-flow rollback / failure-recognition-layer — confirmed UX-R3+UX-R4 closed 2026-05-24 PR #472; UX-R5 remains Aspirational
 5. **Apply fitme-story web design system to `/control-room/*`** — 14 internal components deferred per Internal-deferral policy; estimated 1-week if drift-only
 
-> **Reconciled drift items (closed during 2026-05-24 platform-comprehensive revision):** (a) `fitme-story-public-enhancements` confirmed `phase=complete` + 24/24 tasks done in state.json (UX-R1 already satisfied — no work needed); (b) `user-profile-settings` added as missing iOS shipped feature (was absent from §2.1); (c) `android-design-system` added as new §4 Android section (was excluded from prior scope).
+> **Reconciled drift items (2026-05-31 freshness pass):** moved 4 features from §3.3 "In-flight" to "Reconciled to Done" — ucc-sign-in-figma-mapping + ucc-passkey-auth-security-hardening + ucc-passkey-auth-audit-log-redis-fix + fitme-story-public-enhancements (all confirmed `current_phase: complete` on disk via state.json after Phase E Day 6/7 closure batch). §3.3 now shows only `analytics-observability` (testing, deferred to post-Phase-E) + `3d-interactive-framework-flow-diagram` (paused PRD).
+>
+> **Reconciled drift items (2026-05-24 platform-comprehensive revision):** (a) `fitme-story-public-enhancements` confirmed `phase=complete` + 24/24 tasks done in state.json (UX-R1 already satisfied — no work needed); (b) `user-profile-settings` added as missing iOS shipped feature (was absent from §2.1); (c) `android-design-system` added as new §4 Android section (was excluded from prior scope).
 
 ---
 
@@ -166,12 +168,12 @@
 
 **§ Design System Residual** (lines 309–313):
 
-- [ ] 9 raw literals remaining across views (responsive micro-adjustments)
-- [ ] Android token output for Style Dictionary
-- [ ] VoiceOver labels comprehensive audit
+- [x] ~~9 raw literals remaining across views (responsive micro-adjustments)~~ — **CLOSED 2026-05-26** per [`docs/design-system/ui-audit-p1-residual-2026-05-26.md`](../design-system/ui-audit-p1-residual-2026-05-26.md). Live `make ui-audit` reports P0=0 + P1=0; the "9 remaining" was a stale snapshot from the May 11 burndown window — subsequent `ios-ui-audit-p1-drift-cleanup` closed them. Separate baseline-doc regeneration PR queued
+- [ ] Android token output for Style Dictionary (now tracked as AND-1 in §4.4)
+- [x] ~~VoiceOver labels comprehensive audit~~ — **DONE 2026-05-26** per [`docs/design-system/voiceover-audit-2026-05-26.md`](../design-system/voiceover-audit-2026-05-26.md). 21 v2 files scanned; 7 files flagged P1 (zero or low label/tap ratio); 19 interactive elements need labels (~10 hr total fix-as-you-touch). Audit doc identifies file:line per finding
 - [ ] Figma old frame cleanup
 
-**Implicit:** `make ui-audit` P1 drift +5 (baseline 103 → current 108); fix-as-you-touch policy active per [CLAUDE.md "CI Pipeline"](../../CLAUDE.md)
+**Implicit:** ~~`make ui-audit` P1 drift +5 (baseline 103 → current 108)~~ — **STALE; CORRECTED 2026-05-26.** Live `make ui-audit` reports P1 = 0 (0 files-with-findings out of 101 scanned). `ios-ui-audit-p1-drift-cleanup` (active feature, `phase=complete`) closed the residual after the May 11 burndown. Baseline doc still reads P1=44 — pending regeneration PR. See [`ui-audit-p1-residual-2026-05-26.md`](../design-system/ui-audit-p1-residual-2026-05-26.md). Fix-as-you-touch policy remains active per [CLAUDE.md "CI Pipeline"](../../CLAUDE.md)
 
 ---
 
@@ -197,16 +199,21 @@
 | `fitme-story-ds-p2-deferred` | fitme-story-website-design-system | enhancement | Deferred-items closeout |
 | `fitme-story-ds-p2-final-sweep` | fitme-story-website-design-system | enhancement | Final sweep batch |
 
-### 3.3 In-flight website (6)
+### 3.3 In-flight website (1 in-flight + 1 paused; freshness reconciled 2026-05-31)
 
 | Feature | Phase | Tasks | Notes |
 |---|---|---|---|
-| `fitme-story-public-enhancements` | complete | 24/24 | Reconciled 2026-05-24 — state.json confirms `current_phase=complete` + all 24 tasks done. T13 shipped 2026-05-21 via fitme-story PR #134. Closure ceremony complete |
-| `3d-interactive-framework-flow-diagram` | prd | — | `scheduled_after.signal: "analytics-observability phase=complete"` |
-| `ucc-sign-in-figma-mapping` | implementation | 11 | Figma-side sign-in mapping (cross-repo with iOS); promoted from §2.4 |
-| `ucc-passkey-auth-security-hardening` | documentation | 26 | B12 T+7d kill-criteria due 2026-05-27 |
-| `ucc-passkey-auth-audit-log-redis-fix` | implementation | 9 | Redis audit-log fix |
-| `analytics-observability` | implementation | 15 | Sub-plan: `analytics-master-plan-2026-05-13.md`; F19/F20 → v7.9.1 |
+| `analytics-observability` | testing | 15 | Sub-plan: `analytics-master-plan-2026-05-13.md`; F19/F20 → v7.9.1. Phase 3.B production call-site wiring deferred post-Phase-E (~2026-06-04). Phase 1.B GA4 conversions deferred to v7.9.1 build window |
+| `3d-interactive-framework-flow-diagram` | prd (paused) | — | `scheduled_after.signal: "analytics-observability phase=complete"`. PRD parked 2026-05-13; resumes when analytics-observability closes |
+
+**Reconciled to "Done" 2026-05-31** (previously listed here but state.json `current_phase=complete` on disk):
+
+| Feature | Closure ref |
+|---|---|
+| `fitme-story-public-enhancements` | 24/24 tasks done; T13 shipped 2026-05-21 via fitme-story PR #134; row #117 of backlog (Phase E Day 6 batch) confirms closure ceremony |
+| `ucc-sign-in-figma-mapping` | 8/11 done + 3 deferred under Figma seat scope blocker; closed 2026-05-26 via PR #496 |
+| `ucc-passkey-auth-security-hardening` | B12 T+7d PROMOTE verdict 2026-05-27 via PR #503 (`bca2e12`); kill-criteria resolved |
+| `ucc-passkey-auth-audit-log-redis-fix` | Closed 2026-05-26 via PR #495; T6 cascade resolved 2026-05-19 + #411 (peter-evans/create-pull-request migration) |
 
 ### 3.4 Open website UI/UX backlog
 
@@ -218,11 +225,21 @@
 | ~~C10 / UU2~~ | ~~UCC 4 control-room dark-mode contrast verifications~~ — **CLOSED** (verified 2026-05-16 in `fitme-story-dark-mode-coverage.md` lines 79-82). All 4 WCAG AA: `AuditEventRow` 9.5:1+, `AuditLogPanel` 11.5:1+, `AuthPasskeyForm` 14:1+, `DevicesTable` 3.6:1+. | — | shipped | `fitme-story-dark-mode-coverage.md` |
 | ~~C5~~ | ~~UCC Part 10 — verify framework-health passkey panel renders with real audit data~~ — **CODE-VERIFIED** 2026-05-24 PR-2B; `<AuditLogPanel />` wired in `framework/page.tsx:438-445`; `.claude/logs/ucc-auth-events.jsonl` has 27 events spanning 2026-05-17 → 2026-05-20 (6 event types). Final visual check at `fitme-story.vercel.app/control-room/framework` is operator action. | — | code/data verified; visual op-check pending | ucc-passkey-auth case study §99 |
 
+> **2026-05-29 freshness verification — Post-v7.9 Phase E overlay buckets were STALE.** The Phase E overlay (2026-05-21) rolled up the 2026-05-08 fitme-story enhancement-queue audit and never re-verified against main. A full audit against current `fitme-story` main on 2026-05-29 found **14/15 enhancement-queue items already SHIPPED** (largely via `fitme-story-public-enhancements`). Bucket disposition with file:line evidence:
+>
+> - **UX-1→9 (visual/typography): SHIPPED** — `Pre` syntax highlighting (`mdx-components.tsx:9,36` + `rehype-pretty-code` in `package.json:47`), callout family (`src/components/mdx/callouts/*`, 5 components), responsive tables (`globals.css:222-230`), nav chrome (`SiteHeader.tsx`).
+> - **IA-1→8 (info architecture): SHIPPED** — `ArticleNav` (`src/components/case-study/ArticleNav.tsx`, wired Standard+Flagship templates), `TimelineNav` (rendered in all 3 templates), heading anchors (`rehype-slug`+`rehype-autolink-headings` at `case-studies/[slug]/page.tsx:71-81`), site-wide search (`src/app/search/page.tsx` + ⌘K `SearchInput.tsx`), G3 dual-outlet doc, G5 frontmatter uniform.
+> - **A11Y-1→7 (accessibility): SHIPPED** — skip-link (`layout.tsx:48-52`), neutral-500 contrast bumped to #5C5754 4.83:1 (`globals.css:36`), aria-current + focus-ring, `MobileNav` focus-trapped dialog.
+> - **COPY-1→5 (microcopy): SHIPPED** — chrome-backfill frontmatter (`honest_disclosures`/`visual_aid` on recent slots), back-links, callout narrative copy.
+> - **DS-2→6 (control-room DS): SUBSTANTIALLY SATISFIED** — bulk hex→token migration already shipped (`bg-[#1A1F2E]` → `bg-[var(--color-neutral-800)]` etc.); components use `text-[var(--color-neutral-*)]`. Residual `text-amber-500` / `text-[10px]` / `bg-white/[0.08]` is **policy-permitted standard Tailwind** (§3 Internal; no semantic alert/text-scale tokens exist to migrate to). See FIT-135.
+> - **PERF-1→6 (performance): PARTIAL** — `next/font` configured (`src/app/fonts.ts`), Vercel SpeedInsights wired (`layout.tsx:59`), `next/image` already used (`Figure.tsx` for MDX images; zero plain `<img>` in components). **Only genuine gap: Lighthouse-CI / web-vitals reporting** (no config exists) — infra-glob, tracked separately.
+
 **§ High Priority — Architecture & Framework rows** (UI/UX-relevant):
 
-- [ ] **Apply fitme-story web design system to `/control-room/*`** (line 203) — 14 internal components deferred per Internal-deferral policy; effort ~1 week if drift-only, ~2-3 weeks with Figma stubs
+- [x] ~~**Apply fitme-story web design system to `/control-room/*`**~~ — **SUBSTANTIALLY SATISFIED (verified 2026-05-29).** Bulk hex→token migration shipped; control-room components on `var(--color-neutral-*)`. Residual standard-Tailwind is §3-policy-permitted (no semantic tokens to migrate to). FIT-135 narrowed to optional marginal polish, stays Low. Figma-stub path remains blocked by FIT-132.
 - [ ] **Complete Figma design + architecture for both surfaces (iOS + website)** (line 204) — 2-3 week Feature; (A) fitme-story Figma new build + (B) iOS coverage audit + (C) architecture doc per surface
-- [ ] **Site-wide search on fitme-story public site** (line 189) — Pagefind static index across 26 case-studies + 46+ glossary + dev-guide; Feature
+- [x] ~~**Site-wide search on fitme-story public site**~~ — **SHIPPED (verified 2026-05-29).** `/search` route with faceted filters (category/version/tier/glossary) + ⌘K header `SearchInput` + custom scored index (`src/lib/search.ts`); not Pagefind but functionally complete.
+- [ ] **PERF — Lighthouse-CI / web-vitals baseline** (NEW 2026-05-29) — only genuine open item from the PERF bucket. `.lighthouserc.json` + `.github/workflows/lighthouse-ci.yml` + optional `web-vitals` reporting. Infra-glob → ship via isolated worktree (not Phase-E-safe on main).
 - [ ] **fitme-story website DS — ongoing build-out** (line 191) — showcase route + drift detection + dark-mode parity audit + token additions + contribution guidelines
 
 ### 3.5 Drift / reconciliation items
@@ -261,9 +278,9 @@ Android is treated as a **second platform layer built on the same FitTracker sem
 
 | ID | Item | Effort | Notes |
 |---|---|---|---|
-| **AND-1** | Generate Android token output (`make tokens-build:android` or equivalent) and commit `android/FitMeDesignTokens.kt` + `android/res/values/*.xml` outputs as compiled artifacts | 1-2 hr | Currently `config-android.json` exists but generated outputs are not committed. Mirrors the iOS-side `DesignTokens.swift` discipline (token JSON → generated file in same commit). Originally listed in §2.5 as "Android token output for Style Dictionary" but moved here for platform-clarity |
-| **AND-2** | Validate `android-token-mapping.md` against current `tokens.json` — verify 92-token count still matches; flag any iOS tokens added since 2026-04-04 that have no MD3 mapping | 1 hr | Drift detection; current iOS token count via `make tokens-check` — diff against the mapping doc |
-| **AND-3** | Decide trigger condition for `android-app-implementation` feature kickoff | 0 hr (decision only) | E.g., "after App Store launch + first 1000 iOS WAU" OR "never — iOS + web are the production surfaces". Currently undecided; default = deferred indefinitely until product signal emerges |
+| **AND-1** | Generate Android token output and commit `android/FitMeDesignTokens.kt` + `android/res/values/*.xml` outputs as compiled artifacts | **Revised 3-4 hr** (was 1-2 hr) | Currently `config-android.json` exists but **does not run** — references Style Dictionary transforms `size/compose/dp` + `size/compose/sp` that don't exist in `style-dictionary@3.9.2`. Two paths: (1) register custom transforms in a new `sd.config.android.js` wrapper; (2) downgrade to `transformGroup: "android"` (XML-only) until Compose is needed. Decision deferred to operator. Full disposition in [`docs/design-system/android-token-mapping.md`](../design-system/android-token-mapping.md) §0 |
+| ~~**AND-2**~~ | ~~Validate `android-token-mapping.md` against current `tokens.json`~~ | **DONE 2026-05-25** | Audit found substantial drift: 92 doc count → 108 actual tokens (+4 net but type taxonomy restructured: +Opacity/Layout/Size categories, Motion -8, Typography -6, Colors +3). Drift captured in [`android-token-mapping.md`](../design-system/android-token-mapping.md) §0 Audit Note. Per-row mapping refresh (sections 1-6) deferred to next quarterly pass or to `android-app-implementation` kickoff |
+| ~~**AND-3**~~ | ~~Decide trigger condition for `android-app-implementation` feature kickoff~~ | **DONE 2026-05-26** | Decision: **deferred indefinitely**. iOS + web are the production surfaces; Android stays at the token + adaptation-doc layer. Re-evaluation triggers: (a) App Store launch + first 1000 iOS WAU sustained 30 days; (b) External partner request; (c) Annual review (next 2027-05-26; default = stay deferred). Codified in [`android-design-system/state.json::android_app_implementation_kickoff_trigger`](../../.claude/features/android-design-system/state.json) + this row |
 
 ### 4.5 Android — not in scope (intentionally deferred)
 
@@ -284,7 +301,7 @@ Android is treated as a **second platform layer built on the same FitTracker sem
 | **Figma ↔ code Code Connect bridge** | CLAUDE.md "v4.X+CC" + memory `project_session_2026_05_09_codeconnect_caseaudit.md` | Foundation SHIPPED 2026-05-10; T5 (end-to-end test) blocked on Figma `code_connect:write` scope — see backlog row "Re-activate Code Connect publish when Figma seat/plan unblocks" (line 190) |
 | **Design system evolution doc** | [`docs/design-system/feature-memory.md`](../design-system/feature-memory.md) + [`docs/design-system/v2-refactor-checklist.md`](../design-system/v2-refactor-checklist.md) | Living docs, no specific open task |
 | **UX foundations 13 principles** | [`docs/design-system/ux-foundations.md`](../design-system/ux-foundations.md) | Source-of-truth for v2 alignment; enforced via `/ux preflight` |
-| **UI-audit verification** | `make ui-audit` → [`docs/design-system/ui-audit-baseline.md`](../design-system/ui-audit-baseline.md) | P0 = 0 (hard gate); P1 drift +5 (advisory) |
+| **UI-audit verification** | `make ui-audit` → [`docs/design-system/ui-audit-baseline.md`](../design-system/ui-audit-baseline.md) | P0 = 0 (hard gate); P1 = 0 as of 2026-05-26 (was advisory at +5; reconciled per `ui-audit-p1-residual-2026-05-26.md`); baseline doc regen PR queued |
 | **Figma↔code matrix** | [`docs/design-system/figma-code-sync-status.md`](../design-system/figma-code-sync-status.md) | Tracks per-screen sync status iOS + web (Android not yet present) |
 | **Style Dictionary token pipeline** | [`design-tokens/tokens.json`](../../design-tokens/tokens.json) → iOS (`DesignTokens.swift`) + Android (`config-android.json`) | Authoritative single-source for all 92+ semantic tokens across all 3 platforms; iOS output committed, Android output pending (AND-1) |
 | **Cross-platform design rules** | [`docs/design-system/design-rules.md`](../design-system/design-rules.md) | Platform-agnostic rules; currently iOS-focused, candidate doc for AI-avatar / orbital / failure-recognition rules per UX-R3/R4/R5 |
