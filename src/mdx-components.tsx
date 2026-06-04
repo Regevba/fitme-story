@@ -7,6 +7,7 @@ import { FindingsTable } from '@/components/mdx/FindingsTable';
 import { DevDive } from '@/components/mdx/DevDive';
 import { Term } from '@/components/mdx/Term';
 import { Pre } from '@/components/mdx/Pre';
+import { Callout } from '@/components/mdx/Callout';
 import { HonestDisclosure } from '@/components/mdx/callouts/HonestDisclosure';
 import { TriggerIncident } from '@/components/mdx/callouts/TriggerIncident';
 import { MemoryRef } from '@/components/mdx/callouts/MemoryRef';
@@ -41,6 +42,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     FindingsTable,
     DevDive,
     Term,
+    // Generic info/warning/success callout (2026-06-04, v7.9.1 slots 45/46/47).
+    Callout,
     // Callout family (audit T15 P-CALLOUTS, 2026-05-08): 5 standardized
     // MDX components for recurring narrative patterns across case studies.
     HonestDisclosure,
