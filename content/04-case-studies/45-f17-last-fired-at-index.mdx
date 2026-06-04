@@ -39,8 +39,6 @@ key_numbers:
     note: 'R=10 (every gate benefits) × I=2 × C=100% / E=0.3w = 66.7. Beats F16 (RICE 48.0) by 39%.'
 ---
 
-import { Callout } from "@/components/mdx/Callout";
-
 # F17 Per-Gate `last_fired_at` Index
 
 By v7.9, Mechanism A had accumulated ~1800 rows in `.claude/logs/gate-coverage.jsonl`. Every "when did this gate last fire?" query was scanning the full stream.
@@ -74,7 +72,7 @@ AWS Config Rules `LastSuccessfulInvocationTime` — derive a small index from a 
 
 ## Why it matters
 
-<Callout type="info">
+<Callout variant="info">
   The planned v7.10 `GATE_COVERAGE_ZERO` meta-check (which catches gates that have stopped firing despite producing prior telemetry) can now be O(1) per gate instead of O(records × gates). The same index supports the quarterly Data Freshness Audit (next: 2026-08-12).
 </Callout>
 
