@@ -1,0 +1,105 @@
+---
+title: >-
+  F17 Per-Gate `last_fired_at` Index — Derived Telemetry Materialization (v7.9.1)
+slug: f17-last-fired-at-index
+upstream_path: docs/case-studies/f17-last-fired-at-index-case-study.md
+tier: light
+tldr: >-
+  Mechanism A accumulated ~1800 gate-coverage.jsonl rows by v7.9. The
+  planned v7.10 GATE_COVERAGE_ZERO meta-check would scan that stream for
+  every "is this gate alive?" query — O(records × gates). F17 ships a
+  derived per-gate index at .claude/shared/gate-last-fired.json that
+  answers in O(1). Refresh wall-clock under 1 second for the canonical
+  ledger; 4 integration callsites; 14 tests pass in 0.04s. AWS Config
+  Rules LastSuccessfulInvocationTime pattern. Highest RICE (66.7) of all
+  v7.9.1 candidates.
+timeline_position:
+  version: '7.9.1'
+  order: 45
+key_numbers:
+  - label: Refresh wall-clock
+    value: 'under 1s for 1828 rows (PRD budget under 2s)'
+    tier: T1
+    note: 'Measured: 0.04s for the unit-test corpus; ~0.5s for the canonical ledger.'
+  - label: Gates indexed at ship
+    value: '16'
+    tier: T1
+    note: '100% of gates that have ever emitted to .claude/logs/gate-coverage.jsonl.'
+  - label: Test suite
+    value: '14 pass in 0.04s'
+    tier: T1
+    note: 'Empty ledger; single + multi-gate aggregation; malformed-row resilience; idempotent re-runs; field semantics (last_fired_at vs last_checked_at vs last_skipped_at); int coercion; file-system contract.'
+  - label: Integration callsites
+    value: '4'
+    tier: T1
+    note: 'make gate-last-fired (direct) + make integrity-check (chained) + daily-integrity-checkpoint.py (inherits via integrity-check) + framework-status-weekly.yml (nightly).'
+  - label: RICE
+    value: '66.7 — highest of all v7.9.1 candidates'
+    tier: T1
+    note: 'R=10 (every gate benefits) × I=2 × C=100% / E=0.3w = 66.7. Beats F16 (RICE 48.0) by 39%.'
+---
+
+import { Callout } from "@/components/mdx/Callout";
+
+# F17 Per-Gate `last_fired_at` Index
+
+By v7.9, Mechanism A had accumulated ~1800 rows in `.claude/logs/gate-coverage.jsonl`. Every "when did this gate last fire?" query was scanning the full stream.
+
+F17 ships the derived index that answers in **O(1)**.
+
+## What ships
+
+`.claude/shared/gate-last-fired.json` — per-gate aggregate of Mechanism A telemetry. For each gate that ever produced a row, the index captures:
+
+- `last_fired_at` — most recent timestamp where `checked >= 1` (strict "the gate actually evaluated")
+- `last_checked_at` — most recent timestamp of any candidate row
+- `last_skipped_at` — most recent timestamp where `skipped >= 1`
+- `first_seen_at` — earliest timestamp ever observed for the gate
+- `total_firings`, `total_skips`, `total_candidates`
+
+Plus top-level `schema_version`, `refreshed_at`, `source_ledger`, `source_rows_read`, and `source_rows_malformed` for future-proofing.
+
+## Refresh paths
+
+| Where | When |
+|---|---|
+| `make gate-last-fired` | Direct, on-demand |
+| `make integrity-check` | Chained before integrity scan (every operator + every CI run) |
+| `scripts/daily-integrity-checkpoint.py` | Inherits via integrity-check (no separate edit) |
+| `.github/workflows/framework-status-weekly.yml` | Nightly index materialization, snapshot included in weekly history |
+
+## Pattern reference
+
+AWS Config Rules `LastSuccessfulInvocationTime` — derive a small index from a large append-only stream so consumers query "when did X last happen?" in O(1) instead of O(records).
+
+## Why it matters
+
+<Callout type="info">
+  The planned v7.10 `GATE_COVERAGE_ZERO` meta-check (which catches gates that have stopped firing despite producing prior telemetry) can now be O(1) per gate instead of O(records × gates). The same index supports the quarterly Data Freshness Audit (next: 2026-08-12).
+</Callout>
+
+## Resilience
+
+- Malformed JSON rows are counted (`source_rows_malformed`) and skipped — not crashed on
+- Blank lines + whitespace are tolerated (common in append-only streams that flush periodically)
+- Idempotent re-runs verified by `test_idempotent_re_runs` — daily + weekly cron can both refresh without interaction effects
+- Schema-versioned at 1; readers can detect future format drift
+
+## Sequencing
+
+F17 shipped same day as F16 (and on top of F6 + T14 stub). The two combine to mature the framework's gate observability:
+
+- **F16** validates that gates ARE wired correctly via subprocess integration testing
+- **F17** materializes "when did each gate last fire?" so meta-checks stay O(1)
+
+Both are independent (no dependency cycle), and F17's read-only-derived-artifact nature means no advisory/enforcement calibration window is required.
+
+## Shipped via
+
+- **PR #617** — script + tests + integration + docs + case study
+
+## Where to read more
+
+- Source case study: [`docs/case-studies/f17-last-fired-at-index-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/f17-last-fired-at-index-case-study.md)
+- Spec: [`docs/master-plan/infra-master-plan-2026-05-12.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/infra-master-plan-2026-05-12.md) §3.1 Theme G F17
+- F16 (sibling, same day): [`f16-try-repo-harness`](/case-studies/f16-try-repo-harness)
