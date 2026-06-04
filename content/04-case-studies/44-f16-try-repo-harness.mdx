@@ -11,7 +11,7 @@ tldr: >-
   wrong shell-fork behavior, env-var inheritance issues, real git status
   interaction, HOME pollution. Coverage at ship: 15 of 16 write-time
   gates exercised end-to-end via subprocess pre-commit invocation. 15.36s
-  for 59 tests + 1 documented skip (PRD budget <60s). F16 caught two real
+  for 59 tests + 1 documented skip (PRD budget under 60s). F16 caught two real
   bugs in the framework's own infrastructure during development — Q5
   (GATE_COVERAGE_LEDGER was a module constant, not env-var) and Q6
   (REPO_ROOT was hardcoded to where the .py lived). T7 deliberate-
@@ -24,7 +24,7 @@ key_numbers:
   - label: Test count at ship
     value: '61 pass + 1 documented skip in 16.21s'
     tier: T1
-    note: 'PRD budget <60s; well under. T2 12 + T3 17 + T4a 10 + T4b 6+1skip + T4c 8 + T4d 6 + T7 2.'
+    note: 'PRD budget under 60s; well under. T2 12 + T3 17 + T4a 10 + T4b 6+1skip + T4c 8 + T4d 6 + T7 2.'
   - label: Gates covered end-to-end
     value: '15 of 16 write-time gates (93.75%)'
     tier: T1
@@ -72,7 +72,7 @@ T7 (`scripts/tests/test_try_repo_regression_proof.py`) is the deliberate-regress
 
 ## Wall-clock budget
 
-PRD §4 budget: **<60s**. Empirical: **15.36s for 59 tests + 1 skip**. Well under.
+PRD §4 budget: **under 60s**. Empirical: **15.36s for 59 tests + 1 skip**. Well under.
 
 ## Discipline encoded
 
