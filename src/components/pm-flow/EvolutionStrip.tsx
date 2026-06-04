@@ -90,6 +90,14 @@ const MILESTONES: Milestone[] = [
     caseStudyHref: '/case-studies/framework-v7-9-promotion',
     tintVar: 'var(--skill-ops)',
   },
+  {
+    version: 'v7.9.1',
+    date: '2026-06-04',
+    headline: 'Build Window — 8 ships, 14 PRs, 0 new gates',
+    what: 'Single-day build window opening at v7.9 Phase E exit (2026-06-04) and closing the same day. 8 ships landed across 14 PRs with 0 new enforcement gates added (Phase E exit discipline). Ships: F16 try-repo harness (3rd-layer gate testing via subprocess) + F17 last_fired_at index (derived telemetry materialization) + F2 Phase 0 reality-check sub-step (defense vs post-squash-merge state drift) + Dev-env Track B (R7 SwiftLint + R8 ruff + R12 markdownlint) + F-LAUNCHD-DRIFT-EXTENSION (b)+(c)+(a) (cron-context phantom-finding suppression + plist path-resolution health checks) + observed-patterns W29-W32 catalog batch + F-PHASE-E-ADOPTION-FREEZE-DISCIPLINE (soak-window denominator-dilution discipline) + R9 Track B coverage aggregator + dev-env R11+R13+R14+R17+R18 hygiene batch (gitleaks + pip-audit + SBOM + commitlint + shellcheck) + F-DEPLOYED-URL-PROBE FT2 substrate (W18 og:image + W19 GA_ID encoded-newline defense). 5 of 8 ships close documented silent-pass classes. Roll-up: CI workflows 8 → 14 (+6 warn-only); W-patterns W1-W28 → W1-W32 (+4); FT2 dev-env open R-items 7 → 0. Cascading rebase rhythm: 14 PRs, 5 mechanical rebases, 0 rollbacks.',
+    caseStudyHref: '/case-studies/framework-v7-9-1-promotion',
+    tintVar: 'var(--skill-ops)',
+  },
 ];
 
 export function EvolutionStrip() {

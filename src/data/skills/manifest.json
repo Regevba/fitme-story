@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-04T05:17:29.532Z",
+  "syncedAt": "2026-06-04T17:40:21.773Z",
   "source": "/Volumes/DevSSD/FitTracker2/.claude/skills",
   "skills": [
     {
@@ -90,7 +90,7 @@
       "adaptersUsed": [
         "ga4"
       ],
-      "loc": 1808
+      "loc": 1834
     },
     {
       "name": "qa",

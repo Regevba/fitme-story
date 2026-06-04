@@ -1,0 +1,165 @@
+---
+title: >-
+  Framework v7.9.1 — Single-day Build Window (8 ships, 14 PRs, 0 new gates)
+slug: framework-v7-9-1-promotion
+upstream_path: docs/case-studies/framework-v7-9-1-promotion-case-study.md
+tier: light
+tldr: >-
+  v7.9.1 was a single-day build window that opened at v7.9 Phase E exit
+  (2026-06-04) and closed the same day. 8 ships landed across 14 PRs with
+  zero new enforcement gates — Phase E exit discipline preserved. Every
+  ship is an observability surface, doc update, reusable substrate, or
+  warn-only CI workflow. Five of the eight ships close documented
+  silent-pass classes (W11.b cron context, W18 og:image 404, W19 GA_ID
+  encoded-newline, W30 YAML parser quirk, and the soak-window denominator
+  dilution pattern). CI workflows grew 8 → 14 (+6); observed-patterns
+  W1-W28 → W1-W32; FT2 dev-env open R-items 7 → 0. Cascading rebase
+  rhythm shipped 14 PRs with 5 mechanical rebases and zero rollbacks.
+timeline_position:
+  version: '7.9.1'
+  order: 47
+key_numbers:
+  - label: Ships in the build window
+    value: '8'
+    tier: T1
+    note: 'F16 + F17 + F2 + Dev-env Track B + F-LAUNCHD-DRIFT-EXTENSION (b)+(c)+(a) + observed-patterns W29-W32 + F-PHASE-E-ADOPTION-FREEZE-DISCIPLINE + R9 Track B + dev-env R11/R13/R14/R17/R18 + F-DEPLOYED-URL-PROBE.'
+  - label: PRs landed on main
+    value: '14'
+    tier: T1
+    note: 'Most ships needed a separate closure PR; cascading rebase pattern applied 5 times without manual merge-conflict resolution.'
+  - label: New enforcement gates
+    value: '0'
+    tier: T1
+    note: 'Phase E exit discipline — no new gates ship for the first 14 days post-promotion. Every CI workflow uses continue-on-error: true.'
+  - label: CI workflows baseline
+    value: '8 → 14 (+6)'
+    tier: T1
+    note: 'lint.yml (R7+R8+R12) + coverage.yml (R9 Track B) + gitleaks.yml + pip-audit.yml + sbom.yml + commitlint.yml + shellcheck.yml.'
+  - label: Observed-patterns growth
+    value: 'W1-W28 → W1-W32 (+4)'
+    tier: T1
+    note: 'W29 inline MDX import no-op under compileMDX + W30 Q6 PR-list parity gate YAML parser quirk + W31 workflow delivery anomaly + W32 close-feature.py --force-incomplete.'
+  - label: FT2 dev-env open R-items (Tier 2-3)
+    value: '7 → 0'
+    tier: T1
+    note: 'Every FT2-side dev-env Tier-2/Tier-3 R-item from the 2026-05-19 audit shipped today. R10/R15/R16/R19/R20-R24 remain — all out-of-FT2-scope or post-launch.'
+  - label: Silent-pass classes closed
+    value: '5'
+    tier: T2
+    note: 'W11.b cron-context phantom findings; W18 og:image 404; W19 GA_ID encoded-newline; W30 YAML parser bare-integer drop; soak-window denominator dilution.'
+  - label: Cascading rebases (no manual conflict resolution)
+    value: '5'
+    tier: T1
+    note: 'Each PR rebased against the new main after its predecessor merged; cleanly each time via `git rebase + git push --force-with-lease`.'
+---
+
+import { Callout } from "@/components/ui/Callout";
+
+# Framework v7.9.1 — Single-day Build Window
+
+The v7.9.1 build window opened at **v7.9 Phase E exit (2026-06-04)** and closed the same day. Eight ships landed across 14 PRs. The unifying constraint: **0 new enforcement gates** — Phase E exit discipline forbids new gates for the first 14 days post-promotion, so every ship had to be an observability surface, doc update, reusable substrate, or warn-only CI workflow.
+
+<HeroMetric
+  value="8 ships / 14 PRs / 0 new gates"
+  label="v7.9.1 build window (2026-06-04, single day)"
+  context="Cascading rebase rhythm: each PR rebased against the new main after its predecessor merged. 5 mechanical rebases, zero manual merge-conflict resolution, zero rollbacks."
+/>
+
+## The 8 ships
+
+| # | Ship | Theme | PR(s) |
+|---|---|---|---|
+| 1 | F16 try-repo harness | 3rd layer of gate testing (subprocess) | #607-#612 |
+| 2 | F17 last_fired_at index | Derived telemetry materialization (AWS Config Rules pattern) | #617 |
+| 3 | F2 Phase 0 reality-check sub-step | Defense vs post-squash-merge state drift | #618 |
+| 4 | Dev-env Track B (R7+R8+R12) | SwiftLint + ruff + markdownlint Makefile + CI | #619 |
+| 5 | F-LAUNCHD-DRIFT-EXTENSION (b)+(c) | Cron-context phantom-finding suppression (W11.b) | #621, #622 closure |
+| 6 | F-LAUNCHD-DRIFT-EXTENSION (a) | Plist path-resolution health checks | #623, #624 closure |
+| 7 | Observed-patterns W29-W32 catalog | v7.8.5 mandatory-rule append | #620 |
+| 8 | F-PHASE-E-ADOPTION-FREEZE-DISCIPLINE | Soak-window denominator-dilution discipline | #625 |
+| 9 | R9 Track B coverage aggregator | iOS Slather + Python pytest-cov warn-only CI | #626 |
+| 10 | Dev-env R11+R13+R14+R17+R18 batch | gitleaks + pip-audit + SBOM + commitlint + shellcheck | #627 |
+| 11 | F-DEPLOYED-URL-PROBE FT2 substrate | W18 og:image + W19 GA_ID encoded-newline defense | #628 |
+
+The numbering reflects two grouping layers — the 8 functional ships (F-LAUNCHD-DRIFT-EXTENSION is one feature with sub-fixes b/c then a; W29-W32 catalog is one item) plus the closure PRs they each needed.
+
+## Cross-cutting themes
+
+### Silent-pass closures
+
+**Five of 8 ships close documented silent-pass classes.** The unifying pattern: the parser, the cache, the path resolver, or the receiving service has its own interpretation of "valid" that the producer doesn't know about. The defense in every case is to **emit ONE explicit advisory** instead of either silent failure or noise amplification.
+
+| Ship | Silent-pass class | Catalog ref |
+|---|---|---|
+| F-LAUNCHD (b)+(c) | Cron context lacks gh keychain → empty PR cache → 319 phantom BROKEN_PR_CITATION findings | W11.b |
+| F-LAUNCHD (a) | Plist `WorkingDirectory` / script path / log dir invalid → silent exit-78 every cron fire | W11.b durable fix |
+| F-PHASE-E-ADOPTION-FREEZE-DISCIPLINE | Features added during soak window dilute denominator → −9.4 pp regression looks like real degradation | New (first published rule) |
+| F-DEPLOYED-URL-PROBE | Deployed HTML SAYS URL is valid ≠ receiving service can fetch+process it | W18 + W19 |
+| W30 (Q6 parity gate YAML quirk) | Bare YAML int `- 623` becomes string `"623"` → regex `#\d+` rejects → PR silently dropped | W30 (new) |
+
+### The cascading PR rhythm
+
+The session shipped 8 features through 14 PRs in a **strict serial cascade**. Each PR needed a rebase against the new main after its predecessor merged. The `git rebase origin/main` pattern executed cleanly 5 times.
+
+**A non-obvious win**: the rebase-cascade pattern made W31 visible. PR #623's initial push triggered only 5/12 expected workflows — the `pull_request`-event-triggered ones (CI, Lint, PR Integrity, try-repo-harness) silently didn't fire. The cascading rebase fixed it by triggering a `synchronize` event with a clean lineage. W31 documents the operator-side workaround.
+
+## Quantitative roll-up
+
+| Dimension | Pre-2026-06-04 | Post-2026-06-04 |
+|---|---|---|
+| Write-time gates | 12 enforced | 12 enforced (no new) |
+| Cycle-time gates | 13 enforced + 3 advisories | 13 + 3 (no new) |
+| **CI workflows baseline** | **8** | **14 (+6)** |
+| **Observed-patterns** | **W1-W28** | **W1-W32 (+4)** |
+| FT2 dev-env open R-items (Tier 2-3) | 7 | **0** |
+| Reusable shell substrates | 0 | 1 (`probe-deployed-url.sh`) |
+| v7.9.1 docket open candidates | 7 | **2** (both fitme-story-side) |
+
+## Why warn-only baseline for the +6 new CI workflows?
+
+The v8.0 `GATE_TEST_MISSING` meta-gate needs concrete calibration data — what's the baseline coverage today, which modules drift hardest, what's the typical PR delta? Gating at v7.9.1 with arbitrary thresholds risks two failure modes: (a) thresholds too aggressive → legitimate work gated → operator overrides pile up → discipline erodes; (b) thresholds too lenient → no signal value.
+
+The dev-env master plan explicitly defers gate calibration to "once a 30-day baseline exists." Every v7.9.1 workflow ships with `continue-on-error: true`. The 30-day calibration window opens **2026-06-04 → 2026-07-04** for coverage; weekly cadence for gitleaks and pip-audit; per-PR cadence for commitlint and shellcheck.
+
+## Calendar-anchored follow-ups
+
+| Date | Event |
+|---|---|
+| **2026-06-11** | T+7d fault-injection verification of F-LAUNCHD-DRIFT-EXTENSION + F-DEPLOYED-URL-PROBE |
+| **2026-06-12** | External Audit #2 (operator-driven; audit pack will include today's gitleaks + pip-audit JSON + future SBOM artifacts) |
+| **2026-06-18** | F16 T11 advisory→enforced flip (14-day calibration window ends; same single-line-flip pattern as v7.9) |
+| **2026-07-04** | R9 Track B 30-day coverage data read → v8.0 `GATE_TEST_MISSING` meta-gate calibration can begin |
+
+## Cross-repo follow-ups (fitme-story-side, separate session)
+
+- **F-AUTH-LATENCY-SERVER-METRIC** — `duration_ms_server` field on the WebAuthn audit event (B12 K3 closure)
+- **F-CONTRACT-FIXTURE-SAMPLING** — `make sample-contract-fixtures` aggregator + consumer-side fixture refresh discipline
+- **F-DEPLOYED-URL-PROBE workflow integration** — fitme-story-side post-deploy GH Action that calls `scripts/probe-deployed-url.sh`
+
+## What worked
+
+**The cascading rebase rhythm scaled.** Eight ships in one day with zero merge conflicts requiring manual resolution. The discipline of "one PR per ship" — even when the ship was a small 5-task closure PR — kept the blast radius bounded.
+
+**Mandatory `--force-incomplete` was caught fast.** PR #624's first attempt to close `f-launchd-drift-extension-sub-a` failed because `close-feature.py` assumed `testing` as the pre-`complete` phase; the sub-fix shipped in a single-phase advancement. W32 documents the operator-side workaround.
+
+**The Q6 PR-list parity gate caught a real-world quirk.** PR #624 spent 4 commit retries before W30 was authored, because bare YAML integers (`- 623`) get stored as the string `"623"` and the gate's `#\d+` regex rejects them. The fix (string form `"PR #623"` or inline `[N, ...]` bracket form) was found by reading the parser source at line 1149.
+
+## What's queued for v7.10
+
+1. **F16 advisory→enforced flip** — 14-day calibration ends 2026-06-18; expected to flip identical to v7.9 (single-line edit, 4-criterion §2.2 validation, no rollback).
+2. **R9 Track B coverage data** — 30 days of CI runs to accumulate; first read 2026-07-04 → drives v8.0 `GATE_TEST_MISSING` meta-gate per-module threshold calibration.
+3. **3D Framework Universe feature** — `scheduled_after` gate lifted at today's v7.9.1 closure; operator decides whether to advance to Phase 2.
+
+## References
+
+The full §0-§99 synthesis is at [`docs/case-studies/framework-v7-9-1-promotion-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/framework-v7-9-1-promotion-case-study.md) in the FT2 repo. Per-feature case studies (preserved as the depth layer per the Option D pattern):
+
+- `f16-try-repo-harness-case-study.md` (shipped via PR #612 + chain)
+- `f17-last-fired-at-index-case-study.md` (PR #617)
+- `f2-phase-0-reality-check-case-study.md` (PR #618)
+- `f-launchd-drift-extension-case-study.md` (PR #621)
+- `f-launchd-drift-extension-sub-a-case-study.md` (PR #623)
+- `f-phase-e-adoption-freeze-discipline-case-study.md` (PR #625)
+- `r9-track-b-coverage-aggregator-case-study.md` (PR #626)
+- `dev-env-r11-r13-r14-r17-r18-batch-case-study.md` (PR #627)
+- `f-deployed-url-probe-ft2-case-study.md` (PR #628)
