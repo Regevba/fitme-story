@@ -1,10 +1,129 @@
 {
-  "generated_at": "2026-06-04T05:17:29+00:00",
+  "generated_at": "2026-06-04T18:49:33+00:00",
   "epoch": 0,
   "lease_count": 1,
-  "feature_count": 85,
-  "branch_count": 11,
+  "feature_count": 96,
+  "branch_count": 22,
   "features": [
+    {
+      "slug": "framework-v7-9-1-promotion",
+      "current_phase": "implementation",
+      "framework_version": "v7.9.1",
+      "branch": "feature/framework-v7-9-1-promotion",
+      "last_touched_utc": "2026-06-04T18:36:53+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": [],
+      "branch_meta": {
+        "commit": "948724e",
+        "committer_date": "2026-06-04T20:34:35+03:00",
+        "age_seconds": 4498
+      }
+    },
+    {
+      "slug": "dev-env-r11-r13-r14-r17-r18-batch",
+      "current_phase": "implementation",
+      "framework_version": "v7.9.1",
+      "branch": "feature/dev-env-r11-r13-r14-r17-r18-batch",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-deployed-url-probe-ft2",
+      "current_phase": "implementation",
+      "framework_version": "v7.9.1",
+      "branch": "feature/f-deployed-url-probe-ft2",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-launchd-drift-extension",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-launchd-drift-extension-post-merge-closure",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-launchd-drift-extension-sub-a",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-launchd-drift-extension-sub-a-post-merge-closure",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-phase-e-adoption-freeze-discipline",
+      "current_phase": "implementation",
+      "framework_version": "v7.9.1",
+      "branch": "feature/f-phase-e-adoption-freeze-discipline",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f16-try-repo-harness",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "feature/f16-closure-t6-t10",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": [],
+      "branch_meta": {
+        "commit": "4747e9d",
+        "committer_date": "2026-06-04T16:19:30+03:00",
+        "age_seconds": 19803
+      }
+    },
+    {
+      "slug": "f17-last-fired-at-index",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "feature/f17-last-fired-at-index",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": [],
+      "branch_meta": {
+        "commit": "e68f9ad",
+        "committer_date": "2026-06-04T17:11:29+03:00",
+        "age_seconds": 16684
+      }
+    },
+    {
+      "slug": "f2-phase-0-reality-check",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "feature/f2-phase-0-reality-check",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": [],
+      "branch_meta": {
+        "commit": "7c59041",
+        "committer_date": "2026-06-04T17:40:10+03:00",
+        "age_seconds": 14963
+      }
+    },
+    {
+      "slug": "r9-track-b-coverage-aggregator",
+      "current_phase": "implementation",
+      "framework_version": "v7.9.1",
+      "branch": "feature/r9-track-b-coverage-aggregator",
+      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t14-platform-parity-state-field",
+      "current_phase": "research",
+      "framework_version": "v7.9.1",
+      "branch": "feature/t14-platform-parity-state-field",
+      "last_touched_utc": "2026-06-04T05:28:33+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
     {
       "slug": "trend-alerts-hrv",
       "current_phase": "complete",
@@ -16,7 +135,7 @@
       "branch_meta": {
         "commit": "f8d6a2a",
         "committer_date": "2026-06-03T21:01:20+03:00",
-        "age_seconds": 40569
+        "age_seconds": 89293
       }
     },
     {
