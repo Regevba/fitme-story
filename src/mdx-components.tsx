@@ -12,6 +12,7 @@ import { TriggerIncident } from '@/components/mdx/callouts/TriggerIncident';
 import { MemoryRef } from '@/components/mdx/callouts/MemoryRef';
 import { PredecessorChain } from '@/components/mdx/callouts/PredecessorChain';
 import { KillCriterionResolution } from '@/components/mdx/callouts/KillCriterionResolution';
+import { Callout } from '@/components/ui/Callout';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
 import { ChipAffinityMap } from '@/components/bespoke/ChipAffinityMap';
 import { PhaseTimingChart } from '@/components/bespoke/PhaseTimingChart';
@@ -48,6 +49,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     MemoryRef,
     PredecessorChain,
     KillCriterionResolution,
+    // Generic Callout (variant: info|warn|success|danger). compileMDX ignores
+    // inline `import` in MDX content, so it must be registered here.
+    Callout,
     BlueprintOverlay,
     ChipAffinityMap,
     PhaseTimingChart,

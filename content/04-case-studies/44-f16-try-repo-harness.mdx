@@ -43,8 +43,6 @@ key_numbers:
     note: 'Test code + fixtures + harness helpers + CI workflow + CLAUDE.md + dev-guide row + case study + showcase MDX.'
 ---
 
-import { Callout } from "@/components/mdx/Callout";
-
 # F16 Try-repo Pre-commit Harness
 
 The framework gains a **3rd layer of gate testing** at v7.9.1.
@@ -66,7 +64,7 @@ During T4 development, F16 caught **two real bugs in the framework's own infrast
 
 T7 (`scripts/tests/test_try_repo_regression_proof.py`) is the deliberate-regression test that proves F16 catches what F14 architecturally cannot — by patching a gate to silently return success on bad input and showing pre-commit returns 0 (the integration assertion catches it).
 
-<Callout type="info">
+<Callout variant="info">
   **15 of 16 write-time gates** covered end-to-end via subprocess pre-commit invocation. 1 documented skip (`STATE_OWNER_LOCATION_MISMATCH` — skips with `path_neutral` when the throwaway repo is not under `/FitTracker2[-/]` or `/fitme-story/`; deferred to F16.1).
 </Callout>
 
