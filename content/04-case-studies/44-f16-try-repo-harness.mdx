@@ -20,6 +20,27 @@ tldr: >-
 timeline_position:
   version: '7.9.1'
   order: 44
+key_numbers:
+  - label: Test count at ship
+    value: '61 pass + 1 documented skip in 16.21s'
+    tier: T1
+    note: 'PRD budget <60s; well under. T2 12 + T3 17 + T4a 10 + T4b 6+1skip + T4c 8 + T4d 6 + T7 2.'
+  - label: Gates covered end-to-end
+    value: '15 of 16 write-time gates (93.75%)'
+    tier: T1
+    note: '1 documented skip — STATE_OWNER_LOCATION_MISMATCH skips with path_neutral when throwaway repo is not under /FitTracker2[-/] or /fitme-story/; deferred to F16.1.'
+  - label: Real framework bugs caught during development
+    value: '2 (Q5 + Q6)'
+    tier: T1
+    note: 'Q5 — GATE_COVERAGE_LEDGER was a module-level constant, not env-var. Q6 — REPO_ROOT was hardcoded to where the .py file lived. Both caught BY the harness, not by review. Q6 fixed via PR #611 REPO_ROOT_OVERRIDE env-var support.'
+  - label: Shipped via
+    value: '6 PRs (#606 + #607 + #608 + #610 + #611 + #612)'
+    tier: T1
+    note: 'F16 work started 2026-06-04 post-Phase-E-exit; first substantive v7.9.1 work. Phase 0+1+2 scoping → Phase 4 implementation across 6 commits over ~3 sessions.'
+  - label: Lines of code
+    value: '~1,720 across all 6 PRs'
+    tier: T2
+    note: 'Test code + fixtures + harness helpers + CI workflow + CLAUDE.md + dev-guide row + case study + showcase MDX.'
 ---
 
 import { Callout } from "@/components/mdx/Callout";
