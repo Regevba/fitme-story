@@ -43,6 +43,20 @@ Not everything needs the full 9-phase funnel:
 
 Use `/pm-workflow {name}` and select the work type. Skipped phases are recorded in the audit trail with reason `work_type:{type}`.
 
+### Impact tier labels (B_medium, A_high, B_low, …)
+
+Backlog rows + v7.9.1+ docket entries carry an **impact tier label** like `(cu_v2 ~1.8, B_medium)` alongside RICE. The tier label is a coarse sort key for "how much does this matter to the framework's load-bearing chain" — distinct from RICE (which scores effort vs. value for a single feature).
+
+| Tier | What it means | Typical workflow shape |
+|---|---|---|
+| **A_high** | Load-bearing: change blocks something downstream that operators or framework consumers rely on. Schema changes, enforced-gate additions, public-API contracts, kill-criteria evaluations that gate a promotion. | Full `Feature` lifecycle; PRD + tasks + UX (if any) NOT optional; advisory→enforced calibration window mandatory for new gates. |
+| **B_medium** | Important but not load-bearing: ergonomic improvements, doc clarifications, schema additions that are non-breaking, observability extensions, internal-tool enhancements where the downstream consumer is the framework itself. | `Enhancement` or **abbreviated `Feature`** — PRD optional (state.json + case study is enough for non-novel scope); UX phase optional (skip if no user-visible surface); skipped phases recorded as `work_type_subtype:b_medium_<reason>` audit-trail entry. |
+| **B_low** | Hygiene, polish, doc nits, low-risk refactors of well-tested code. | `Chore` lifecycle. |
+
+**Why this taxonomy:** before v7.9.1, the Feature/Enhancement/Fix/Chore taxonomy left an ambiguous middle for "this is bigger than a chore but doesn't need a PRD because the scope is mechanical (e.g. add a schema field + backfill)." Operators had to pick Feature (heavy) or Enhancement (technically requires parent PRD — which doesn't exist for net-new framework scaffolding). B_medium formalizes that middle: a `Feature` work_type with `work_subtype: b_medium` may skip PRD/tasks/UX phases as long as the skip reason is documented in `phases.<skipped>.skip_reason` per the existing skipped-phase audit-trail mechanism.
+
+**Forward-only:** existing backlog rows with `B_medium` labels (e.g. v8.x icebox L417 style-dictionary v5 migration) retain their label. New work items use the table above to choose. Old rows are not retroactively re-labeled.
+
 ## Branching Strategy
 
 - **Large features** (>5 files changed OR new models/services) → `feature/{name}` branch
@@ -345,6 +359,200 @@ v7.9 is the **enforcement-flip release** for the three v7.8.1 advisory gates tha
 **Honesty ledger entry:** [FT2-FH-003](docs/case-studies/framework-honesty-ledger.md#ft2-fh-003).
 **Per-PR provenance:** PR (TBD) on `feature/v7-9-promotion`.
 
+## v7.9.1 Build Window (shipped 2026-06-04 — 8 ships, 14 PRs)
+
+v7.9.1 is a **single-day build window** that opened at v7.9 Phase E exit (2026-06-04) and closed the same day. **0 new enforcement gates** were added — the window respected Phase E exit discipline (no new gates for the first 14 days post-promotion). All 8 ships are observability surfaces, doc updates, reusable substrates, or warn-only CI workflows.
+
+**Synthesis case study:** [`docs/case-studies/framework-v7-9-1-promotion-case-study.md`](docs/case-studies/framework-v7-9-1-promotion-case-study.md). Per-feature case studies remain authoritative for each gate audit (FEATURE_CLOSURE_COMPLETENESS requirement); this synthesis is the navigation + cross-cutting-theme layer (per the v7.9 promotion case study pattern).
+
+**What shipped** (in cascade order; each subsection below has its own detail):
+
+| Ship | Theme | PR(s) |
+|---|---|---|
+| F16 try-repo harness | Gate-test depth (Layer 3) | #607–#612 |
+| F17 last_fired_at index | Derived telemetry materialization | #617 |
+| F2 Phase 0 reality-check | Defense vs post-squash-merge state drift | #618 |
+| Dev-env Track B (R7+R8+R12 lint trio) | Operator-side lint integration | #619 |
+| F-LAUNCHD-DRIFT-EXTENSION (b)+(c) | Cron-context phantom-finding suppression | #621 (+#622 closure) |
+| F-LAUNCHD-DRIFT-EXTENSION (a) | Plist path-resolution health checks | #623 (+#624 closure) |
+| Observed-patterns W29-W32 catalog batch | v7.8.5 mandatory rule | #620 |
+| F-PHASE-E-ADOPTION-FREEZE-DISCIPLINE | Soak-window adoption-metric discipline | #625 |
+| R9 Track B coverage aggregator | iOS Slather + Python pytest-cov CI telemetry | #626 |
+| Dev-env R11+R13+R14+R17+R18 batch | gitleaks + pip-audit + SBOM + commitlint + shellcheck | #627 |
+| F-DEPLOYED-URL-PROBE (FT2 substrate) | W18 og:image + W19 GA_ID encoded-newline silent-pass | #628 |
+
+**Quantitative roll-up:**
+
+| Dimension | Pre-2026-06-04 | Post-2026-06-04 |
+|---|---|---|
+| Write-time gates | 12 | 12 (no new) |
+| Cycle-time gates | 13 + 3 advisories | 13 + 3 advisories (no new) |
+| CI workflows | 8 baseline | **14** baseline (+6) |
+| Observed-patterns W-entries | W1-W28 | **W1-W32** (+4) |
+| v7.9.1 docket open | 7 candidates | **2** (fitme-story-side only) |
+| FT2 dev-env open R-items | 7 | **0** |
+| Reusable shell substrates | 0 | 1 (`scripts/probe-deployed-url.sh`) |
+
+**Calendar-anchored follow-ups:**
+
+- **2026-06-11** — T+7d verification of F-LAUNCHD-DRIFT-EXTENSION + F-DEPLOYED-URL-PROBE
+- **2026-06-12** — External Audit #2 (operator-driven)
+- **2026-06-18** — F16 T11 advisory→enforced flip (calibration window ends)
+- **2026-07-04** — R9 Track B 30-day coverage data read → v8.0 `GATE_TEST_MISSING` calibration
+
+**Cross-repo follow-ups (fitme-story-side, separate session):**
+
+- F-AUTH-LATENCY-SERVER-METRIC (`duration_ms_server` field on WebAuthn audit event)
+- F-CONTRACT-FIXTURE-SAMPLING (consumer-side adoption + `make sample-contract-fixtures`)
+- F-DEPLOYED-URL-PROBE workflow integration (post-deploy GH Action calling the FT2 substrate)
+
+## v7.9.1 F17 — Per-gate `last_fired_at` Index (shipped 2026-06-04)
+
+`.claude/shared/gate-last-fired.json` is a derived per-gate index of Mechanism A telemetry. For each gate that ever produced a row in `.claude/logs/gate-coverage.jsonl`, the index records `last_fired_at` (most recent timestamp where `checked >= 1`), `last_checked_at` (most recent of any candidate row), `last_skipped_at` (most recent skip), `first_seen_at`, `total_firings`, `total_skips`, and `total_candidates`.
+
+**Producer:** `scripts/refresh-gate-last-fired.py` — reads the JSONL line-by-line, aggregates per-gate, writes the index. Empirical wall-clock <1s for ~2k rows. Schema-versioned at 1; readers can detect future format drift via `schema_version`.
+
+**Invocation points:**
+- `make gate-last-fired` (direct, on-demand)
+- `make integrity-check` (chained before integrity scan)
+- `scripts/daily-integrity-checkpoint.py` (inherits via integrity-check)
+- `.github/workflows/framework-status-weekly.yml` (nightly index materialization)
+
+**Pattern reference:** AWS Config Rules `LastSuccessfulInvocationTime` — derive a small index from a large append-only stream so consumers query "when did X last happen?" in O(1).
+
+**Why it matters:** the planned v7.10 `GATE_COVERAGE_ZERO` meta-check (which catches gates that have stopped firing despite producing prior telemetry) can now be O(1) per gate instead of O(records × gates). The same index supports the quarterly Data Freshness Audit (next: 2026-08-12).
+
+**Spec:** [`docs/master-plan/infra-master-plan-2026-05-12.md`](docs/master-plan/infra-master-plan-2026-05-12.md) §3.1 Theme G F17 (RICE 66.7 — highest of all v7.9.1 items).
+
+## v7.9.1 F16 — Try-repo Pre-commit Harness (shipped 2026-06-04)
+
+The framework now has **3 layers of gate testing** instead of 2:
+
+1. **Unit** (`scripts/tests/test_check_state_schema.py` per-function) — fastest, narrowest. Catches wrong field-name logic, wrong regex.
+2. **Dispatch** (F14 PR #317 pattern — monkey-patched `main()` end-to-end via `monkeypatch.setattr(_mod, ...)`) — catches wrong gate registration, wrong skip semantics, wrong Mechanism A row emission.
+3. **Try-repo** (F16, this section) — spawns a throwaway git repo at `pytest tmp_path`, stages canonical positive/negative fixtures from `tests/fixtures/<GATE_ID>/{positive,negative}/`, runs the **real** `.githooks/pre-commit` shell script via subprocess, asserts the exit code + stderr match the fixture's intent. **Catches the integration-surface bugs the monkey-patch pattern architecturally cannot see** — hook composition, env-var inheritance, real `git status --porcelain` interaction, HOME pollution.
+
+**Empirically proven:** during T4 development, F16 caught two real architectural bugs in the framework's own infrastructure that F14 had not surfaced — `GATE_COVERAGE_LEDGER` was a module-level constant not an env-var (Q5 finding), and `REPO_ROOT` was hardcoded to where the .py file lived (Q6 finding, closed via PR #611's `REPO_ROOT_OVERRIDE` env-var support). T7 (`scripts/tests/test_try_repo_regression_proof.py`) is the deliberate-regression test that PROVES the value claim by construction.
+
+**Coverage:** 15 of 16 write-time gates covered end-to-end. 1 documented skip (STATE_OWNER_LOCATION_MISMATCH — the gate skips with `path_neutral` when the throwaway repo is not under `/FitTracker2[-/]` or `/fitme-story/`; deferred to F16.1).
+
+**Discipline for new gates:** every gate added going forward MUST ship with a try-repo fixture pair under `tests/fixtures/<GATE_ID>/{positive,negative}/state.overrides.json` PLUS a per-gate test in the appropriate bucket file (`test_try_repo_*_gates.py`). The fixture overrides merge with `tests/fixtures/_baseline/state.json` via `make_state_json()`. Positive fixture: gate must fire (rc != 0). Negative fixture: gate must pass (rc == 0). See [`docs/architecture/dev-guide-v1-to-v7-7.md`](docs/architecture/dev-guide-v1-to-v7-7.md) §4 for the gate-catalog try-repo column.
+
+**CI integration:** the `try-repo-harness` job in [`.github/workflows/pr-integrity-check.yml`](.github/workflows/pr-integrity-check.yml) runs the full F16 suite on every PR. Empirical wall-clock: ~15s for 59 tests + 1 skip (budget: <60s).
+
+**PR provenance:** #607 (Phase 0+1+2 scoping) + #608 (T2+T3 baseline + harness scaffold) + #610 (T4a fixtures + Q6 finding) + #611 (REPO_ROOT_OVERRIDE fix) + #612 (T4a unblock + T4b/c/d + T6 CI + T7 regression proof).
+
+## v7.9.1 F2 — Phase 0 Reality-Check Sub-step (shipped 2026-06-04)
+
+`/pm-workflow` Phase 0 gains a new MANDATORY sub-step (Phase 0.1) right after Phase 0.0's unified preflight. For the active feature, run:
+
+```bash
+make phase-0-reality-check FEATURE=<name>
+```
+
+The check reads `state.json::tasks` and cross-checks each `pending` / `in_progress` / `open` task against the last 30 days of evidence in the codebase:
+
+- **Git log subjects** — has anyone shipped a matching commit?
+- **Merged PR titles** (FT2 + fitme-story) — has either repo merged a matching PR?
+- **Tier 2.2 log events** in `.claude/logs/<feature>.log.json` — has anyone logged an implementation event mentioning the task ID or its keywords?
+
+Output: stdout summary + structured JSON at `.claude/shared/phase-0-reality-check.json`. Advisories surface as "**this task may already be done**" — never blocking, always operator-judgment.
+
+**Why F2 is load-bearing.** The post-squash-merge state-drift pattern was documented across 5 confirmed instances in 2026-06-01 → 2026-06-04 alone (C5 → D1 → C2/C3/C5/C6 batch → trend-alerts-hrv → multiple F16 closure attempts). Each time, `state.json::tasks` said `pending` but the file changes were already on `main` via a prior PR. Without Phase 0.1, the next Phase 0 schedules new work on top of stale state. **F2 is the mechanical defense** — surface the drift BEFORE scheduling, so the task list gets reconciled first (likely via `make close-feature FEATURE=<name>`) and Phase 0 starts against accurate state.
+
+**Threshold:** the gate requires ≥2 distinct evidence items (across git + PRs + log events) to flag a task. Single-item matches are silent — keeps false-positive rate manageable. Words like "the", "test", "implement" are filtered as noise.
+
+**Block phase advancement** if Phase 0.1 flags ≥1 advisory AND the operator has not explicitly acknowledged the finding (via `state.json::phase_0_reality_check_acknowledged: ["T3 reviewed — not the same scope"]` or by flipping the affected task's status).
+
+**Spec:** [`docs/master-plan/infra-master-plan-2026-05-12.md`](docs/master-plan/infra-master-plan-2026-05-12.md) §3.1 Theme A F2 (RICE 42.7).
+
+## v7.9.1 F-LAUNCHD-DRIFT-EXTENSION sub-fixes (b)+(c) — Cron-context phantom-finding suppression (shipped 2026-06-04)
+
+Closes the W11.b silent-pass class — launchd-cron context where the `gh` CLI cannot reach the macOS keychain ⇒ `refresh-pr-cache.py` produces an empty cache ⇒ every PR citation looks broken ⇒ 319 phantom `BROKEN_PR_CITATION` + `PR_NUMBER_UNRESOLVED` findings on 2026-05-24. Same context caused 5 silently-broken cron days after the 2026-05-19 SSD migration before the drift was noticed.
+
+Three cooperating changes ship together (sub-fix (a) — `BRANCH_ISOLATION_LAUNCHD_DRIFT` advisory→enforced — deferred to a follow-on PR per spec §3 "any subset can ship independently"):
+
+1. **`scripts/ensure-pr-cache-fresh.py`** detects cron context via `LAUNCHD_LABEL` env (set by every launchd job), `CRON_CONTEXT=1` manual override, or `XPC_SERVICE_NAME` containing both `fittracker` and `daily`. When ALL of (cron context, refresh subprocess failure) hold, it writes a JSON sentinel at `.claude/shared/pr-cache-refresh-failed.flag` (`{ts, reason, context}`). The flag-write itself is best-effort — `OSError` is swallowed so the script's existing exit code remains the only failure signal.
+
+2. **`scripts/integrity-check.py`** reads the sentinel at startup via `pr_cache_refresh_failed_recently()`. If the flag exists AND `ts` is within the last 1 hour, the run SKIPS `BROKEN_PR_CITATION` + `PR_NUMBER_UNRESOLVED` and emits a single `PR_CACHE_REFRESH_FAILED` advisory carrying the failure reason and timestamp. Stale flags (>1h old) are ignored — Kill criterion #3 enforcement (the flag cannot indefinitely suppress real findings). Malformed JSON in the flag also falls back to "no skip."
+
+3. **`scripts/daily-integrity-checkpoint.py::precheck_cron_context()`** pre-validates `gh auth status` BEFORE invoking `make integrity-check`. Under cron context + auth missing, it exits 78 (`EX_CONFIG` from `sysexits(3)`) — what launchd interprets as a config error worth surfacing in `launchctl list <label>` without retry-backoff drama. Interactive sessions never trigger this branch.
+
+**Test coverage:** [`scripts/tests/test_launchd_drift_extension.py`](scripts/tests/test_launchd_drift_extension.py) — 16 tests covering interactive happy path, all 3 cron-context detection signals, fresh/stale/malformed flag handling, OSError swallow on flag-write, and the exit-78 paths in `precheck_cron_context`. Runs in 0.05s.
+
+**Failure-mode posture:** the flag-skip mechanism is fail-safer-than-status-quo — under cron auth failure it now produces ONE clearly-labeled advisory instead of 300+ phantoms. Under any other failure mode (write OSError, JSON malformed, ts stale) the system falls back to the pre-v7.9.1 behavior. No new enforcement gates; no advisory window needed.
+
+**Spec:** [`.claude/shared/v7-9-1-candidates.md`](.claude/shared/v7-9-1-candidates.md) F-LAUNCHD-DRIFT-EXTENSION + [`docs/master-plan/post-v7-9-candidate-plan-2026-05-20.md`](docs/master-plan/post-v7-9-candidate-plan-2026-05-20.md) E-14. **Case study:** [`docs/case-studies/f-launchd-drift-extension-case-study.md`](docs/case-studies/f-launchd-drift-extension-case-study.md).
+
+## v7.9.1 F-LAUNCHD-DRIFT-EXTENSION sub-fix (a) — Plist path-resolution health checks (shipped 2026-06-04)
+
+Closes the third sub-fix of F-LAUNCHD-DRIFT-EXTENSION. The `BRANCH_ISOLATION_LAUNCHD_DRIFT` cycle-time advisory in [`scripts/integrity-check.py`](scripts/integrity-check.py) gains 3 path-resolution health checks fired against any FT2-related plist (detected via filename heuristic + `ProgramArguments` + `WorkingDirectory` pattern):
+
+1. **WorkingDirectory exists** — emits advisory if the plist's `WorkingDirectory` does not resolve to an extant directory on the current filesystem. Catches the 2026-05-19 SSD-migration class (`/Volumes/DevSSD 1/...` vs canonical `/Volumes/DevSSD/...` after mount swap) on day 1 instead of day 5.
+
+2. **ProgramArguments[0] script exists** — strips an interpreter prefix (`/bin/bash`, `python3`, `/usr/bin/env`, etc.) and checks that the resolved script path exists as a file. Catches plists whose script moved during a refactor. Relative paths (`scripts/foo.py`) are out of scope since they rely on PATH resolution at fire time.
+
+3. **StandardOutPath / StandardErrorPath parent dir is writable** — emits advisory if either the parent directory is missing OR the current user lacks write permission. Without this, cron failures become invisible because launchd cannot capture stdout/stderr.
+
+The new sub-checks ship in **ADVISORY mode** — no calibration window because they are additive on top of an existing advisory; false positives don't break anything and the operator can ignore them. The pre-existing T18 feature-attached `WorkingDirectory` mismatch check (HADF Phase 2 incident class) is unchanged and runs alongside the new checks in the same gate function.
+
+**Empirical coverage:** unrelated plists (Spotlight, etc.) are explicitly NOT scanned via `_plist_references_ft2()` heuristic — keeps the operator surface clean.
+
+**Test coverage:** [`scripts/tests/test_launchd_drift_extension_sub_a.py`](scripts/tests/test_launchd_drift_extension_sub_a.py) — 14 tests covering Linux-skip, 4 heuristic cases (filename / program-args / workdir / unrelated-ignore), all 3 sub-checks (fire + no-fire), compound plist with multiple problems, and the unrelated-plist negative. Runs in 0.28s.
+
+**F-LAUNCHD-DRIFT-EXTENSION fully closed.** Sub-fixes (b)+(c) shipped via PR #621 (`ed20cbf`, 2026-06-04); sub-fix (a) shipped this PR. All three reinforce the same posture: cron context is a different execution environment than interactive — make its failures loud, bounded, and self-diagnostic.
+
+## Deployed-URL probe (v7.9.1+)
+
+Closes the silent-pass class where **what the deployed HTML SAYS is the URL ≠ what the receiving service can actually fetch + process**. Trigger incidents: W18 (`<meta property="og:image">` pointed at a 404 path for 6 days; LinkedIn/Twitter/HN got no rich preview) + W19 (GA measurement ID had a trailing `\n` from env-var paste residue; Google Measurement Protocol rejected every event silently for 6 days).
+
+Both bugs passed local dev + Vercel preview-deploy inspection because neither runs the receiving-service round-trip. Both manifested only in production.
+
+**Reusable substrate at [`scripts/probe-deployed-url.sh`](scripts/probe-deployed-url.sh).** Bash helper invokable from any GH Actions workflow's `run:` block. 4 assertion modes:
+
+```bash
+# W18 — og:image is reachable
+scripts/probe-deployed-url.sh https://fitme.dev/og.png \
+    --status 200 --content-type "image/"
+
+# W19 — gtag URL has no encoded newline
+scripts/probe-deployed-url.sh "https://www.googletagmanager.com/gtag/js?id=$GA_ID" \
+    --status 200 --body-not-contains "%0A"
+
+# Canonical / sitemap / robots reachability
+scripts/probe-deployed-url.sh https://fitme.dev/sitemap.xml --status 200 --content-type "xml"
+scripts/probe-deployed-url.sh https://fitme.dev/robots.txt --status 200 --body-contains "Sitemap:"
+```
+
+**Exit codes:** 0 (all assertions pass) / 1 (assertion failed) / 2 (usage error) / 3 (curl/network error).
+
+**Test coverage:** [`scripts/tests/test_probe_deployed_url.py`](scripts/tests/test_probe_deployed_url.py) — 12 tests covering all 4 assertion modes + the W18 status-mismatch reproducer + the W19 body-not-contains reproducer + curl-error fallback. Runs in ~1.6s against a stdlib `http.server`-backed test harness (no external network).
+
+**fitme-story integration ships separately.** The shell helper is repo-agnostic; the fitme-story workflow YAML that calls it on each successful Vercel deploy is a fitme-story-side PR (not in scope for the FT2 substrate PR).
+
+## Soak-window discipline (v7.9.1+)
+
+During any framework-version soak window (Phase E for v7.X, Phase Y for future versions), new features that ship during the soak MUST either (a) freeze adoption metric collection until soak exit, OR (b) backfill adoption metrics in the same PR that introduces the feature's `state.json`.
+
+**Why this rule exists.** v7.9 Phase E (2026-05-21 → 2026-05-28) added 9 new features to `.claude/features/*/` without backfilling their adoption metrics (`cache_hits`, `cu_v2`, `timing_wall_time`, `per_phase_timing`). `make integrity-diff` against the 2026-05-14 anchor consequently surfaced 3 measured regressions purely from **denominator dilution**:
+
+| Metric | 2026-05-14 | 2026-05-28 | Δ |
+|---|---|---|---|
+| `adoption_pct_post_v6` | 8.3% | 6.7% | −1.6 pp |
+| `timing_wall_time_pct_post_v6` | 47.2% | 37.8% | −9.4 pp |
+| `cache_hits_pct_post_v6` | 52.8% | 51.1% | −1.7 pp |
+
+These were **process regressions** — added features moved into the denominator while their numerator stayed empty (no adoption-metric backfill in the same PR). They were NOT v7.9 kill criteria; the kill criteria targeted false positives + rollbacks, both `not_fired`. v7.9 promoted regardless. But the **weekly trend-scan alerts** the regressions triggered are real noise that the next soak window will repeat without this discipline.
+
+**Two ways to comply** when shipping a feature during a soak window:
+
+1. **Freeze** — explicitly mark the feature's `state.json` with `soak_window_freeze: <version>` (e.g., `"v7.9"`). The weekly trend-scan and `make integrity-diff` will skip frozen features when computing percentage metrics.
+2. **Backfill** — populate `cache_hits[]`, `cu_v2.factors`, `cu_v2.total`, `cu_v2.tier_class`, `timing.phases.<phase>.{started_at,ended_at}`, and `timing.wall_time_seconds` in the SAME PR that introduces the feature. The percentage metric stays stable.
+
+**Enforcement posture.** Advisory at v7.9.1 ship (operator-attention; the weekly trend-scan emails will flag any soak-window dilution >1pp on any post-v6 percentage metric). Promotes to enforced (write-time gate `SOAK_WINDOW_FREEZE_OR_BACKFILL`) if 2 consecutive soak windows show >5 pp regression on any post-v6 percentage metric. Promotion criterion is built into the spec so the rule never silently sticks at advisory.
+
+**See also.** [v7.9 promotion case study §99.4 lesson 2](docs/case-studies/framework-v7-9-promotion-case-study.md) for the original measurement; [`f-phase-e-adoption-freeze-discipline-case-study.md`](docs/case-studies/f-phase-e-adoption-freeze-discipline-case-study.md) for this rule's source case study.
+
 ## Known Mechanical Limits
 
 v7.6 promoted 4 silent gaps to pre-commit failures and added 3 recurring CI defenses. v7.8 PR-1 ships **Mechanism C** (PostToolUse:Read hook + `scripts/observe-cache-hit.py`) which moves Gap 1 from Class B → A in advisory mode (capture only); v7.9 promotes the writer-path to enforced once 7+ days of session-ledger data calibrate the threshold. Four gaps remain mechanically unclosable:
@@ -415,6 +623,7 @@ Phase 3 + Phase 6 of the PM workflow now mechanically gate the spec ↔ code ↔
 - **`/design build`** — auto-dispatched at Phase 3.j. Pushes screens into the FitMe Design System Library (`0Ai7s3fCFqR5JXDW8JvgmD`) via Figma MCP, falls back to portable prompt at `docs/prompts/ui/{date}-{feature}-design-build.md` when MCP unreachable. Writes captured Figma node IDs back to `state.json.figma_node_ids` AND adds row to `figma-code-sync-status.md`.
 - **`/ux pre-merge-review`** — Phase 6 gate. Heuristic re-check of shipped code vs approved spec. Sets `state.json.pre_merge_review.ux`. BLOCK halts Phase 7.
 - **`/design pre-merge-review`** — Phase 6 gate. `make ui-audit` P0=0 + `state.json.figma_node_ids` populated + PR description references those node IDs (CLAUDE.md "Synced" definition mandates this). Sets `state.json.pre_merge_review.design`. BLOCK halts Phase 7.
+- **`make skill-preflight SKILL=<name>`** (v7.9.1, pattern↔skill overlay) — at any skill's activation, probes the Observed-Patterns-Catalog patterns mapped to that skill's work (`.claude/shared/pattern-skill-map.json`) — mechanized ones probed live, manual ones surfaced as a checklist — so blockers clear BEFORE work begins. `make gen-skill-preflight` regenerates the per-skill tables in each SKILL.md. See [`docs/skills/pattern-skill-overlay.md`](docs/skills/pattern-skill-overlay.md).
 
 **PR description requirement (enforced):** every UI-touching PR must reference the Figma node IDs of the screens it touches. The IDs come from `state.json.figma_node_ids` (populated by `/design build`) and are validated by `/design pre-merge-review`. See `docs/skills/design.md` for the full `figma_node_ids` schema.
 

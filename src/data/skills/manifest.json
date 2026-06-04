@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-04T05:17:29.532Z",
+  "syncedAt": "2026-06-04T18:49:32.952Z",
   "source": "/Volumes/DevSSD/FitTracker2/.claude/skills",
   "skills": [
     {
@@ -11,7 +11,7 @@
       "adaptersUsed": [
         "ga4"
       ],
-      "loc": 350
+      "loc": 354
     },
     {
       "name": "brainstorm-pm",
@@ -20,7 +20,7 @@
       "lastUpdated": "2026-06-03",
       "frameworkVersion": "v7.9",
       "adaptersUsed": [],
-      "loc": 302
+      "loc": 308
     },
     {
       "name": "cx",
@@ -33,7 +33,7 @@
         "ga4",
         "sentry"
       ],
-      "loc": 271
+      "loc": 273
     },
     {
       "name": "design",
@@ -44,7 +44,7 @@
       "adaptersUsed": [
         "axe"
       ],
-      "loc": 374
+      "loc": 381
     },
     {
       "name": "dev",
@@ -55,7 +55,7 @@
       "adaptersUsed": [
         "security-audit"
       ],
-      "loc": 228
+      "loc": 252
     },
     {
       "name": "marketing",
@@ -67,7 +67,7 @@
         "app-store-connect",
         "firecrawl"
       ],
-      "loc": 257
+      "loc": 263
     },
     {
       "name": "ops",
@@ -79,7 +79,7 @@
         "security-audit",
         "sentry"
       ],
-      "loc": 259
+      "loc": 268
     },
     {
       "name": "pm-workflow",
@@ -90,7 +90,7 @@
       "adaptersUsed": [
         "ga4"
       ],
-      "loc": 1808
+      "loc": 1851
     },
     {
       "name": "qa",
@@ -103,7 +103,7 @@
         "security-audit",
         "sentry"
       ],
-      "loc": 196
+      "loc": 206
     },
     {
       "name": "release",
@@ -114,7 +114,7 @@
       "adaptersUsed": [
         "app-store-connect"
       ],
-      "loc": 214
+      "loc": 222
     },
     {
       "name": "research",
@@ -125,7 +125,7 @@
       "adaptersUsed": [
         "firecrawl"
       ],
-      "loc": 255
+      "loc": 260
     },
     {
       "name": "ux",
@@ -136,7 +136,7 @@
       "adaptersUsed": [
         "axe"
       ],
-      "loc": 553
+      "loc": 560
     }
   ]
 }
