@@ -1,0 +1,105 @@
+---
+title: >-
+  F16 Try-repo Pre-commit Harness — The 3rd Gate-Test Layer (v7.9.1)
+slug: f16-try-repo-harness
+upstream_path: docs/case-studies/f16-try-repo-harness-case-study.md
+tier: light
+tldr: >-
+  The framework gained a 3rd layer of gate testing — try-repo. Where unit
+  tests catch wrong-regex bugs and F14 dispatch tests catch wrong-main()-
+  flow bugs, F16 catches the integration-surface bugs neither could see —
+  wrong shell-fork behavior, env-var inheritance issues, real git status
+  interaction, HOME pollution. Coverage at ship: 15 of 16 write-time
+  gates exercised end-to-end via subprocess pre-commit invocation. 15.36s
+  for 59 tests + 1 documented skip (PRD budget under 60s). F16 caught two real
+  bugs in the framework's own infrastructure during development — Q5
+  (GATE_COVERAGE_LEDGER was a module constant, not env-var) and Q6
+  (REPO_ROOT was hardcoded to where the .py lived). T7 deliberate-
+  regression test PROVES the value claim by construction. Shipped via
+  6 PRs (#606 + #607 + #608 + #610 + #611 + #612).
+timeline_position:
+  version: '7.9.1'
+  order: 44
+key_numbers:
+  - label: Test count at ship
+    value: '61 pass + 1 documented skip in 16.21s'
+    tier: T1
+    note: 'PRD budget under 60s; well under. T2 12 + T3 17 + T4a 10 + T4b 6+1skip + T4c 8 + T4d 6 + T7 2.'
+  - label: Gates covered end-to-end
+    value: '15 of 16 write-time gates (93.75%)'
+    tier: T1
+    note: '1 documented skip — STATE_OWNER_LOCATION_MISMATCH skips with path_neutral when throwaway repo is not under /FitTracker2[-/] or /fitme-story/; deferred to F16.1.'
+  - label: Real framework bugs caught during development
+    value: '2 (Q5 + Q6)'
+    tier: T1
+    note: 'Q5 — GATE_COVERAGE_LEDGER was a module-level constant, not env-var. Q6 — REPO_ROOT was hardcoded to where the .py file lived. Both caught BY the harness, not by review. Q6 fixed via PR #611 REPO_ROOT_OVERRIDE env-var support.'
+  - label: Shipped via
+    value: '6 PRs (#606 + #607 + #608 + #610 + #611 + #612)'
+    tier: T1
+    note: 'F16 work started 2026-06-04 post-Phase-E-exit; first substantive v7.9.1 work. Phase 0+1+2 scoping → Phase 4 implementation across 6 commits over ~3 sessions.'
+  - label: Lines of code
+    value: '~1,720 across all 6 PRs'
+    tier: T2
+    note: 'Test code + fixtures + harness helpers + CI workflow + CLAUDE.md + dev-guide row + case study + showcase MDX.'
+---
+
+import { Callout } from "@/components/mdx/Callout";
+
+# F16 Try-repo Pre-commit Harness
+
+The framework gains a **3rd layer of gate testing** at v7.9.1.
+
+## What ships
+
+| Layer | What it tests | Catches |
+|---|---|---|
+| Unit | Individual gate function inputs → outputs | Wrong field-name logic, wrong regex |
+| Dispatch (F14, PR #317) | `main()` end-to-end via monkey-patched IO | Wrong gate registration, wrong skip semantics, wrong Mechanism A emission |
+| **Try-repo (F16, NEW)** | **Real shell hook → Python subprocess → git** chain end-to-end | **Hook composition, env-var inheritance, real `git status` interaction, HOME pollution** |
+
+## The proof
+
+During T4 development, F16 caught **two real bugs in the framework's own infrastructure** that F14 had not surfaced:
+
+- **Q5 finding** — `GATE_COVERAGE_LEDGER` was a module-level constant, not an env var. F14 monkey-patches it directly; F16 subprocesses cannot. Real opt-out is `GATE_COVERAGE_LEDGER_DISABLED=1` toggle.
+- **Q6 finding** — `REPO_ROOT` was hardcoded to where the .py file lived. Throwaway-repo state.json files were silently dropped from `collect_staged_state_files`. Fixed via PR #611 — `REPO_ROOT_OVERRIDE` env-var support.
+
+T7 (`scripts/tests/test_try_repo_regression_proof.py`) is the deliberate-regression test that proves F16 catches what F14 architecturally cannot — by patching a gate to silently return success on bad input and showing pre-commit returns 0 (the integration assertion catches it).
+
+<Callout type="info">
+  **15 of 16 write-time gates** covered end-to-end via subprocess pre-commit invocation. 1 documented skip (`STATE_OWNER_LOCATION_MISMATCH` — skips with `path_neutral` when the throwaway repo is not under `/FitTracker2[-/]` or `/fitme-story/`; deferred to F16.1).
+</Callout>
+
+## Wall-clock budget
+
+PRD §4 budget: **under 60s**. Empirical: **15.36s for 59 tests + 1 skip**. Well under.
+
+## Discipline encoded
+
+Every gate added going forward MUST ship with:
+
+1. A fixture pair under `tests/fixtures/<GATE_ID>/{positive,negative}/state.overrides.json` (partial-record JSON merged with `tests/fixtures/_baseline/state.json` via `make_state_json()`)
+2. A parametrized test in the appropriate bucket file (`scripts/tests/test_try_repo_*_gates.py`)
+
+Positive fixture: gate must fire (rc != 0). Negative fixture: gate must pass (rc == 0).
+
+See [CLAUDE.md → v7.9.1 F16 — Try-repo Pre-commit Harness](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md) for the full discipline.
+
+## CI integration
+
+New `try-repo-harness` job in [`.github/workflows/pr-integrity-check.yml`](https://github.com/Regevba/FitTracker2/blob/main/.github/workflows/pr-integrity-check.yml) runs the full F16 suite on every PR. Empirical CI wall-clock: ~15s for the 59-test suite + 1 documented skip.
+
+## Shipped via
+
+- **PR #606** — F6 impact-tier docs + T14 stub + FIT-71 drift correction (predecessor on the same day)
+- **PR #607** — Phase 0 Research + Phase 1 PRD + Phase 2 Tasks (scoping)
+- **PR #608** — T2 baseline + T3 harness scaffold (29/29 tests pass + Q5 pivot)
+- **PR #610** — T4a fixtures + Q6 finding
+- **PR #611** — `REPO_ROOT_OVERRIDE` env-var fix (unblocks Q6)
+- **PR #612** — T4a unblock + T4b/c/d + T6 CI + T7 regression proof + T8-T10 docs + this case study
+
+## Where to read more
+
+- Source case study: [`docs/case-studies/f16-try-repo-harness-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/f16-try-repo-harness-case-study.md)
+- Feature directory: [`.claude/features/f16-try-repo-harness/`](https://github.com/Regevba/FitTracker2/tree/main/.claude/features/f16-try-repo-harness)
+- Tier 2.2 contemporaneous log: [`.claude/logs/f16-try-repo-harness.log.json`](https://github.com/Regevba/FitTracker2/blob/main/.claude/logs/f16-try-repo-harness.log.json)
