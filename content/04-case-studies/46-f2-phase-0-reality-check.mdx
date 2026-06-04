@@ -1,0 +1,109 @@
+---
+title: >-
+  F2 Phase 0 Reality-Check — Mechanical Defense Against Post-Squash-Merge State Drift (v7.9.1)
+slug: f2-phase-0-reality-check
+upstream_path: docs/case-studies/f2-phase-0-reality-check-case-study.md
+tier: light
+tldr: >-
+  The post-squash-merge state-drift pattern repeated 5 times in 4 days
+  (2026-06-01 → 2026-06-04). Each time, state.json::tasks said pending
+  but file changes were already on main. The next Phase 0 then
+  scheduled "new work" that was in fact already done. F2 adds a
+  mandatory Phase 0.1 sub-step to /pm-workflow — cross-checks each
+  pending task against the last 30 days of git log + merged PR titles
+  + Tier 2.2 log events. If 2+ evidence items match, the advisory
+  "this task may already be done" surfaces BEFORE scheduling. Wall-
+  clock under 0.1 seconds. 16 tests pass in 0.15s. Operator decides;
+  never blocking.
+timeline_position:
+  version: '7.9.1'
+  order: 46
+key_numbers:
+  - label: Drift instances calibration baseline
+    value: '5 in 4 days (2026-06-01 to 2026-06-04)'
+    tier: T1
+    note: 'C5, D1, the C2/C3/C5/C6 batch, trend-alerts-hrv, and multiple F16 closure attempts. Each shipped via squash-merge; state.json::tasks lagged.'
+  - label: Script wall-clock
+    value: '0.09s on a 14-task feature'
+    tier: T1
+    note: 'PRD budget under 5s. F16-baseline test against the actual feature dir.'
+  - label: Test suite
+    value: '16 pass in 0.15s'
+    tier: T1
+    note: 'Empty tasks, all-done, mixed status, noise-token filtering, mixed evidence across sources, file-system contract, resilience.'
+  - label: Evidence threshold
+    value: '≥2 distinct items across 3 sources (git + PRs + log events)'
+    tier: T1
+    note: 'Single-item matches are silent. Combining a single git commit with a single PR title (or any 2 items) trips the threshold.'
+  - label: Integration callsites
+    value: '2'
+    tier: T1
+    note: '/pm-workflow SKILL.md Phase 0.1 section + Makefile target make phase-0-reality-check FEATURE=<name>.'
+---
+
+import { Callout } from "@/components/mdx/Callout";
+
+# F2 Phase 0 Reality-Check Sub-step
+
+The post-squash-merge state-drift pattern repeated **5 times in 4 days**.
+
+F2 is the mechanical defense.
+
+## The drift loop
+
+1. Feature work ships via squash-merged PR; main has the changes
+2. `state.json::tasks` still say `pending` because the operator merged via web UI (which doesn't update state.json) or `gh pr merge` (which also doesn't)
+3. Next session opens Phase 0 on the same feature; agent reads state.json and sees pending tasks
+4. Agent schedules "new work" that is in fact already done
+5. Operator catches the drift — usually 2-3 phases later — and runs `make close-feature` to reconcile
+
+Cost: 3-phase re-plan per drift instance.
+
+## What F2 does
+
+Before Phase 0 schedules anything, run:
+
+```bash
+make phase-0-reality-check FEATURE=<name>
+```
+
+The check reads `state.json::tasks` and cross-checks each `pending` / `in_progress` / `open` task against the last 30 days of:
+
+- **Git log subjects** — has anyone shipped a matching commit?
+- **Merged PR titles** (FT2 + fitme-story) — has either repo merged a matching PR?
+- **Tier 2.2 log events** in `.claude/logs/<feature>.log.json` — has anyone logged an implementation event mentioning the task ID or keywords?
+
+If 2+ distinct evidence items hit a pending task's keywords, the advisory **"this task may already be done"** surfaces.
+
+<Callout type="info">
+  **Never blocking.** Phase 0.1 emits advisories; never aborts the workflow. Operator decides if the drift is real. SKILL.md refuses to advance Phase 0 only if there are unacknowledged advisories — acknowledge via `state.json::phase_0_reality_check_acknowledged: ["T3 reviewed — not the same scope"]`.
+</Callout>
+
+## Threshold mechanics
+
+- **Noise-token filter:** 50+ common English words + framework-specific noise ("the", "test", "implement", "framework", "scripts", "case-study", "v7", "v8", etc.) drop out before matching. Keeps "BRANCH_ISOLATION_VIOLATION" or "REPO_ROOT_OVERRIDE" or "T4a" as signal.
+- **Per-item: ≥2 distinct keywords** — single-keyword matches don't count.
+- **Across-sources: ≥2 total evidence items** — combining git + PR + log adds up.
+
+The strict thresholds keep false-positive rate manageable.
+
+## Sequencing with F16 + F17
+
+F2 ships same-day as F16 (try-repo harness) and F17 (last_fired_at index). All three are independent v7.9.1 candidates:
+
+- **F16** validates that gates ARE wired correctly via subprocess integration testing
+- **F17** materializes "when did each gate last fire?" so meta-checks stay O(1)
+- **F2** catches state-drift BEFORE the next Phase 0 schedules duplicate work
+
+F1 (`STATE_TASKS_FILESYSTEM_DRIFT` advisory, queued) addresses the same pattern at the cycle-time gate level. F2 addresses it at the workflow level.
+
+## Shipped via
+
+- **PR #618** — script + 16 tests + SKILL.md Phase 0.1 + Makefile target + docs + case study
+
+## Where to read more
+
+- Source case study: [`docs/case-studies/f2-phase-0-reality-check-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/f2-phase-0-reality-check-case-study.md)
+- Spec: [`docs/master-plan/infra-master-plan-2026-05-12.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/infra-master-plan-2026-05-12.md) §3.1 Theme A F2
+- Sibling F16 (same day): [`f16-try-repo-harness`](/case-studies/f16-try-repo-harness)
+- Sibling F17 (same day): [`f17-last-fired-at-index`](/case-studies/f17-last-fired-at-index)
