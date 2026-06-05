@@ -1,16 +1,4 @@
 ---
-# ============================================================================
-# STAGED / DORMANT DRAFT — NOT FOR PUBLISH.
-# This file ends in `.mdx.draft`, so the fitme-story content loader
-# (src/lib/content.ts: name.endsWith('.mdx')) NEVER reads it: no route, no
-# build parse, cannot be reached by URL. Publish-day flip is a single step:
-#   git mv 37-orchid-research-arc.mdx.draft 37-orchid-research-arc.mdx
-#   + set `date:` + replace the <!-- FILL ON ... --> markers with the selected
-#   both-outcomes branch.  See the publication-readiness plan.
-# Frontmatter shape resolved 2026-05-30 against src/lib/content-schema.ts +
-# 22c-...mdx: timeline_position is NESTED ({version, order:number}); the gate
-# needs visual_aid OR non-empty key_numbers, plus tldr.
-# ============================================================================
 title: 'Orchid — From Dispatch Patterns to Silicon, Validated by Measurement'
 slug: orchid-research-arc
 upstream_path: docs/research/2026-05-29-hadf-activation-orchid-validation-analysis.md
@@ -20,10 +8,13 @@ tldr: >-
   dispatch intelligence became a RISC-V accelerator design (Orchid v1 → v1.5),
   how the v7.x software defenses mapped to silicon units, and how the HADF
   measurement program supplied the empirical evidence that validates those unit
-  decisions. Honest disposition at authorship: the central dispatch claim is
-  PARTIALLY SUPPORTED — cloud generalization confirmed (silhouette 0.5566 →
-  0.7003), device-local and routing-layer axes PENDING on HADF Sub-exps 2 & 3.
-  Sub-exp 3 is a falsification test that can refute a v2 design dimension.
+  decisions. Final disposition: the central dispatch claim is CONFIRMED — all
+  four HADF Phase 2-bis sub-experiments PASS. Cloud generalization strengthened
+  (silhouette 0.5566 → 0.7003 @ k=5), cross-window anchors stayed stable (0.19σ
+  drift), cloud-vs-local separability holds (KS p ≪ 0.01), and the routing-layer
+  falsification test SURVIVED
+  (signature_delta_ratio 2.89 > 2.0) — licensing the Orchid v2 U2 routing-class
+  field + U6 multi-routing coherence rather than refuting them.
 timeline_position:
   version: '7.9'
   order: 37
@@ -32,9 +23,9 @@ persona_emphasis:
   pm: lifecycle
   dev: architecture
   academic: measurement
-# date: SET ON PUBLISH DAY (omitted while dormant — no publication date yet)
+date: '2026-06-05'
 date_written: '2026-05-30'
-status: draft
+status: complete
 external_audit_status: pending
 spec: docs/superpowers/specs/2026-05-30-orchid-research-capstone-design.md
 plan: docs/superpowers/plans/2026-05-30-orchid-research-capstone-publication-readiness.md
@@ -58,36 +49,46 @@ key_numbers:
   - label: 'Sub-exp 1 cost (actual)'
     value: '$0.324 over 2,600 valid records (92.86% valid rate)'
     tier: T1
-  - label: 'Central dispatch claim disposition (at authorship)'
-    value: 'PARTIALLY SUPPORTED — cloud generalization only'
-    tier: T3
-  # FILL ON SUB-EXP 2: add device-local KS p-value verdict row [T1]
-  # FILL ON SUB-EXP 3: add routing-layer delta_ratio verdict row [T1]
+  - label: 'HADF Sub-exp 2 — cloud-vs-local separability (KS, n=800)'
+    value: 'SEPARABLE: KS TTFT p=9.3e-136, KS TPS p=5.9e-322 (both ≪ 0.01)'
+    tier: T1
+  - label: 'HADF Sub-exp 3 — routing-layer falsification (n=2,239)'
+    value: 'SURVIVED: signature_delta_ratio 2.89 (> 2.0); Bedrock TTFT 1.468s vs Anthropic-direct 0.868s, same haiku-4-5'
+    tier: T1
+  - label: 'HADF Sub-exp 1B — cross-window anchor stability (n=1,465)'
+    value: 'silhouette 0.98 @ k=2; anchor drift 0.19σ'
+    tier: T1
+  - label: 'Central dispatch claim disposition (final)'
+    value: 'CONFIRMED — all 4 sub-experiments PASS (sensing layer)'
+    tier: T1
+  - label: 'Phase 2-bis program cost (actual, all sub-exps)'
+    value: '≈ $1.74'
+    tier: T1
 honest_disclosures:
-  - 'Disposition at authorship is PARTIALLY SUPPORTED — cloud generalization only. Only HADF Phase 2-bis Sub-exp 1 has closed (PASS). Sub-exp 2 (cloud-vs-local separability) and Sub-exp 3 (routing-layer falsification) are PENDING, and the Phase 2-bis synthesis verdict is PENDING. No claim here should be read as closing them.'
-  - 'The strongest interpretive claims are T3 narrative over T1 data, scoped to the 4-endpoint matrix. The full 9-endpoint matrix (Sub-exp 1B) is queued pending API-key acquisition + reasoning-model handling.'
-  - 'Sub-exp 3 is a FALSIFICATION test: a pre-registered delta_ratio < 1.0 REFUTES the HADF dispatch premise on the routing axis and would contraindicate building the corresponding Orchid v2 units (U2 routing-class field, U6 multi-layer coherence).'
-  - 'Orchid is a research vehicle, not a product. Layer B (Chisel RTL, Track R) is BLOCKED on toolchain install; Track D D3 (26K-run DSE sweep) is deferred. The behavioral / DSE / mapping evidence is the only forward motion available, by design (Option B additive plan).'
-  - 'External Audit #2 (2026-06-12) covers the raw HADF .jsonl integrity + verdict scripts + anchor-drift before any v7.9.1 ship. No independent reassessment of Sub-exp 1 has occurred yet.'
+  - 'Final disposition is CONFIRMED at the SENSING layer only: HADF signatures are real, provider-general, substrate-discriminating, and short-term-stable. Whether ROUTING on a signature improves dispatch outcomes (the ACTING layer) is unproven and pre-registered as RQ4 / Phase 3B — a separate experiment. This case study licenses Orchid v2 UNIT decisions, not a routing claim.'
+  - 'Per-request single-shot attestation accuracy is unvalidated (RQ5). Sub-exp 3 confirms two same-model endpoints are distinguishable in AGGREGATE (delta_ratio 2.89); it does not promise per-request separability. The Phase 3A sensing layer that consumes this evidence is advisory/detection-only by construction.'
+  - 'The interpretive unit-mapping claims are T3 narrative over T1 measurement data. The measurement data itself (silhouettes, KS p-values, delta_ratio, anchor drift) is T1 instrumented.'
+  - 'Orchid is a research vehicle, not a product. Layer B (Chisel RTL, Track R) is BLOCKED on toolchain install; Track D D3 (26K-run DSE sweep) is deferred. The behavioral / DSE / mapping evidence is the forward motion available, by design (Option B additive plan).'
+  - 'External Audit #2 (2026-06-12) covers the raw HADF .jsonl integrity + verdict scripts + anchor-drift. No independent reassessment of the Phase 2-bis verdicts has occurred yet.'
 kill_criteria:
   - 'Orchid v1.5: U8 patrol cost > 5% of the dispatch path (per v1.5 spec).'
   - 'Orchid v1.5: U9 arbiter starvation observed across the DSE sweep.'
   - 'Orchid v1.5: tier propagation widens the TileLink critical path > 2 cycles.'
-  - 'HADF Sub-exp 3: signature delta_ratio < 1.0 — HADF dispatch premise REFUTED on the routing axis (operator decides claim + v2-unit revision).'
+  - 'HADF Sub-exp 3: signature delta_ratio < 1.0 — HADF dispatch premise REFUTED on the routing axis (operator decides claim + v2-unit revision). NOT FIRED — observed 2.89.'
 kill_criterion_fired: false
 deferred_items:
-  - title: 'HADF Sub-exp 2 verdict (device-local separability)'
-    ledger: 'launch ~2026-05-30; KS p < 0.01 threshold; fills §5 / §6 device rows'
-    reason: 'Activating the on-device branch ahead of this verdict would be activation ahead of evidence.'
-  - title: 'HADF Sub-exp 3 verdict (routing-layer falsification)'
-    ledger: 'launch ~2026-05-31; delta_ratio > 2.0 confirms / < 1.0 REFUTES'
-    reason: 'Can refute a v2 design dimension; both-outcomes branches pre-written.'
-  - title: 'Phase 2-bis synthesis verdict + Orchid v2 change matrix'
-    ledger: 'gated on Sub-exp 3 closure ~2026-06-04'
-    reason: 'Synthesis replaces the PARTIALLY-SUPPORTED disposition with the final result and recomputes the activation posture.'
+  - title: 'HADF RQ4 / Phase 3B — routing decision-value (the ACTING layer)'
+    ledger: 'separate spec 2026-06-02-hadf-phase3b-rq4-decision-value-design.md; does dispatching on a signature improve outcomes?'
+    reason: 'Sensing is CONFIRMED; acting is a distinct, unproven claim. This is the honest ceiling of the present result.'
+  - title: 'HADF RQ5 — per-request single-shot attestation accuracy'
+    ledger: 'unvalidated; Sub-exp 3 confirms aggregate, not per-request, separability'
+    reason: 'The Phase 3A sensing layer ships advisory/detection-only because of this open question.'
   - title: 'Orchid Track R (Layer B Chisel RTL Phases 6-9)'
     ledger: 'blocked on Orchid v1 Phase 5 SoC integration + Chisel toolchain install'
     reason: 'Out of scope; the behavioral/empirical case stands on its own per Option B.'
+  - title: 'External Audit #2 (2026-06-12) independent verdict re-check'
+    ledger: 'covers raw .jsonl integrity + verdict scripts + anchor drift'
+    reason: 'No independent reassessment of the Phase 2-bis verdicts has occurred yet.'
 ---
 
 ## TLDR
@@ -102,12 +103,18 @@ framework's v7.x software defenses onto silicon units, and finally to the
 **HADF** measurement program, which supplies the empirical evidence those unit
 decisions need.
 
-The honest disposition at authorship: the central dispatch claim is
-**PARTIALLY SUPPORTED — cloud generalization only.** The cloud-provider
-fingerprint *strengthened* under endpoint diversity (silhouette
-**0.5566 → 0.7003**), but the device-local and routing-layer axes are PENDING on
-two unfinished HADF sub-experiments — one of which can *refute* a v2 design
-dimension.
+The final disposition: the central dispatch claim is **CONFIRMED — at the
+sensing layer.** All four HADF Phase 2-bis sub-experiments passed their
+pre-registered thresholds. The cloud-provider fingerprint *strengthened* under
+endpoint diversity (silhouette **0.5566 → 0.7003** @ k=5); cross-window anchors
+held stable (**0.19σ** drift, silhouette **0.98** @ k=2 in Sub-exp 1B); cloud and
+on-device substrates are separable (**KS p ≪ 0.01**); and the routing-layer
+falsification
+test — the one designed to *refute* a v2 design dimension — **survived**
+(**signature_delta_ratio 2.89 > 2.0**). One honest boundary travels with the
+result and is load-bearing throughout: *sensing* (signatures are detectable) is
+confirmed; *acting* (routing on them improves outcomes) is a separate,
+still-unproven claim, pre-registered as RQ4 / Phase 3B.
 
 ## 1 — Thesis: orchestration as a silicon problem
 
@@ -208,33 +215,38 @@ doubled, with the k=5 cluster structure preserved, at an actual cost of **$0.324
   n=2,600, demonstrating the 2-bit tier vocabulary survives real measurement at
   scale — field evidence for the reserve-don't-spend choice.
 
-**What is still PENDING (explicit):**
+**What the two closing sub-experiments resolved [T1]:**
 
-<!-- FILL ON SUB-EXP 2 -->
-<!-- STUB — select ONE at closure (device-local separability, KS p-value):
- (a) SEPARABLE (KS p < 0.01): local (Ollama llama3.2:3b on M2) and cloud anchors
-     occupy distinct fingerprint regions → device_modifier eligible for the >0.7
-     band; U7 systolic-array sizing leans toward the 8×8 compute-bound profile;
-     U3 cache model = "local fits in RAM, cloud does not."
- (b) NOT SEPARABLE: the on-device branch stays advisory (≤0.7); this revives the
-     U8 DRAM-patrol question deferred in v1.5; U7/U3 forks stay open.
- Fill the [T1] KS p-value, the verdict, and the U7/U3 disposition here, and add
- the matching key_numbers row in frontmatter.
--->
+**Sub-exp 2 — cloud vs. on-device — SEPARABLE.** A local Ollama `llama3.2:3b`
+endpoint on an M2 and the cloud anchors occupy distinct fingerprint regions:
+two-sample KS rejects equality decisively on both marginals (TTFT
+**p = 9.3e-136**, TPS **p = 5.9e-322**, n=800, both ≪ 0.01). This *licenses* the
+`device_modifier` for the >0.7 band, and it picks the open v1.5 forks: U7
+systolic-array sizing leans toward the **8×8 compute-bound** profile (local
+inference is compute-bound, not bandwidth-bound), and the U3 cache model
+resolves to **"local fits in RAM, cloud does not."** The on-device branch is no
+longer activation-ahead-of-evidence.
 
-<!-- FILL ON SUB-EXP 3 -->
-<!-- STUB — select ONE at closure (routing-layer falsification, delta_ratio):
- (a) CONFIRM (delta_ratio > 2.0): Bedrock-haiku and Anthropic-direct-haiku (same
-     model id) fingerprint differently beyond the within-provider noise floor →
-     the routing layer carries signal → BUILD U2 routing-class field + U6
-     multi-routing-layer coherence.
- (b) INCONCLUSIVE (1.0 ≤ ratio ≤ 2.0): hold U2/U6; routing modifier advisory only.
- (c) REFUTE (delta_ratio < 1.0): HADF dispatch premise FALSIFIED on the routing
-     axis → do NOT build the U2 routing-aware mode; document the negative result
-     prominently — this is the protective value of pre-committing the negative case.
- Fill the [T1] delta_ratio, the verdict, and the U2/U6 disposition here, and add
- the matching key_numbers row in frontmatter.
--->
+**Sub-exp 3 — routing-layer falsification — SURVIVED.** This was the keystone:
+a pre-registered `delta_ratio < 1.0` would have *refuted* the HADF dispatch
+premise on the routing axis and contraindicated two Orchid v2 units. It did not.
+Bedrock-haiku and Anthropic-direct-haiku — **the same `claude-haiku-4-5` model
+id**, differing only in the serving substrate — fingerprint apart beyond the
+within-provider noise floor: **signature_delta_ratio 2.89** (inter-endpoint
+Mahalanobis 1.043 / intra-anchor noise 0.361), median TTFT **1.468s** (Bedrock)
+vs **0.868s** (Anthropic-direct), n=2,239, anchor drift 0.19σ. The routing layer
+carries real signal → **BUILD U2 routing-class field + U6 multi-routing-layer
+coherence.** Pre-committing the refutation branch is what makes the survival
+meaningful rather than confirmatory.
+
+> **The honesty boundary that survives confirmation.** All of the above is the
+> *sensing* claim — signatures are detectable, general, and stable. Whether a
+> dispatcher that *routes* on these signatures produces better outcomes is the
+> *acting* claim, and it is **not** tested here. It is pre-registered as RQ4
+> (Phase 3B), a separate experiment. Sub-exp 3's `delta_ratio 2.89` confirms
+> aggregate distribution-level separability, not per-request classification
+> accuracy (RQ5) — which is why the Phase 3A sensing layer that consumes this
+> evidence ships **advisory / detection-only**.
 
 ## 6 — Activation posture: what the data licenses
 
@@ -244,47 +256,46 @@ confidence gate governs effect: **< 0.4** ignored (dispatch bit-for-bit identica
 to v5.2, zero regression); **0.4–0.7** advisory only; **> 0.7** hardware scores
 multiply routing weights.
 
-**Licensed now by closed data:** a **scoped partial activation** — flip the
-cloud-provider discrimination modifier into the >0.7 band (silhouette 0.7003 @
-k=5 defensibly clears it), and keep the device-local and routing-layer modifiers
-≤0.7 (advisory) until Sub-exps 2 & 3 close. The zero-regression gate guarantees
-the staged flip carries no risk to the system-wide guardrails (crash-free >99.5%,
-dispatch unchanged below threshold).
+**Licensed now by closed data:** all three discrimination modifiers clear the
+>0.7 band on the *sensing* axis — cloud-provider (silhouette 0.7003 → 0.98),
+device-local (KS p ≪ 0.01), and routing-layer (delta_ratio 2.89). The
+zero-regression gate guarantees the flips carry no risk to the system-wide
+guardrails (crash-free >99.5%, dispatch bit-for-bit identical below threshold).
 
-<!-- FILL ON SUB-EXP 2 -->
-<!-- STUB: on (a) SEPARABLE → device_modifier becomes eligible for >0.7, state the
-     revised posture; on (b) NOT SEPARABLE → device_modifier stays advisory,
-     state that the cloud-only posture is unchanged on this axis. -->
-
-<!-- FILL ON SUB-EXP 3 -->
-<!-- STUB: on (a) CONFIRM → routing-layer modifier eligible for >0.7; on (b)
-     INCONCLUSIVE → routing stays advisory; on (c) REFUTE → routing-layer
-     modifier permanently held at advisory/ignored and the refutation is recorded
-     as a design constraint, not a gap. -->
+**But the activation that matters is gated on a claim this program did not
+test.** Flipping a confidence modifier into the >0.7 band changes how the
+*dispatcher weights a routing decision* — that is the *acting* layer. Phase 2-bis
+proved the signal is real to *observe*; it did not prove that *acting* on it
+improves any outcome (latency, cost, quality). So the licensed posture is: ship
+the **Phase 3A sensing layer** (detect, attest, monitor drift — observability
+only, no routing change), and hold the live routing flip until **RQ4 / Phase 3B**
+tests decision-value directly. The confirmation earns the sensing surface, not a
+behavior change.
 
 ## 7 — Honest close
 
-<!-- FILL ON SYNTHESIS VERDICT -->
-<!-- STUB — on Phase 2-bis synthesis (~2026-06-04), replace the disposition below
-     with the final result across the Sub-exp 1/2/3 combination (mirror the 22c
-     verdict-logic table) and recompute the recommended activation posture against
-     the full modifier set. Do not soften a refutation if Sub-exp 3 returns (c). -->
+The arc closes at **CONFIRMED — at the sensing layer.** All four HADF Phase 2-bis
+sub-experiments passed their pre-registered thresholds, including the one written
+to *refute* a v2 design dimension. That is a real result, and a rare shape for
+one: a fitness app's PM framework produced a falsifiable, pre-registered,
+externally-auditable hardware hypothesis, ran it on real endpoints for ≈$1.74,
+and the hypothesis *survived a falsification test it could have failed*. The
+unit decisions it licenses are concrete — U7 8×8 compute-bound, U3 local-fits-RAM
+cache model, **build** U2 routing-class + U6 multi-routing coherence.
 
-At authorship, the arc stands at **PARTIALLY SUPPORTED — cloud generalization
-only.** That is the honest ceiling the closed data supports, and it is a real
-result: a fitness app's PM framework produced a falsifiable, pre-registered,
-externally-auditable hardware hypothesis, and the first axis of it held and
-strengthened under replication.
+The discipline that makes the "CONFIRMED" honest is the boundary it refuses to
+cross: **sensing is proven; acting is not.** The signatures are detectable,
+general, and stable — that is what the data shows. Whether routing on them
+improves dispatch is a separate, still-open question (RQ4), and per-request
+attestation accuracy is another (RQ5). A confirmation that names exactly what it
+has *not* shown is worth more than one that quietly widens its own scope.
 
-Two standing caveats travel with every claim above: (1) the strongest
-interpretive claims are **T3 narrative over T1 data, scoped to 4 endpoints** —
-the full 9-endpoint matrix (Sub-exp 1B) is queued; (2) the Phase 2-bis synthesis
-verdict is **PENDING** and must not be read as closed.
-
-The forward path: HADF Sub-exps 2 & 3 close the device-local and routing-layer
-axes; External Audit #2 (2026-06-12) independently checks the raw data; and the
-Orchid v2 spec stub — gated on the Chisel toolchain — turns whichever unit
-decisions survive into RTL intent. Track R waits; the evidence does not.
+The forward path: Phase 3A activates the sensing surface (shipped as advisory /
+detection-only producers); RQ4 / Phase 3B designs the decision-value experiment
+that would license a live routing change; External Audit #2 (2026-06-12)
+independently checks the raw verdicts; and the Orchid v2 spec stub — gated on the
+Chisel toolchain — turns the surviving unit decisions into RTL intent. Track R
+waits; the evidence does not.
 
 ## Reference
 
