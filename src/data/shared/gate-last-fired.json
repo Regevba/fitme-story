@@ -1,153 +1,153 @@
 {
   "schema_version": 1,
-  "refreshed_at": "2026-06-04T15:34:51Z",
+  "refreshed_at": "2026-06-05T08:18:52Z",
   "source_ledger": ".claude/logs/gate-coverage.jsonl",
-  "source_rows_read": 1862,
+  "source_rows_read": 2430,
   "source_rows_malformed": 0,
   "gates": {
     "BRANCH_ISOLATION_VIOLATION": {
-      "last_fired_at": "2026-06-04T14:49:43+00:00",
-      "last_checked_at": "2026-06-04T14:49:43+00:00",
-      "last_skipped_at": "2026-06-04T13:25:56+00:00",
+      "last_fired_at": "2026-06-05T06:45:45+00:00",
+      "last_checked_at": "2026-06-05T08:12:26+00:00",
+      "last_skipped_at": "2026-06-05T08:12:26+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 77,
-      "total_skips": 135,
-      "total_candidates": 212
+      "total_firings": 115,
+      "total_skips": 140,
+      "total_candidates": 255
     },
     "BRANCH_ISOLATION_VIOLATION_MODE_C": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T13:19:20+00:00",
+      "last_fired_at": "2026-06-05T06:39:46+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 72,
-      "total_skips": 1832,
-      "total_candidates": 1904
+      "total_firings": 103,
+      "total_skips": 1842,
+      "total_candidates": 1945
     },
     "CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T12:20:25+00:00",
+      "last_fired_at": "2026-06-05T06:45:45+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 538,
-      "total_skips": 1366,
-      "total_candidates": 1904
+      "total_firings": 564,
+      "total_skips": 1381,
+      "total_candidates": 1945
     },
     "CU_V2_INVALID": {
-      "last_fired_at": "2026-06-02T17:41:05+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T14:27:13+00:00",
+      "last_fired_at": "2026-06-04T19:04:35+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 248,
-      "total_skips": 1656,
-      "total_candidates": 1904
+      "total_firings": 249,
+      "total_skips": 1696,
+      "total_candidates": 1945
     },
     "FEATURE_CLOSURE_COMPLETENESS": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T13:19:20+00:00",
+      "last_fired_at": "2026-06-05T06:39:46+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 33,
-      "total_skips": 1871,
-      "total_candidates": 1904
+      "total_firings": 57,
+      "total_skips": 1888,
+      "total_candidates": 1945
     },
     "FRAMEWORK_VERSION_FORMAT": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
+      "last_fired_at": "2026-06-05T08:02:42+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
       "last_skipped_at": null,
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 1904,
+      "total_firings": 1945,
       "total_skips": 0,
-      "total_candidates": 1904
+      "total_candidates": 1945
     },
     "ISOLATION_OPT_OUT_REASON_MISSING": {
-      "last_fired_at": "2026-06-04T05:24:33+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T14:27:13+00:00",
+      "last_fired_at": "2026-06-05T05:36:47+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 286,
-      "total_skips": 1618,
-      "total_candidates": 1904
+      "total_firings": 293,
+      "total_skips": 1652,
+      "total_candidates": 1945
     },
     "PHASE_TRANSITION_NO_LOG": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T13:19:20+00:00",
+      "last_fired_at": "2026-06-05T06:39:46+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 78,
-      "total_skips": 1826,
-      "total_candidates": 1904
+      "total_firings": 116,
+      "total_skips": 1829,
+      "total_candidates": 1945
     },
     "PHASE_TRANSITION_NO_TIMING": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T13:19:20+00:00",
+      "last_fired_at": "2026-06-05T06:39:46+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 78,
-      "total_skips": 1826,
-      "total_candidates": 1904
+      "total_firings": 116,
+      "total_skips": 1829,
+      "total_candidates": 1945
     },
     "PR_NUMBER_UNRESOLVED": {
-      "last_fired_at": "2026-06-03T18:01:23+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T14:27:13+00:00",
+      "last_fired_at": "2026-06-05T06:45:45+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 797,
-      "total_skips": 1107,
-      "total_candidates": 1904
+      "total_firings": 823,
+      "total_skips": 1122,
+      "total_candidates": 1945
     },
     "SCHEMA_DRIFT_LEGACY_CREATED": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
+      "last_fired_at": "2026-06-05T08:02:42+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
       "last_skipped_at": null,
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 1904,
+      "total_firings": 1945,
       "total_skips": 0,
-      "total_candidates": 1904
+      "total_candidates": 1945
     },
     "SCHEMA_DRIFT_LEGACY_PHASE": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
+      "last_fired_at": "2026-06-05T08:02:42+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
       "last_skipped_at": null,
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 1904,
+      "total_firings": 1945,
       "total_skips": 0,
-      "total_candidates": 1904
+      "total_candidates": 1945
     },
     "STATE_NO_CASE_STUDY_LINK": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T12:20:25+00:00",
+      "last_fired_at": "2026-06-05T06:45:45+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 1658,
-      "total_skips": 246,
-      "total_candidates": 1904
+      "total_firings": 1684,
+      "total_skips": 261,
+      "total_candidates": 1945
     },
     "STATE_OWNER_INVALID": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
+      "last_fired_at": "2026-06-05T08:02:42+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
       "last_skipped_at": null,
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 1904,
+      "total_firings": 1945,
       "total_skips": 0,
-      "total_candidates": 1904
+      "total_candidates": 1945
     },
     "STATE_OWNER_LOCATION_MISMATCH": {
-      "last_fired_at": "2026-06-04T14:27:13+00:00",
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-02T17:41:05+00:00",
+      "last_fired_at": "2026-06-05T08:02:42+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-04T19:04:35+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
-      "total_firings": 1881,
-      "total_skips": 23,
-      "total_candidates": 1904
+      "total_firings": 1921,
+      "total_skips": 24,
+      "total_candidates": 1945
     },
     "STATE_OWNER_MISSING": {
       "last_fired_at": null,
-      "last_checked_at": "2026-06-04T14:27:13+00:00",
-      "last_skipped_at": "2026-06-04T14:27:13+00:00",
+      "last_checked_at": "2026-06-05T08:02:42+00:00",
+      "last_skipped_at": "2026-06-05T08:02:42+00:00",
       "first_seen_at": "2026-05-19T12:54:04+00:00",
       "total_firings": 0,
-      "total_skips": 1904,
-      "total_candidates": 1904
+      "total_skips": 1945,
+      "total_candidates": 1945
     }
   }
 }

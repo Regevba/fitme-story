@@ -24,7 +24,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, existsSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { syncDashboardData, type SyncPaths } from './sync-from-fittracker2';
+import { syncDashboardData, aggregateFeatureRoster, type SyncPaths } from './sync-from-fittracker2';
 
 // Build a SyncPaths object pointing into a fresh tmp root. Caller is
 // responsible for creating the FT2 source structure inside ft2Root.
@@ -43,6 +43,7 @@ function makePaths(): { paths: SyncPaths; tmpRoot: string; cleanup: () => void }
     localDocs:              join(tmpRoot, 'fitme-story', 'src', 'data', 'docs'),
     localIntegritySnapshots: join(tmpRoot, 'fitme-story', 'src', 'data', 'integrity', 'snapshots'),
     localSkills:            join(tmpRoot, 'fitme-story', 'src', 'data', 'skills'),
+    localFramework:         join(tmpRoot, 'fitme-story', 'src', 'data', 'framework'),
     freshnessPath:          join(tmpRoot, 'fitme-story', 'src', 'data', 'freshness.json'),
   };
   // Pre-create the fitme-story output dir so sync can write into it.
@@ -351,6 +352,199 @@ test('forward sync mirrors FT2 gate-coverage.jsonl as gate-coverage-ft2.jsonl', 
     // The original name (without -ft2) must NOT exist at the dest — rename only.
     const wrongDest = join(tmpRoot, 'fitme-story', 'src', 'data', 'integrity', 'gate-coverage.jsonl');
     assert.ok(!existsSync(wrongDest), 'gate-coverage.jsonl (no suffix) must NOT be created at dest');
+  } finally {
+    cleanup();
+  }
+});
+
+// Phase G (2026-06-05) — T-aggregator (3D Universe Phase 4.A) — tests the
+// `src/data/framework/feature-roster.json` aggregator per the OQ-2 locked
+// contract in `.claude/features/3d-interactive-framework-flow-diagram/prd.md`
+// §Data Contracts.
+
+function writeFt2State(
+  ft2FeaturesDir: string,
+  slug: string,
+  state: Record<string, unknown>,
+): void {
+  const dir = join(ft2FeaturesDir, slug);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'state.json'), JSON.stringify(state, null, 2));
+}
+
+test('Phase G T-aggregator: emits feature-roster.json with schema_version + generated_at + entries', async () => {
+  const { paths, tmpRoot, cleanup } = makePaths();
+  try {
+    const ft2FeaturesDir = join(tmpRoot, 'FitTracker2', '.claude', 'features');
+    mkdirSync(paths.ft2Shared, { recursive: true });
+    mkdirSync(paths.ft2Logs, { recursive: true });
+    // Minimum 4 source markdowns required by FT2_DOC_PATHS.
+    mkdirSync(join(tmpRoot, 'FitTracker2', 'docs', 'product'), { recursive: true });
+    mkdirSync(join(tmpRoot, 'FitTracker2', 'docs', 'master-plan'), { recursive: true });
+    for (const p of ['docs/product/backlog.md', 'docs/product/PRD.md', 'docs/product/metrics-framework.md', 'docs/master-plan/master-backlog-roadmap.md']) {
+      writeFileSync(join(tmpRoot, 'FitTracker2', p), '# placeholder\n');
+    }
+    // 2 feature dirs with valid state.json.
+    writeFt2State(ft2FeaturesDir, 'zeta-feature', {
+      feature_name: 'zeta-feature',
+      current_phase: 'complete',
+      framework_version: 'v7.9.1',
+      case_study: 'docs/case-studies/zeta-case-study.md',
+      state_owner: 'ft2',
+      isolation_opt_out: false,
+    });
+    writeFt2State(ft2FeaturesDir, 'alpha-feature', {
+      feature_name: 'alpha-feature',
+      current_phase: 'implementation',
+      framework_version: 'v7.9.1',
+      state_owner: 'fitme-story',
+    });
+
+    await syncDashboardData(paths);
+
+    const rosterPath = join(tmpRoot, 'fitme-story', 'src', 'data', 'framework', 'feature-roster.json');
+    assert.ok(existsSync(rosterPath), 'feature-roster.json must be emitted');
+    const roster = JSON.parse(readFileSync(rosterPath, 'utf8'));
+    assert.equal(roster.schema_version, '1.0.0', 'schema_version is locked at 1.0.0');
+    assert.match(roster.generated_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/, 'generated_at is ISO-8601 without ms');
+    assert.equal(roster.entries.length, 2, 'one entry per state.json parsed successfully');
+    // Sort: alphabetical by slug — alpha before zeta.
+    assert.equal(roster.entries[0].slug, 'alpha-feature');
+    assert.equal(roster.entries[1].slug, 'zeta-feature');
+  } finally {
+    cleanup();
+  }
+});
+
+test('Phase G T-aggregator: derives status correctly + drops private fields', async () => {
+  const { paths, tmpRoot, cleanup } = makePaths();
+  try {
+    const ft2FeaturesDir = join(tmpRoot, 'FitTracker2', '.claude', 'features');
+    mkdirSync(paths.ft2Shared, { recursive: true });
+    mkdirSync(paths.ft2Logs, { recursive: true });
+    mkdirSync(join(tmpRoot, 'FitTracker2', 'docs', 'product'), { recursive: true });
+    mkdirSync(join(tmpRoot, 'FitTracker2', 'docs', 'master-plan'), { recursive: true });
+    for (const p of ['docs/product/backlog.md', 'docs/product/PRD.md', 'docs/product/metrics-framework.md', 'docs/master-plan/master-backlog-roadmap.md']) {
+      writeFileSync(join(tmpRoot, 'FitTracker2', p), '# placeholder\n');
+    }
+    writeFt2State(ft2FeaturesDir, 'priv-leak-test', {
+      feature_name: 'priv-leak-test',
+      current_phase: 'paused',
+      // Private fields that MUST be dropped per locked contract.
+      cache_hits: [{ file: 'secret.swift', n: 5 }],
+      cu_v2: { computed: 1.8, factors: ['secret_factor'] },
+      tasks: [{ id: 'T1', description: 'INTERNAL' }],
+      phases: { implementation: { notes: 'INTERNAL NOTES' } },
+      timing: { wall_time_seconds: 1234 },
+    });
+    writeFt2State(ft2FeaturesDir, 'cancelled-test', {
+      feature_name: 'cancelled-test',
+      current_phase: 'cancelled',
+    });
+    writeFt2State(ft2FeaturesDir, 'unknown-phase-test', {
+      feature_name: 'unknown-phase-test',
+      current_phase: 'made-up-phase-name',
+    });
+
+    await syncDashboardData(paths);
+
+    const rosterPath = join(tmpRoot, 'fitme-story', 'src', 'data', 'framework', 'feature-roster.json');
+    const roster = JSON.parse(readFileSync(rosterPath, 'utf8'));
+    const byslug: Record<string, Record<string, unknown>> = {};
+    for (const e of roster.entries) byslug[e.slug as string] = e;
+
+    // Status derivation
+    assert.equal(byslug['priv-leak-test'].status, 'paused', 'paused phase → paused status');
+    assert.equal(byslug['cancelled-test'].status, 'cancelled', 'cancelled phase → cancelled status');
+    assert.equal(byslug['unknown-phase-test'].status, 'in_progress', 'any non-terminal phase → in_progress');
+
+    // Privacy posture: dropped fields must not appear ANYWHERE in the entry
+    const privEntry = byslug['priv-leak-test'];
+    assert.equal('cache_hits' in privEntry, false, 'cache_hits must be dropped');
+    assert.equal('cu_v2' in privEntry, false, 'cu_v2 must be dropped');
+    assert.equal('tasks' in privEntry, false, 'tasks must be dropped');
+    assert.equal('phases' in privEntry, false, 'phases must be dropped');
+    assert.equal('timing' in privEntry, false, 'timing must be dropped');
+
+    // Closed enum: only the 9 contracted fields present
+    const allowed = new Set([
+      'slug', 'status', 'framework_version', 'current_phase',
+      'case_study', 'parent_feature', 'state_owner',
+      'isolation_opt_out', 'has_brainstorm',
+    ]);
+    for (const k of Object.keys(privEntry)) {
+      assert.ok(allowed.has(k), `unexpected leaked field: ${k}`);
+    }
+  } finally {
+    cleanup();
+  }
+});
+
+test('Phase G T-aggregator: corrupted state.json logs warning but does NOT abort aggregator (locked-contract degraded-graceful)', async () => {
+  // Tests the aggregator function in isolation. The wider syncDashboardData
+  // upstream copy step is strict (hard-fails on invalid JSON in feature dirs
+  // — see "throws when an upstream file contains invalid JSON" above). The
+  // OQ-2 locked contract's degraded-graceful promise applies to the
+  // aggregator surface specifically: a single corrupted state.json must NOT
+  // prevent the other 95/96 monuments from being aggregated. Upstream
+  // strictness is a separate concern outside this task's scope.
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-agg-corrupt-'));
+  try {
+    const ft2FeaturesDir = join(tmpRoot, 'features');
+    const localFramework = join(tmpRoot, 'framework');
+    mkdirSync(ft2FeaturesDir, { recursive: true });
+    writeFt2State(ft2FeaturesDir, 'good-feature', {
+      feature_name: 'good-feature',
+      current_phase: 'complete',
+    });
+    mkdirSync(join(ft2FeaturesDir, 'corrupt-feature'), { recursive: true });
+    writeFileSync(join(ft2FeaturesDir, 'corrupt-feature', 'state.json'), '{not json');
+
+    const result = aggregateFeatureRoster(ft2FeaturesDir, localFramework);
+    assert.equal(result.wrote, true, 'aggregator wrote the file despite the corrupt sibling');
+    assert.equal(result.entries, 1, 'corrupted state.json skipped; good entry survives');
+    const roster = JSON.parse(readFileSync(join(localFramework, 'feature-roster.json'), 'utf8'));
+    assert.equal(roster.entries.length, 1);
+    assert.equal(roster.entries[0].slug, 'good-feature');
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+test('Phase G T-aggregator: idempotent — re-running produces stable output (same entries, same sort)', async () => {
+  const { paths, tmpRoot, cleanup } = makePaths();
+  try {
+    const ft2FeaturesDir = join(tmpRoot, 'FitTracker2', '.claude', 'features');
+    mkdirSync(paths.ft2Shared, { recursive: true });
+    mkdirSync(paths.ft2Logs, { recursive: true });
+    mkdirSync(join(tmpRoot, 'FitTracker2', 'docs', 'product'), { recursive: true });
+    mkdirSync(join(tmpRoot, 'FitTracker2', 'docs', 'master-plan'), { recursive: true });
+    for (const p of ['docs/product/backlog.md', 'docs/product/PRD.md', 'docs/product/metrics-framework.md', 'docs/master-plan/master-backlog-roadmap.md']) {
+      writeFileSync(join(tmpRoot, 'FitTracker2', p), '# placeholder\n');
+    }
+    writeFt2State(ft2FeaturesDir, 'c-feat', { feature_name: 'c-feat', current_phase: 'complete' });
+    writeFt2State(ft2FeaturesDir, 'a-feat', { feature_name: 'a-feat', current_phase: 'complete' });
+    writeFt2State(ft2FeaturesDir, 'b-feat', { feature_name: 'b-feat', current_phase: 'complete' });
+
+    await syncDashboardData(paths);
+    const r1 = JSON.parse(readFileSync(join(tmpRoot, 'fitme-story', 'src', 'data', 'framework', 'feature-roster.json'), 'utf8'));
+
+    await syncDashboardData(paths);
+    const r2 = JSON.parse(readFileSync(join(tmpRoot, 'fitme-story', 'src', 'data', 'framework', 'feature-roster.json'), 'utf8'));
+
+    // entries arrays equal modulo generated_at (which IS expected to advance).
+    assert.deepEqual(
+      r1.entries.map((e: { slug: string }) => e.slug),
+      ['a-feat', 'b-feat', 'c-feat'],
+      'alphabetical sort observed on first run',
+    );
+    assert.deepEqual(
+      r2.entries.map((e: { slug: string }) => e.slug),
+      r1.entries.map((e: { slug: string }) => e.slug),
+      'entry order stable across runs',
+    );
+    assert.deepEqual(r2.entries, r1.entries, 'entry content identical across runs');
+    assert.equal(r2.schema_version, r1.schema_version, 'schema_version stable');
   } finally {
     cleanup();
   }
