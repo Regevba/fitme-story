@@ -11,11 +11,13 @@ tldr: >-
   signature delta > 2.0). Sub-exp 3 is the falsification test for the central
   HADF claim. Skeleton authored 2026-05-27 as Block C pre-work; verdicts
   populate as each sub-exp closes (Sub-exp 1 ~2026-05-28, Sub-exp 2 ~2026-05-31,
-  Sub-exp 3 ~2026-06-04). Synthesis verdict combines all three into a
-  confirmed / partially-supported / refuted disposition for the HADF dispatch
-  premise. **Status: Sub-exp 1 PASS + Sub-exp 2 PASS (closed 2026-06-02);
-  Sub-exp 3 pending (gated on AWS Bedrock access). Synthesis disposition held
-  until all three close.**
+  Sub-exp 3 ~2026-06-05). **CLOSED 2026-06-05 — all four sub-experiments PASS:
+  Sub-exp 1 (silhouette 0.70), Sub-exp 2 (KS p≪0.01), Sub-exp 3 (signature_delta_ratio
+  2.89 > 2.0 — the falsification test SURVIVES), Sub-exp 1B (silhouette 0.98, anchor
+  drift 0.19σ). Synthesis verdict: HADF dispatch claim CONFIRMED — streaming signatures
+  distinguish substrate, provider, and routing layer. Scope honesty: this confirms the
+  SENSING layer; the dispatch ACTING layer (does routing on signatures improve outcomes?)
+  is unproven and gated on RQ4 (Phase 3B).**
 timeline_position:
   version: '7.8.3'
   order: 22.7
@@ -64,6 +66,21 @@ key_numbers:
   - label: 'Sub-exp 2 Ollama signature (M2 local)'
     value: 'median TTFT 0.179 s, median TPS 43.8 (std 6.9 — vs cloud TPS std 277 / 951)'
     tier: T1
+  - label: 'Sub-exp 3 verdict (closed 2026-06-05) — the falsification test'
+    value: 'PASS — signature_delta_ratio 2.89 (> 2.0); Bedrock haiku TTFT 1.468 s vs Anthropic-direct 0.868 s (same model, different router)'
+    tier: T1
+  - label: 'Sub-exp 3 secondary metrics'
+    value: 'silhouette k=3 = 0.547 (3 clusters); anchor drift 0.19σ (≪ 4σ); n_valid 2,239'
+    tier: T1
+  - label: 'Sub-exp 1B v2 verdict (closed 2026-06-05)'
+    value: 'PASS — silhouette k=2 = 0.98, n_valid 1,465; google a clean 3rd-provider cluster'
+    tier: T1
+  - label: 'Synthesis verdict (Block C, 2026-06-05)'
+    value: 'HADF dispatch claim CONFIRMED (sensing layer); acting layer gated on RQ4'
+    tier: T3
+  - label: 'Total program cost (all 4 sub-exps)'
+    value: '~$1.74 (1: $0.32, 2: $0, 3: $0.74, 1B: $0.68) — well under $5 nominal / $20 ceiling'
+    tier: T1
 honest_disclosures:
   - 'Skeleton authored 2026-05-27 (Phase E Day 6) as Block C task C16 pre-work; verdict cells populate as each sub-exp closes. The skeleton exists to ensure the synthesis is mechanical-not-creative at closure — every analytical section is pre-structured before data lands, eliminating after-the-fact narrative drift.'
   - 'Sub-exp 1 launched 2026-05-25 with a narrowed 4-endpoint matrix (openai gpt-4o-mini + gpt-4o + anthropic claude-haiku-4-5 + claude-sonnet-4-6) instead of the originally-specified 9 endpoints. Operator decision 2026-05-25 per smoke-fire findings (Gemini reasoning-model TTFT distortion; placeholder API keys not minted for Vercel AI Gateway + Mistral + xAI). Sub-exp 1B queued for full 9-endpoint follow-up after key acquisition + reasoning-model investigation.'
@@ -75,7 +92,7 @@ kill_criteria:
   - 'Sub-exp 3 anchor drift > 2σ from Sub-exp 1 — invalidates routing-test comparison (halt + investigate before drawing routing conclusions)'
   - 'Sub-exp 3 signature_delta_ratio < 1.0 — HADF dispatch premise REFUTED on this metric (operator decides claim revision)'
 kill_criterion_fired: false
-status: draft
+status: complete
 deferred_items:
   - title: 'Sub-exp 1 verdict-script run + case study'
     ledger: 'gated on 3-day collection window close ~2026-05-28'
@@ -96,7 +113,7 @@ spec: docs/superpowers/specs/2026-05-11-hadf-phase2bis-replication-design.md
 plan: docs/superpowers/plans/2026-05-12-hadf-phase2bis-replication.md
 predecessor_case_studies:
   - 22b-hadf-phase2-cloud-fingerprinting
-related_prs: [506, 507]
+related_prs: [506, 507, 583, 632]  # prereg fill-ins + SoT consolidation + Block C closure (FT2)
 ---
 
 ## TLDR
@@ -111,9 +128,18 @@ Successor to [HADF Phase 2](./22b-hadf-phase2-cloud-fingerprinting) (cloud finge
 
 ## Status
 
-**DRAFT — Sub-exp 1 + 2 closed, Sub-exp 3 pending.** This case study is a Block C pre-work skeleton authored 2026-05-27 (Phase E Day 6) before sub-exp data was collected. Verdict cells populate as each sub-exp closes: **Sub-exp 1 PASS** (cloud generalization) and **Sub-exp 2 PASS** (cloud-vs-local separability, results below, closed 2026-06-02) are in; **Sub-exp 3** (the routing falsification test) is gated on AWS Bedrock access. Anchor-drift analysis (§4) populates after Sub-exp 3 closure. Overall HADF claim status (§5) populates after all three sub-exp verdicts + anchor-drift are in.
+**COMPLETE — all four sub-experiments closed 2026-06-05, all PASS, HADF dispatch claim CONFIRMED.** The skeleton (authored 2026-05-27, Phase E Day 6, before any data) was filled in mechanically at closure, exactly as designed — no after-the-fact narrative drift.
 
-The skeleton exists to **prevent after-the-fact narrative drift** — every analytical section is structured pre-data so the operator's role at synthesis time is mechanical fill-in, not creative reframing.
+| Sub-exp | Verdict | Metric |
+|---|---|---|
+| 1 — cloud generalization | ✅ PASS | silhouette 0.70 |
+| 2 — cloud-vs-local | ✅ PASS | KS p ≪ 0.01 |
+| **3 — routing falsification** | ✅ **PASS** | **signature_delta_ratio 2.89** (> 2.0) |
+| 1B — cross-window drift | ✅ PASS | silhouette 0.98, anchor drift 0.19σ |
+
+**The keystone result:** the *same model* (`claude-haiku-4-5`) behind two routing layers — Anthropic-direct vs AWS Bedrock — yields distinguishable streaming signatures (Bedrock TTFT 1.468 s vs Anthropic-direct 0.868 s). The central HADF falsification test **survives**.
+
+**Scope honesty:** this confirms the **sensing** layer — signatures are detectable and discriminative. It does **not** establish the **acting** layer (that *routing on* signatures improves a real dispatch outcome). Distinguishability ≠ actionability; that question is RQ4 (HADF Phase 3B), pre-registered separately. HADF Phase 3A (sensing/observability) is greenlit for activation; routing logic stays gated until RQ4.
 
 ## Reference
 
