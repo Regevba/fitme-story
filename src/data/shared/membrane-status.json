@@ -1,39 +1,88 @@
 {
-  "generated_at": "2026-06-04T18:49:33+00:00",
+  "generated_at": "2026-06-05T08:23:14+00:00",
   "epoch": 0,
   "lease_count": 1,
-  "feature_count": 96,
-  "branch_count": 22,
+  "feature_count": 98,
+  "branch_count": 25,
   "features": [
     {
-      "slug": "framework-v7-9-1-promotion",
+      "slug": "hadf-phase3a-sensing",
       "current_phase": "implementation",
       "framework_version": "v7.9.1",
-      "branch": "feature/framework-v7-9-1-promotion",
-      "last_touched_utc": "2026-06-04T18:36:53+00:00",
+      "branch": "",
+      "last_touched_utc": "2026-06-05T08:16:09+00:00",
       "agent_manifest_present": false,
-      "manifest_writes": [],
-      "branch_meta": {
-        "commit": "948724e",
-        "committer_date": "2026-06-04T20:34:35+03:00",
-        "age_seconds": 4498
-      }
+      "manifest_writes": []
     },
     {
       "slug": "dev-env-r11-r13-r14-r17-r18-batch",
-      "current_phase": "implementation",
+      "current_phase": "complete",
       "framework_version": "v7.9.1",
-      "branch": "feature/dev-env-r11-r13-r14-r17-r18-batch",
-      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "branch": "chore/dev-env-r11-r13-r14-r17-r18-batch-post-merge-closure",
+      "last_touched_utc": "2026-06-05T07:53:42+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
     {
       "slug": "f-deployed-url-probe-ft2",
-      "current_phase": "implementation",
+      "current_phase": "complete",
       "framework_version": "v7.9.1",
-      "branch": "feature/f-deployed-url-probe-ft2",
-      "last_touched_utc": "2026-06-04T18:16:34+00:00",
+      "branch": "chore/f-deployed-url-probe-ft2-post-merge-closure",
+      "last_touched_utc": "2026-06-05T07:53:42+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-phase-e-adoption-freeze-discipline",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-phase-e-adoption-freeze-discipline-post-merge-closure",
+      "last_touched_utc": "2026-06-05T07:53:42+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-9-1-promotion",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/framework-v7-9-1-promotion-post-merge-closure",
+      "last_touched_utc": "2026-06-05T07:53:42+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-w30-w31-w32-durable-fixes",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/framework-w30-w31-w32-durable-fixes-post-merge-closure",
+      "last_touched_utc": "2026-06-05T07:53:42+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-phase2bis-replication",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "",
+      "last_touched_utc": "2026-06-05T07:53:42+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "r9-track-b-coverage-aggregator",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/r9-track-b-coverage-aggregator-post-merge-closure",
+      "last_touched_utc": "2026-06-05T07:53:42+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "3d-interactive-framework-flow-diagram",
+      "current_phase": "tasks_phase",
+      "framework_version": "v7.9.1",
+      "branch": "",
+      "last_touched_utc": "2026-06-04T19:12:50+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -56,15 +105,6 @@
       "manifest_writes": []
     },
     {
-      "slug": "f-phase-e-adoption-freeze-discipline",
-      "current_phase": "implementation",
-      "framework_version": "v7.9.1",
-      "branch": "feature/f-phase-e-adoption-freeze-discipline",
-      "last_touched_utc": "2026-06-04T18:16:34+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
       "slug": "f16-try-repo-harness",
       "current_phase": "complete",
       "framework_version": "v7.9.1",
@@ -75,7 +115,7 @@
       "branch_meta": {
         "commit": "4747e9d",
         "committer_date": "2026-06-04T16:19:30+03:00",
-        "age_seconds": 19803
+        "age_seconds": 68624
       }
     },
     {
@@ -89,7 +129,7 @@
       "branch_meta": {
         "commit": "e68f9ad",
         "committer_date": "2026-06-04T17:11:29+03:00",
-        "age_seconds": 16684
+        "age_seconds": 65505
       }
     },
     {
@@ -103,17 +143,8 @@
       "branch_meta": {
         "commit": "7c59041",
         "committer_date": "2026-06-04T17:40:10+03:00",
-        "age_seconds": 14963
+        "age_seconds": 63784
       }
-    },
-    {
-      "slug": "r9-track-b-coverage-aggregator",
-      "current_phase": "implementation",
-      "framework_version": "v7.9.1",
-      "branch": "feature/r9-track-b-coverage-aggregator",
-      "last_touched_utc": "2026-06-04T18:16:34+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
     },
     {
       "slug": "t14-platform-parity-state-field",
@@ -135,7 +166,7 @@
       "branch_meta": {
         "commit": "f8d6a2a",
         "committer_date": "2026-06-03T21:01:20+03:00",
-        "age_seconds": 89293
+        "age_seconds": 138114
       }
     },
     {
@@ -184,15 +215,6 @@
       "manifest_writes": []
     },
     {
-      "slug": "hadf-phase2bis-replication",
-      "current_phase": "tasks_phase",
-      "framework_version": "v7.8.3",
-      "branch": "",
-      "last_touched_utc": "2026-06-02T09:43:23+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
       "slug": "meta-analysis-refresh-phase-1",
       "current_phase": "complete",
       "framework_version": "v7.9",
@@ -207,15 +229,6 @@
       "framework_version": "v7.9",
       "branch": "chore/v7-9-promotion-close-out",
       "last_touched_utc": "2026-05-28T18:48:21+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "3d-interactive-framework-flow-diagram",
-      "current_phase": "prd",
-      "framework_version": "v7.8.3",
-      "branch": "",
-      "last_touched_utc": "2026-05-28T15:46:01+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },

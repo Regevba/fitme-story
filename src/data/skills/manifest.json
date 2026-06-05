@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-04T18:49:32.952Z",
+  "syncedAt": "2026-06-05T08:23:13.855Z",
   "source": "/Volumes/DevSSD/FitTracker2/.claude/skills",
   "skills": [
     {
@@ -55,7 +55,7 @@
       "adaptersUsed": [
         "security-audit"
       ],
-      "loc": 252
+      "loc": 253
     },
     {
       "name": "marketing",
@@ -79,7 +79,7 @@
         "security-audit",
         "sentry"
       ],
-      "loc": 268
+      "loc": 269
     },
     {
       "name": "pm-workflow",

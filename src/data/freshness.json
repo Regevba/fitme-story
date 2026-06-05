@@ -1,16 +1,16 @@
 {
-  "syncedAt": "2026-06-04T18:49:33.078Z",
-  "durationMs": 616,
+  "syncedAt": "2026-06-05T08:23:14.023Z",
+  "durationMs": 1057,
   "source": "/Volumes/DevSSD/FitTracker2",
   "counts": {
-    "sharedFiles": 52,
-    "featureFiles": 96,
-    "logFiles": 64,
+    "sharedFiles": 53,
+    "featureFiles": 98,
+    "logFiles": 66,
     "docFiles": 4,
-    "kbFiles": 445,
+    "kbFiles": 446,
     "integritySnapshotFiles": 14,
     "skillFiles": 12,
-    "bytesTotal": 19288154
+    "bytesTotal": 19506753
   },
   "checkedFiles": [
     "shared/agent-leases.json",
@@ -45,6 +45,7 @@
     "shared/hadf/preregistration-phase2bis-subexp2.json",
     "shared/hadf/preregistration-phase2bis-subexp3.json",
     "shared/hadf/provider-rates.json",
+    "shared/hadf/reference-signatures.json",
     "shared/health-status.json",
     "shared/measurement-adoption-history.json",
     "shared/measurement-adoption.json",
@@ -113,11 +114,13 @@
     "features/framework-v7-8-bridge.json",
     "features/framework-v7-9-1-promotion.json",
     "features/framework-v7-9-promotion.json",
+    "features/framework-w30-w31-w32-durable-fixes.json",
     "features/gdpr-compliance.json",
     "features/google-analytics.json",
     "features/hadf-infrastructure.json",
     "features/hadf-phase2-cloud-fingerprinting.json",
     "features/hadf-phase2bis-replication.json",
+    "features/hadf-phase3a-sensing.json",
     "features/home-status-goal-card.json",
     "features/home-today-screen.json",
     "features/import-training-plan.json",
@@ -246,6 +249,7 @@
     "kb/docs/case-studies/framework-v7-8-pr1-advisory-calibration-2026-05-09.md",
     "kb/docs/case-studies/framework-v7-9-1-promotion-case-study.md",
     "kb/docs/case-studies/framework-v7-9-promotion-case-study.md",
+    "kb/docs/case-studies/framework-w30-w31-w32-durable-fixes-case-study.md",
     "kb/docs/case-studies/gdpr-compliance-case-study.md",
     "kb/docs/case-studies/google-analytics-case-study.md",
     "kb/docs/case-studies/hadf-hardware-aware-dispatch-case-study.md",
@@ -646,8 +650,10 @@
     "logs/framework-v7-8-bridge.log.json",
     "logs/framework-v7-9-1-promotion.log.json",
     "logs/framework-v7-9-promotion.log.json",
+    "logs/framework-w30-w31-w32-durable-fixes.log.json",
     "logs/hadf-phase2-cloud-fingerprinting.log.json",
     "logs/hadf-phase2bis-replication.log.json",
+    "logs/hadf-phase3a-sensing.log.json",
     "logs/import-training-plan.log.json",
     "logs/ios-code-connect.log.json",
     "logs/ios-ui-audit-p1-burndown.log.json",
@@ -700,6 +706,7 @@
     "skills/research/SKILL.md",
     "skills/ux/SKILL.md",
     "skills/manifest.json",
-    "shared/membrane-status.json"
+    "shared/membrane-status.json",
+    "framework/feature-roster.json"
   ]
 }

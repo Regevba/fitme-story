@@ -51,6 +51,7 @@ const DEFAULT_PATHS: SyncPaths = {
   localDocs:      resolve(FITME_STORY_ROOT, 'src', 'data', 'docs'),
   localIntegritySnapshots: resolve(FITME_STORY_ROOT, 'src', 'data', 'integrity', 'snapshots'),
   localSkills:    resolve(FITME_STORY_ROOT, 'src', 'data', 'skills'),
+  localFramework: resolve(FITME_STORY_ROOT, 'src', 'data', 'framework'),
   freshnessPath:  resolve(FITME_STORY_ROOT, 'src', 'data', 'freshness.json'),
 };
 
@@ -114,6 +115,11 @@ interface SyncPaths {
       P1.2 runtime-sync follow-up; replaces the static SKILL_MANIFEST in
       src/app/control-room/skills/page.tsx. */
   localSkills: string;
+  /** `src/data/framework/` — build-time aggregates derived from FT2 state.json
+      tree. Phase G (2026-06-05) starts the directory with the OQ-2 locked
+      `feature-roster.json` aggregator per 3D Universe PRD §Data Contracts.
+      Read by Act VI monument renderer at build time. */
+  localFramework: string;
   freshnessPath: string;
 }
 
@@ -350,6 +356,120 @@ function syncMembraneStatus(
   }
 }
 
+/**
+ * Phase G (2026-06-05) — T-aggregator: build `src/data/framework/feature-roster.json`
+ * by aggregating FT2 state.json files per the OQ-2 locked contract in
+ * 3D Universe PRD §Data Contracts → `feature-roster.json aggregator contract
+ * (OQ-2 closure, locked 2026-06-04)`.
+ *
+ * Schema (locked):
+ *   { schema_version: '1.0.0', generated_at: 'YYYY-MM-DDTHH:MM:SSZ', entries: [
+ *     { slug, status, framework_version, current_phase, case_study,
+ *       parent_feature, state_owner, isolation_opt_out, has_brainstorm } ] }
+ *
+ * Sort key: `slug` (ASCII codepoint, alphabetical). Array order is stable
+ * across runs so consumers can detect deltas via field-by-field diff.
+ *
+ * Privacy: allow-list filter — any field NOT in the FeatureRosterEntry type
+ * below is silently dropped. cache_hits / per_phase_timing / wall_time_seconds
+ * / cu_v2 / tasks / phases / timing / success_metrics / kill_criteria / etc
+ * are dropped by design. New top-level state.json fields require explicit
+ * opt-in in this function.
+ *
+ * Failure mode: a single corrupted state.json is logged to stderr but does
+ * NOT abort the build (degraded-graceful — feature roster surfaces 95/96
+ * monuments rather than 0).
+ */
+type FeatureRosterStatus = 'paused' | 'in_progress' | 'complete' | 'cancelled' | 'unknown';
+interface FeatureRosterEntry {
+  slug: string;
+  status: FeatureRosterStatus;
+  framework_version: string | null;
+  current_phase: string;
+  case_study: string | null;
+  parent_feature: string | null;
+  state_owner: 'ft2' | 'fitme-story' | null;
+  isolation_opt_out: boolean;
+  has_brainstorm: boolean;
+}
+interface FeatureRosterFile {
+  schema_version: '1.0.0';
+  generated_at: string;
+  entries: FeatureRosterEntry[];
+}
+
+function deriveFeatureStatus(currentPhase: unknown): FeatureRosterStatus {
+  if (typeof currentPhase !== 'string') return 'unknown';
+  if (currentPhase === 'complete') return 'complete';
+  if (currentPhase === 'cancelled' || currentPhase === 'canceled') return 'cancelled';
+  if (currentPhase === 'paused') return 'paused';
+  // Any other recognized phase (research, prd, tasks_phase, ux_or_integration,
+  // implementation, testing, review, merge, docs) is treated as in_progress.
+  return 'in_progress';
+}
+
+export function aggregateFeatureRoster(
+  ft2Features: string,
+  localFramework: string,
+): { wrote: boolean; bytes: number; checked: string[]; entries: number; error?: string } {
+  const checked: string[] = [];
+  if (!existsSync(ft2Features)) {
+    return { wrote: false, bytes: 0, checked, entries: 0, error: 'ft2_features_missing' };
+  }
+  const dstDir = localFramework;
+  if (!existsSync(dstDir)) mkdirSync(dstDir, { recursive: true });
+  const dst = join(dstDir, 'feature-roster.json');
+
+  const entries: FeatureRosterEntry[] = [];
+  const featureDirs = readdirSync(ft2Features).sort();
+  for (const dirName of featureDirs) {
+    const stateJsonPath = join(ft2Features, dirName, 'state.json');
+    if (!existsSync(stateJsonPath)) continue;
+    try {
+      const raw = readFileSync(stateJsonPath, 'utf8');
+      const s = JSON.parse(raw) as Record<string, unknown>;
+      const stateOwner = s.state_owner;
+      entries.push({
+        slug: typeof s.feature_name === 'string' ? s.feature_name : dirName,
+        status: deriveFeatureStatus(s.current_phase),
+        framework_version: typeof s.framework_version === 'string' ? s.framework_version : null,
+        current_phase: typeof s.current_phase === 'string' ? s.current_phase : 'unknown',
+        case_study: typeof s.case_study === 'string' ? s.case_study : null,
+        parent_feature: typeof s.parent_feature === 'string' ? s.parent_feature : null,
+        state_owner:
+          stateOwner === 'ft2' || stateOwner === 'fitme-story' ? stateOwner : null,
+        isolation_opt_out: s.isolation_opt_out === true,
+        has_brainstorm: Boolean(
+          s.brainstorm &&
+            typeof s.brainstorm === 'object' &&
+            Object.keys(s.brainstorm as Record<string, unknown>).length > 0,
+        ),
+      });
+    } catch (err) {
+      console.warn(
+        `feature-roster: skipped ${dirName}/state.json (${err instanceof Error ? err.message : err})`,
+      );
+    }
+  }
+  // Stable alphabetical sort by slug (ASCII codepoint, locked contract).
+  entries.sort((a, b) => (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0));
+
+  const file: FeatureRosterFile = {
+    schema_version: '1.0.0',
+    generated_at: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
+    entries,
+  };
+  const out = JSON.stringify(file, null, 2) + '\n';
+  writeFileSync(dst, out, 'utf8');
+  checked.push('framework/feature-roster.json');
+  return {
+    wrote: true,
+    bytes: Buffer.byteLength(out, 'utf8'),
+    checked,
+    entries: entries.length,
+  };
+}
+
 async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<FreshnessReport> {
   const startedAt = Date.now();
   const {
@@ -365,6 +485,7 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     localDocs,
     localIntegritySnapshots,
     localSkills,
+    localFramework,
     freshnessPath,
   } = paths;
 
@@ -570,6 +691,21 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     // eslint-disable-next-line no-console
     console.warn(
       `[sync] membrane-status emission skipped: ${membraneSync.error}`,
+    );
+  }
+
+  // Phase G (2026-06-05) — T-aggregator: emit
+  // src/data/framework/feature-roster.json per the OQ-2 locked contract
+  // from 3D Universe PRD §Data Contracts. Read at build time by Act VI
+  // monument renderer. Degraded-graceful — a single corrupted state.json
+  // logs to stderr but does not abort the build.
+  const featureRosterSync = aggregateFeatureRoster(ft2Features, localFramework);
+  bytesTotal += featureRosterSync.bytes;
+  checked.push(...featureRosterSync.checked);
+  if (featureRosterSync.error) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[sync] feature-roster emission skipped: ${featureRosterSync.error}`,
     );
   }
 
