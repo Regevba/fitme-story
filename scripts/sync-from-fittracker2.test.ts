@@ -549,3 +549,104 @@ test('Phase G T-aggregator: idempotent — re-running produces stable output (sa
     cleanup();
   }
 });
+
+// Phase G.2 (2026-06-05) — pure-copy mirrors (T-versions-mirror,
+// T-adoption-mirror, T-pattern-skill-mirror). All 3 use the same
+// `mirrorJsonFile` helper backing — testing one fully covers the others.
+
+test('Phase G.2 mirrorVersionsJson: copies docs/framework/versions.json verbatim into src/data/framework/', async () => {
+  const { mirrorVersionsJson } = await import('./sync-from-fittracker2');
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-versions-mirror-'));
+  try {
+    const ft2Root = join(tmpRoot, 'FitTracker2');
+    const localFramework = join(tmpRoot, 'framework');
+    const srcPath = join(ft2Root, 'docs', 'framework', 'versions.json');
+    mkdirSync(join(ft2Root, 'docs', 'framework'), { recursive: true });
+    const payload = { versions: [{ id: 'v7.9.1', label: 'v7.9.1 Build Window' }] };
+    writeFileSync(srcPath, JSON.stringify(payload, null, 2));
+
+    const result = mirrorVersionsJson(ft2Root, localFramework);
+    assert.equal(result.wrote, true);
+    assert.deepEqual(result.checked, ['framework/versions.json']);
+    const dst = JSON.parse(readFileSync(join(localFramework, 'versions.json'), 'utf8'));
+    assert.deepEqual(dst, payload, 'content roundtrips verbatim');
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+test('Phase G.2 mirrorMeasurementAdoption: emits adoption-snapshot.json from measurement-adoption.json', async () => {
+  const { mirrorMeasurementAdoption } = await import('./sync-from-fittracker2');
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-adoption-mirror-'));
+  try {
+    const ft2Shared = join(tmpRoot, 'shared');
+    const localFramework = join(tmpRoot, 'framework');
+    mkdirSync(ft2Shared, { recursive: true });
+    writeFileSync(join(ft2Shared, 'measurement-adoption.json'), JSON.stringify({ totals: { features_post_v6: 60 } }));
+
+    const result = mirrorMeasurementAdoption(ft2Shared, localFramework);
+    assert.equal(result.wrote, true);
+    assert.deepEqual(result.checked, ['framework/adoption-snapshot.json']);
+    assert.ok(existsSync(join(localFramework, 'adoption-snapshot.json')), 'output written under rename');
+    assert.ok(!existsSync(join(localFramework, 'measurement-adoption.json')), 'NOT written at source name');
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+test('Phase G.2 mirrorPatternSkillMap: copies pattern-skill-map.json into framework dir', async () => {
+  const { mirrorPatternSkillMap } = await import('./sync-from-fittracker2');
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-pattern-skill-mirror-'));
+  try {
+    const ft2Shared = join(tmpRoot, 'shared');
+    const localFramework = join(tmpRoot, 'framework');
+    mkdirSync(ft2Shared, { recursive: true });
+    writeFileSync(join(ft2Shared, 'pattern-skill-map.json'), JSON.stringify([
+      { id: 'W34', title: 'PR cache window truncation', skills: ['dev', 'ops'] },
+    ]));
+
+    const result = mirrorPatternSkillMap(ft2Shared, localFramework);
+    assert.equal(result.wrote, true);
+    const dst = JSON.parse(readFileSync(join(localFramework, 'pattern-skill-map.json'), 'utf8'));
+    assert.equal(dst[0].id, 'W34');
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+test('Phase G.2 mirrors: missing source returns { wrote: false, error: source_missing } without throwing', async () => {
+  const { mirrorVersionsJson, mirrorMeasurementAdoption, mirrorPatternSkillMap } = await import('./sync-from-fittracker2');
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-mirror-missing-'));
+  try {
+    const localFramework = join(tmpRoot, 'framework');
+    // Sources intentionally do not exist.
+    for (const fn of [
+      () => mirrorVersionsJson(join(tmpRoot, 'FitTracker2'), localFramework),
+      () => mirrorMeasurementAdoption(join(tmpRoot, 'shared'), localFramework),
+      () => mirrorPatternSkillMap(join(tmpRoot, 'shared'), localFramework),
+    ]) {
+      const r = fn();
+      assert.equal(r.wrote, false, 'soft-fail; does not throw');
+      assert.match(r.error ?? '', /source_missing/);
+    }
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+test('Phase G.2 mirrors: corrupted source JSON returns { wrote: false, error: parse_or_io_failed }', async () => {
+  const { mirrorVersionsJson } = await import('./sync-from-fittracker2');
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-mirror-corrupt-'));
+  try {
+    const ft2Root = join(tmpRoot, 'FitTracker2');
+    const localFramework = join(tmpRoot, 'framework');
+    mkdirSync(join(ft2Root, 'docs', 'framework'), { recursive: true });
+    writeFileSync(join(ft2Root, 'docs', 'framework', 'versions.json'), '{not json');
+    const r = mirrorVersionsJson(ft2Root, localFramework);
+    assert.equal(r.wrote, false);
+    assert.match(r.error ?? '', /parse_or_io_failed/);
+    assert.ok(!existsSync(join(localFramework, 'versions.json')), 'invalid JSON is NOT written to dest');
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
