@@ -44,6 +44,11 @@ const RESEARCH: ResearchItem[] = [
     href: 'https://github.com/Regevba/fitme-showcase/blob/main/05-research/orchid-accelerator.md',
     external: true,
   },
+  {
+    title: 'Orchid — From Dispatch Patterns to Silicon, Validated by Measurement',
+    body: 'The capstone: HADF Phase 2-bis closed (all 4 sub-exps PASS) → dispatch claim CONFIRMED at the sensing layer (silhouette 0.70, KS p≪0.01, routing delta_ratio 2.89). Licenses the Orchid v2 unit decisions.',
+    href: '/case-studies/orchid-research-arc',
+  },
 ];
 
 export default function ResearchPage() {
