@@ -470,6 +470,82 @@ export function aggregateFeatureRoster(
   };
 }
 
+/**
+ * Phase G.2 (2026-06-05) — pure-copy mirrors for the 3D Universe build-time
+ * data inputs. Each function mirrors one FT2 source file into the
+ * `src/data/framework/` tree following the same allow-list discipline as
+ * `aggregateFeatureRoster` — no transformation, no field-drop, no
+ * `generated_at` wrapper. The contents are passed through verbatim because
+ * downstream consumers (Act III/IV/V/VI scene components + the planned
+ * snapshot loader at T-snapshot-loader) treat these as authoritative.
+ *
+ * Each function is soft-fail: missing source file logs a warning + returns
+ * `{ wrote: false, error }` so the prebuild does not abort. This is the
+ * same posture as `syncMembraneStatus` (Phase F).
+ */
+export function mirrorVersionsJson(
+  ft2Root: string,
+  localFramework: string,
+): { wrote: boolean; bytes: number; checked: string[]; error?: string } {
+  return mirrorJsonFile({
+    src: join(ft2Root, 'docs', 'framework', 'versions.json'),
+    dstDir: localFramework,
+    dstName: 'versions.json',
+    checkedKey: 'framework/versions.json',
+  });
+}
+
+export function mirrorMeasurementAdoption(
+  ft2Shared: string,
+  localFramework: string,
+): { wrote: boolean; bytes: number; checked: string[]; error?: string } {
+  return mirrorJsonFile({
+    src: join(ft2Shared, 'measurement-adoption.json'),
+    dstDir: localFramework,
+    dstName: 'adoption-snapshot.json',
+    checkedKey: 'framework/adoption-snapshot.json',
+  });
+}
+
+export function mirrorPatternSkillMap(
+  ft2Shared: string,
+  localFramework: string,
+): { wrote: boolean; bytes: number; checked: string[]; error?: string } {
+  return mirrorJsonFile({
+    src: join(ft2Shared, 'pattern-skill-map.json'),
+    dstDir: localFramework,
+    dstName: 'pattern-skill-map.json',
+    checkedKey: 'framework/pattern-skill-map.json',
+  });
+}
+
+/** Internal helper backing the 3 mirrors above. JSON-validates the source
+ * before copying so a corrupted upstream produces a clean error rather than
+ * shipping invalid JSON to the public site. */
+function mirrorJsonFile(opts: {
+  src: string;
+  dstDir: string;
+  dstName: string;
+  checkedKey: string;
+}): { wrote: boolean; bytes: number; checked: string[]; error?: string } {
+  const checked: string[] = [];
+  if (!existsSync(opts.src)) {
+    return { wrote: false, bytes: 0, checked, error: `source_missing: ${opts.src}` };
+  }
+  if (!existsSync(opts.dstDir)) mkdirSync(opts.dstDir, { recursive: true });
+  const dst = join(opts.dstDir, opts.dstName);
+  try {
+    const raw = readFileSync(opts.src, 'utf8');
+    JSON.parse(raw); // validate parses
+    writeFileSync(dst, raw, 'utf8');
+    checked.push(opts.checkedKey);
+    return { wrote: true, bytes: Buffer.byteLength(raw, 'utf8'), checked };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { wrote: false, bytes: 0, checked, error: `parse_or_io_failed: ${msg}` };
+  }
+}
+
 async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<FreshnessReport> {
   const startedAt = Date.now();
   const {
@@ -707,6 +783,25 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     console.warn(
       `[sync] feature-roster emission skipped: ${featureRosterSync.error}`,
     );
+  }
+
+  // Phase G.2 (2026-06-05) — pure-copy mirrors for the 3D Universe's 3
+  // remaining build-time data inputs:
+  //   - versions.json        (Act I-VI timeline + per-version counts)
+  //   - adoption-snapshot.json (Act V adoption bars)
+  //   - pattern-skill-map.json (Act III chamber annotations + Act IV hover)
+  // Each is soft-fail; missing source logs a warning + continues.
+  for (const mirrorResult of [
+    mirrorVersionsJson(ft2Root, localFramework),
+    mirrorMeasurementAdoption(ft2Shared, localFramework),
+    mirrorPatternSkillMap(ft2Shared, localFramework),
+  ]) {
+    bytesTotal += mirrorResult.bytes;
+    checked.push(...mirrorResult.checked);
+    if (mirrorResult.error) {
+      // eslint-disable-next-line no-console
+      console.warn(`[sync] framework mirror skipped: ${mirrorResult.error}`);
+    }
   }
 
   const sharedFiles = checked.filter((c) => c.startsWith('shared/')).length;
