@@ -46,6 +46,7 @@ import { memo, useMemo } from 'react';
 import { Chamber } from '../primitives/Chamber';
 import { Terrain } from '../primitives/Terrain';
 import { Signage } from '../primitives/Signage';
+import { HoverCard } from '../primitives/HoverCard';
 import { pulseEmitTick } from '../../../../lib/motion-3d/primitives';
 import { patternById } from '../../../../lib/framework-snapshot';
 import type { ActProps } from './types';
@@ -160,50 +161,38 @@ function GateFiringEmitter({ firing, elapsedSec, patternTitle }: GateFiringEmitt
   // outside in a clean way, so the pulse is encoded as: position-stable
   // scale change on a sphere proxy + a small label that fades. The
   // sphere uses the gate's accent emissive so the pulse reads as light.
+  // Phase 4.E T-overlay-wiring (2026-06-06): the inline pattern title +
+  // PR ID signages are no longer rendered as floating labels because
+  // they would compete visually with the hover-card content. The
+  // emitter sphere + gate name signage are wrapped in <HoverCard> so
+  // pointing at any of them surfaces the full pattern title +
+  // remediation (AC-11) + the PR link (AC-10) in one card.
+  void patternTitle; // retained in signature for API stability — no longer drawn inline
   return (
-    <group position={firing.position} scale={[scale, scale, scale]}>
-      <mesh castShadow={false}>
-        <sphereGeometry args={[0.45, 16, 16]} />
-        <meshStandardMaterial
-          color={firing.accent}
-          emissive={firing.accent}
-          emissiveIntensity={opacity * 0.5}
-          transparent
-          opacity={opacity}
-          roughness={0.4}
-          metalness={0.0}
-        />
-      </mesh>
-      {/* Gate name label — small, just above the emitter. */}
-      <Signage
-        text={firing.gateName}
-        position={[0, 0.7, 0]}
-        fontSize={0.18}
-        color="#1E293B"
-        // Anchor for AC-11 hover lookup; Phase 4.E T-overlay-wiring
-        // reads this via Three.js userData traversal.
-        glossaryTerm={firing.patternId}
-      />
-      {/* PR-ID annotation — AC-10 hover anchor for click-to-GitHub. */}
-      <Signage
-        text={`#${firing.prNumber}`}
-        position={[0, -0.7, 0]}
-        fontSize={0.16}
-        color="#64748B"
-        glossaryTerm={`pr-${firing.prNumber}`}
-      />
-      {/* Pattern-title annotation — AC-11 surfaces this on hover; for
-          ship we display a short truncation so the scene is readable
-          even without hover. */}
-      {patternTitle ? (
+    <HoverCard patternId={firing.patternId} prNumber={firing.prNumber} cardYOffset={1.2}>
+      <group position={firing.position} scale={[scale, scale, scale]}>
+        <mesh castShadow={false}>
+          <sphereGeometry args={[0.45, 16, 16]} />
+          <meshStandardMaterial
+            color={firing.accent}
+            emissive={firing.accent}
+            emissiveIntensity={opacity * 0.5}
+            transparent
+            opacity={opacity}
+            roughness={0.4}
+            metalness={0.0}
+          />
+        </mesh>
+        {/* Gate name label — small, just above the emitter. */}
         <Signage
-          text={patternTitle.length > 40 ? patternTitle.slice(0, 37) + '…' : patternTitle}
-          position={[0, 1.0, 0]}
-          fontSize={0.12}
-          color="#94A3B8"
+          text={firing.gateName}
+          position={[0, 0.7, 0]}
+          fontSize={0.18}
+          color="#1E293B"
+          glossaryTerm={firing.patternId}
         />
-      ) : null}
-    </group>
+      </group>
+    </HoverCard>
   );
 }
 

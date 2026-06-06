@@ -42,6 +42,7 @@ import { memo, useMemo } from 'react';
 import { Chamber } from '../primitives/Chamber';
 import { Terrain } from '../primitives/Terrain';
 import { Signage } from '../primitives/Signage';
+import { HoverCard } from '../primitives/HoverCard';
 import { flyInTick } from '../../../../lib/motion-3d/primitives';
 import { patternsForSkill } from '../../../../lib/framework-snapshot';
 import type { ActProps } from './types';
@@ -199,18 +200,29 @@ function Act3ArchitectureImpl({ elapsedSec }: ActProps) {
               accent={slot.accent}
               labelChild={<Signage text={slot.label} fontSize={0.26} />}
             />
-            {/* Pattern overlay annotations — one signage per pattern ID,
-                stacked vertically next to the chamber. */}
-            {overlay.ids.map((id, idx) => (
-              <Signage
-                key={id}
-                text={id}
-                position={[annotationX, position[1] + (idx - (overlay.ids.length - 1) / 2) * 0.4, slot.to[2]]}
-                fontSize={0.2}
-                color="#475569"
-                glossaryTerm={id}
-              />
-            ))}
+            {/* Pattern overlay annotations — one Signage per pattern ID,
+                each wrapped in <HoverCard> so pointing at the W-ID label
+                surfaces the full pattern title + remediation on hover.
+                Phase 4.E T-overlay-wiring (2026-06-06). */}
+            {overlay.ids.map((id, idx) => {
+              const annotationY =
+                position[1] + (idx - (overlay.ids.length - 1) / 2) * 0.4;
+              return (
+                <group
+                  key={id}
+                  position={[annotationX, annotationY, slot.to[2]]}
+                >
+                  <HoverCard patternId={id} cardYOffset={0.5}>
+                    <Signage
+                      text={id}
+                      fontSize={0.2}
+                      color="#475569"
+                      glossaryTerm={id}
+                    />
+                  </HoverCard>
+                </group>
+              );
+            })}
           </group>
         );
       })}
