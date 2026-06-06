@@ -46,6 +46,19 @@ export type FeatureRosterStatus =
   | 'cancelled'
   | 'unknown';
 
+/**
+ * Phase 4.I T-aggregator extension (2026-06-06) — HADF Phase 3a sensing-
+ * layer hook block. Populated ONLY for the `hadf-phase3a-sensing` slug;
+ * `null` for every other feature. Path-agnostic — the scene consumer
+ * (path 1 chambers vs path 2 sub-Act) reads the same booleans.
+ */
+export interface HadfPhase3aHooks {
+  reference_store_present: boolean;
+  attestation_present: boolean;
+  drift_monitor_present: boolean;
+  gate_coverage_extras: string[];
+}
+
 export interface FeatureRosterEntry {
   slug: string;
   status: FeatureRosterStatus;
@@ -56,6 +69,8 @@ export interface FeatureRosterEntry {
   state_owner: 'ft2' | 'fitme-story' | null;
   isolation_opt_out: boolean;
   has_brainstorm: boolean;
+  /** v7.9.1+/Phase 4.I — null for every slug except `hadf-phase3a-sensing`. */
+  hadf_phase3a_hooks: HadfPhase3aHooks | null;
 }
 
 export interface FeatureRosterFile {

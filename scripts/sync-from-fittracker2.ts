@@ -381,6 +381,33 @@ function syncMembraneStatus(
  * monuments rather than 0).
  */
 type FeatureRosterStatus = 'paused' | 'in_progress' | 'complete' | 'cancelled' | 'unknown';
+
+/**
+ * Phase 4.I T-aggregator extension (2026-06-06) — HADF Phase 3a sensing-
+ * layer hook block. Optional + path-agnostic. Surfaces the presence of the
+ * sensing-layer artifacts so the 3D Universe's Act III/IV scene consumer
+ * (path 1 chamber extension OR path 2 sub-Act, operator pick TBD) can
+ * render hooks without re-parsing FT2 directly.
+ *
+ * Detection-only — no values inferred about the sensing layer's HEALTH
+ * (that lives in the existing gate-coverage telemetry). The presence
+ * booleans match the artifacts shipped via FT2 PR #635.
+ */
+interface HadfPhase3aHooks {
+  /** True iff `scripts/hadf-build-reference-store.py` AND the produced
+   *  `.claude/shared/hadf/reference-signatures.json` both exist in FT2. */
+  reference_store_present: boolean;
+  /** True iff `scripts/hadf-attest.py` exists in FT2. */
+  attestation_present: boolean;
+  /** True iff `scripts/hadf-drift-monitor.py` exists in FT2. */
+  drift_monitor_present: boolean;
+  /** Reserved for future enrichment — gate-coverage entries that map to
+   *  HADF Phase 3a sensing emissions (e.g. attestation/drift advisories).
+   *  v1 emits empty array; future PR can enrich without breaking the
+   *  contract. */
+  gate_coverage_extras: string[];
+}
+
 interface FeatureRosterEntry {
   slug: string;
   status: FeatureRosterStatus;
@@ -391,6 +418,9 @@ interface FeatureRosterEntry {
   state_owner: 'ft2' | 'fitme-story' | null;
   isolation_opt_out: boolean;
   has_brainstorm: boolean;
+  /** Optional sensing-layer hooks; populated ONLY for the
+   *  `hadf-phase3a-sensing` slug. `null` for every other feature. */
+  hadf_phase3a_hooks: HadfPhase3aHooks | null;
 }
 interface FeatureRosterFile {
   schema_version: '1.0.0';
@@ -408,9 +438,40 @@ function deriveFeatureStatus(currentPhase: unknown): FeatureRosterStatus {
   return 'in_progress';
 }
 
+/**
+ * Detect HADF Phase 3a sensing-layer artifacts under FT2. Path-agnostic:
+ * the scene consumer (path 1 chambers vs path 2 sub-Act) reads the
+ * presence booleans the same way regardless of how it renders them.
+ *
+ * Each detection is independent file-system stat — no script execution,
+ * no parsing, no side effects. Missing files yield `false` (degraded-
+ * graceful) so a partial sensing layer still produces a valid block.
+ */
+function detectHadfPhase3aHooks(ft2Root: string): HadfPhase3aHooks {
+  const refStoreScript = join(ft2Root, 'scripts', 'hadf-build-reference-store.py');
+  const refSignatures = join(
+    ft2Root,
+    '.claude',
+    'shared',
+    'hadf',
+    'reference-signatures.json',
+  );
+  const attestScript = join(ft2Root, 'scripts', 'hadf-attest.py');
+  const driftScript = join(ft2Root, 'scripts', 'hadf-drift-monitor.py');
+  return {
+    reference_store_present:
+      existsSync(refStoreScript) && existsSync(refSignatures),
+    attestation_present: existsSync(attestScript),
+    drift_monitor_present: existsSync(driftScript),
+    // v1 reserves the field — enrichment is a forward-only addition.
+    gate_coverage_extras: [],
+  };
+}
+
 export function aggregateFeatureRoster(
   ft2Features: string,
   localFramework: string,
+  ft2Root?: string,
 ): { wrote: boolean; bytes: number; checked: string[]; entries: number; error?: string } {
   const checked: string[] = [];
   if (!existsSync(ft2Features)) {
@@ -419,6 +480,10 @@ export function aggregateFeatureRoster(
   const dstDir = localFramework;
   if (!existsSync(dstDir)) mkdirSync(dstDir, { recursive: true });
   const dst = join(dstDir, 'feature-roster.json');
+
+  // FT2 root is one level up from the features dir if not explicitly passed.
+  const resolvedFt2Root =
+    ft2Root ?? join(ft2Features, '..', '..');
 
   const entries: FeatureRosterEntry[] = [];
   const featureDirs = readdirSync(ft2Features).sort();
@@ -429,8 +494,16 @@ export function aggregateFeatureRoster(
       const raw = readFileSync(stateJsonPath, 'utf8');
       const s = JSON.parse(raw) as Record<string, unknown>;
       const stateOwner = s.state_owner;
+      const slug = typeof s.feature_name === 'string' ? s.feature_name : dirName;
+      // Path-agnostic: populate the hooks block ONLY for the HADF Phase 3a
+      // sensing slug. Every other entry carries null so consumers can
+      // narrow with `if (entry.hadf_phase3a_hooks)` without a string check.
+      const hadfHooks =
+        slug === 'hadf-phase3a-sensing'
+          ? detectHadfPhase3aHooks(resolvedFt2Root)
+          : null;
       entries.push({
-        slug: typeof s.feature_name === 'string' ? s.feature_name : dirName,
+        slug,
         status: deriveFeatureStatus(s.current_phase),
         framework_version: typeof s.framework_version === 'string' ? s.framework_version : null,
         current_phase: typeof s.current_phase === 'string' ? s.current_phase : 'unknown',
@@ -444,6 +517,7 @@ export function aggregateFeatureRoster(
             typeof s.brainstorm === 'object' &&
             Object.keys(s.brainstorm as Record<string, unknown>).length > 0,
         ),
+        hadf_phase3a_hooks: hadfHooks,
       });
     } catch (err) {
       console.warn(
@@ -775,7 +849,7 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
   // from 3D Universe PRD §Data Contracts. Read at build time by Act VI
   // monument renderer. Degraded-graceful — a single corrupted state.json
   // logs to stderr but does not abort the build.
-  const featureRosterSync = aggregateFeatureRoster(ft2Features, localFramework);
+  const featureRosterSync = aggregateFeatureRoster(ft2Features, localFramework, ft2Root);
   bytesTotal += featureRosterSync.bytes;
   checked.push(...featureRosterSync.checked);
   if (featureRosterSync.error) {
