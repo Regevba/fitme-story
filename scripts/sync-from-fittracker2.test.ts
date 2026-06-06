@@ -466,11 +466,13 @@ test('Phase G T-aggregator: derives status correctly + drops private fields', as
     assert.equal('phases' in privEntry, false, 'phases must be dropped');
     assert.equal('timing' in privEntry, false, 'timing must be dropped');
 
-    // Closed enum: only the 9 contracted fields present
+    // Closed enum: only the 10 contracted fields present (10th =
+    // hadf_phase3a_hooks, added 2026-06-06 Phase 4.I T-aggregator extension).
     const allowed = new Set([
       'slug', 'status', 'framework_version', 'current_phase',
       'case_study', 'parent_feature', 'state_owner',
       'isolation_opt_out', 'has_brainstorm',
+      'hadf_phase3a_hooks',
     ]);
     for (const k of Object.keys(privEntry)) {
       assert.ok(allowed.has(k), `unexpected leaked field: ${k}`);
@@ -646,6 +648,196 @@ test('Phase G.2 mirrors: corrupted source JSON returns { wrote: false, error: pa
     assert.equal(r.wrote, false);
     assert.match(r.error ?? '', /parse_or_io_failed/);
     assert.ok(!existsSync(join(localFramework, 'versions.json')), 'invalid JSON is NOT written to dest');
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+// ─── Phase 4.I T-aggregator extension (2026-06-06) ────────────────────────
+// HADF Phase 3a sensing-layer hook block. Path-agnostic: aggregator emits
+// the block ONLY for the `hadf-phase3a-sensing` slug; every other slug
+// carries `hadf_phase3a_hooks: null`.
+
+function setupHadfPhase3aFiles(
+  ft2Root: string,
+  files: {
+    refStoreScript?: boolean;
+    refSignatures?: boolean;
+    attestScript?: boolean;
+    driftScript?: boolean;
+  },
+): void {
+  mkdirSync(join(ft2Root, 'scripts'), { recursive: true });
+  mkdirSync(join(ft2Root, '.claude', 'shared', 'hadf'), { recursive: true });
+  if (files.refStoreScript) {
+    writeFileSync(join(ft2Root, 'scripts', 'hadf-build-reference-store.py'), '# stub\n');
+  }
+  if (files.refSignatures) {
+    writeFileSync(
+      join(ft2Root, '.claude', 'shared', 'hadf', 'reference-signatures.json'),
+      '{}\n',
+    );
+  }
+  if (files.attestScript) {
+    writeFileSync(join(ft2Root, 'scripts', 'hadf-attest.py'), '# stub\n');
+  }
+  if (files.driftScript) {
+    writeFileSync(join(ft2Root, 'scripts', 'hadf-drift-monitor.py'), '# stub\n');
+  }
+}
+
+test('Phase 4.I HADF hooks: hadf-phase3a-sensing entry populates block when all files present', () => {
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-hadf-hooks-full-'));
+  try {
+    const ft2Root = join(tmpRoot, 'FitTracker2');
+    const ft2FeaturesDir = join(ft2Root, '.claude', 'features');
+    const localFramework = join(tmpRoot, 'framework');
+    mkdirSync(ft2FeaturesDir, { recursive: true });
+    setupHadfPhase3aFiles(ft2Root, {
+      refStoreScript: true,
+      refSignatures: true,
+      attestScript: true,
+      driftScript: true,
+    });
+    writeFt2State(ft2FeaturesDir, 'hadf-phase3a-sensing', {
+      feature_name: 'hadf-phase3a-sensing',
+      current_phase: 'implementation',
+    });
+    writeFt2State(ft2FeaturesDir, 'unrelated-feature', {
+      feature_name: 'unrelated-feature',
+      current_phase: 'complete',
+    });
+
+    const r = aggregateFeatureRoster(ft2FeaturesDir, localFramework, ft2Root);
+    assert.equal(r.wrote, true);
+    const roster = JSON.parse(
+      readFileSync(join(localFramework, 'feature-roster.json'), 'utf8'),
+    );
+    const hadf = roster.entries.find(
+      (e: { slug: string }) => e.slug === 'hadf-phase3a-sensing',
+    );
+    assert.ok(hadf, 'hadf-phase3a-sensing entry present');
+    assert.deepEqual(hadf.hadf_phase3a_hooks, {
+      reference_store_present: true,
+      attestation_present: true,
+      drift_monitor_present: true,
+      gate_coverage_extras: [],
+    });
+    const unrelated = roster.entries.find(
+      (e: { slug: string }) => e.slug === 'unrelated-feature',
+    );
+    assert.equal(
+      unrelated.hadf_phase3a_hooks,
+      null,
+      'non-HADF entries get null — block is path-agnostic per-slug',
+    );
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+test('Phase 4.I HADF hooks: reference_store_present requires BOTH script AND signatures', () => {
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-hadf-hooks-partial-'));
+  try {
+    const ft2Root = join(tmpRoot, 'FitTracker2');
+    const ft2FeaturesDir = join(ft2Root, '.claude', 'features');
+    const localFramework = join(tmpRoot, 'framework');
+    mkdirSync(ft2FeaturesDir, { recursive: true });
+    // Script present, signatures absent → reference_store_present false.
+    setupHadfPhase3aFiles(ft2Root, {
+      refStoreScript: true,
+      refSignatures: false,
+      attestScript: true,
+      driftScript: true,
+    });
+    writeFt2State(ft2FeaturesDir, 'hadf-phase3a-sensing', {
+      feature_name: 'hadf-phase3a-sensing',
+      current_phase: 'implementation',
+    });
+
+    const r = aggregateFeatureRoster(ft2FeaturesDir, localFramework, ft2Root);
+    assert.equal(r.wrote, true);
+    const roster = JSON.parse(
+      readFileSync(join(localFramework, 'feature-roster.json'), 'utf8'),
+    );
+    const hadf = roster.entries.find(
+      (e: { slug: string }) => e.slug === 'hadf-phase3a-sensing',
+    );
+    assert.equal(
+      hadf.hadf_phase3a_hooks.reference_store_present,
+      false,
+      'AND-gated: script alone is not enough',
+    );
+    assert.equal(hadf.hadf_phase3a_hooks.attestation_present, true);
+    assert.equal(hadf.hadf_phase3a_hooks.drift_monitor_present, true);
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+test('Phase 4.I HADF hooks: gate_coverage_extras is v1-reserved empty array', () => {
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-hadf-hooks-extras-'));
+  try {
+    const ft2Root = join(tmpRoot, 'FitTracker2');
+    const ft2FeaturesDir = join(ft2Root, '.claude', 'features');
+    const localFramework = join(tmpRoot, 'framework');
+    mkdirSync(ft2FeaturesDir, { recursive: true });
+    setupHadfPhase3aFiles(ft2Root, {});
+    writeFt2State(ft2FeaturesDir, 'hadf-phase3a-sensing', {
+      feature_name: 'hadf-phase3a-sensing',
+      current_phase: 'implementation',
+    });
+
+    const r = aggregateFeatureRoster(ft2FeaturesDir, localFramework, ft2Root);
+    assert.equal(r.wrote, true);
+    const roster = JSON.parse(
+      readFileSync(join(localFramework, 'feature-roster.json'), 'utf8'),
+    );
+    const hadf = roster.entries.find(
+      (e: { slug: string }) => e.slug === 'hadf-phase3a-sensing',
+    );
+    assert.ok(Array.isArray(hadf.hadf_phase3a_hooks.gate_coverage_extras));
+    assert.equal(
+      hadf.hadf_phase3a_hooks.gate_coverage_extras.length,
+      0,
+      'v1 reserves the field; enrichment is forward-only',
+    );
+  } finally {
+    rmSync(tmpRoot, { recursive: true, force: true });
+  }
+});
+
+test('Phase 4.I HADF hooks: ft2Root defaults to ../../ft2Features when omitted (backward-compat)', () => {
+  const tmpRoot = mkdtempSync(join(tmpdir(), 't-hadf-hooks-default-'));
+  try {
+    const ft2Root = join(tmpRoot, 'FitTracker2');
+    const ft2FeaturesDir = join(ft2Root, '.claude', 'features');
+    const localFramework = join(tmpRoot, 'framework');
+    mkdirSync(ft2FeaturesDir, { recursive: true });
+    setupHadfPhase3aFiles(ft2Root, {
+      refStoreScript: true,
+      refSignatures: true,
+      attestScript: true,
+      driftScript: true,
+    });
+    writeFt2State(ft2FeaturesDir, 'hadf-phase3a-sensing', {
+      feature_name: 'hadf-phase3a-sensing',
+      current_phase: 'implementation',
+    });
+
+    // Omit ft2Root — should default to two-dirs-up from ft2Features and
+    // resolve to the real ft2Root.
+    const r = aggregateFeatureRoster(ft2FeaturesDir, localFramework);
+    assert.equal(r.wrote, true);
+    const roster = JSON.parse(
+      readFileSync(join(localFramework, 'feature-roster.json'), 'utf8'),
+    );
+    const hadf = roster.entries.find(
+      (e: { slug: string }) => e.slug === 'hadf-phase3a-sensing',
+    );
+    assert.equal(hadf.hadf_phase3a_hooks.reference_store_present, true);
+    assert.equal(hadf.hadf_phase3a_hooks.attestation_present, true);
+    assert.equal(hadf.hadf_phase3a_hooks.drift_monitor_present, true);
   } finally {
     rmSync(tmpRoot, { recursive: true, force: true });
   }
