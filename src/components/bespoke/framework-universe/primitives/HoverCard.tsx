@@ -35,6 +35,12 @@ import { memo, useMemo, useState, type ReactNode } from 'react';
 import { Html } from '@react-three/drei';
 import { patternById } from '../../../../lib/framework-snapshot';
 import { GLOSSARY, type GlossaryEntry } from '../../../../lib/glossary';
+import {
+  logUniverseLabelHover,
+  type UniverseActId,
+  type UniverseLabelKind,
+  type UniverseMode,
+} from '../../../../lib/framework-universe-analytics';
 
 /** Lookup a glossary entry by display term OR any alias. Case-insensitive.
  *  Module-level (hoisted out of component) so the lookup function identity
@@ -69,6 +75,19 @@ export interface HoverCardProps {
   /** Offset in world units to position the card above the wrapped
    *  child. Defaults to 0.6 (matches Phase 4.B Signage label height). */
   cardYOffset?: number;
+  /** Analytics — Act this label belongs to. When omitted, no
+   *  `framework_universe_label_hover` event is emitted. */
+  analyticsActId?: UniverseActId;
+  /** Analytics — kind of label being hovered. Required to emit. */
+  analyticsLabelKind?: UniverseLabelKind;
+  /** Analytics — stable identifier for this label (pattern W-id, chamber
+   *  slug, gate id, etc.). Required to emit. PII-free by construction —
+   *  the consuming scenes only render canonical IDs. */
+  analyticsLabelId?: string;
+  /** Analytics — visitor vs operator mode. Defaults to 'visitor'. */
+  analyticsMode?: UniverseMode;
+  /** Test-injection hook — defaults to the real GA4 emitter. */
+  onLabelHover?: typeof logUniverseLabelHover;
 }
 
 function HoverCardImpl({
@@ -78,6 +97,11 @@ function HoverCardImpl({
   prNumber,
   prRepo = 'Regevba/FitTracker2',
   cardYOffset = 0.6,
+  analyticsActId,
+  analyticsLabelKind,
+  analyticsLabelId,
+  analyticsMode = 'visitor',
+  onLabelHover = logUniverseLabelHover,
 }: HoverCardProps) {
   const [hovered, setHovered] = useState(false);
 
@@ -102,6 +126,23 @@ function HoverCardImpl({
     <group
       onPointerOver={(event) => {
         event.stopPropagation();
+        // Emit framework_universe_label_hover when the consumer has
+        // supplied the full analytics context. Silent no-op otherwise so
+        // wrappers that only want a visual tooltip don't have to
+        // synthesize a fake act/kind/id.
+        if (
+          !hovered &&
+          analyticsActId &&
+          analyticsLabelKind &&
+          analyticsLabelId
+        ) {
+          onLabelHover({
+            act_id: analyticsActId,
+            label_kind: analyticsLabelKind,
+            label_id: analyticsLabelId,
+            mode: analyticsMode,
+          });
+        }
         setHovered(true);
       }}
       onPointerOut={(event) => {
