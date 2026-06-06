@@ -31,6 +31,7 @@ import { AutomationMap } from '@/components/framework-health/AutomationMap';
 import { HumanActionPanel } from '@/components/framework-health/HumanActionPanel';
 import { CycleSnapshotPanel } from '@/components/framework-health/CycleSnapshotPanel';
 import { MembraneStatusPanel } from '@/components/framework-health/MembraneStatusPanel';
+import { VisitorComprehensionPanel } from '@/components/framework-health/VisitorComprehensionPanel';
 import AuditLogPanel from '@/components/control-room/AuditLogPanel';
 
 export const dynamic = 'force-dynamic';
@@ -433,6 +434,15 @@ export default async function FrameworkHealthPage() {
         subtitle="Read-only smartlog of in-flight feature work. Joins state.json + agent-leases.json + open-branch reflog. v7.8 ships advisory; v7.9 wires /pm-workflow lease acquisition. Pattern: Sapling smartlog (Meta), Jujutsu op-log."
       >
         <MembraneStatusPanel status={membraneStatus} />
+      </Section>
+
+      {/* ── 3d-interactive-framework-flow-diagram Phase 4.H T-comprehension-panel ── */}
+      <Section
+        id="visitor-comprehension"
+        title="Visitor Comprehension — 3D Universe (Phase 4.H)"
+        subtitle="GA4 funnel for /framework/universe + /control-room/framework/universe. 6 framework_universe_* events emit from the same scene tree across both modes. Live data lands once GA4 collection accumulates post-deploy."
+      >
+        <VisitorComprehensionPanel />
       </Section>
 
       {/* ── ucc-passkey-auth T19 — Auth surface telemetry ── */}
