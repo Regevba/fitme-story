@@ -26,7 +26,10 @@
 
 'use client';
 
+import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { useFallbackTier } from '@/components/bespoke/framework-universe/fallbacks/useFallbackTier';
+import { logUniverseFallbackTierActivated } from '@/lib/framework-universe-analytics';
 
 const FrameworkUniverse = dynamic(
   () =>
@@ -83,9 +86,40 @@ export interface FrameworkUniverseClientProps {
 export function FrameworkUniverseClient({
   mode = 'visitor',
 }: FrameworkUniverseClientProps = {}) {
+  // Phase 4.F T-fallback-cascade: detect the appropriate render tier.
+  // SSR returns Tier 1; hook re-evaluates on mount.
+  const { tier, reason } = useFallbackTier();
+
+  // Emit the analytics event when a non-Tier-1 cascade activates.
+  // Effect deps are primitive so this fires once per (tier, reason)
+  // transition (typically just once on mount per visitor).
+  useEffect(() => {
+    if (tier === 1) return;
+    const analyticsTier =
+      tier === 2 ? 'tier_2_rive' : 'tier_3_poster';
+    // Map detection reason → analytics reason enum (1:1 today; kept
+    // separate so the analytics enum can evolve independently).
+    const analyticsReason =
+      reason === 'tier_1_active' ? 'unknown' : reason;
+    logUniverseFallbackTierActivated({
+      tier: analyticsTier,
+      reason: analyticsReason,
+      mode,
+    });
+  }, [tier, reason, mode]);
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <FrameworkUniverse mode={mode} />
+      {tier === 1 ? (
+        <FrameworkUniverse mode={mode} />
+      ) : (
+        // Tier 2 (Rive) + Tier 3 (poster) both stub to PosterFallback
+        // until operator-dependent assets land (T-rive-tier-2 +
+        // T-poster-tier-3 each ship the actual Tier 2/3 surface).
+        // The active tier is communicated to operators + collected
+        // via the GA4 event above.
+        <PosterFallback />
+      )}
       {mode === 'operator' ? <OperatorStatusPill /> : null}
     </div>
   );
