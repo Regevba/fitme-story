@@ -169,7 +169,14 @@ function GateFiringEmitter({ firing, elapsedSec, patternTitle }: GateFiringEmitt
   // remediation (AC-11) + the PR link (AC-10) in one card.
   void patternTitle; // retained in signature for API stability — no longer drawn inline
   return (
-    <HoverCard patternId={firing.patternId} prNumber={firing.prNumber} cardYOffset={1.2}>
+    <HoverCard
+      patternId={firing.patternId}
+      prNumber={firing.prNumber}
+      cardYOffset={1.2}
+      analyticsActId="IV_gate_firings"
+      analyticsLabelKind="gate_firing"
+      analyticsLabelId={firing.patternId}
+    >
       <group position={firing.position} scale={[scale, scale, scale]}>
         <mesh castShadow={false}>
           <sphereGeometry args={[0.45, 16, 16]} />

@@ -212,7 +212,13 @@ function Act3ArchitectureImpl({ elapsedSec }: ActProps) {
                   key={id}
                   position={[annotationX, annotationY, slot.to[2]]}
                 >
-                  <HoverCard patternId={id} cardYOffset={0.5}>
+                  <HoverCard
+                    patternId={id}
+                    cardYOffset={0.5}
+                    analyticsActId="III_architecture"
+                    analyticsLabelKind="pattern"
+                    analyticsLabelId={id}
+                  >
                     <Signage
                       text={id}
                       fontSize={0.2}
