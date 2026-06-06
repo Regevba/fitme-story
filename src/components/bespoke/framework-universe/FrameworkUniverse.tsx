@@ -33,7 +33,7 @@
 
 'use client';
 
-import { useState, type ComponentType } from 'react';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Act1Threshold } from './scenes/Act1-Threshold';
 import { Act2Emergence } from './scenes/Act2-Emergence';
@@ -42,6 +42,11 @@ import { Act4GateFirings } from './scenes/Act4-GateFirings';
 import { Act5Measurement } from './scenes/Act5-Measurement';
 import { Act6LegacyCalibration } from './scenes/Act6-LegacyCalibration';
 import type { ActProps } from './scenes/types';
+import {
+  logUniverseActEnter,
+  type UniverseActId,
+  type UniverseMode,
+} from '../../../lib/framework-universe-analytics';
 
 // ─── Act sequence ────────────────────────────────────────────────────────
 
@@ -60,11 +65,31 @@ const ACT_SEQUENCE: readonly ActDef[] = [
   { id: 'VI',  Component: Act6LegacyCalibration, durationSec: 10 },
 ] as const;
 
+// Map scene-side act id (single char roman) → canonical GA4 UniverseActId.
+// Keeping the scene side single-char keeps ACT_SEQUENCE compact; the GA4
+// id encodes the act theme for cross-team dashboard legibility.
+const ANALYTICS_ID_BY_SCENE_ID: Record<string, UniverseActId> = {
+  I: 'I_threshold',
+  II: 'II_emergence',
+  III: 'III_architecture',
+  IV: 'IV_gate_firings',
+  V: 'V_measurement',
+  VI: 'VI_legacy',
+};
+
+type ActIndex1Based = 1 | 2 | 3 | 4 | 5 | 6;
+
 const TOTAL_DURATION_SEC = ACT_SEQUENCE.reduce((acc, a) => acc + a.durationSec, 0);
 
 // ─── Sequencer (Canvas child) ────────────────────────────────────────────
 
-function ActSequencer() {
+interface ActSequencerProps {
+  mode: UniverseMode;
+  /** Test-injection hook — defaults to the real GA4 emitter. */
+  onActEnter?: typeof logUniverseActEnter;
+}
+
+function ActSequencer({ mode, onActEnter = logUniverseActEnter }: ActSequencerProps) {
   // Track elapsed time in React state so the active act re-renders on
   // each frame with updated `elapsedSec`. This is the only state that
   // updates per frame; React.memo on the acts means inactive ones
@@ -78,22 +103,57 @@ function ActSequencer() {
     setElapsed(Math.round(t * 1000) / 1000);
   });
 
-  // Pick the active act + the elapsed-since-act-start value to pass it.
-  let cumulative = 0;
-  for (const act of ACT_SEQUENCE) {
-    if (elapsed < cumulative + act.durationSec) {
-      const within = elapsed - cumulative;
-      const ActComponent = act.Component;
-      return <ActComponent elapsedSec={within} />;
+  // Resolve which act is active for the current elapsed value AND the
+  // session-elapsed seconds we report to GA4 (clamped to TOTAL_DURATION).
+  let activeSceneId = 'I';
+  let activeIndex0 = 0;
+  let withinAct = 0;
+  {
+    let cumulative = 0;
+    let resolved = false;
+    for (let i = 0; i < ACT_SEQUENCE.length; i++) {
+      const act = ACT_SEQUENCE[i];
+      if (elapsed < cumulative + act.durationSec) {
+        activeSceneId = act.id;
+        activeIndex0 = i;
+        withinAct = elapsed - cumulative;
+        resolved = true;
+        break;
+      }
+      cumulative += act.durationSec;
     }
-    cumulative += act.durationSec;
+    if (!resolved) {
+      // Past total duration — pin to the final act's last frame.
+      const lastIdx = ACT_SEQUENCE.length - 1;
+      activeSceneId = ACT_SEQUENCE[lastIdx].id;
+      activeIndex0 = lastIdx;
+      withinAct = ACT_SEQUENCE[lastIdx].durationSec;
+    }
   }
-  // Past total duration — hold on the final act's last frame so the
-  // grid is fully populated and stays as the final image.
-  const last = ACT_SEQUENCE[ACT_SEQUENCE.length - 1];
-  const LastComponent = last.Component;
-  return <LastComponent elapsedSec={last.durationSec} />;
+  const activeAnalyticsId = ANALYTICS_ID_BY_SCENE_ID[activeSceneId];
+  const activeIndex1: ActIndex1Based = (activeIndex0 + 1) as ActIndex1Based;
+
+  // Fire framework_universe_act_enter on each act boundary crossing.
+  // Initial mount fires for Act I so we capture funnel entry.
+  const lastFiredActRef = useRef<UniverseActId | null>(null);
+  useEffect(() => {
+    if (lastFiredActRef.current === activeAnalyticsId) return;
+    lastFiredActRef.current = activeAnalyticsId;
+    onActEnter({
+      act_id: activeAnalyticsId,
+      act_index: activeIndex1,
+      mode,
+      session_elapsed_sec: Math.round(elapsed * 100) / 100,
+    });
+  }, [activeAnalyticsId, activeIndex1, mode, elapsed, onActEnter]);
+
+  const ActComponent = ACT_SEQUENCE[activeIndex0].Component;
+  return <ActComponent elapsedSec={withinAct} />;
 }
+
+// Exposed for the test harness only — exercises the analytics fan-out
+// without spinning up an R3F Canvas.
+export const __testing = { ANALYTICS_ID_BY_SCENE_ID, ACT_SEQUENCE };
 
 // ─── Public entry ────────────────────────────────────────────────────────
 
@@ -104,11 +164,6 @@ export interface FrameworkUniverseProps {
 }
 
 export function FrameworkUniverse({ mode = 'visitor' }: FrameworkUniverseProps = {}) {
-  // `mode` is reserved for FR-8 operator mode; we keep it on the
-  // signature so callers don't have to refactor when 4.G's operator
-  // route lands. Currently unused beyond the prop guard.
-  void mode;
-
   return (
     <Canvas
       shadows
@@ -121,7 +176,7 @@ export function FrameworkUniverse({ mode = 'visitor' }: FrameworkUniverseProps =
       frameloop="always"
       style={{ width: '100%', height: '100%' }}
     >
-      <ActSequencer />
+      <ActSequencer mode={mode} />
     </Canvas>
   );
 }
