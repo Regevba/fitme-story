@@ -34,6 +34,20 @@
 import { memo, useMemo, useState, type ReactNode } from 'react';
 import { Html } from '@react-three/drei';
 import { patternById } from '../../../../lib/framework-snapshot';
+import { GLOSSARY, type GlossaryEntry } from '../../../../lib/glossary';
+
+/** Lookup a glossary entry by display term OR any alias. Case-insensitive.
+ *  Module-level (hoisted out of component) so the lookup function identity
+ *  is stable across renders. */
+function findGlossaryEntry(term: string): GlossaryEntry | undefined {
+  const norm = term.trim().toLowerCase();
+  if (!norm) return undefined;
+  for (const entry of GLOSSARY) {
+    if (entry.term.toLowerCase() === norm) return entry;
+    if (entry.aliases?.some((a) => a.toLowerCase() === norm)) return entry;
+  }
+  return undefined;
+}
 
 export interface HoverCardProps {
   /** Wrapped 3D content (typically a Signage or small mesh). */
@@ -42,6 +56,11 @@ export interface HoverCardProps {
    *  'W30', '#5'). When absent, the card displays only the optional
    *  `prNumber` content. */
   patternId?: string;
+  /** Glossary term to resolve from src/lib/glossary.ts. Matched
+   *  case-insensitively against `term` OR any `aliases` entry.
+   *  Surfaces the term + short tooltip in the card. AC-13 anchor;
+   *  Phase 4.E T-glossary-tooltips. */
+  glossaryTerm?: string;
   /** GitHub PR number to surface as a click-through. AC-10 hover anchor;
    *  click opens the PR in a new tab. Absent = no PR link rendered. */
   prNumber?: number;
@@ -55,6 +74,7 @@ export interface HoverCardProps {
 function HoverCardImpl({
   children,
   patternId,
+  glossaryTerm,
   prNumber,
   prRepo = 'Regevba/FitTracker2',
   cardYOffset = 0.6,
@@ -68,9 +88,15 @@ function HoverCardImpl({
     return patternById(patternId) ?? null;
   }, [patternId]);
 
-  // Render nothing if there's neither a pattern nor a PR to surface —
-  // the wrapper is then transparent and just renders the children.
-  const hasContent = pattern || typeof prNumber === 'number';
+  // Same memo pattern for the glossary entry (AC-13).
+  const glossary = useMemo(() => {
+    if (!glossaryTerm) return null;
+    return findGlossaryEntry(glossaryTerm) ?? null;
+  }, [glossaryTerm]);
+
+  // Render nothing if there's no content to surface — the wrapper is
+  // then transparent and just renders the children.
+  const hasContent = pattern || glossary || typeof prNumber === 'number';
 
   return (
     <group
@@ -144,6 +170,25 @@ function HoverCardImpl({
                   </div>
                 ) : null}
               </>
+            ) : null}
+            {glossary ? (
+              <div style={{ marginTop: pattern ? '0.5rem' : 0 }}>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    marginBottom: '0.25rem',
+                    color: '#A7F3D0',
+                    fontFamily: 'ui-monospace, "SF Mono", monospace',
+                    fontSize: '0.75rem',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {glossary.term}
+                </div>
+                <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>
+                  {glossary.tooltip}
+                </div>
+              </div>
             ) : null}
             {typeof prNumber === 'number' ? (
               <div style={{ marginTop: pattern ? '0.5rem' : 0 }}>
