@@ -1,0 +1,62 @@
+name: bundle-size
+
+# Phase 4.G / T-bundle-size-check. AC-16 — performance contract for the
+# 3D Universe at /framework/universe.
+#
+# Runs on PRs that touch the 3D Universe scene + entry + scripts. Skips
+# on docs / case-study-only PRs to avoid wasting macOS minutes on
+# changes that can't affect the deferred bundle.
+#
+# The check is informational (continue-on-error: true) for the first
+# 14 days of operation per the Phase E exit discipline; promotes to
+# blocking once a 14-day baseline has been collected.
+#
+# Security note: this workflow does NOT interpolate any github.event.*
+# fields into run: commands (no PR titles, no branch names, no commit
+# messages). All inputs to run: are constant strings or controlled env
+# variables.
+
+on:
+  pull_request:
+    paths:
+      - 'src/components/bespoke/framework-universe/**'
+      - 'src/app/framework/universe/**'
+      - 'src/lib/motion-3d/**'
+      - 'src/lib/framework-snapshot.ts'
+      - 'scripts/check-bundle-size.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'next.config.ts'
+      - '.github/workflows/bundle-size.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build production bundle
+        run: npm run build
+        env:
+          SKIP_FT2_SYNC: '1'
+
+      - name: Check deferred bundle size
+        run: npx tsx scripts/check-bundle-size.ts
+        env:
+          GITHUB_ACTIONS: 'true'
