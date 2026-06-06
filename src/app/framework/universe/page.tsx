@@ -1,60 +1,53 @@
 /**
- * src/app/framework/universe/page.tsx — first user-visible URL for the
- * 3D Universe walkthrough.
+ * src/app/framework/universe/page.tsx — 3D Universe walkthrough route.
  *
- * Phase 4.G / T-route-framework.
+ * **TEMPORARILY 404'D (2026-06-06)** — animation polish needed before
+ * re-launching to the public. The R3F scene tree, FrameworkUniverseClient,
+ * all primitives, scenes, fallback cascade, analytics, and operator route
+ * (`/control-room/framework/universe`) stay on main so iteration continues
+ * without recreating any implementation.
  *
- * This file is a Server Component (no `'use client'` directive) so it
- * exports `metadata` for SEO + static optimization. The actual 3D
- * scene lives behind a Client Component wrapper at
- * `FrameworkUniverseClient.tsx` — Next.js 16 App Router rules forbid
- * `next/dynamic({ ssr: false })` inside a Server Component, so the
- * wrapper holds the dynamic import.
+ * To re-launch:
+ *   1. Restore the original `export default function FrameworkUniversePage`
+ *      that returns `<FrameworkUniverseClient />` (see git history pre-this
+ *      commit, or just remove the `notFound()` below).
+ *   2. Restore the discovery card in `src/app/framework/page.tsx` (linked
+ *      `/framework/universe` between "See the framework in motion" and
+ *      "Developer guide").
+ *   3. Re-add `/framework/universe` to the lighthouse-ci URL list in
+ *      `.github/workflows/lighthouse-ci.yml`.
  *
- * Routed at `/framework/universe` rather than bare `/framework` because
- * the existing `/framework` page is a content-rich documentation hub
- * (8-floor blueprint + v7.8 bridge timeline + dev-guide entry); routing
- * the Universe alongside as `/framework/universe` preserves that
- * content. Migration of the final URL (per PRD FR-1) is deferred to
- * an operator decision after the Universe is ready for prime time.
+ * Out of scope for the 404 — the operator route at
+ * `/control-room/framework/universe` stays mounted (auth-gated, internal
+ * iteration surface).
  *
- * IntersectionObserver-gated load (FR-10 strict reading) is deferred
- * to a follow-up — the Universe IS the page content here, so gating
- * on scroll-into-view doesn't add value. The dynamic-import + poster
- * fallback in the client wrapper satisfy "initial JS = 0 KB" on every
- * OTHER route practically: the main bundle ships page chrome only,
- * and the 3D code lives in a separate chunk hydrated after first
- * paint.
- *
- * Phase 4.F (T-rive-tier-2 + T-poster-tier-3 + T-fallback-cascade)
- * upgrades the fallback into a proper Tier 2 / Tier 3 cascade.
- *
- * Phase 4.E (T-scrub-pause-timedilation) adds keyboard / pointer
- * controls.
+ * Empirical note — calling `notFound()` from the Server Component yields a
+ * real 404 with the global not-found.tsx UI, not a soft redirect. SEO
+ * implications: the route emits the same X-Robots-Tag the parent app does;
+ * search engines that previously indexed the route (if any did in the
+ * ~30-min prod window between PR #200 merge and this revert) will drop it
+ * on the next crawl.
  */
 
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { buildMetadata } from '@/lib/seo';
-import { FrameworkUniverseClient } from './FrameworkUniverseClient';
 
-export const metadata = buildMetadata({
-  title: 'Framework Universe',
-  description:
-    'A cinematic 3D walkthrough of the framework that ships FitMe. Six acts trace the evolution from v1.0 to v7.9.1 — architecture, gate firings, measurement adoption, and every shipped feature as a monument.',
-  slug: '/framework/universe',
-});
+// Metadata kept so `next/link` previews + search-engine results don't
+// suddenly emit a generic "fitme-story" title if a crawler caches the
+// route. The route still 404s — metadata only renders for the not-found
+// shell.
+export const metadata: Metadata = {
+  ...buildMetadata({
+    title: 'Framework Universe',
+    description:
+      'The 3D Universe walkthrough is temporarily offline while we polish the animation. Check back soon.',
+    slug: '/framework/universe',
+  }),
+  // Don't index a 404'd route.
+  robots: { index: false, follow: false },
+};
 
-export default function FrameworkUniversePage() {
-  return (
-    <main
-      style={{
-        width: '100%',
-        height: '100vh',
-        margin: 0,
-        padding: 0,
-        overflow: 'hidden',
-      }}
-    >
-      <FrameworkUniverseClient />
-    </main>
-  );
+export default function FrameworkUniversePage(): never {
+  notFound();
 }

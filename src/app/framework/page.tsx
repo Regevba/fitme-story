@@ -260,27 +260,11 @@ export default function FrameworkPage() {
           </Card>
         </Link>
       </section>
-      <section className="mt-6">
-        <Link href="/framework/universe" className="block">
-          <Card
-            interactive
-            padding="md"
-            className="group hover:shadow-lg transition-all"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
-                  Framework Universe (3D walkthrough) →
-                </h2>
-                <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                  Cinematic 6-act 3D walkthrough of the framework&rsquo;s evolution from v1.0 to v7.9.1 — architecture stack, FR-13 pattern overlay, live gate firings (W34/W30/W31/W32/W11), live adoption bars (timing / per_phase / cache_hits / cu_v2), and ~92 shipped features as a chronological monument grid. Built with React Three Fiber + Drei.
-                </p>
-              </div>
-              <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
-            </div>
-          </Card>
-        </Link>
-      </section>
+      {/* Framework Universe (3D walkthrough) — pulled from production
+          2026-06-06 pending animation polish. The /framework/universe
+          route returns 404 in the meantime; the R3F scene tree stays
+          on main so iteration continues without recreating the
+          implementation. Re-link when the visual polish lands. */}
       <section className="mt-6">
         <Link href="/framework/dev-guide" className="block">
           <Card
