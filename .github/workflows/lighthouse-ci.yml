@@ -91,10 +91,17 @@ jobs:
             echo "$base/case-studies"
             echo "$base/case-studies/framework-v7-9-promotion"
             echo "$base/glossary"
+            echo "$base/framework"
+            echo "$base/framework/universe"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
           # NOTE: /control-room/* is auth-gated (proxy.ts redirects unauthenticated
           # requests to /control-room/sign-in) -- excluded from the public budget run.
+          # NOTE: /framework/universe is the 3D Universe walkthrough (Phase 4.J
+          # T-lighthouse-perf, AC-16). Lighthouse audits the loading + initial
+          # render path; the Three.js scene runs after onload so it doesn't
+          # affect category scores. Adding it here ensures perf regressions
+          # surface in the same CI surface as every other public route.
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
