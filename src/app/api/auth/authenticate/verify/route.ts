@@ -39,6 +39,10 @@ interface RequestBody {
 
 export async function POST(req: NextRequest) {
   const startedAt = Date.now();
+  // F-AUTH-LATENCY-SERVER-METRIC (v7.9.1): monotonic high-precision clock for
+  // the canonical server-handler execution time (immune to NTP/wall-clock
+  // adjustments). Emitted as duration_ms_server on the success event.
+  const serverStart = performance.now();
 
   let body: RequestBody;
   try {
@@ -178,6 +182,7 @@ export async function POST(req: NextRequest) {
       credential_id: credentialID,
       device_type: credential.deviceType,
       duration_ms: Date.now() - startedAt,
+      duration_ms_server: Math.round(performance.now() - serverStart),
       ip: req.headers.get('x-forwarded-for') ?? undefined,
       user_agent: req.headers.get('user-agent') ?? undefined,
       session_id: sid,
