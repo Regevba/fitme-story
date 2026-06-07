@@ -177,10 +177,5 @@
       "deferred_at": "2026-06-04T19:30:00Z"
     }
   },
-  "cu_v2": {
-    "factors": {"complexity": 0.8, "blast_radius": 0.5, "novelty": 0.8, "verification_difficulty": 0.7},
-    "total": 2.8,
-    "tier_class": "A_high"
-  },
   "updated_at": "2026-06-07T00:00:00Z"
 }
