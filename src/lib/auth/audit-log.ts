@@ -84,6 +84,11 @@ export interface AuthEventInput {
   user_agent?: string;
   session_id?: string; // raw — will be hashed before write
   duration_ms?: number;
+  // F-AUTH-LATENCY-SERVER-METRIC (v7.9.1): high-precision, monotonic
+  // (performance.now) server-handler execution time. Distinct from duration_ms
+  // (Date.now wall-time) — this is the canonical input for kill-criteria sized
+  // in server-overhead terms (e.g. the UCC-hardening +1-Redis-GET threshold).
+  duration_ms_server?: number;
   device_type?: 'platform' | 'cross_platform';
   mediation?: 'conditional' | 'required';
   session_ttl_seconds?: number;
