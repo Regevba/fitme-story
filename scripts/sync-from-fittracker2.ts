@@ -805,6 +805,20 @@ async function syncDashboardData(paths: SyncPaths = DEFAULT_PATHS): Promise<Fres
     checked.push('integrity/gate-coverage-ft2.jsonl');
   }
 
+  // HADF Phase 3A T4: forward-sync the drift-monitor.jsonl append-only log.
+  // The shared-dir recursion above only copies *.json (not *.jsonl), and
+  // reference-signatures.json already lands via that recursion — but the
+  // drift monitor's .jsonl needs an explicit block (same pattern as the
+  // gate-coverage.jsonl precedent). Guarded: the monitor may not have run yet.
+  const ft2DriftMonitor = join(ft2Shared, 'hadf', 'drift-monitor.jsonl');
+  if (existsSync(ft2DriftMonitor)) {
+    mkdirSync(join(localShared, 'hadf'), { recursive: true });
+    const dst = join(localShared, 'hadf', 'drift-monitor.jsonl');
+    const { bytes } = copyTextFile(ft2DriftMonitor, dst);
+    bytesTotal += bytes;
+    checked.push('shared/hadf/drift-monitor.jsonl');
+  }
+
   // Phase D: OPTIONAL 72h integrity-cycle snapshots
   // (.claude/integrity/snapshots/*.json). Required by the Framework Health
   // dashboard's CycleSnapshotPanel; without this sync, the panel renders
