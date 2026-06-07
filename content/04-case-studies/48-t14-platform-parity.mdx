@@ -1,0 +1,74 @@
+---
+title: >-
+  T14 platforms_tested — Platform-test parity as a queryable state field
+slug: t14-platform-parity
+upstream_path: docs/case-studies/t14-platform-parity-state-field-case-study.md
+tier: light
+tldr: >-
+  Before T14, state.json recorded that a feature shipped and that it had a case
+  study — but not which platforms its tests actually exercised. A feature
+  spanning iOS + web + the ai-engine could ship with single-surface coverage and
+  nothing flagged the gap. T14 adds a platforms_tested {ios, web, backend, ai}
+  boolean field + an advisory PLATFORMS_TESTED gate that fires at
+  current_phase=complete, with framework-meta features exempt. All 94 existing
+  complete features were backfilled in one mechanical pass (25 exempt, 61
+  heuristic-inferred, 8 low-confidence flagged for optional spot-check — zero
+  mandatory review). Ships advisory; advisory→enforced flip at ~v7.10 after a
+  14-day calibration window. The new check uses its own flag + isolated coverage
+  key so its promotion is independent of the enforced FEATURE_CLOSURE_COMPLETENESS
+  gate it fires alongside.
+timeline_position:
+  version: '7.9.1'
+  order: 48
+key_numbers:
+  - label: Complete features backfilled
+    value: '94'
+    tier: T1
+  - label: Backfill distribution
+    value: '25 exempt / 61 inferred / 8 flagged'
+    tier: T1
+  - label: Mandatory operator review
+    value: '0'
+    tier: T1
+  - label: Unit tests (schema + gate + backfill)
+    value: '48 pass'
+    tier: T1
+  - label: New enforcement gates at ship
+    value: '0 (advisory; flip ~v7.10)'
+    tier: T1
+kill_criteria:
+  - 'False-positive rate >5% during the advisory window (gate flags legitimately-platformless features)'
+  - 'Operator burden — >20% of new complete transitions have an empty array post-backfill'
+  - 'Field semantics unclear — operators ask >3× in a 30-day window what backend/ai means'
+kill_criterion_fired: false
+---
+
+# T14 `platforms_tested` — Platform-test parity as a queryable field
+
+The framework recorded *that* a feature completed and *that* it had a case study, but **not which platforms its tests exercised**. A multi-surface feature could ship with single-surface coverage and nothing recorded or flagged the asymmetry. T14 makes platform-test parity a structured, queryable, gate-able property of every completed feature.
+
+<HeroMetric
+  value="94 features backfilled · 0 mandatory review"
+  label="platforms_tested {ios, web, backend, ai} — added to every complete feature"
+  context="Heuristic backfill from offline text signals: 25 exempt:framework_meta, 61 inferred, 8 low-confidence flagged for OPTIONAL spot-check. Provenance is recorded on every field, so low-confidence inferences are honest, not silently guessed."
+/>
+
+## The field
+
+`platforms_tested` is a `{ios, web, backend, ai}` object of booleans (semantics: `ios` = SwiftUI app, `web` = fitme-story/website/dashboard, `backend` = sync/Supabase/Railway, `ai` = ai-engine cohort). "Non-empty" means ≥1 key is `true`. A companion `platforms_tested_provenance` string records origin (`authored` / `backfill-heuristic-<date>` / `backfill-heuristic-low-confidence` / `exempt:framework_meta`).
+
+## The gate, kept isolated on purpose
+
+The advisory `PLATFORMS_TESTED` sub-check fires on `current_phase=complete` transitions when no platform is `true`. It was built as an **isolated sibling** of the now-*enforced* `FEATURE_CLOSURE_COMPLETENESS` gate — its own `PLATFORMS_TESTED_ADVISORY_MODE` flag and its own Mechanism-A coverage key — so its advisory→enforced flip (~v7.10, after a 14-day calibration window) is a single independent line that cannot accidentally weaken the enforced gate beside it.
+
+**Q2 exemption:** framework-meta features (`work_type=chore` / `work_subtype=framework_feature`) ship no product-platform code, so they're exempt — an all-`false` record would be meaningless and would inflate the empty-array rate the gate watches.
+
+## What it caught on the way
+
+The backfill's required-key assertion surfaced a real schema fact: the state.json **identity field is not invariant** — older features use `feature`, newer use `feature_name`, fitme-story-native reverse-mirrors use `name`. The heuristic flags the 8 low-confidence inferences rather than guessing, so the operator spot-checks 8 features, not 94.
+
+## Honest scope
+
+Out of scope: per-platform coverage *percentages* (T15+, gated on the R9 Track B coverage data). The feature stays at `implementation` until the 14-day calibration window closes — it cannot reach `complete` before then, and the case study says so.
+
+> Source case study (FitTracker2): `docs/case-studies/t14-platform-parity-state-field-case-study.md`. Shipped via FT2 PR #662 (schema + gate + backfill) + #665 (docs).

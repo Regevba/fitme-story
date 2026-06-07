@@ -100,6 +100,14 @@ export const GLOSSARY: GlossaryEntry[] = [
     full: 'The /pm-workflow skill is the orchestrator at the heart of the framework. It enforces a nine-phase lifecycle — Research → PRD → Tasks → UX → Implement → Test → Review → Merge → Docs — with approval gates between each phase. Other skills (dev, qa, design, etc.) are invoked from inside pm-workflow as needed.',
   },
   {
+    slug: 'platforms-tested',
+    term: 'platforms_tested',
+    aliases: ['platforms tested', 'platforms_tested', 'platform-test parity'],
+    category: 'framework',
+    tooltip: 'state.json field recording which platforms (iOS / web / backend / AI) a feature’s tests actually exercised.',
+    full: 'platforms_tested is a state.json object {ios, web, backend, ai} of booleans, added by T14 (2026-06-07), recording which platforms a completed feature’s tests exercised — making platform-test parity a queryable property instead of "tests passed somewhere". A companion advisory PLATFORMS_TESTED gate fires at current_phase=complete when no platform is set; framework-meta features (work_type=chore / work_subtype=framework_feature) are exempt. Ships advisory; advisory→enforced flip at ~v7.10 after a 14-day calibration window. Out of scope: per-platform coverage percentages.',
+  },
+  {
     slug: 'dispatch-intelligence',
     term: 'Dispatch intelligence',
     aliases: ['dispatch intelligence', 'dispatch'],
