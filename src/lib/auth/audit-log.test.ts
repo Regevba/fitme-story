@@ -104,6 +104,29 @@ test('logAuthEvent → readAuthEvents round-trips one event', async () => {
 });
 
 // ────────────────────────────────────────────────────────────────────────
+// F-AUTH-LATENCY-SERVER-METRIC (v7.9.1) — server-side latency field
+// ────────────────────────────────────────────────────────────────────────
+
+test('duration_ms_server round-trips alongside duration_ms', async () => {
+  freshMock();
+  await logAuthEvent({
+    event_type: 'auth_passkey_authenticate_succeeded',
+    operator_label: 'op@example.com',
+    outcome: 'success',
+    duration_ms: 540,       // wall-time (Date.now) — existing, backward-compat
+    duration_ms_server: 7,  // monotonic server-handler time (performance.now)
+  });
+  const events = (await readAuthEvents()) as Array<Record<string, unknown>>;
+  assert.equal(events.length, 1);
+  assert.equal(events[0].duration_ms, 540, 'wall-time field preserved');
+  assert.equal(
+    events[0].duration_ms_server,
+    7,
+    'server-side latency field must round-trip for server-overhead kill-criteria',
+  );
+});
+
+// ────────────────────────────────────────────────────────────────────────
 // PII redaction at write time
 // ────────────────────────────────────────────────────────────────────────
 
