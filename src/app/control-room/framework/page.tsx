@@ -32,6 +32,8 @@ import { HumanActionPanel } from '@/components/framework-health/HumanActionPanel
 import { CycleSnapshotPanel } from '@/components/framework-health/CycleSnapshotPanel';
 import { MembraneStatusPanel } from '@/components/framework-health/MembraneStatusPanel';
 import { VisitorComprehensionPanel } from '@/components/framework-health/VisitorComprehensionPanel';
+import { HadfSignaturePanel } from '@/components/framework-health/HadfSignaturePanel';
+import { loadHadfSensing } from '@/lib/framework-health/load-hadf-signatures';
 import AuditLogPanel from '@/components/control-room/AuditLogPanel';
 
 export const dynamic = 'force-dynamic';
@@ -295,6 +297,9 @@ export default async function FrameworkHealthPage() {
   const fsFireCount = gateCoverage.counts['fitme-story'];
   const totalFireCount = gateCoverage.events.length;
 
+  // HADF Phase 3A T4 — sensing-layer panel (build-time, no await needed)
+  const hadfSensing = loadHadfSensing();
+
   return (
     <article className="max-w-5xl mx-auto px-6 py-12">
       {/* ── Header ── */}
@@ -514,6 +519,15 @@ export default async function FrameworkHealthPage() {
             populate gate-coverage-ft2.jsonl, or trigger the sync script.
           </p>
         )}
+      </Section>
+
+      {/* ── HADF Phase 3A T4 — sensing-layer observability panel ── */}
+      <Section
+        id="hadf-sensing"
+        title="HADF sensing layer — reference signatures + drift (Phase 3A)"
+        subtitle="Passive detection/observability of streaming TTFT/TPS fingerprints from closed Phase 2-bis calibrations. Advisory only — no dispatch decision is made on this data; acting layer (RQ4/Phase 3B) is unstarted."
+      >
+        <HadfSignaturePanel data={hadfSensing} />
       </Section>
 
       {/* ── T26 — Predecessor cross-links ── */}
