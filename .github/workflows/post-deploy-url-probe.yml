@@ -1,0 +1,100 @@
+# .github/workflows/post-deploy-url-probe.yml
+#
+# F-DEPLOYED-URL-PROBE (fitme-story integration of the FitTracker2 substrate).
+#
+# Closes the W18 / W19 silent-pass class END-TO-END: "what the deployed HTML
+# SAYS is the URL ≠ what the receiving service can actually fetch + process."
+#   - W18: <meta og:image> pointed at a 404 path for 6 days → no rich preview
+#          on LinkedIn / Twitter / HN.
+#   - W19: GA measurement ID had a trailing newline → Google Measurement
+#          Protocol silently rejected every event for 6 days.
+# Both passed local dev + preview inspection because neither runs the
+# receiving-service round-trip. They only manifested in production.
+#
+# This workflow runs the FT2 substrate `scripts/probe-deployed-url.sh`
+# (VENDORED — kept byte-identical to FitTracker2's copy; re-sync with
+# `cp ../FitTracker2/scripts/probe-deployed-url.sh scripts/`) against the
+# live production site after each successful Vercel PRODUCTION deploy.
+#
+# Why deployment_status (not pull_request): the og:image is build-time
+# generated and the gtag URL is environment-injected — they can only be
+# probed against a real production deployment, not a CI runner.
+#
+# Failure model: a failed run is an ALERT, not a deploy gate (the deploy has
+# already shipped by the time deployment_status fires). It surfaces a red
+# workflow run + notification so the operator re-checks the live site.
+# Network blips (substrate exit 3) retry once; only a real assertion failure
+# (exit 1) fails the job.
+#
+# Security: no github.event.* free-form text flows into the shell. SITE_BASE
+# is a hardcoded literal; GA_ID comes from a repo secret/var; the probe args
+# are fixed. deployment.sha (a SHA) is the only event value consumed, by
+# actions/checkout.
+
+name: post-deploy-url-probe
+
+on:
+  deployment_status:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    # Production deploys only (W18/W19 were production-surface incidents);
+    # workflow_dispatch always runs for on-demand operator checks.
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout deployed commit (or main on manual run)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+
+      - name: Probe live production URLs
+        env:
+          # Canonical public URL — what social crawlers + GA actually fetch.
+          SITE_BASE: https://fitme-story.vercel.app
+          # GA measurement id (optional). Resolves empty if not configured;
+          # the W19 probe is skipped in that case.
+          GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID || vars.NEXT_PUBLIC_GA_ID }}
+        run: |
+          set -uo pipefail
+          chmod +x scripts/probe-deployed-url.sh
+          fail=0
+
+          # Run a probe; retry ONCE on a network error (substrate exit 3),
+          # but fail immediately on an assertion error (exit 1).
+          run_probe() {
+            local rc
+            for attempt in 1 2; do
+              scripts/probe-deployed-url.sh "$@" && return 0
+              rc=$?
+              if [ "$rc" = "3" ] && [ "$attempt" = "1" ]; then
+                echo "  ↻ network error (exit 3) — retrying in 5s…"
+                sleep 5
+                continue
+              fi
+              return "$rc"
+            done
+          }
+
+          echo "── W18: og:image reachable + is an image ──"
+          run_probe "$SITE_BASE/opengraph-image" --status 200 --content-type "image/" || fail=1
+
+          echo "── homepage reachable ──"
+          run_probe "$SITE_BASE/" --status 200 || fail=1
+
+          echo "── W19: gtag/js loads for our GA_ID with no encoded newline ──"
+          if [ -n "${GA_ID:-}" ]; then
+            run_probe "https://www.googletagmanager.com/gtag/js?id=${GA_ID}" --status 200 --body-not-contains "%0A" || fail=1
+          else
+            echo "  ⚠ GA_ID not configured as a repo secret/var — skipping W19 gtag probe"
+          fi
+
+          if [ "$fail" != "0" ]; then
+            echo "::error::post-deploy URL probe found a production regression (see assertions above)"
+            exit 1
+          fi
+          echo "✅ all post-deploy production probes passed"
