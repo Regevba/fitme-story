@@ -1,8 +1,8 @@
-# PM Framework — Developer Guide (v1.0 → v7.9)
+# PM Framework — Developer Guide (v1.0 → v7.9.1)
 
 > **Audience:** developers landing in this codebase who need to understand how the PM framework actually works — not the marketing narrative, not the case-study story arc, but the wiring. If you are about to add a new feature, extend a check code, fix a CI workflow, or bump the framework version, start here.
 >
-> **Current version:** **v7.9** (shipped 2026-05-21) — promotes 3 v7.8.1 advisory gates to enforced via a single-flag flip ([`scripts/check-state-schema.py:138`](https://github.com/Regevba/FitTracker2/blob/main/scripts/check-state-schema.py)). Phase E validation soak runs through 2026-06-04. Total at v7.9: **37 mechanical gates + 5 advisories**. Shipped via [FT2 PR #417](https://github.com/Regevba/FitTracker2/pull/417). For prior versions, see [§12 timeline](#12-compressed-evolution-timeline-v10--v79). For the full v7.9 outcome, see [§2.0](#20-current-version-snapshot-v79-2026-05-21).
+> **Current version:** **v7.9.1** (single-day build window 2026-06-04 — 8 ships, 14 PRs, **0 new enforcement gates** per Phase E exit discipline). The v7.9 Phase E validation soak exited cleanly on 2026-06-04. v7.9.1 ships observability surfaces + reusable substrates: F16 try-repo harness (a 3rd gate-test layer), F17 `last_fired_at` index, F2 Phase 0 reality-check, Dev-env Track B lint/coverage CI (CI workflows **8 → 14**), observed-patterns **W1–W28 → W1–W32**. Post-window (2026-06-07) additions: t14 `platforms_tested` field + advisory `PLATFORMS_TESTED` gate, `tracking-drift-check`, contract-fixture sampling, and the prereg lock-introducing-commit permit fix. Enforcement total is unchanged from v7.9: **37 mechanical gates + 5 advisories** (v7.9.1 added advisory + observability surfaces, not enforcement). Shipped via [FT2 PR #417](https://github.com/Regevba/FitTracker2/pull/417) (v7.9) → v7.9.1 PRs #607–#628. For prior versions, see [§12 timeline](#12-compressed-evolution-timeline-v10--v791). For the full v7.9.1 outcome, see [§2.0](#20-current-version-snapshot-v791-2026-06-04).
 > **Filename note:** the source file stays `dev-guide-v1-to-v7-7.md` (this page mirrors it) for ref-stability across 16+ cross-references in FT2 + fitme-story. Content tracks the latest framework version (v7.9).
 > **Companion docs:** [`docs/architecture/feature-lifecycle-event-catalog.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/architecture/feature-lifecycle-event-catalog.md) (event/log/gate catalog with mermaid flow diagrams), [`docs/skills/architecture.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/skills/architecture.md) (skill-by-skill anatomy), [`docs/skills/evolution.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/skills/evolution.md) (full version-by-version history), [`CLAUDE.md`](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md) (project rules, fastest reference).
 > **Reading order:** §0 is a 90-second tour. §1 is audience and reading hints. §1.5 is the glossary. §§ 2–3 give you the mental model. §§ 4–8 are the schemas and contracts you'll edit against. §§ 9–11 are the integrity layer (where failures get caught). § 12 is the compressed timeline. §§ 13–15 are operational walkthroughs.
@@ -14,7 +14,7 @@
 - [§0. Overview — 90-second tour](#0-overview--90-second-tour)
 - [§1. Audience and how to read](#1-audience-and-how-to-read)
 - [§1.5 Glossary](#15-glossary)
-- [§2. Big picture (current state — v7.9, Phase E soak)](#2-big-picture-current-state--v79-phase-e-soak)
+- [§2. Big picture (current state — v7.9.1, Phase E exited)](#2-big-picture-current-state--v791-phase-e-exited)
 - [§3. Where the code lives](#3-where-the-code-lives)
 - [§4. The skill ecosystem (hub + 11 spokes)](#4-the-skill-ecosystem-hub--11-spokes)
 - [§5. `state.json` — the canonical per-feature contract](#5-statejson--the-canonical-per-feature-contract)
@@ -24,7 +24,7 @@
 - [§9. Measurement protocol (CU formula, cache_hits, timing)](#9-measurement-protocol-cu-formula-cache_hits-timing)
 - [§10. Integrity layer — write-time + per-PR + cycle-time + weekly](#10-integrity-layer--write-time--per-pr--cycle-time--weekly)
 - [§11. Pre-commit hooks and GitHub Actions](#11-pre-commit-hooks-and-github-actions)
-- [§12. Compressed evolution timeline (v1.0 → v7.9)](#12-compressed-evolution-timeline-v10--v79)
+- [§12. Compressed evolution timeline (v1.0 → v7.9.1)](#12-compressed-evolution-timeline-v10--v791)
 - [§13. Operational walkthrough — adding a new feature](#13-operational-walkthrough--adding-a-new-feature)
 - [§14. Operational walkthrough — extending an integrity check code](#14-operational-walkthrough--extending-an-integrity-check-code)
 - [§15. Operational walkthrough — bumping the framework version](#15-operational-walkthrough--bumping-the-framework-version)
@@ -86,21 +86,34 @@ Cross-cutting terms used throughout this guide and in commit messages, PR descri
 | **CU (Composite Units)** | The v6.0 measurement protocol's normalized "size of work" score. CU formula v2 has 4 continuous factors: complexity, blast_radius, novelty, verification_difficulty. See §9.1. |
 | **Gate vs check code** | A gate is the mechanism (a script that runs at a given cadence). A check code is the finding type the gate emits (e.g., `SCHEMA_DRIFT`, `PHASE_LIE`). One gate emits multiple check codes. |
 | **Skill / spoke / hub** | The framework runs as 12 skills. `pm-workflow` is the hub (always loaded). The other 11 are spokes (loaded on demand based on the active phase per `skill-routing.json`). See §4. |
-| **Phase E** | A post-promotion validation soak (typically 14 days) where no new gates ship and the operator watches `gate-coverage.jsonl` for unexpected `failure` rows. v7.9 Phase E ran 2026-05-21 → 2026-06-04. |
+| **Phase E** | A post-promotion validation soak (typically 14 days) where no new gates ship and the operator watches `gate-coverage.jsonl` for unexpected `failure` rows. v7.9 Phase E ran 2026-05-21 → 2026-06-04 and **exited cleanly**; the v7.9.1 build window opened at exit (§2.0). |
 | **state.json** | Per-feature canonical contract at `.claude/features/<name>/state.json`. The single source of truth for that feature's lifecycle. See §5. |
 | **`/pm-workflow`** | The agent command that creates state.json, drives phase transitions, dispatches the right skill per phase. The 1 command you run most. |
-| **Observed Patterns Catalog** | [`.claude/integrity/observed-patterns.md`](https://github.com/Regevba/FitTracker2/blob/main/.claude/integrity/observed-patterns.md) (v7.8.5). The canonical manifest of gate-firing patterns — 23 gate patterns + 28 workflow (W1–W28). When a gate fires, consult it FIRST (§10.5). `make observed-patterns`. |
+| **Observed Patterns Catalog** | [`.claude/integrity/observed-patterns.md`](https://github.com/Regevba/FitTracker2/blob/main/.claude/integrity/observed-patterns.md) (v7.8.5). The canonical manifest of gate-firing patterns — 23 gate patterns + **W1–W32** workflow patterns (W29–W32 added at v7.9.1). When a gate fires, consult it FIRST (§10.5). `make observed-patterns`. |
 | **`make preflight`** | The unified pre-work aggregator (v7.8.6). `make preflight WORK_TYPE=<type>` runs every pre-work check (ssh-agent, PR-cache freshness, branch isolation, integrity findings, drift-vs-anchor, doc-debt, adoption, W20 freshness) into `preflight-cache.json`. Mandatory Phase 0.0 step (§10.6). |
 | **`state_owner`** | Required top-level state.json enum (`{ft2, fitme-story}`, v7.8.3) declaring which repo holds the canonical state file. Enforced by the `STATE_OWNER_*` gates. |
+| **`platforms_tested`** | state.json object `{ios, web, backend, ai}` of booleans (T14, 2026-06-07) recording which platforms a feature's tests exercised. Advisory `PLATFORMS_TESTED` gate fires at `current_phase=complete` when none is set; framework-meta features exempt. Advisory→enforced flip ~v7.10. See §5.1. |
+| **F16 / F17 / F2** | Three v7.9.1 substrates. F16 = try-repo harness (3rd gate-test layer — spawns a throwaway repo + runs the real pre-commit). F17 = `gate-last-fired.json` derived per-gate index. F2 = Phase 0 reality-check sub-step (`make phase-0-reality-check`) catching post-squash-merge state drift. |
 | **snapshot-phase / integrity-diff** | `make snapshot-phase` (v7.8.3) writes a per-phase off-SSD backup; `make integrity-diff` (v7.8.6) diffs current platform state vs the 2026-05-14 baseline anchor. |
 
 ---
 
-## 2. Big picture (current state — v7.9, Phase E soak)
+## 2. Big picture (current state — v7.9.1, Phase E exited)
 
-### 2.0 Current version snapshot (v7.9, 2026-05-21)
+### 2.0 Current version snapshot (v7.9.1, 2026-06-04)
 
-v7.9 is the **enforcement-flip release**. No new gate code, no new schema fields, no new observability surfaces. A single-line edit at [`scripts/check-state-schema.py:138`](https://github.com/Regevba/FitTracker2/blob/main/scripts/check-state-schema.py) flipped `BRANCH_ISOLATION_ADVISORY_MODE` from `True` to `False`, promoting 3 v7.8.1 advisory gates simultaneously to enforced.
+**v7.9.1 — single-day build window (2026-06-04).** Opened at v7.9 Phase E exit and closed the same day: **8 ships across 14 PRs with 0 new enforcement gates** (Phase E exit discipline forbids new gates for the first 14 days post-promotion). Every ship is an observability surface, doc update, reusable substrate, or warn-only CI workflow:
+
+- **F16 try-repo harness** (PRs #607–#612) — a 3rd gate-test layer: spawns a throwaway git repo and runs the real `.githooks/pre-commit` against canonical positive/negative fixtures, catching integration-surface bugs the in-process dispatch tests can't see.
+- **F17 `last_fired_at` index** (#617) — `gate-last-fired.json`, a derived per-gate index of Mechanism A telemetry (AWS-Config-Rules pattern) so the planned v7.10 `GATE_COVERAGE_ZERO` meta-check runs O(1) per gate.
+- **F2 Phase 0 reality-check** (#618) — `make phase-0-reality-check` cross-checks pending tasks vs the last 30 days of git/PR/log evidence, surfacing post-squash-merge state drift before Phase 0 schedules stale work.
+- **Dev-env Track B + batch** (#619, #626, #627) — SwiftLint + ruff + markdownlint + coverage + gitleaks + pip-audit + SBOM + commitlint + shellcheck wired warn-only into CI (**workflows 8 → 14**).
+- **F-LAUNCHD-DRIFT-EXTENSION** (#621–#624) — cron-context phantom-finding suppression + plist path-resolution health checks.
+- **Observed-patterns W29–W32** (#620) + **F-PHASE-E-ADOPTION-FREEZE-DISCIPLINE** (#625) + **F-DEPLOYED-URL-PROBE** FT2 substrate (#628).
+
+**Post-window additions (2026-06-07):** t14 `platforms_tested` field + advisory `PLATFORMS_TESTED` gate (FT2 #662 / #665); `tracking-drift-check` (#659); the prereg lock-introducing-commit permit fix (#660); contract-fixture sampling consumer adoption (fitme-story #209). All advisory/observability — no new enforcement.
+
+**Predecessor — v7.9 promotion (2026-05-21):** the **enforcement-flip release**. A single-line edit at [`scripts/check-state-schema.py:138`](https://github.com/Regevba/FitTracker2/blob/main/scripts/check-state-schema.py) flipped `BRANCH_ISOLATION_ADVISORY_MODE` from `True` to `False`, promoting 3 v7.8.1 advisory gates simultaneously to enforced.
 
 **Gates promoted (3 advisory → 3 enforced):**
 
@@ -327,6 +340,8 @@ Every feature has a `.claude/features/<name>/state.json` file. This file is the 
 | `complexity` | object | v6.0 protocol: `cu_version`, `factors_applied[]`, `view_count`, etc. (see § 9.1) |
 | `timing` | object | v6.0 protocol: `session_start`, `total_wall_time_minutes`, per-phase `started_at`/`ended_at` |
 | `cache_hits` | array | v6.0 protocol: each entry is `{timestamp, level, key, type, skill, event_type, phase}` |
+| `state_owner` | enum | `{ft2, fitme-story}` (v7.8.3) — which repo holds the canonical state file. Enforced by `STATE_OWNER_*`. |
+| `platforms_tested` | object | `{ios, web, backend, ai}` booleans (T14, 2026-06-07) — which platforms the feature's tests exercised. Advisory `PLATFORMS_TESTED` gate at `current_phase=complete`; framework-meta features exempt. Companion `platforms_tested_provenance` string records origin. Advisory→enforced ~v7.10. |
 
 ### 5.2 Phase-specific sub-fields
 
@@ -508,7 +523,7 @@ Forward-only: case studies dated `>= 2026-04-21` get file-level tag-presence enf
 
 ## 10. Integrity layer — write-time + per-PR + cycle-time + weekly
 
-### 10.1 Check codes (37 mechanical + 5 advisories at v7.9, 2026-05-21)
+### 10.1 Check codes (37 mechanical + 5 advisories — unchanged at v7.9.1; new entries below are advisory)
 
 > **v7.9 promotion (2026-05-21):** 3 v7.8.1 advisories promoted to enforced:
 > `BRANCH_ISOLATION_VIOLATION` Mode B (infra commit-level) + Mode C
@@ -554,6 +569,9 @@ Forward-only: case studies dated `>= 2026-04-21` get file-level tag-presence enf
 | `BRANCH_ISOLATION_HISTORICAL` (v7.8.1 cycle advisory — **stays advisory by design**) | Cycle (advisory) | `integrity-check.py` | T17 forward-only audit — feature files first appear on `main` with no `feature/*`/`chore/*` branch attribution (squash-merge + branch-cleanup artifact; see Observed Patterns #1). |
 | `BRANCH_ISOLATION_LAUNCHD_DRIFT` (v7.8.1 cycle advisory — macOS-only, **stays advisory**) | Cycle (advisory) | `integrity-check.py` | T18 — launchd plist anchored to a stale repo path (the 2026-04-30 HADF Phase 2 trigger incident). |
 | `PR_CACHE_STALE` (v7.8.4 operability) | Pre-check | `ensure-pr-cache-fresh.py` | `.cache/gh-pr-cache.json` empty/missing/older-than-24h → auto-refresh runs before `make integrity-check` + inside `integrity-cycle.yml`. Refresh failure logs but does NOT abort. Closes the 33-finding empty-cache false-positive incident (2026-05-12; see Observed Patterns #12 + W11). |
+| `PLATFORMS_TESTED` (T14, 2026-06-07, **advisory**) | Write | `check-state-schema.py` | `current_phase=complete` transition with no platform set in `platforms_tested {ios,web,backend,ai}`. Own `PLATFORMS_TESTED_ADVISORY_MODE` flag + isolated coverage key → advisory→enforced flip (~v7.10) is independent of `FEATURE_CLOSURE_COMPLETENESS`. Framework-meta features (`work_type=chore`/`work_subtype=framework_feature`) exempt. Also validates field shape any phase. |
+| `TRACKING_DRIFT_OPEN_BUT_SHIPPED` (2026-06-07, advisory) | On-demand | `tracking-drift-check.py` (`make tracking-drift-check`) | Planning rows that claim OPEN (`[ ]` / un-struck RICE row) while the feature `state.json` is `complete` or the row's own title carries a ship marker. Advisory only. |
+| `PR_NUMBER_UNRESOLVED` window (raised 500 → 2000, 2026-06-07) | Write | `check-state-schema.py` `_load_pr_cache` | `gh pr list --limit 2000` (was 500): a commit touching an OLD complete feature re-validates its merge `pr_number`, so the window must span full PR history (same W34 truncation class as PR #631). |
 
 ### 10.2 The 72h cycle
 
@@ -572,6 +590,7 @@ Defined in `.github/workflows/pr-integrity-check.yml` (v7.6 Phase 2a). Steps:
 4. Compute `delta = pr_findings - main_findings`.
 5. Set `pm-framework/pr-integrity` commit status to `failure` if any required command exits non-zero or if `delta > 0`.
 6. Sticky comment with marker `<!-- pm-framework-pr-integrity-bot -->` updates in place and reports command exit codes.
+7. **`try-repo-harness` job (v7.9.1, F16):** spawns throwaway git repos and runs the real `.githooks/pre-commit` against canonical per-gate fixtures (15/16 write-time gates + the gate-coverage contract test). ~15s; catches integration-surface bugs the in-process dispatch tests can't see.
 
 ### 10.4 The weekly cycle
 
@@ -585,7 +604,7 @@ Defined in `.github/workflows/framework-status-weekly.yml` (v7.6 Phase 2c). Cron
 
 When a gate fires, the finding alone does not tell you whether it is a real problem or an expected artifact (a squash-merge leaving no branch attribution, an empty PR cache, a heuristic over-trigger, etc.). The **Observed Patterns Catalog** at [`.claude/integrity/observed-patterns.md`](https://github.com/Regevba/FitTracker2/blob/main/.claude/integrity/observed-patterns.md) is the canonical manifest of every recognized fire-pattern. Each entry carries a **trigger**, a **why-expected** classification (by-design / cleanup-artifact / silent-pass-then-fixed / heuristic-FP / schema-drift), a **distinguishing-real-signal** rule, and a **silence path**.
 
-- **Coverage (current):** 23 gate-firing patterns (Section 1, `#1`–`#23`) + 28 workflow/operational patterns (Section 2, `W1`–`W28`).
+- **Coverage (current):** 23 gate-firing patterns (Section 1, `#1`–`#23`) + 32 workflow/operational patterns (Section 2, `W1`–`W32`; W29–W32 added at v7.9.1).
 - **CLI:** `make observed-patterns`.
 - **Preflight-loaded** by `/pm-workflow` and referenced by all spoke skills.
 - **Operator obligation (mandatory):** when any framework gate or advisory fires, the FIRST step is to consult this catalog. Apply the documented remediation if the pattern matches; investigate only if novel; and **append a new entry** to the catalog before the feature that surfaced the novel pattern is closed. The catalog is append-only-by-default.
@@ -640,6 +659,15 @@ Both scripts exit non-zero on findings. Emergency bypass: `git commit --no-verif
 | `ucc-audit-log-sync.yml` | cron `17 5 * * *` (daily) | Syncs the UCC passkey-auth audit log (Redis → ledger) |
 | `weekly-backup.yml` | cron `0 2 * * 0` (Sun 02:00Z) | Weekly off-repo backup snapshot |
 | `figma-code-connect-publish.yml` | push to main (`*.figma.{swift,tsx}` / config) | Publishes Code Connect mappings |
+| `lint.yml` (v7.9.1) | push, PR | SwiftLint + ruff + markdownlint — **warn-only** (`continue-on-error`) |
+| `coverage.yml` (v7.9.1) | push, PR | iOS Slather + Python pytest-cov coverage telemetry — warn-only |
+| `gitleaks.yml` (v7.9.1) | push, PR | Secret scanning |
+| `pip-audit.yml` (v7.9.1) | push, PR | ai-engine Python dependency audit |
+| `sbom.yml` (v7.9.1) | release tags | SBOM generation (syft) |
+| `commitlint.yml` (v7.9.1) | PR | Conventional-commits lint |
+| `shellcheck.yml` (v7.9.1) | push, PR | Shell-script lint |
+
+> v7.9.1 grew the CI workflow count from **8 → 14** baseline (the 7 dev-env additions above; all warn-only per Phase E exit discipline). `pr-integrity-check.yml` also gained the F16 `try-repo-harness` job (§10.3).
 
 **Local (launchd) cron — not a GitHub Action:**
 
@@ -653,7 +681,7 @@ All dynamic values used inside `run:` blocks **MUST** be routed through the `env
 
 ---
 
-## 12. Compressed evolution timeline (v1.0 → v7.9)
+## 12. Compressed evolution timeline (v1.0 → v7.9.1)
 
 Full per-version detail: [`docs/skills/evolution.md`](../skills/evolution.md). This section is the compressed dev-only summary — what each version changed structurally.
 
@@ -683,7 +711,9 @@ Full per-version detail: [`docs/skills/evolution.md`](../skills/evolution.md). T
 | v7.8.4 | 2026-05-12 | Pre-v7.9 telemetry calibration + doc-debt cleanup. One operability gate: `PR_CACHE_STALE` auto-refresh (`ensure-pr-cache-fresh.py`) closing the 33-finding empty-cache false-positive. `TIER_TAG_LIKELY_INCORRECT` heuristic narrowed (3 fixes). New `case-study-t1-references.json` ledger. Baseline driven to 0 findings + 0 advisory. Shipped on `chore/framework-v7-8-4-calibration-patch`. | Why a stale/empty PR cache no longer produces a wall of phantom `BROKEN_PR_CITATION` findings. |
 | v7.8.5 | 2026-05-13 | Observability layer (docs + a hook, no new gates). **Observed Patterns Catalog** ([`.claude/integrity/observed-patterns.md`](https://github.com/Regevba/FitTracker2/blob/main/.claude/integrity/observed-patterns.md), `make observed-patterns`) — canonical manifest of gate-firing patterns; check it FIRST when a gate fires. **W9 branch-drift real-time alert** (`PostToolUse:Bash` → `check-branch-drift.py`). Shipped via PR #327/#328 + #341. | The catalog is the doc you consult when a gate fires; W9 warns you if a concurrent session flipped your branch (§10.5 + §10.6). |
 | v7.8.6 | 2026-05-15 | Cadence batch — read/diff/warn surfaces closing the 96h drift window. `make integrity-diff` (vs 2026-05-14 anchor), unified `make preflight` (mandatory Phase 0.0 aggregator → `preflight-cache.json`), weekly gate-coverage zero-drift scan + per-dimension adoption trend nudge (extends `framework-status-weekly.yml`), W1 ssh-agent SessionStart preflight, `dependency-audit-weekly.yml`, daily stale-branch / orphan-worktree / idle-PR surfaces. Shipped via PR #363 + #365. | `make preflight WORK_TYPE=<type>` is the one command to run before any new work — it aggregates every pre-work check (§10.6). |
-| v7.9 | 2026-05-21 | **Promotion release.** Single-flag flip at `scripts/check-state-schema.py:138` (`BRANCH_ISOLATION_ADVISORY_MODE = True → False`) promotes 3 v7.8.1 advisory gates simultaneously: `BRANCH_ISOLATION_VIOLATION` Mode B (infra commit-level), Mode C (per-state.json mutation), and `FEATURE_CLOSURE_COMPLETENESS` (write-time). All 4 promotion criteria met against 14-day Mechanism A telemetry (18 + 13 + 13 firings, 0 zero-candidate, 0 false positives). First real-world Mode C gate fire caught + resolved same-session (captured in honesty ledger FT2-FH-003). Phase E validation soak runs 2026-05-21 → 2026-06-04. Reversibility: single-line revert in under 5 min. Shipped via [FT2 PR #417](https://github.com/Regevba/FitTracker2/pull/417) (`ea53ff4`) + close-out [PR #419](https://github.com/Regevba/FitTracker2/pull/419). | **The current state.** Writing code today: expect the v7.8 baseline plus the 3 promoted gates **enforced** — infra paths (`.githooks/*`, `.github/workflows/*`, `scripts/*`, `.claude/skills/*`, `.claude/shared/*`, `CLAUDE.md`, `docs/architecture/*`, `Makefile`) trigger `BRANCH_ISOLATION_VIOLATION` on chore branches unless an isolated worktree pattern is used. `state.json::current_phase=complete` transitions trigger `FEATURE_CLOSURE_COMPLETENESS` validation of 7 frontmatter fields + bidirectional PR-list parity. Same release shipped GitHub Security Tier S (PR #435): `required_signatures=true` on `main`, CODEOWNERS, Dependabot for GH Actions SHA-pin upgrades, pre-commit secret-regex + file-size guard, `make doctor` security checks. Plus YubiKey FIDO2 hardware-signing cut-over end-to-end. |
+| v7.9 | 2026-05-21 | **Promotion release.** Single-flag flip at `scripts/check-state-schema.py:138` (`BRANCH_ISOLATION_ADVISORY_MODE = True → False`) promotes 3 v7.8.1 advisory gates simultaneously: `BRANCH_ISOLATION_VIOLATION` Mode B (infra commit-level), Mode C (per-state.json mutation), and `FEATURE_CLOSURE_COMPLETENESS` (write-time). All 4 promotion criteria met against 14-day Mechanism A telemetry (18 + 13 + 13 firings, 0 zero-candidate, 0 false positives). First real-world Mode C gate fire caught + resolved same-session (captured in honesty ledger FT2-FH-003). Phase E validation soak runs 2026-05-21 → 2026-06-04. Reversibility: single-line revert in under 5 min. Shipped via [FT2 PR #417](https://github.com/Regevba/FitTracker2/pull/417) (`ea53ff4`) + close-out [PR #419](https://github.com/Regevba/FitTracker2/pull/419). | **The enforcement baseline (still current for gates).** Writing code today: expect the v7.8 baseline plus the 3 promoted gates **enforced** — infra paths (`.githooks/*`, `.github/workflows/*`, `scripts/*`, `.claude/skills/*`, `.claude/shared/*`, `CLAUDE.md`, `docs/architecture/*`, `Makefile`) trigger `BRANCH_ISOLATION_VIOLATION` on chore branches unless an isolated worktree pattern is used. `state.json::current_phase=complete` transitions trigger `FEATURE_CLOSURE_COMPLETENESS` validation of 7 frontmatter fields + bidirectional PR-list parity. Same release shipped GitHub Security Tier S (PR #435): `required_signatures=true` on `main`, CODEOWNERS, Dependabot for GH Actions SHA-pin upgrades, pre-commit secret-regex + file-size guard, `make doctor` security checks. Plus YubiKey FIDO2 hardware-signing cut-over end-to-end. |
+
+| v7.9.1 | 2026-06-04 | **Single-day build window — 8 ships / 14 PRs / 0 new enforcement gates** (Phase E exit discipline). Observability + substrates only: F16 try-repo harness (3rd gate-test layer — throwaway repo + real pre-commit; PRs #607–#612), F17 `gate-last-fired.json` derived index (#617), F2 `make phase-0-reality-check` (#618), Dev-env Track B + batch (SwiftLint/ruff/markdownlint/coverage/gitleaks/pip-audit/SBOM/commitlint/shellcheck warn-only; CI workflows **8 → 14**; #619/#626/#627), F-LAUNCHD-DRIFT-EXTENSION (#621–#624), observed-patterns **W29–W32** (#620), F-PHASE-E-ADOPTION-FREEZE-DISCIPLINE (#625), F-DEPLOYED-URL-PROBE substrate (#628). **Post-window (2026-06-07):** t14 `platforms_tested` field + advisory `PLATFORMS_TESTED` gate (#662/#665), `tracking-drift-check` (#659), prereg lock-introducing-commit permit (#660), contract-fixture sampling (fitme-story #209). | **The current state.** Enforcement is identical to v7.9 (no new gates). What's new for a dev: a 3rd test layer (try-repo) runs on every PR; `platforms_tested` is a new state.json field with an *advisory* gate at `complete` (flip ~v7.10); 7 new warn-only CI workflows; `make phase-0-reality-check` + `make tracking-drift-check` are available. Nothing new *blocks* a commit beyond the v7.9 set. |
 
 ### 12.1 Version-bump policy
 
