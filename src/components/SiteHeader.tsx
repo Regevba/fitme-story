@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, useEffect, useSyncExternalStore } from 'react';
 import { Lock, Moon, Sun } from 'lucide-react';
-import { NAV, isCurrentNav } from '@/lib/nav';
+import { navForLens, isCurrentNav } from '@/lib/nav';
+import { useLens } from '@/lib/lens-client';
 import { MobileNav } from './MobileNav';
 import { SearchInput } from './SearchInput';
 import { LensToggle } from './ui/LensToggle';
@@ -41,6 +42,7 @@ function getThemeServerSnapshot(): boolean {
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const lens = useLens();
   const dark = useSyncExternalStore(
     subscribeToTheme,
     getThemeSnapshot,
@@ -71,7 +73,7 @@ export function SiteHeader() {
         </Link>
         <div className="flex items-center gap-4 md:gap-8">
           <nav className="hidden md:flex items-center gap-6 text-sm" aria-label="Primary navigation">
-            {NAV.map((item) => {
+            {navForLens(lens).map((item) => {
               const current = !item.gated && isCurrentNav(pathname, item.href);
               const baseLink =
                 'inline-flex items-center min-h-[44px] hover:text-[var(--color-brand-indigo)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)] focus-visible:rounded';

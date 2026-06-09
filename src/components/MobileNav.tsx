@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, useEffect, useId, useRef, useState } from 'react';
 import { Lock, Menu, X, Moon, Sun } from 'lucide-react';
-import { NAV, isCurrentNav } from '@/lib/nav';
+import { navForLens, isCurrentNav } from '@/lib/nav';
+import { useLens } from '@/lib/lens-client';
+import { LensToggle } from './ui/LensToggle';
 import { SearchInput } from './SearchInput';
 
 // Mobile navigation drawer. Closes the only remaining P0 from the
@@ -28,6 +30,7 @@ export interface MobileNavProps {
 
 export function MobileNav({ dark, onToggleTheme }: MobileNavProps) {
   const pathname = usePathname();
+  const lens = useLens();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const dialogId = useId();
@@ -102,9 +105,17 @@ export function MobileNav({ dark, onToggleTheme }: MobileNavProps) {
             </Suspense>
           </div>
 
+          {/* Audience lens — parity with the desktop header toggle. */}
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] px-4 py-3">
+            <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-neutral-500)]">
+              View as
+            </span>
+            <LensToggle variant="header" />
+          </div>
+
           <nav aria-label="Mobile navigation" className="flex-1 overflow-y-auto px-3 py-4">
             <ul className="space-y-1">
-              {NAV.map((item) => {
+              {navForLens(lens).map((item) => {
                 const current = !item.gated && isCurrentNav(pathname, item.href);
                 const baseLink =
                   'flex items-center gap-2 min-h-[44px] px-3 py-2 rounded text-base hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] hover:text-[var(--color-brand-indigo)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]';

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { BlueprintOverlay } from '@/components/bespoke/BlueprintOverlay';
 import { Card } from '@/components/ui/Card';
+import { LensFraming } from '@/components/LensFraming';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -168,6 +169,33 @@ export default function FrameworkPage() {
           Eight floors. Hover to explore how each layer contributes.
         </p>
       </header>
+
+      <LensFraming
+        className="mb-8 rounded-lg border-l-2 border-[var(--color-brand-indigo)] bg-[var(--color-brand-indigo)]/5 px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]"
+        pm={
+          <>
+            <strong>Reading as a PM:</strong> the framework is the product lifecycle made
+            enforceable — why it exists, what each version shipped, and how outcomes get measured.
+            The eight floors below are the &ldquo;how&rdquo;; the{' '}
+            <a href="#bridge" className="text-[var(--color-brand-indigo)] hover:underline">
+              version timeline
+            </a>{' '}
+            is the &ldquo;what changed.&rdquo;
+          </>
+        }
+        dev={
+          <>
+            <strong>Reading as a dev:</strong> eight floors, bottom-up — state → skills → primitives
+            → measurement → enforcement. Each floor adds one capability on the one below. For the
+            implementation reference, see the{' '}
+            <Link href="/framework/dev-guide" className="text-[var(--color-brand-indigo)] hover:underline">
+              developer guide
+            </Link>
+            .
+          </>
+        }
+      />
+
       <BlueprintOverlay interactive />
       <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-16">
         <h2>How the floors cooperate</h2>
@@ -200,7 +228,7 @@ export default function FrameworkPage() {
         ))}
       </section>
 
-      <section className="mt-12" aria-label="v7.8 to v7.9 bridge timeline">
+      <section id="bridge" className="mt-12 scroll-mt-16" aria-label="v7.8 to v7.9 bridge timeline">
         <h2 className="font-serif text-2xl">v7.8 → v7.9 bridge timeline</h2>
         <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
           Each entry is a patch-level release on Floor 8. All advisory surfaces; the enforcement-gate count holds at <strong>34 mechanical + 5 advisories</strong> until v7.9 promotion.
