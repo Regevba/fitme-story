@@ -152,6 +152,11 @@ const BRIDGE_TIMELINE: BridgeEntry[] = [
     date: '2026-05-21',
     summary: <>Promotion Release shipped: 3 advisory gates → enforced via single-flag flip at <code>scripts/check-state-schema.py:132</code> after 14-day Mechanism A calibration (18 + 13 + 13 firings, 0 zero-candidate rows, 0 false positives). 37 mechanical gates + 5 advisories post-promotion. Phase E validation soak 2026-05-21 → 2026-06-04.</>,
   },
+  {
+    version: 'v7.9.1',
+    date: '2026-06-04',
+    summary: <>Build window opened at Phase E exit — 8 ships / 14 PRs, <strong>0 new enforcement gates</strong> (Phase E exit discipline held). Observability + dev-env hardening: F16 try-repo pre-commit harness (3rd gate-test layer), F17 per-gate <code>last_fired_at</code> index, F2 Phase 0 reality-check, launchd-drift extension, reusable deployed-URL probe. CI workflows 8 → 14; Observed-Patterns W1–W28 → W1–W32.</>,
+  },
 ];
 
 export default function FrameworkPage() {
