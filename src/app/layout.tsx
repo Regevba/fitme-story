@@ -59,12 +59,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main" className="flex-1">
-          <PersonaProvider>{children}</PersonaProvider>
-        </main>
-        <SiteFooter />
-        <SearchPalette />
+        <PersonaProvider>
+          <SiteHeader />
+          <main id="main" className="flex-1">{children}</main>
+          <SiteFooter />
+          <SearchPalette />
+        </PersonaProvider>
         <SpeedInsights />
       </body>
       {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}

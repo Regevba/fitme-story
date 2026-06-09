@@ -7,6 +7,7 @@ import { Lock, Moon, Sun } from 'lucide-react';
 import { NAV, isCurrentNav } from '@/lib/nav';
 import { MobileNav } from './MobileNav';
 import { SearchInput } from './SearchInput';
+import { LensToggle } from './ui/LensToggle';
 
 const STORAGE_KEY = 'fitme-story-theme';
 const STORAGE_EVENT = 'storage';
@@ -116,6 +117,9 @@ export function SiteHeader() {
               the bar reads as two groups (links | tools) instead of one
               evenly-dispersed strip. */}
           <div className="flex items-center gap-1 md:gap-2">
+            {/* Audience lens toggle (Dev | PM) — defines the site's narrative
+                spine. Desktop here; MobileNav carries its own copy. */}
+            <LensToggle variant="header" className="hidden md:inline-flex" />
             {/* Desktop search: collapsed icon-only by default; click or ⌘K to
                 expand into the pill input. Saves nav-bar width and matches
                 the GitHub/Linear pattern. MobileNav drawer keeps the
