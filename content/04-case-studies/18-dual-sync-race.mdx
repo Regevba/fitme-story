@@ -54,6 +54,7 @@ visual_aid:
             detail: 'DB state B'
           - t: 310
             label: 'persistToDisk(B)'
+category: product
 ---
 
 > The audit's top backend finding: two sync paths that both pull on login with no coordination. Whichever one finishes last wins. This is the case study of how a structural audit surfaced a data-integrity bug that unit tests, manual QA, and day-to-day usage had all missed.

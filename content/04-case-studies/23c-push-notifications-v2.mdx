@@ -104,6 +104,7 @@ honest_disclosures:
     No production data on the 6 success metrics yet. All 0 by definition
     pre-launch. T1-instrumented and ready. First measurement window opens with
     v7.8 measurement window 2026-05-11.
+category: product
 ---
 
 Push Notifications v1 shipped 2026-04-16 as the first v5.2 PM lifecycle on a real product surface — full research / PRD / tasks / UX / implement / test / review / merge funnel. Four days later, the v7.5 integrity cycle caught **audit finding UI-016**: the substrate (`NotificationService`, `NotificationPreferencesStore`, `NotificationContentBuilder`, `NotificationPermissionPrimingView`) shipped + tested + merged, but the priming view was never instantiated and `NotificationService` was never called from app lifecycle. **Zero `notification_*` events ever fired in production.** A complete, reviewed, tested feature that nobody could see.
