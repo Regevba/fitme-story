@@ -4,11 +4,13 @@ import { getAllCaseStudies, type ContentEntry } from '@/lib/content';
 import { buildMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
 import { Disclosure } from '@/components/ui/Disclosure';
+import { CaseStudyEras } from '@/components/case-studies/CaseStudyEras';
+import type { Category, GroupableStudy } from '@/lib/case-study-grouping';
 
 export const metadata = buildMetadata({
   title: 'Case studies',
   description:
-    'Six milestone case studies from the FitMe PM framework evolution, plus supporting studies and developer deep-dives.',
+    'Case studies from the FitMe PM framework evolution, grouped by era — newest first — plus meta-analysis and developer deep-dives.',
   slug: '/case-studies',
 });
 
@@ -18,168 +20,52 @@ const CASE_STUDIES_BREADCRUMBS = breadcrumbJsonLd([
 ]);
 
 // Six framework inflection points — the studies where something fundamental
-// changed. Hooks, impact metrics, short-labels and a dedicated accent color
-// are hand-curated per milestone. Ordered chronologically by framework version.
-// The accent color appears: (1) in the top infographic strip, (2) as the
-// leading color bar on each milestone card, creating a visual thread from the
-// timeline pin down to the study it represents.
-const MILESTONES: Array<{
-  slug: string;
-  version: string;
-  shortLabel: string;
-  impact: string;
-  hook: string;
-  colorVar: string;
-}> = [
-  {
-    slug: 'onboarding-pilot',
-    version: 'v2.0',
+// changed. Their curated hook + impact + accent are preserved INSIDE their era
+// (the milestone is pinned at the top of its era accordion), so the
+// chronological narrative survives the era-grouped reorganization (T8).
+const MILESTONE_META: Record<
+  string,
+  { shortLabel: string; impact: string; hook: string; accentVar: string }
+> = {
+  'onboarding-pilot': {
     shortLabel: 'Baseline pilot',
     impact: 'Baseline · 6.5h',
     hook: 'The pilot run. Full 9-phase PM lifecycle on one feature, end-to-end. Every number that follows in this timeline is relative to this one — including the 3 rework cycles and 5 latent bugs.',
-    colorVar: 'var(--skill-ops)', // slate — baseline
+    accentVar: 'var(--skill-ops)',
   },
-  {
-    slug: 'framework-evolution',
-    version: 'v4.1',
+  'framework-evolution': {
     shortLabel: 'Compounding proven',
     impact: '6.5× faster · defects → 0',
     hook: 'Six identical-scope refactors across four framework versions. A controlled natural experiment that isolated framework improvement from practitioner learning. Wall time dropped from 6.5h to 1h, defect escape rate from 5 to 0.',
-    colorVar: 'var(--skill-pm-workflow)', // indigo — orchestration proven
+    accentVar: 'var(--skill-pm-workflow)',
   },
-  {
-    slug: 'eval-driven-development',
-    version: 'v4.4',
+  'eval-driven-development': {
     shortLabel: 'Quality gate',
     impact: '29 / 29 green',
     hook: 'Can you test AI output quality the same way you test code? Golden I/O tests and heuristic checks across four AI subsystems, all green on first run. Added a quality phase to the lifecycle without adding measurable overhead.',
-    colorVar: 'var(--skill-qa)', // lime — quality
+    accentVar: 'var(--skill-qa)',
   },
-  {
-    slug: 'parallel-stress-test',
-    version: 'v5.2',
+  'parallel-stress-test': {
     shortLabel: 'Parallel dispatch',
     impact: '4 features / 54 min',
     hook: 'Four independent features dispatched concurrently — 54 minutes from first prompt to four merged PRs. Zero merge conflicts, zero regressions. The stress test that proved the framework could parallelize.',
-    colorVar: 'var(--skill-release)', // emerald — ship at speed
+    accentVar: 'var(--skill-release)',
   },
-  {
-    slug: 'measurement-v6',
-    version: 'v6.0',
+  'measurement-v6': {
     shortLabel: 'Measurement',
     impact: 'Instrumentation, not estimation',
     hook: 'Deterministic phase timing, skill activation, and cache hits — all measured per feature, not estimated. The version where the framework stopped claiming numbers and started capturing them.',
-    colorVar: 'var(--skill-analytics)', // cyan — measurement
+    accentVar: 'var(--skill-analytics)',
   },
-  {
-    slug: 'hadf',
-    version: 'v7.0',
+  hadf: {
     shortLabel: 'Hardware-aware',
     impact: '17 chip profiles',
     hook: 'The framework learned to detect the machine it runs on. 17 chip profiles, 7 cloud signatures, dispatch routing that adapts to hardware — little-core for mechanical work, big-core for reasoning, cloud only when locally infeasible.',
-    colorVar: 'var(--color-brand-coral)', // coral — latest
+    accentVar: 'var(--color-brand-coral)',
   },
-];
+};
 
-const MILESTONE_SLUGS = new Set(MILESTONES.map((m) => m.slug));
-const DEVELOPER_SLUGS = new Set(['ssr-regression', 'dispatchreplay', 'lego-pmflow']);
-const META_ANALYSIS_SLUGS = new Set([
-  'meta-analysis',
-  'meta-analysis-validation',
-  'full-system-audit',
-]);
-
-// ============ V7.x category bucketing ============
-// 2026-05-12: user request — surface v7.x case studies grouped by what
-// they touched, with collapsible accordion groups. Each group is
-// independently expandable; default-collapsed so the milestones above
-// stay above the fold. Slug-pattern matchers (regex) chosen over a
-// frontmatter `category` field to avoid touching ~30 MDX files for a
-// presentation-layer concern.
-type V7Category = 'framework' | 'design-system' | 'ui-ux';
-
-const V7_CATEGORY_RULES: Array<{
-  id: V7Category;
-  label: string;
-  summary: string;
-  test: (slug: string) => boolean;
-}> = [
-  {
-    id: 'framework',
-    label: 'Framework',
-    summary:
-      'Framework versions, integrity gates, branch isolation, cross-repo state sync, dispatch research.',
-    test: (slug) =>
-      /^(framework-|mechanical-enforcement-|bridge-v|cross-repo-state-sync|hadf-)/.test(slug),
-  },
-  {
-    id: 'design-system',
-    label: 'Design System',
-    summary:
-      'Design-system token work, Figma↔code parity, UI audits, lens-audit follow-ups, presentation refactors.',
-    test: (slug) =>
-      /^(fitme-story-(ds-|website-design-system)|ios-(ui|code)-audit|ios-ui-audit-|ui-audit-baseline-|case-study-presentation-|android-design-system|case-study-comparison-table)/.test(
-        slug,
-      ),
-  },
-  {
-    id: 'ui-ux',
-    label: 'UI/UX Features',
-    summary:
-      'Product features and enhancements — stats, auth, smart reminders, push notifications, control center, training plans, passkeys.',
-    test: () => true, // catchall — must be last
-  },
-];
-
-function categorizeV7(slug: string): V7Category {
-  for (const rule of V7_CATEGORY_RULES) {
-    if (rule.test(slug)) return rule.id;
-  }
-  return 'ui-ux';
-}
-
-// "v7.x" predicate: timeline_position.version starts with "7" or numerically >= 7.0.
-function isV7Series(versionRaw: string | undefined): boolean {
-  if (!versionRaw) return false;
-  if (/^7(\.|$)/.test(versionRaw)) return true;
-  const num = parseFloat(versionRaw);
-  return Number.isFinite(num) && num >= 7.0;
-}
-
-// Each milestone owns the version range [its_era_start, next_era_start).
-// Boundaries are explicit (not derived from MILESTONES[].version) so that the
-// user-facing milestone label can lag behind the case-study frontmatter version
-// without breaking the era grouping. Concretely: parallel-stress-test is
-// labeled v5.2 though its frontmatter is v5.1 — using labels as bucket
-// boundaries miscategorized v5.0/v5.1 case studies (under eval-driven instead
-// of parallel-stress-test). Explicit thresholds tied to era starts fix it.
-// (Historical note: the hadf showcase frontmatter was v6.1 with milestone
-// label v7.0 until 2026-05-09, when both were aligned to v7.0 per user
-// directive. The explicit-threshold approach remains for the parallel-
-// stress-test case + future similar mismatches.)
-//
-// Order matches MILESTONES (onboarding-pilot, framework-evolution, eval-driven,
-// parallel-stress-test, measurement-v6, hadf).
-const ERA_LOWER_BOUNDS = [-Infinity, 4.0, 4.4, 5.0, 6.0, 7.0];
-
-function parseVersion(raw: string): number {
-  return parseFloat(raw.replace(/^v/, ''));
-}
-
-const MONTH_ABBR = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function formatPublishedDate(iso: string | undefined): string | null {
   if (!iso) return null;
@@ -194,84 +80,40 @@ function dateSortKey(iso: string | undefined): string {
   return iso ?? '9999-99-99';
 }
 
-// Find the latest milestone whose era_lower_bound is ≤ version. Each milestone
-// owns [its_lower_bound, next_lower_bound), with the last open-ended.
-function bucketIndex(version: number): number {
-  for (let i = ERA_LOWER_BOUNDS.length - 1; i >= 0; i--) {
-    if (version >= ERA_LOWER_BOUNDS[i]) return i;
-  }
-  return 0;
+function toGroupable(c: ContentEntry): GroupableStudy {
+  const slug = c.frontmatter.slug;
+  const milestone = MILESTONE_META[slug];
+  return {
+    slug,
+    title: c.frontmatter.title,
+    version: c.frontmatter.timeline_position?.version ?? null,
+    date: c.frontmatter.date ?? '',
+    category: (c.frontmatter.category ?? 'product') as Category,
+    readingTimeMin: c.readingTimeMin,
+    emphasis: {
+      pm: c.frontmatter.persona_emphasis?.pm,
+      dev: c.frontmatter.persona_emphasis?.dev,
+    },
+    isMilestone: Boolean(milestone),
+    ...(milestone
+      ? { hook: milestone.hook, impact: milestone.impact, accentVar: milestone.accentVar }
+      : {}),
+  };
 }
 
 export default async function CaseStudiesIndex() {
   const all = await getAllCaseStudies();
-  const entryBySlug = new Map(all.map((c) => [c.frontmatter.slug, c]));
-  const milestoneEntries = MILESTONES.map((m) => ({
-    ...m,
-    entry: entryBySlug.get(m.slug),
-  })).filter((m) => m.entry) as Array<(typeof MILESTONES)[number] & { entry: ContentEntry }>;
+  const studies = all.filter((c) => c.frontmatter.tier !== 'unassigned');
+  const groupable = studies.map(toGroupable);
 
-  // "Era secondaries" — case studies that ran under the same framework version
-  // as a milestone, presented inline under that milestone so a reader interested
-  // in v5.x can see all v5.x studies in one place. Excludes milestones themselves,
-  // developer deep-dives, meta-analysis studies, and unassigned tier.
-  const eraSecondaries = all.filter(
-    (c) =>
-      !MILESTONE_SLUGS.has(c.frontmatter.slug) &&
-      !DEVELOPER_SLUGS.has(c.frontmatter.slug) &&
-      !META_ANALYSIS_SLUGS.has(c.frontmatter.slug) &&
-      c.frontmatter.tier !== 'unassigned' &&
-      c.frontmatter.timeline_position?.version,
-  );
-
-  const secondariesByMilestone: ContentEntry[][] = MILESTONES.map(() => []);
-  for (const c of eraSecondaries) {
-    const v = parseVersion(String(c.frontmatter.timeline_position!.version));
-    if (Number.isNaN(v)) continue;
-    secondariesByMilestone[bucketIndex(v)].push(c);
-  }
-  for (const bucket of secondariesByMilestone) {
-    bucket.sort((a, b) =>
-      dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
-    );
-  }
-
-  const metaAnalysisEntries = all.filter((c) => META_ANALYSIS_SLUGS.has(c.frontmatter.slug));
-  metaAnalysisEntries.sort((a, b) =>
-    dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
-  );
-
-  const developer = all
-    .filter((c) => DEVELOPER_SLUGS.has(c.frontmatter.slug))
-    .sort((a, b) =>
-      dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
-    );
-
-  // V7.x category bucketing — group all v7.x case studies (including
-  // milestones + secondaries) by what they touched. Same study can appear
-  // in milestones AND a category here; the category section is a parallel
-  // browse path (by topic) to the milestone-chronological view (by version).
-  const v7Studies = all.filter(
-    (c) =>
-      !DEVELOPER_SLUGS.has(c.frontmatter.slug) &&
-      !META_ANALYSIS_SLUGS.has(c.frontmatter.slug) &&
-      c.frontmatter.tier !== 'unassigned' &&
-      isV7Series(c.frontmatter.timeline_position?.version),
-  );
-  const v7Buckets: Record<V7Category, ContentEntry[]> = {
-    framework: [],
-    'design-system': [],
-    'ui-ux': [],
-  };
-  for (const c of v7Studies) {
-    v7Buckets[categorizeV7(c.frontmatter.slug)].push(c);
-  }
-  // Sort each bucket by publication date (ascending — oldest first).
-  for (const id of Object.keys(v7Buckets) as V7Category[]) {
-    v7Buckets[id].sort((a, b) =>
-      dateSortKey(a.frontmatter.date).localeCompare(dateSortKey(b.frontmatter.date)),
-    );
-  }
+  // Meta + dev-deepdive studies render in their own dedicated sections (not the
+  // era accordions), so era counts stay clean. Category-driven (T7 backfill).
+  const metaStudies = groupable
+    .filter((g) => g.category === 'meta')
+    .sort((a, b) => dateSortKey(b.date).localeCompare(dateSortKey(a.date)));
+  const devStudies = groupable
+    .filter((g) => g.category === 'dev-deepdive')
+    .sort((a, b) => dateSortKey(b.date).localeCompare(dateSortKey(a.date)));
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
@@ -279,9 +121,9 @@ export default async function CaseStudiesIndex() {
       <header className="mb-12">
         <h1 className="font-serif text-[length:var(--text-display-lg)] mb-4">Case studies</h1>
         <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)] leading-relaxed">
-          Six milestones where the framework fundamentally changed — plus supporting studies and
-          engineering deep-dives. Read top to bottom for the chronological story, or jump to any
-          milestone.
+          The framework&apos;s evolution, told through the features it shipped — grouped by era,
+          newest first, so the latest work is right at the top. Each era pins its milestones, then
+          sub-groups by subject. Ordering follows your selected lens.
         </p>
         <p className="mt-4 font-sans text-sm">
           <Link
@@ -298,14 +140,8 @@ export default async function CaseStudiesIndex() {
           Framing section. Every case study below cites velocity, CU, and
           cache-hit numbers. This block explains how those numbers are
           computed, how the measurement approach evolved across framework
-          versions, and what the numbers can and can't prove. Placed
-          intentionally before the infographic so readers hit the framing
-          before the data. */}
-      {/* P0-007 (DS lens audit 2026-05-10): the methodology body is ~200 lines
-          of dense prose + definitions. Wrapping it in <Disclosure> collapses
-          by default so the cards below stay above the fold; readers can
-          expand on demand. The h2 stays outside the Disclosure to keep the
-          #methodology-heading anchor link working from elsewhere. */}
+          versions, and what the numbers can and can't prove. Collapsed by
+          default so the era groups stay above the fold. */}
       <section
         aria-labelledby="methodology-heading"
         className="mb-16 rounded-2xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] p-6 sm:p-8"
@@ -326,355 +162,130 @@ export default async function CaseStudiesIndex() {
           label="Read the methodology"
           summary="What complexity units, cache-hit tiers, and timing measurements actually mean — and what they can't prove."
         >
-        <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed mb-8 max-w-[var(--measure-body)]">
-          Every case study below cites numbers — wall time, complexity units, cache-hit rates,
-          throughput multipliers. This block explains where those numbers come from, how the
-          measurement approach evolved across framework versions, and what the numbers can and
-          can&apos;t prove.
-        </p>
+          <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed mb-8 max-w-[var(--measure-body)]">
+            Every case study below cites numbers — wall time, complexity units, cache-hit rates,
+            throughput multipliers. This block explains where those numbers come from, how the
+            measurement approach evolved across framework versions, and what the numbers can and
+            can&apos;t prove.
+          </p>
 
-        <dl className="grid md:grid-cols-2 gap-x-8 gap-y-6 font-sans text-sm leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          <div>
-            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
-              The assumption — a natural experiment
-            </dt>
-            <dd>
-              Six sequential UX-alignment refactors ran across six FitMe screens. Identical scope
-              (same phase list, same compliance checklist, same design-system target) meant any
-              velocity difference between refactor 1 and refactor 6 could only come from screen
-              complexity, practitioner learning, or framework evolution. Normalize for complexity
-              and treat learning as roughly constant after the first run, and what&apos;s left is
-              framework evolution — a controlled natural experiment with N=6 initial datapoints,
-              now 17.
-            </dd>
-          </div>
+          <dl className="grid md:grid-cols-2 gap-x-8 gap-y-6 font-sans text-sm leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+            <div>
+              <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+                The assumption — a natural experiment
+              </dt>
+              <dd>
+                Six sequential UX-alignment refactors ran across six FitMe screens. Identical scope
+                (same phase list, same compliance checklist, same design-system target) meant any
+                velocity difference between refactor 1 and refactor 6 could only come from screen
+                complexity, practitioner learning, or framework evolution. Normalize for complexity
+                and treat learning as roughly constant after the first run, and what&apos;s left is
+                framework evolution — a controlled natural experiment with N=6 initial datapoints,
+                now 17.
+              </dd>
+            </div>
 
-          <div>
-            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
-              How measurement evolved
-            </dt>
-            <dd>
-              Three generations. <strong>v2.0–v5.2</strong> — estimated: wall time from commit
-              timestamps (±15–30 min), cache hit rates inferred from narrative.{' '}
-              <strong>v6.0</strong> — instrumented: per-phase timestamps, L1/L2/L3 cache counters,
-              tokenizer-based overhead measurement, mandatory eval-coverage gate.{' '}
-              <strong>v7.0 onwards</strong> — continuous factors: view-count tiers replaced binary
-              &quot;has UI&quot;, architectural-novelty replaced binary &quot;new model&quot;.
-            </dd>
-          </div>
+            <div>
+              <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+                How measurement evolved
+              </dt>
+              <dd>
+                Three generations. <strong>v2.0–v5.2</strong> — estimated: wall time from commit
+                timestamps (±15–30 min), cache hit rates inferred from narrative.{' '}
+                <strong>v6.0</strong> — instrumented: per-phase timestamps, L1/L2/L3 cache counters,
+                tokenizer-based overhead measurement, mandatory eval-coverage gate.{' '}
+                <strong>v7.0 onwards</strong> — continuous factors: view-count tiers replaced binary
+                &quot;has UI&quot;, architectural-novelty replaced binary &quot;new model&quot;.
+              </dd>
+            </div>
 
-          <div>
-            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
-              The normalization model
-            </dt>
-            <dd>
-              Every feature converts to a single number — <strong>Complexity Units (CU)</strong> —
-              via <code className="font-mono text-xs">CU = Tasks × Work_Type_Weight × (1 + Σ Complexity_Factors)</code>.
-              The primary metric is <strong>min/CU</strong>: wall time divided by CU; lower is
-              better. This is what makes a 6.5-hour onboarding refactor comparable to a
-              54-minute 4-feature parallel run.{' '}
-              <Link
-                href="/case-studies/normalization-model"
-                className="text-[var(--color-brand-indigo)] hover:underline font-medium"
-              >
-                Full formula →
-              </Link>
-            </dd>
-          </div>
+            <div>
+              <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+                The normalization model
+              </dt>
+              <dd>
+                Every feature converts to a single number — <strong>Complexity Units (CU)</strong> —
+                via <code className="font-mono text-xs">CU = Tasks × Work_Type_Weight × (1 + Σ Complexity_Factors)</code>.
+                The primary metric is <strong>min/CU</strong>: wall time divided by CU; lower is
+                better. This is what makes a 6.5-hour onboarding refactor comparable to a
+                54-minute 4-feature parallel run.{' '}
+                <Link
+                  href="/case-studies/normalization-model"
+                  className="text-[var(--color-brand-indigo)] hover:underline font-medium"
+                >
+                  Full formula →
+                </Link>
+              </dd>
+            </div>
 
-          <div>
-            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
-              How we analyzed results
-            </dt>
-            <dd>
-              Three comparison axes: framework-era averages (v2.0 → v7.0), work-type segmentation
-              (refactor vs feature vs enhancement), and execution-mode (serial vs parallel).
-              Trend fitted as a power law — R²&nbsp;=&nbsp;0.87 under v2 factors. Rolling
-              baselines replaced the single anchor to detect plateaus. Regressions documented
-              honestly: two real ones (Training v4.0, Readiness v4.2), both attributed to
-              measurable learning taxes from new framework capabilities.{' '}
-              <Link
-                href="/case-studies/meta-analysis"
-                className="text-[var(--color-brand-indigo)] hover:underline font-medium"
-              >
-                Full retrospective →
-              </Link>
-            </dd>
-          </div>
+            <div>
+              <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+                How we analyzed results
+              </dt>
+              <dd>
+                Three comparison axes: framework-era averages (v2.0 → v7.0), work-type segmentation
+                (refactor vs feature vs enhancement), and execution-mode (serial vs parallel).
+                Trend fitted as a power law — R²&nbsp;=&nbsp;0.87 under v2 factors. Rolling
+                baselines replaced the single anchor to detect plateaus. Regressions documented
+                honestly: two real ones (Training v4.0, Readiness v4.2), both attributed to
+                measurable learning taxes from new framework capabilities.{' '}
+                <Link
+                  href="/case-studies/meta-analysis"
+                  className="text-[var(--color-brand-indigo)] hover:underline font-medium"
+                >
+                  Full retrospective →
+                </Link>
+              </dd>
+            </div>
 
-          <div>
-            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
-              How we compared across features
-            </dt>
-            <dd>
-              Every case study ends with a <em>Normalized velocity</em> block that cites the same
-              CU formula, making cross-comparison honest. A framework refactor and a new feature
-              land on the same axis. A serial v5.1 run and a parallel v5.1 stress test land on the
-              same axis. The full dataset was submitted for independent review — arithmetic
-              verified, structure sound, weaknesses surfaced and mostly fixed in v6.0.{' '}
-              <Link
-                href="/case-studies/meta-analysis-validation"
-                className="text-[var(--color-brand-indigo)] hover:underline font-medium"
-              >
-                External validation →
-              </Link>
-            </dd>
-          </div>
+            <div>
+              <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+                How we compared across features
+              </dt>
+              <dd>
+                Every case study ends with a <em>Normalized velocity</em> block that cites the same
+                CU formula, making cross-comparison honest. A framework refactor and a new feature
+                land on the same axis. A serial v5.1 run and a parallel v5.1 stress test land on the
+                same axis. The full dataset was submitted for independent review — arithmetic
+                verified, structure sound, weaknesses surfaced and mostly fixed in v6.0.{' '}
+                <Link
+                  href="/case-studies/meta-analysis-validation"
+                  className="text-[var(--color-brand-indigo)] hover:underline font-medium"
+                >
+                  External validation →
+                </Link>
+              </dd>
+            </div>
 
-          <div>
-            <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
-              What this can&apos;t prove
-            </dt>
-            <dd>
-              Single practitioner. N=17 is small for robust regression. Of the 185 full-audit
-              findings, only 11.4% are externally-automated (confirmed by build, test, or
-              independent measurement); 78.9% are framework-only (AI assertion from code
-              reading). All claims should be read as directional signals, not statistical
-              certainties. The honest reporting of regressions and limitations is what makes the
-              rest of the dataset trustworthy.
-            </dd>
-          </div>
-        </dl>
+            <div>
+              <dt className="font-semibold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] mb-1">
+                What this can&apos;t prove
+              </dt>
+              <dd>
+                Single practitioner. N=17 is small for robust regression. Of the 185 full-audit
+                findings, only 11.4% are externally-automated (confirmed by build, test, or
+                independent measurement); 78.9% are framework-only (AI assertion from code
+                reading). All claims should be read as directional signals, not statistical
+                certainties. The honest reporting of regressions and limitations is what makes the
+                rest of the dataset trustworthy.
+              </dd>
+            </div>
+          </dl>
         </Disclosure>
       </section>
 
-      {/* ============ INFOGRAPHIC — framework progression strip ============
-          Horizontal color-coded timeline. Each pin jumps to its milestone
-          card below; the pin's color matches the card's leading color bar,
-          creating a visual thread from the overview to the detail. */}
-      <nav
-        aria-label="Framework progression timeline"
-        className="mb-16 -mx-6 px-6 sm:mx-0 sm:px-0 overflow-x-auto"
-      >
-        <div className="flex items-stretch gap-1 min-w-[640px]">
-          {milestoneEntries.map((m) => (
-            <a
-              key={m.slug}
-              href={`#milestone-${m.slug}`}
-              className="group flex-1 flex flex-col gap-2 rounded-lg p-3 border border-transparent hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors focus-visible:outline-2 focus-visible:outline-[var(--color-brand-indigo)] focus-visible:outline-offset-2"
-            >
-              <div
-                className="h-2 rounded-full"
-                style={{ backgroundColor: m.colorVar }}
-                aria-hidden="true"
-              />
-              <div className="font-sans">
-                <div className="text-xs uppercase tracking-wider font-bold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)]">
-                  {m.version}
-                </div>
-                <div className="text-sm font-medium text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] mt-1 leading-snug">
-                  {m.shortLabel}
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </nav>
-
-      {/* ============ MILESTONES — timeline spine ============ */}
-      <section className="mb-20" aria-labelledby="milestones-heading">
-        <h2
-          id="milestones-heading"
-          className="font-serif text-[length:var(--text-display-md)] mb-2"
-        >
-          Milestones
-        </h2>
-        <p className="font-sans text-sm text-[var(--color-neutral-500)] mb-10 max-w-[var(--measure-body)]">
-          Six inflection points across the framework&apos;s evolution — each one the study where
-          something that had been a hypothesis became a result.
-        </p>
-
-        <ol className="relative space-y-12 sm:space-y-14">
-          <span
-            aria-hidden="true"
-            className="hidden sm:block absolute left-[11px] top-3 bottom-3 w-0.5 bg-gradient-to-b from-[var(--color-brand-indigo)] via-[var(--color-brand-indigo)] to-[var(--color-brand-coral)] opacity-60"
-          />
-
-          {milestoneEntries.map((m, idx) => {
-            const eraStudies = secondariesByMilestone[idx] ?? [];
-            return (
-              <li
-                key={m.slug}
-                id={`milestone-${m.slug}`}
-                className="relative sm:pl-12 scroll-mt-24"
-              >
-                {/* Milestone dot — colored to match the card's accent and the
-                    infographic pin above, completing the visual thread. */}
-                <span
-                  aria-hidden="true"
-                  className="hidden sm:block absolute left-0 top-3 w-6 h-6 rounded-full ring-4 ring-[var(--color-neutral-50)] dark:ring-[var(--color-neutral-900)]"
-                  style={{ backgroundColor: m.colorVar }}
-                />
-                <span
-                  aria-hidden="true"
-                  className="hidden sm:block absolute left-[7px] top-[18px] w-3 h-3 rounded-full bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)]"
-                />
-
-                <Link
-                  href={`/case-studies/${m.slug}`}
-                  className="block group rounded-xl border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] overflow-hidden hover:border-[var(--color-brand-indigo)] hover:shadow-lg transition-all"
-                >
-                  {/* Color strip "at the tip" — matches the infographic pin */}
-                  <div
-                    className="h-1.5"
-                    style={{ backgroundColor: m.colorVar }}
-                    aria-hidden="true"
-                  />
-
-                  <div className="p-6 sm:p-7">
-                    <div className="flex flex-wrap items-center gap-3 mb-3 font-sans">
-                      <span className="inline-flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)]">
-                        <span
-                          aria-hidden="true"
-                          className="w-2.5 h-2.5 rounded-full"
-                          style={{ backgroundColor: m.colorVar }}
-                        />
-                        Milestone {idx + 1} · {m.version} · {m.shortLabel}
-                      </span>
-                      <span className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
-                        {m.entry.readingTimeMin} min read
-                      </span>
-                    </div>
-
-                    <h3 className="font-serif text-xl sm:text-2xl leading-tight mb-3 group-hover:text-[var(--color-brand-indigo)]">
-                      {m.entry.frontmatter.title}
-                    </h3>
-
-                    <p className="font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed mb-4 max-w-[var(--measure-body)]">
-                      {m.hook}
-                    </p>
-
-                    <div className="inline-flex items-center gap-2 font-sans text-sm">
-                      <span className="font-semibold text-[var(--color-brand-coral)] uppercase tracking-wider text-xs">
-                        Impact
-                      </span>
-                      <span className="text-[var(--color-neutral-900)] dark:text-[var(--color-neutral-100)] font-medium">
-                        {m.impact}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Era secondaries — case studies that ran during the same
-                    framework version range as this milestone. Empty buckets
-                    are omitted entirely (per UI choice 2: keeps the page
-                    clean instead of rendering "no supporting studies"). */}
-                {eraStudies.length > 0 && (
-                  <div className="mt-4 sm:ml-1">
-                    <h4
-                      className="font-sans text-xs uppercase tracking-wider font-semibold text-[var(--color-neutral-500)] mb-2 flex items-center gap-2"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ backgroundColor: m.colorVar }}
-                      />
-                      Also from this era
-                    </h4>
-                    <ul className="divide-y divide-[var(--color-neutral-200)] dark:divide-[var(--color-neutral-800)] border-y border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)]">
-                      {eraStudies.map((c) => (
-                        <li key={c.frontmatter.slug}>
-                          <Link
-                            href={`/case-studies/${c.frontmatter.slug}`}
-                            className="block group py-3 px-2 -mx-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors"
-                          >
-                            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                              <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
-                                v{c.frontmatter.timeline_position?.version}
-                              </span>
-                              <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
-                                {c.frontmatter.title}
-                              </span>
-                              {formatPublishedDate(c.frontmatter.date) && (
-                                <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
-                                  {formatPublishedDate(c.frontmatter.date)}
-                                </span>
-                              )}
-                              <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
-                                {c.readingTimeMin} min
-                              </span>
-                            </div>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-      </section>
-
-      {/* ============ V7.x BY CATEGORY ============
-          Parallel browse path (by topic) to the milestone-chronological view
-          above (by version). User request 2026-05-12: surface v7.x case
-          studies grouped into Framework / Design System / UI-UX Features
-          with collapsible accordion groups. Each category sorted by
-          publication date ascending. Default-collapsed to keep milestones
-          above the fold. */}
-      <section className="mb-20" aria-labelledby="v7-category-heading">
-        <h2
-          id="v7-category-heading"
-          className="font-serif text-[length:var(--text-display-md)] mb-2"
-        >
-          Browse v7.x by category
-        </h2>
-        <p className="font-sans text-sm text-[var(--color-neutral-500)] mb-6 max-w-[var(--measure-body)]">
-          The v7.x era split across three concurrent tracks: framework gates,
-          design-system work, and product features. Expand any group to see the
-          full list sorted by publication date.
-        </p>
-
-        <div className="space-y-3">
-          {V7_CATEGORY_RULES.map((rule) => {
-            const studies = v7Buckets[rule.id];
-            if (studies.length === 0) return null;
-            return (
-              <Disclosure
-                key={rule.id}
-                label={`${rule.label} (${studies.length})`}
-                summary={rule.summary}
-              >
-                <ul className="divide-y divide-[var(--color-neutral-200)] dark:divide-[var(--color-neutral-800)]">
-                  {studies.map((c) => (
-                    <li key={c.frontmatter.slug}>
-                      <Link
-                        href={`/case-studies/${c.frontmatter.slug}`}
-                        className="block group py-3 px-2 -mx-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors"
-                      >
-                        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                          <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
-                            v{c.frontmatter.timeline_position?.version}
-                          </span>
-                          <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
-                            {c.frontmatter.title}
-                          </span>
-                          {formatPublishedDate(c.frontmatter.date) && (
-                            <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
-                              {formatPublishedDate(c.frontmatter.date)}
-                            </span>
-                          )}
-                          <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
-                            {c.readingTimeMin} min
-                          </span>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </Disclosure>
-            );
-          })}
-        </div>
-      </section>
+      {/* ============ ERA-GROUPED INDEX (T8) ============
+          Newest-first collapsible era accordions, milestones pinned in-era,
+          subject sub-groups, lens-aware ordering. Replaces the former
+          oldest-first milestone spine + v7.x category section so recent work
+          is reachable in one click. Client component (re-sorts on lens change
+          + fires era/open analytics). */}
+      <CaseStudyEras studies={groupable} />
 
       {/* ============ META-ANALYSIS & METHODOLOGY ============
-          Studies that audit or validate the framework itself — the
-          full-system audit (185 findings), the meta-analysis retrospective,
-          the external Gemini validation, and the operations-layer practice
-          notes. Pulled out of the milestone groups so a reader looking for
-          "how was the framework evaluated" finds it in one place. */}
+          Studies that audit or validate the framework itself — full-system
+          audits, normalized retrospectives, external validation, methodology,
+          plus the operations-layer practice notes. Category-driven (meta). */}
       <section className="mb-20" aria-labelledby="meta-heading">
         <h2 id="meta-heading" className="font-serif text-[length:var(--text-display-md)] mb-2">
           Meta-analysis &amp; methodology
@@ -686,24 +297,22 @@ export default async function CaseStudiesIndex() {
         </p>
 
         <ul className="divide-y divide-[var(--color-neutral-200)] dark:divide-[var(--color-neutral-800)]">
-          {metaAnalysisEntries.map((c) => (
-            <li key={c.frontmatter.slug}>
+          {metaStudies.map((c) => (
+            <li key={c.slug}>
               <Link
-                href={`/case-studies/${c.frontmatter.slug}`}
+                href={`/case-studies/${c.slug}`}
                 className="block group py-4 px-2 -mx-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors"
               >
                 <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                   <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
-                    {c.frontmatter.timeline_position
-                      ? `v${c.frontmatter.timeline_position.version}`
-                      : 'meta'}
+                    {c.version ? `v${c.version}` : 'meta'}
                   </span>
                   <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
-                    {c.frontmatter.title}
+                    {c.title}
                   </span>
-                  {formatPublishedDate(c.frontmatter.date) && (
+                  {formatPublishedDate(c.date) && (
                     <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
-                      {formatPublishedDate(c.frontmatter.date)}
+                      {formatPublishedDate(c.date)}
                     </span>
                   )}
                   <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
@@ -734,7 +343,7 @@ export default async function CaseStudiesIndex() {
         </ul>
       </section>
 
-      {/* ============ DEVELOPER DEEP-DIVES ============ */}
+      {/* ============ DEVELOPER DEEP-DIVES ============ Category-driven (dev-deepdive). */}
       <section className="mb-8" aria-labelledby="dev-heading">
         <h2
           id="dev-heading"
@@ -755,19 +364,19 @@ export default async function CaseStudiesIndex() {
         </p>
 
         <ul className="divide-y divide-[var(--color-neutral-200)] dark:divide-[var(--color-neutral-800)]">
-          {developer.map((c) => (
-            <li key={c.frontmatter.slug}>
+          {devStudies.map((c) => (
+            <li key={c.slug}>
               <Link
-                href={`/case-studies/${c.frontmatter.slug}`}
+                href={`/case-studies/${c.slug}`}
                 className="block group py-4 px-2 -mx-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors"
               >
                 <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                   <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
-                    {c.frontmatter.title}
+                    {c.title}
                   </span>
-                  {formatPublishedDate(c.frontmatter.date) && (
+                  {formatPublishedDate(c.date) && (
                     <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">
-                      {formatPublishedDate(c.frontmatter.date)}
+                      {formatPublishedDate(c.date)}
                     </span>
                   )}
                   <span className="font-sans text-xs text-[var(--color-neutral-500)] whitespace-nowrap">

@@ -9,9 +9,11 @@ interface DisclosureProps {
   summary?: string;
   defaultOpen?: boolean;
   children: ReactNode;
+  /** Fired with the next open state on each toggle (e.g. for analytics). */
+  onToggle?: (open: boolean) => void;
 }
 
-export function Disclosure({ label, summary, defaultOpen = false, children }: DisclosureProps) {
+export function Disclosure({ label, summary, defaultOpen = false, children, onToggle }: DisclosureProps) {
   const [open, setOpen] = useState(defaultOpen);
   const reduced = useReducedMotion();
   const panelId = useId();
@@ -20,7 +22,7 @@ export function Disclosure({ label, summary, defaultOpen = false, children }: Di
     <div className="rounded-md border border-[var(--color-neutral-200)] bg-white dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)] overflow-hidden">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen((v) => { const next = !v; onToggle?.(next); return next; })}
         aria-expanded={open}
         aria-controls={panelId}
         className="w-full flex items-center gap-4 px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-indigo)] focus:ring-inset"
