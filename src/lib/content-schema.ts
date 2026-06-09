@@ -78,6 +78,15 @@ const FrontmatterShape = z.object({
   reading_time_min: z.number().optional(),
   date: z.string().optional(),
 
+  // Subject category — the axis the /case-studies index sub-groups by within
+  // each framework era (dual-audience redesign, T7, 2026-06-09). Replaces the
+  // fragile slug-regex bucketing that previously only covered the v7.x era.
+  // `era` is NOT stored here — it is derived from timeline_position.version in
+  // src/lib/case-study-grouping.ts (DRY: era is a pure function of version).
+  category: z
+    .enum(['framework', 'design-system', 'product', 'meta', 'dev-deepdive'])
+    .optional(),
+
   // === Alternative A locked-design fields (2026-04-28) ===
   // See docs/design-system/case-study-visual-aid-catalog.md (FitTracker2).
   tldr: z.string().optional(),

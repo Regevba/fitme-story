@@ -2,16 +2,50 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { LENS_COOKIE, LENS_COOKIE_MAX_AGE, isLens } from './lens';
 
 export type Persona = 'hr' | 'pm' | 'dev' | 'academic' | null;
 
 export const STORAGE_KEY = 'fitme-story-persona';
 
+// --- cookie mirror (lens) ---------------------------------------------------
+// The lens choice is mirrored into the `fitme_lens` cookie (in addition to
+// localStorage) so it survives across sessions AND is readable server-side by
+// any page that opts into a server render (src/lib/lens.server.ts). Only the
+// two lens values (dev|pm) are written to the cookie; legacy persona values
+// (hr|academic) live only in localStorage.
+
+function readLensCookie(): Persona {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${LENS_COOKIE}=([^;]*)`));
+  const value = match ? decodeURIComponent(match[1]) : null;
+  return isLens(value) ? value : null;
+}
+
+function writeLensCookie(p: Persona): void {
+  if (typeof document === 'undefined') return;
+  if (isLens(p)) {
+    document.cookie = `${LENS_COOKIE}=${p}; path=/; max-age=${LENS_COOKIE_MAX_AGE}; samesite=lax`;
+  } else {
+    // Clear the cookie for null / legacy non-lens personas.
+    document.cookie = `${LENS_COOKIE}=; path=/; max-age=0; samesite=lax`;
+  }
+}
+
 export function readStored(): Persona {
   if (typeof window === 'undefined') return null;
+  // Cookie (the SSR-readable source of truth) wins over localStorage.
+  const cookieLens = readLensCookie();
+  if (cookieLens) return cookieLens;
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === 'hr' || stored === 'pm' || stored === 'dev' || stored === 'academic') return stored;
   return null;
+}
+
+function persist(p: Persona): void {
+  if (p) window.localStorage.setItem(STORAGE_KEY, p);
+  else window.localStorage.removeItem(STORAGE_KEY);
+  writeLensCookie(p);
 }
 
 /**
@@ -21,7 +55,7 @@ export function readStored(): Persona {
 export function usePersonaState(): [Persona, (p: Persona) => void] {
   const [persona, setPersonaState] = useState<Persona>(null);
 
-  // Hydrate from localStorage on mount (client-only).
+  // Hydrate from cookie/localStorage on mount (client-only).
   useEffect(() => {
     const stored = readStored();
     if (stored) setPersonaState(stored);
@@ -29,8 +63,7 @@ export function usePersonaState(): [Persona, (p: Persona) => void] {
 
   const setPersona = useCallback((p: Persona) => {
     setPersonaState(p);
-    if (p) window.localStorage.setItem(STORAGE_KEY, p);
-    else window.localStorage.removeItem(STORAGE_KEY);
+    persist(p);
   }, []);
 
   return [persona, setPersona];
@@ -53,7 +86,7 @@ export function useSearchParamsPersonaSync(
     const paramPersona = (searchParams.get('p') as Persona) ?? null;
     if (paramPersona) {
       setPersona(paramPersona);
-      window.localStorage.setItem(STORAGE_KEY, paramPersona);
+      persist(paramPersona);
     }
   }, [searchParams, setPersona]);
 
@@ -61,8 +94,7 @@ export function useSearchParamsPersonaSync(
   return useCallback(
     (p: Persona) => {
       setPersona(p);
-      if (p) window.localStorage.setItem(STORAGE_KEY, p);
-      else window.localStorage.removeItem(STORAGE_KEY);
+      persist(p);
       const params = new URLSearchParams(searchParams.toString());
       if (p) params.set('p', p);
       else params.delete('p');

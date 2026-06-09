@@ -78,6 +78,7 @@ honest_disclosures:
     Phase 2 sync is deferred. CloudKit and Supabase per-record sync for imported
     plans is out of Phase 1 scope. The needsSync field exists on the model from
     day one so Phase 2 can opt records in without a schema migration.
+category: product
 ---
 
 The import-training-plan feature originally shipped 2026-04-16 as a partial-ship: the parser, mapper, orchestrator, and 23 unit tests landed cleanly, but the source-picker and preview views were never wired into navigation and `confirmImport()` was a no-op stub. **Audit UI-015 (2026-04-20) caught it.** Resume attempt 2026-05-06 then surfaced a deeper structural error: the original PRD claimed `ImportOrchestrator` writes to `TrainingProgramData` — structurally impossible because `TrainingProgramData` is a `struct` with only `static let` fields. The honest path was a mid-flight rollback to research, a rewritten PRD against the actual persistence target (`EncryptedDataStore.importedTrainingPlans`), and a re-decomposed task list.

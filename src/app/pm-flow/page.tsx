@@ -7,6 +7,7 @@ import { EvolutionStrip } from '@/components/pm-flow/EvolutionStrip';
 import { SharedDataTiles } from '@/components/pm-flow/SharedDataTiles';
 import { CacheTiers } from '@/components/pm-flow/CacheTiers';
 import { Term } from '@/components/mdx/Term';
+import { LensFraming } from '@/components/LensFraming';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -19,6 +20,27 @@ export default function PmFlowPage() {
   return (
     <>
       <PmFlowHero />
+
+      <LensFraming
+        className="w-full max-w-[100rem] mx-auto section-padding-x"
+        pm={
+          <p className="rounded-lg border-l-2 border-[var(--color-brand-indigo)] bg-[var(--color-brand-indigo)]/5 px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
+            <strong>This is your home base.</strong> The PM-flow ecosystem — phases, skills,
+            handoffs, and shared state — is how disciplined product development runs end to end. It
+            led the framework; the engineering exists to serve it.
+          </p>
+        }
+        dev={
+          <p className="rounded-lg border-l-2 border-[var(--color-neutral-400)] bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
+            <strong>Orchestration layer.</strong> PM-flow sits above the framework internals. For
+            the mechanics — architecture, gates, the state schema — the{' '}
+            <Link href="/framework" className="text-[var(--color-brand-indigo)] hover:underline">
+              framework
+            </Link>{' '}
+            page goes floor by floor.
+          </p>
+        }
+      />
 
       <section id="loop" className="w-full max-w-[100rem] mx-auto section-padding-x py-16 scroll-mt-20">
         <h2 className="font-serif text-[length:var(--text-display-md)] mb-4">The process is a cycle, not a pipeline.</h2>

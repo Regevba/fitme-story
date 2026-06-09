@@ -34,6 +34,7 @@ import { ParitySummaryCard } from '@/components/design-system/ParitySummaryCard'
 import { TrackedSection } from '@/components/design-system/TrackedSection';
 import { CaseStudyCard } from '@/components/ui/CaseStudyCard';
 import { FrameworkVersionCard } from '@/components/ui/FrameworkVersionCard';
+import { LensFraming } from '@/components/LensFraming';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -182,6 +183,25 @@ export default function DesignSystemPage() {
           system in production. This site is the public observable surface.
         </p>
       </header>
+
+      <LensFraming
+        className="mb-10 max-w-[var(--measure-body)]"
+        pm={
+          <p className="rounded-lg border-l-2 border-[var(--color-brand-indigo)] bg-[var(--color-brand-indigo)]/5 px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+            <strong>Why a design system:</strong> it&apos;s a product asset. It guarantees
+            consistency, accessibility, and shipping speed — and the guarantees are CI-enforced, not
+            aspirational. Below: what it promises and how drift is caught.
+          </p>
+        }
+        dev={
+          <p className="rounded-lg border-l-2 border-[var(--color-neutral-400)] bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+            <strong>The implementation:</strong> ~125 semantic tokens, 13 components, the
+            Style-Dictionary token pipeline, Figma↔code Code Connect, and the <code>tokens-check</code> +{' '}
+            <code>ui-audit</code> CI drift gates.
+          </p>
+        }
+      />
+
       <nav
         aria-label="Design system page sections"
         className="mb-10 flex flex-wrap gap-x-4 gap-y-2 text-xs font-sans text-[var(--color-neutral-500)] border-y border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] py-3"

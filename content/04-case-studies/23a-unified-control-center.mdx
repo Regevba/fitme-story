@@ -73,6 +73,7 @@ honest_disclosures:
     because (a) new dashboard verified working, (b) legacy instrumentation
     already broken so no rollback value, (c) discovery path preserved via
     showcase nav.
+category: product
 ---
 
 The legacy Astro operator dashboard at `fit-tracker2.vercel.app` had drifted from the FitMe brand, maintained its own component library, and by the end of its life couldn't reliably emit the GA4 events its own measurement plan required. **UCC retired all of it.** The dashboard is now `fitme-story.vercel.app/control-room/*` — a basic-auth-gated route inside the public showcase, indigo/coral/warm-stone tokens shared with the rest of the site, all 8 PRD §10.1 GA4 events instrumented from day one, and the legacy Vercel project deleted post-verification.
