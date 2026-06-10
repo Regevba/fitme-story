@@ -95,12 +95,13 @@ test('recency sort: higher version first, then newest date — lens does not reo
   assert.deepEqual(order, ['v72-jun', 'v72-may', 'v71-apr']);
 });
 
-test('version-less studies sort after versioned within their bucket', () => {
+test('version-less studies are excluded from eras (kept in nonEraStudies)', () => {
   const mixed = [
     s({ slug: 'nover', v: null, d: '2026-12-01', c: 'product' }),
     s({ slug: 'v20', v: '2.0', d: '2026-01-01', c: 'product' }),
   ];
-  // both land in v2 era; versioned (v2.0) sorts before the version-less one
-  const order = buildEraGroups(mixed)[0].subGroups[0].studies.map((x) => x.slug);
-  assert.deepEqual(order, ['v20', 'nover']);
+  // version-less product study is not era-eligible → only the versioned one appears in the era
+  const eraSlugs = buildEraGroups(mixed).flatMap((e) => e.subGroups.flatMap((sg) => sg.studies.map((x) => x.slug)));
+  assert.deepEqual(eraSlugs, ['v20']);
+  assert.deepEqual(nonEraStudies(mixed).map((x) => x.slug), ['nover']);
 });
