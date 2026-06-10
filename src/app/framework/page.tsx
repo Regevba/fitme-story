@@ -7,7 +7,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'The framework',
-  description: 'Eight floors of an AI-orchestrated PM framework, explained layer by layer.',
+  description: 'Seven floors of an AI-orchestrated PM framework, explained layer by layer.',
   slug: '/framework',
 });
 
@@ -70,17 +70,14 @@ const FLOORS: Floor[] = [
   },
   {
     n: 7,
-    title: 'Enforcement (v7.x)',
+    title: 'Integrity & enforcement (v7.x)',
     summary: (
       <>
-        <strong>37 mechanical gates + 5 advisories</strong> (3 advisories promoted to enforced via v7.9 promotion 2026-05-21) — write-time pre-commit hooks, 72h integrity cycle, per-PR review bot, weekly framework-status cron, Tier 1 / 2 / 3 readouts.
+        <strong>37 mechanical gates + 5 advisories</strong> across v7.5 → v7.9.1 (3 advisories promoted to enforced via the v7.9 promotion 2026-05-21): the v7.5 Data Integrity Framework, write-time pre-commit hooks, the 72h integrity cycle, per-PR review bot, weekly framework-status cron, branch isolation, feature-closure completeness, cross-repo state sync, the Observed Patterns Catalog, and the v7.9.1 build window (F16 try-repo harness, F17 last-fired index, F2 reality-check). Includes the <strong>HADF</strong> dispatch program through its Phase&nbsp;3A sensing layer.
       </>
     ),
-  },
-  {
-    n: 8,
-    title: 'v7.8 → v7.9 bridge cadence',
-    summary: <>Patch-level releases adding observability surfaces without new enforcement gates. See timeline below.</>,
+    href: '/framework/dispatch',
+    hrefLabel: 'See the dispatch layer',
   },
 ];
 
@@ -166,7 +163,7 @@ export default function FrameworkPage() {
       <header className="mb-10">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">The framework</h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          Eight floors. Hover to explore how each layer contributes.
+          Seven floors. Hover to explore how each layer contributes.
         </p>
       </header>
 
@@ -176,7 +173,7 @@ export default function FrameworkPage() {
           <>
             <strong>Reading as a PM:</strong> the framework is the product lifecycle made
             enforceable — why it exists, what each version shipped, and how outcomes get measured.
-            The eight floors below are the &ldquo;how&rdquo;; the{' '}
+            The seven floors below are the &ldquo;how&rdquo;; the{' '}
             <a href="#bridge" className="text-[var(--color-brand-indigo)] hover:underline">
               version timeline
             </a>{' '}
@@ -185,7 +182,7 @@ export default function FrameworkPage() {
         }
         dev={
           <>
-            <strong>Reading as a dev:</strong> eight floors, bottom-up — state → skills → primitives
+            <strong>Reading as a dev:</strong> seven floors, bottom-up — state → skills → primitives
             → measurement → enforcement. Each floor adds one capability on the one below. For the
             implementation reference, see the{' '}
             <Link href="/framework/dev-guide" className="text-[var(--color-brand-indigo)] hover:underline">
@@ -200,11 +197,11 @@ export default function FrameworkPage() {
       <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-16">
         <h2>How the floors cooperate</h2>
         <p>
-          Eight floors stacked on a shared state slab. Each floor adds one capability on top of the floors below it — read top-down to see how state becomes skills, skills become primitives, primitives become measurement, and measurement becomes enforcement.
+          Seven floors stacked on a shared state slab. Each floor adds one capability on top of the floors below it — read top-down to see how state becomes skills, skills become primitives, primitives become measurement, and measurement becomes the consolidated v7.x integrity-and-enforcement layer.
         </p>
       </div>
 
-      <section className="mt-8 grid gap-3" aria-label="The eight floors of the framework">
+      <section className="mt-8 grid gap-3" aria-label="The seven floors of the framework">
         {FLOORS.map((floor) => (
           <Card key={floor.n} variant="flat" padding="md">
             <div className="flex items-baseline gap-3">
@@ -285,7 +282,7 @@ export default function FrameworkPage() {
                   See the framework in motion →
                 </h2>
                 <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                  Two real feature traces walked through the eight floors — scroll-driven, with floor-by-floor firing order.
+                  Two real feature traces walked through the seven floors — scroll-driven, with floor-by-floor firing order.
                 </p>
               </div>
               <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />
