@@ -25,6 +25,39 @@ export default function HomePage() {
       <Hero />
       <NumbersPanel />
       <FeaturedStudies />
+
+      {/* About this project — moved here from /about (operator decision
+          2026-06-09); /about now carries only the disclaimer. */}
+      <section
+        className="max-w-3xl mx-auto px-6 py-12 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)]"
+        aria-labelledby="about-heading"
+      >
+        <h2 id="about-heading" className="font-serif text-[length:var(--text-display-md)] mb-5">
+          About this project
+        </h2>
+        <div className="space-y-4 font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed max-w-[var(--measure-body)]">
+          <p>
+            FitMe is a personal project — an iOS app I built to track my own fitness and wellbeing
+            the way I wanted: fast, privacy-first, and entirely owned by the person using it. Data
+            stays on-device by default, analysis happens locally when possible, and no health signal
+            gets silently shipped to a cloud AI. The interesting part isn&apos;t the app. It&apos;s
+            what happened while building it.
+          </p>
+          <p>
+            I built an AI-orchestrated PM workflow — <code className="font-mono text-sm">/pm-workflow</code> —
+            to enforce the planning discipline I kept abandoning. Then the workflow itself started
+            evolving. Caches, eval layers, dispatch intelligence, measurement. By v7.0 it was routing
+            to hardware-aware models. By v7.9 (shipped 2026-05-21) the framework was using its own
+            Mechanism A telemetry as a gate on its own promotion decisions — the first version where
+            the calibration discipline applied to itself, codified in honesty-ledger entry FT2-FH-003.
+          </p>
+          <p>
+            This site is the guided tour of that process. All docs are from real shipped work. All
+            metrics are measured, not estimated. The regressions are as public as the successes.
+          </p>
+        </div>
+      </section>
+
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 pb-20 text-center">
         <Link
           href="/story"

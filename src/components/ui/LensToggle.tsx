@@ -14,12 +14,14 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useRef } from 'react';
+import { Briefcase, Code2 } from 'lucide-react';
 import { useSetLens } from '@/lib/lens-client';
 import { trackHomeLensSelect, trackNavLensSwitch } from '@/lib/lens-analytics';
 import { LENS_LABELS, type Lens } from '@/lib/lens';
 
 const ORDER: Lens[] = ['pm', 'dev'];
 const SHORT_LABELS: Record<Lens, string> = { dev: 'Dev', pm: 'PM' };
+const ICONS: Record<Lens, typeof Briefcase> = { pm: Briefcase, dev: Code2 };
 
 export function LensToggle({
   variant = 'header',
@@ -71,6 +73,7 @@ export function LensToggle({
           return (
             <button
               key={lens}
+              type="button"
               ref={(el) => { refs.current[i] = el; }}
               role="radio"
               aria-checked={checked}
@@ -96,18 +99,20 @@ export function LensToggle({
     );
   }
 
-  // header (compact segmented control)
+  // header (compact icon + label segmented pill)
   return (
     <div
       role="radiogroup"
       aria-label="Audience lens"
-      className={`inline-flex rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-0.5 ${className}`}
+      className={`inline-flex items-center gap-0.5 rounded-full border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-100)]/60 dark:bg-[var(--color-neutral-800)]/60 p-0.5 ${className}`}
     >
       {ORDER.map((lens, i) => {
         const checked = active === lens;
+        const Icon = ICONS[lens];
         return (
           <button
             key={lens}
+            type="button"
             ref={(el) => { refs.current[i] = el; }}
             role="radio"
             aria-checked={checked}
@@ -115,12 +120,13 @@ export function LensToggle({
             tabIndex={checked || (active === null && i === 0) ? 0 : -1}
             onClick={() => choose(lens, 'header')}
             onKeyDown={(e) => onKeyDown(e, 'header')}
-            className={`min-h-[36px] rounded px-2.5 text-xs font-medium motion-safe:transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-indigo)] ${
+            className={`inline-flex items-center gap-1.5 min-h-[34px] rounded-full px-3 text-xs font-semibold motion-safe:transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-indigo)] ${
               checked
-                ? 'bg-[var(--color-brand-indigo)] text-white'
+                ? 'bg-[var(--color-brand-indigo)] text-white shadow-sm'
                 : 'text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-300)] hover:text-[var(--color-brand-indigo)]'
             }`}
           >
+            <Icon size={14} aria-hidden="true" strokeWidth={2} />
             {SHORT_LABELS[lens]}
           </button>
         );

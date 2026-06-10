@@ -64,7 +64,7 @@ function StudyRow({
 
 export function CaseStudyEras({ studies }: { studies: GroupableStudy[] }) {
   const lens = useLens() ?? 'pm';
-  const eras = buildEraGroups(studies, lens);
+  const eras = buildEraGroups(studies);
   // "Expand all" remounts the Disclosures (uncontrolled) with defaultOpen=true
   // via a bumped key, since Disclosure manages its own open state.
   const [forceOpenEpoch, setForceOpenEpoch] = useState(0);
@@ -85,13 +85,20 @@ export function CaseStudyEras({ studies }: { studies: GroupableStudy[] }) {
         aria-label="Jump to era"
         className="sticky top-0 z-10 -mx-2 mb-4 flex flex-wrap items-center gap-2 bg-[var(--color-neutral-50)]/90 dark:bg-[var(--color-neutral-900)]/90 backdrop-blur px-2 py-2 border-b border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)]"
       >
+        <span className="font-sans text-xs font-semibold uppercase tracking-wider text-[var(--color-neutral-500)] mr-1">
+          Jump to era
+        </span>
         {eras.map((era) => (
           <a
             key={era.id}
             href={`#era-${era.id}`}
-            className="font-sans text-xs rounded-full border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] px-3 py-1 text-[var(--color-brand-indigo)] hover:border-[var(--color-brand-indigo)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]"
+            aria-label={`${era.short} — ${era.count} ${era.count === 1 ? 'study' : 'studies'}`}
+            className="inline-flex items-center gap-1.5 font-sans text-xs rounded-full border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pl-3 pr-1.5 py-1 font-medium text-[var(--color-brand-indigo)] hover:border-[var(--color-brand-indigo)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]"
           >
-            {era.id.toUpperCase()} <span className="text-[var(--color-neutral-500)]">{era.count}</span>
+            {era.short}
+            <span className="rounded-full bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] px-1.5 text-[var(--color-neutral-500)] tabular-nums">
+              {era.count}
+            </span>
           </a>
         ))}
         <button
@@ -120,7 +127,15 @@ export function CaseStudyEras({ studies }: { studies: GroupableStudy[] }) {
                   </h4>
                   <ul className="space-y-3">
                     {era.milestones.map((s) => (
-                      <li key={s.slug}>
+                      <li
+                        key={s.slug}
+                        className="pl-4"
+                        style={{
+                          borderLeftWidth: '4px',
+                          borderLeftStyle: 'solid',
+                          borderLeftColor: s.accentVar ?? 'var(--color-brand-coral)',
+                        }}
+                      >
                         <Link
                           href={`/case-studies/${s.slug}`}
                           onClick={() =>
@@ -129,11 +144,6 @@ export function CaseStudyEras({ studies }: { studies: GroupableStudy[] }) {
                           className="block group"
                         >
                           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                            <span
-                              aria-hidden="true"
-                              className="w-2.5 h-2.5 rounded-full self-center"
-                              style={{ backgroundColor: s.accentVar ?? 'var(--color-brand-coral)' }}
-                            />
                             <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
                               {s.version ? `v${s.version}` : 'meta'}
                             </span>

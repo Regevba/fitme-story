@@ -33,6 +33,7 @@ const EXPLORE: FooterLink[] = [
   { href: '/framework', label: 'Framework' },
   { href: '/design-system', label: 'Design System' },
   { href: '/case-studies', label: 'Case Studies' },
+  { href: '/story', label: 'Story' },
   { href: '/research', label: 'Research' },
   { href: '/timeline', label: 'Timeline' },
 ];

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { buildMetadata } from '@/lib/seo';
 import { Card } from '@/components/ui/Card';
 
@@ -32,25 +33,17 @@ export default function AboutPage() {
           </p>
         </Card>
       </aside>
-      <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-8">
-        <p>
-          FitMe is a personal project — an iOS app I built to track my own fitness and wellbeing the way I wanted: fast,
-          privacy-first, and entirely owned by the person using it. Data stays on-device by default, analysis happens
-          locally when possible, and no health signal gets silently shipped to a cloud AI.
-          The interesting part isn&apos;t the app. It&apos;s what happened while building it.
-        </p>
-        <p>
-          I built an AI-orchestrated PM workflow — <code>/pm-workflow</code> — to enforce the planning discipline I kept
-          abandoning. Then the workflow itself started evolving. Caches, eval layers, dispatch intelligence, measurement.
-          By v7.0 it was routing to hardware-aware models. By v7.9 (shipped 2026-05-21) the framework was using its own
-          Mechanism A telemetry as a gate on its own promotion decisions — the first version where the calibration
-          discipline applied to itself, codified in honesty-ledger entry FT2-FH-003.
-        </p>
-        <p>
-          This site is the guided tour of that process. All docs are from real shipped work. All metrics are measured,
-          not estimated. The regressions are as public as the successes.
-        </p>
-      </div>
+      <p className="mt-8 font-sans text-sm text-[var(--color-neutral-500)] max-w-[var(--measure-body)]">
+        The fuller story — who built this, why, and how it grew — now lives on the{' '}
+        <Link href="/" className="text-[var(--color-brand-indigo)] hover:underline">
+          home page
+        </Link>{' '}
+        and the{' '}
+        <Link href="/story" className="text-[var(--color-brand-indigo)] hover:underline">
+          story
+        </Link>
+        .
+      </p>
     </article>
   );
 }
