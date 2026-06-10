@@ -37,6 +37,8 @@ export interface SubGroup {
 
 export interface EraGroup {
   id: string;
+  /** Short version token for the jump-nav pills, e.g. "v7.x". */
+  short: string;
   label: string;
   defaultOpen: boolean;
   count: number;
@@ -45,12 +47,12 @@ export interface EraGroup {
 }
 
 // Newest first. `lower` is the inclusive lower version bound.
-const ERAS: Array<{ id: string; label: string; lower: number; defaultOpen: boolean }> = [
-  { id: 'v7', label: 'v7.x — Integrity, cross-repo & promotion', lower: 7.0, defaultOpen: true },
-  { id: 'v6', label: 'v6.0 — Measurement', lower: 6.0, defaultOpen: false },
-  { id: 'v5', label: 'v5.x — Dispatch & parallelism', lower: 5.0, defaultOpen: false },
-  { id: 'v4', label: 'v4.x — Eval & Separation of Concerns', lower: 4.0, defaultOpen: false },
-  { id: 'v2', label: 'v2.0 — Pilot', lower: -Infinity, defaultOpen: false },
+const ERAS: Array<{ id: string; short: string; label: string; lower: number; defaultOpen: boolean }> = [
+  { id: 'v7', short: 'v7.x', label: 'v7.x — Integrity, cross-repo & promotion', lower: 7.0, defaultOpen: true },
+  { id: 'v6', short: 'v6.0', label: 'v6.0 — Measurement', lower: 6.0, defaultOpen: false },
+  { id: 'v5', short: 'v5.x', label: 'v5.x — Dispatch & parallelism', lower: 5.0, defaultOpen: false },
+  { id: 'v4', short: 'v4.x', label: 'v4.x — Eval & Separation of Concerns', lower: 4.0, defaultOpen: false },
+  { id: 'v2', short: 'v2.0', label: 'v2.0 — Pilot', lower: -Infinity, defaultOpen: false },
 ];
 
 const SUBGROUP_ORDER: SubGroup['category'][] = ['framework', 'design-system', 'product'];
@@ -82,22 +84,31 @@ function dateKey(iso: string): string {
   return iso || '0000-00-00';
 }
 
-/** Lens-aware sort: studies whose persona_emphasis has the active lens key float up; then newest date first. */
-function sortLensAware(studies: GroupableStudy[], lens: Lens): GroupableStudy[] {
+/**
+ * Chronological sort: highest framework version first, then newest publication
+ * date first. This is the operator-requested ordering (2026-06-09) — v7.9.1's
+ * most-recent studies sit at the top. Lens no longer reorders the chronology
+ * (it still drives framing + featured selection elsewhere). Version-less
+ * studies sort after versioned ones, then by date.
+ */
+function sortByRecency(studies: GroupableStudy[]): GroupableStudy[] {
   return studies.slice().sort((a, b) => {
-    const ae = a.emphasis?.[lens] ? 1 : 0;
-    const be = b.emphasis?.[lens] ? 1 : 0;
-    if (ae !== be) return be - ae; // emphasized first
-    return dateKey(b.date).localeCompare(dateKey(a.date)); // newest first
+    const va = parseVersion(a.version);
+    const vb = parseVersion(b.version);
+    const na = Number.isNaN(va);
+    const nb = Number.isNaN(vb);
+    if (na !== nb) return na ? 1 : -1; // versioned before version-less
+    if (!na && vb !== va) return vb - va; // higher version first
+    return dateKey(b.date).localeCompare(dateKey(a.date)); // newest date first
   });
 }
 
 /**
  * Build the era accordion groups, newest era first. Within each era: milestones
- * pinned (lens-aware order), then subject sub-groups in fixed order (each
- * lens-aware sorted). Empty eras are omitted.
+ * pinned, then subject sub-groups in fixed order. Everything sorted by recency
+ * (version desc, then date desc). Empty eras are omitted.
  */
-export function buildEraGroups(all: GroupableStudy[], lens: Lens = 'pm'): EraGroup[] {
+export function buildEraGroups(all: GroupableStudy[]): EraGroup[] {
   const eligible = all.filter(isEraEligible);
   const byEra = new Map<string, GroupableStudy[]>(ERAS.map((e) => [e.id, []]));
   for (const s of eligible) byEra.get(eraIdForVersion(parseVersion(s.version)))!.push(s);
@@ -106,15 +117,16 @@ export function buildEraGroups(all: GroupableStudy[], lens: Lens = 'pm'): EraGro
   for (const era of ERAS) {
     const studies = byEra.get(era.id)!;
     if (studies.length === 0) continue;
-    const milestones = sortLensAware(studies.filter((s) => s.isMilestone), lens);
+    const milestones = sortByRecency(studies.filter((s) => s.isMilestone));
     const nonMilestone = studies.filter((s) => !s.isMilestone);
     const subGroups: SubGroup[] = SUBGROUP_ORDER.map((cat) => ({
       category: cat,
       label: SUBGROUP_LABEL[cat],
-      studies: sortLensAware(nonMilestone.filter((s) => s.category === cat), lens),
+      studies: sortByRecency(nonMilestone.filter((s) => s.category === cat)),
     })).filter((g) => g.studies.length > 0);
     groups.push({
       id: era.id,
+      short: era.short,
       label: era.label,
       defaultOpen: era.defaultOpen,
       count: studies.length,

@@ -43,8 +43,8 @@ test('navForLens: every NAV item appears exactly once, regardless of lens', () =
   }
 });
 
-test('navForLens: gated Control Center stays last; /story present', () => {
+test('navForLens: gated Control Center stays last; /story not in top nav (footer-only)', () => {
   const order = navForLens('pm').map((i) => i.href);
   assert.equal(order[order.length - 1], '/control-room');
-  assert.ok(order.includes('/story'));
+  assert.equal(order.includes('/story'), false);
 });

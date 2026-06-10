@@ -18,11 +18,13 @@ export const NAV: NavItem[] = [
   { href: '/framework', label: 'Framework' },
   { href: '/design-system', label: 'Design System' },
   { href: '/case-studies', label: 'Case Studies' },
-  { href: '/story', label: 'Story' },
   { href: '/research', label: 'Research' },
   { href: '/about', label: 'About' },
   { href: '/control-room', label: 'Control Center', gated: true },
 ];
+// Note: /story is intentionally NOT in the top nav (operator decision
+// 2026-06-09) — it lives in the footer instead. It is reached from the home
+// "read the full story" CTA.
 
 // Per-lens ordering of the four PRIMARY routes (dual-audience redesign T11).
 // PM leads with the product/process surfaces; Dev leads with the engineering
@@ -32,7 +34,7 @@ const PRIMARY_ORDER: Record<Lens, string[]> = {
   pm: ['/pm-flow', '/case-studies', '/framework', '/design-system'],
   dev: ['/framework', '/design-system', '/case-studies', '/pm-flow'],
 };
-const TRAILING = ['/story', '/research', '/about', '/control-room'];
+const TRAILING = ['/research', '/about', '/control-room'];
 
 export function navForLens(lens: Lens | null): NavItem[] {
   const order = [...PRIMARY_ORDER[lens ?? 'pm'], ...TRAILING];

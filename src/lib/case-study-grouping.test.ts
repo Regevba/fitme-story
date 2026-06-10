@@ -63,34 +63,44 @@ test('meta + dev-deepdive + version-less are not era-eligible', () => {
 });
 
 test('era groups: newest-first, empty eras omitted', () => {
-  const g = buildEraGroups(data, 'pm');
+  const g = buildEraGroups(data);
   assert.deepEqual(g.map((x) => x.id), ['v7', 'v6', 'v2']);
 });
 
 test('era counts exclude non-eligible studies', () => {
-  const g = buildEraGroups(data, 'pm');
+  const g = buildEraGroups(data);
   assert.equal(g[0].count, 4); // hadf, f17, ucc, ds-web
 });
 
 test('milestones pinned separately from subgroups', () => {
-  const g = buildEraGroups(data, 'pm');
+  const g = buildEraGroups(data);
   assert.deepEqual(g[0].milestones.map((m) => m.slug), ['hadf']);
   assert.equal(g[0].subGroups.find((sg) => sg.category === 'framework')!.studies.some((x) => x.slug === 'hadf'), false);
 });
 
 test('subgroups in fixed order, newest-first within', () => {
-  const g = buildEraGroups(data, 'pm');
+  const g = buildEraGroups(data);
   assert.deepEqual(g[0].subGroups.map((sg) => sg.category), ['framework', 'design-system', 'product']);
   assert.equal(g[0].subGroups[0].studies[0].slug, 'f17'); // newest framework
 });
 
-test('lens-aware sort floats emphasized studies up', () => {
+test('recency sort: higher version first, then newest date — lens does not reorder', () => {
   const mixed = [
-    s({ slug: 'old-emph', v: '7.1', d: '2026-04-01', c: 'product', e: { dev: 'x' } }),
-    s({ slug: 'new-plain', v: '7.2', d: '2026-06-01', c: 'product' }),
+    s({ slug: 'v71-apr', v: '7.1', d: '2026-04-01', c: 'product', e: { dev: 'x' } }),
+    s({ slug: 'v72-jun', v: '7.2', d: '2026-06-01', c: 'product' }),
+    s({ slug: 'v72-may', v: '7.2', d: '2026-05-01', c: 'product' }),
   ];
-  const devFirst = buildEraGroups(mixed, 'dev')[0].subGroups[0].studies.map((x) => x.slug);
-  assert.deepEqual(devFirst, ['old-emph', 'new-plain']); // emphasized floats above newer
-  const pmFirst = buildEraGroups(mixed, 'pm')[0].subGroups[0].studies.map((x) => x.slug);
-  assert.deepEqual(pmFirst, ['new-plain', 'old-emph']); // no pm emphasis → date order
+  const order = buildEraGroups(mixed)[0].subGroups[0].studies.map((x) => x.slug);
+  // v7.2 (higher version) before v7.1; within v7.2, newest date first.
+  assert.deepEqual(order, ['v72-jun', 'v72-may', 'v71-apr']);
+});
+
+test('version-less studies sort after versioned within their bucket', () => {
+  const mixed = [
+    s({ slug: 'nover', v: null, d: '2026-12-01', c: 'product' }),
+    s({ slug: 'v20', v: '2.0', d: '2026-01-01', c: 'product' }),
+  ];
+  // both land in v2 era; versioned (v2.0) sorts before the version-less one
+  const order = buildEraGroups(mixed)[0].subGroups[0].studies.map((x) => x.slug);
+  assert.deepEqual(order, ['v20', 'nover']);
 });
