@@ -94,6 +94,7 @@ const MILESTONES: Milestone[] = [
     version: 'v7.10',
     date: '2026-06-10',
     headline: 'GATE_COVERAGE_ZERO observability + field-rename closure',
+    caseStudyHref: '/case-studies/framework-v7-9-1-promotion',
     what: 'Hardens the observability of the gates themselves. GATE_COVERAGE_ZERO gains a 0-candidate mis-wire detector (a gate registered in the F17 index with candidates==checked==skipped==0 runs but never reaches a candidate — the cache_hits-keying / unreachable-loop class), and three cycle-time checks (BROKEN_PR_CITATION / CASE_STUDY_MISSING_TIER_TAGS / PATTERN_SKILL_UNMAPPED) that previously emitted no Mechanism A coverage now emit mode="cycle" so the meta-check can watch them. Observed-patterns #24 codifies the field-rename silent-pass in a READER/INDEX — two instances fixed: cu_v2 (top-level vs legacy complexity.cu_version, halving adoption; post-v6 fully-adopted 3→6) and w9.auto_isolate (ts vs timestamp, 30 rows dropped). Plus a second what-if self-test across every layer (iOS build + 672 tests, ai-engine 34/34, web 286/289, framework 0 findings) that fixed verify-local dep-skip ergonomics, and T10 — the AI golden-set eval harness (the FitMe AI is deterministic, not generative, so a deterministic golden set is a hard PR gate: 24 cases, ai-engine suite 60 pass).',
     tintVar: 'var(--skill-ops)',
   },
