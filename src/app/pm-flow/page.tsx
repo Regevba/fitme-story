@@ -165,17 +165,17 @@ export default function PmFlowPage() {
       <section id="pattern-overlay" className="w-full max-w-[100rem] mx-auto section-padding-x py-16 scroll-mt-20">
         <h2 className="font-serif text-[length:var(--text-display-md)] mb-4">Every skill knows the patterns that can block its work.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          The framework keeps a single, append-only <strong>Observed Patterns Catalog</strong> — 55 entries today, each documenting a recognized failure-mode (a gate that fires, a launchd quirk, an MDX gotcha) with a trigger description, a why-expected classification, and a silence path. Before <strong>v7.9.1</strong>, those entries lived in a flat catalog and were consulted <em>reactively</em> — after something broke. As of 2026-06-04, each entry now declares which of the 12 skills it is most relevant to, and each skill carries the inverse map: <em>here are the patterns my work is exposed to</em>.
+          The framework keeps a single, append-only <strong>Observed Patterns Catalog</strong> — 58 entries today, each documenting a recognized failure-mode (a gate that fires, a launchd quirk, an MDX gotcha) with a trigger description, a why-expected classification, and a silence path. Before <strong>v7.9.1</strong>, those entries lived in a flat catalog and were consulted <em>reactively</em> — after something broke. As of 2026-06-04, each entry now declares which of the 12 skills it is most relevant to, and each skill carries the inverse map: <em>here are the patterns my work is exposed to</em>.
         </p>
         <p className="mt-4 max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          The wiring is bidirectional and self-auditing: run <code className="font-mono">make skill-preflight SKILL=&lt;name&gt;</code> and that skill probes its mechanized patterns live (about 23 of 55 have a detector script) and emits an awareness checklist for the rest. A <code className="font-mono">PATTERN_SKILL_UNMAPPED</code> advisory surfaces any new catalog entry that hasn&apos;t been mapped yet, so the bidirectional invariant can&apos;t silently drift.
+          The wiring is bidirectional and self-auditing: run <code className="font-mono">make skill-preflight SKILL=&lt;name&gt;</code> and that skill probes its mechanized patterns live (about 25 of 57 have a detector script) and emits an awareness checklist for the rest. A <code className="font-mono">PATTERN_SKILL_UNMAPPED</code> advisory surfaces any new catalog entry that hasn&apos;t been mapped yet, so the bidirectional invariant can&apos;t silently drift.
         </p>
         <div className="mt-8 grid md:grid-cols-3 gap-4 max-w-[var(--measure-wide)]">
           <Card variant="flat" padding="md">
             <div className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)] mb-2">Source of truth</div>
             <div className="font-serif text-base mb-2"><code className="font-mono text-sm">pattern-skill-map.json</code></div>
             <p className="text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-              55 entries — each carries <code className="font-mono text-xs">{`{id, title, detector, blocker, autoheal, skills[], remediation}`}</code>. Many-to-many — a pattern can block several skills.
+              57 entries — each carries <code className="font-mono text-xs">{`{id, title, detector, blocker, autoheal, skills[], remediation}`}</code>. Many-to-many — a pattern can block several skills.
             </p>
           </Card>
           <Card variant="flat" padding="md">
@@ -194,7 +194,7 @@ export default function PmFlowPage() {
           </Card>
         </div>
         <p className="mt-8 max-w-[var(--measure-body)] text-sm text-[var(--color-neutral-500)] font-sans">
-          The 55th-and-1 entry (<code className="font-mono">W33</code>) documents the overlay <em>tool itself</em>, exempted from the advisory via a single-element <code className="font-mono">SELF_DOC_EXEMPT</code> set. The map will eventually be the build-time input for an Acts III–V overlay on the <Link href="/framework" className="text-[var(--color-brand-indigo)] underline">framework universe</Link> visualization (3D feature, Phase 2).
+          The 57th-and-1 entry (<code className="font-mono">W33</code>) documents the overlay <em>tool itself</em>, exempted from the advisory via a single-element <code className="font-mono">SELF_DOC_EXEMPT</code> set. The map will eventually be the build-time input for an Acts III–V overlay on the <Link href="/framework" className="text-[var(--color-brand-indigo)] underline">framework universe</Link> visualization (3D feature, Phase 2).
         </p>
         <div className="mt-6 flex flex-wrap gap-3 text-sm font-sans">
           <a
