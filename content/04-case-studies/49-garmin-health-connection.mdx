@@ -1,0 +1,73 @@
+---
+title: >-
+  Garmin Health Connection (Tier 1) — Source attribution without a backend
+slug: garmin-health-connection
+date: '2026-06-12'
+upstream_path: docs/case-studies/garmin-health-connection-case-study.md
+tier: light
+tldr: >-
+  A Garmin owner who installs FitMe gets a degraded readiness experience unless
+  they already have "Garmin Connect → Apple Health" sync on — and even then,
+  nothing tells them their Garmin data is what powers their readiness score. The
+  gap was never data access (HealthKit already carries HRV/sleep/RHR); it was
+  discovery, guidance, and confirmation. Tier 1 closes it with zero new backend,
+  zero new permissions, and zero new data leaving the device — by attributing
+  existing HealthKit samples to their originating source (HKSource) and surfacing
+  it in a new multi-source Data Sources Settings surface. The single forward hook
+  is a thin GarminAdapter seam that Tier 2 (direct Garmin Connect Health API,
+  demand-gated) would later fill.
+timeline_position:
+  version: '7.10'
+  order: 49
+key_numbers:
+  - label: New backend / permissions / data egress
+    value: '0 / 0 / 0'
+    tier: T1
+  - label: Tasks shipped (PR #705)
+    value: '10 / 10'
+    tier: T1
+  - label: Analytics events (screen-prefixed)
+    value: '5'
+    tier: T1
+  - label: CI checks green at merge
+    value: '17 / 17'
+    tier: T1
+  - label: Connect-rate target (declared)
+    value: '≥70% w/ readiness in 7d'
+    tier: T2
+kill_criteria:
+  - '<20% of Garmin-device Data-Sources openers complete a connection within 60 days'
+kill_criterion_fired: false
+category: product
+---
+
+# Garmin Health Connection (Tier 1) — Source attribution without a backend
+
+The original backlog item ("Health API connections — Garmin/Whoop/Oura/Samsung/Fitbit") implied direct vendor OAuth + backend webhooks. Phase 0 research reframed it into two tiers, and the operator approved **Tier 1 only** for v1.
+
+<HeroMetric
+  value="0 backend · 0 new permissions · 0 data egress"
+  label="Garmin readiness data, connected — by attributing what HealthKit already has"
+  context="Garmin Connect already exports HRV/sleep/RHR/VO2Max/steps to Apple Health. FitMe just had to detect, attribute, and confirm — not fetch. Zero-knowledge invariant holds; DPA unaffected."
+/>
+
+## The Tier-1 / Tier-2 reframe
+
+- **Tier 1 (shipped):** HealthKit-relay. Detect when readiness samples originate from Garmin (`HKSource`), surface that the engine is using them, and guide users whose `Garmin → Apple Health` export isn't on yet.
+- **Tier 2 (deferred, demand-gated):** direct Garmin Connect Health API for the proprietary signals Apple Health never receives — Body Battery, stress, training load.
+
+The only forward hook is the `GarminAdapter` seam: a thin `AIInputAdapter` whose `contribute(to:)` is a no-op pass-through in v1 (the data already flows via `HealthKitAdapter`); its job is *presence + attribution*, leaving the contract Tier 2 fills later.
+
+## What shipped (PR #705)
+
+A new `DataSourcesScreen` (shared multi-source Settings v2 surface), an `HealthKitSourceProbe` matching Garmin's Apple-Health bundle id (`com.garmin.connect.mobile`) across the readiness-input sample types with a logged fallback heuristic, a guided connection flow with empty/partial states, 5 screen-prefixed `settings_data_source_*` analytics events, and device-free unit tests. New UI ⇒ the Phase 3 UX gateway was non-skippable; `make ui-audit` P0=0.
+
+## Why it's low-risk
+
+No high-risk files touched — read-only HealthKit, an additive Settings surface, no Domain/Encryption/Sync/Auth/AI. Nothing new leaves the device. The feature reads what HealthKit already has and labels its origin.
+
+## Metrics & honesty
+
+Tier 1 ships **uninstrumented for connect-rate** (baseline 0 — no source-attribution surface existed before). Primary target: ≥70% of users who complete the connect flow have a populated readiness score within 7 days [T2 — declared]. Kill checkpoint at 60 days: <20% connect-completion among Garmin-device Data-Sources openers ⇒ reassess Tier-1 UX vs jumping to a Tier-2 demand signal. First review 2026-06-26.
+
+> Source case study (FitTracker2): `docs/case-studies/garmin-health-connection-case-study.md`. Shipped via FT2 PR #705 (squash-merged `c8ba299`, 2026-06-12).
