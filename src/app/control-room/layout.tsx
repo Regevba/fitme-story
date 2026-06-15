@@ -99,7 +99,7 @@ const SECONDARY_NAV: NavItem[] = [
 ];
 
 // TODO(T20): replace hardcoded version with server-loaded value from builder.ts
-const FRAMEWORK_VERSION = 'v7.8';
+const FRAMEWORK_VERSION = 'v7.10';
 
 export default function ControlRoomLayout({ children }: { children: ReactNode }) {
   return (
