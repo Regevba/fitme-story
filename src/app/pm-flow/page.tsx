@@ -105,9 +105,9 @@ export default function PmFlowPage() {
       </section>
 
       <section id="code-connect" className="w-full max-w-[100rem] mx-auto section-padding-x py-16 scroll-mt-20">
-        <h2 className="font-serif text-[length:var(--text-display-md)] mb-4">Designs and code stay in sync — both directions.</h2>
+        <h2 className="font-serif text-[length:var(--text-display-md)] mb-4">Code is the source of truth; Figma mirrors it.</h2>
         <p className="max-w-[var(--measure-body)] text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          The <code className="font-mono">/design build</code> skill pushes screens into Figma. The <strong>Code Connect bridge</strong> (added 2026-05-09) closes the other direction: every Figma library frame can render its actual code snippet in Dev Mode, mapped via a small template file alongside the source component.
+          The <code className="font-mono">/design build</code> skill pushes screens into Figma via the Figma plugin API. A <strong>Code Connect bridge</strong> was prototyped (2026-05-09) to close the other direction — surfacing each component&apos;s code snippet in Figma Dev Mode — but Figma Code Connect requires an Organization/Enterprise plan, and this project runs on Figma Pro. <strong>Code Connect publishing is disabled as of 2026-06-15</strong>; the mapping files below remain as documentation of intent. The design systems themselves — tokens and components, in code — are fully operational and CI-gated.
         </p>
         <div className="mt-8 grid md:grid-cols-2 gap-6 max-w-[var(--measure-wide)]">
           {/* BHF-1 (DS lens audit 2026-05-10): migrated 2 inline rounded-lg
@@ -118,7 +118,7 @@ export default function PmFlowPage() {
               <code className="font-mono text-xs">.figma.tsx</code> files map React components to Figma file <code className="font-mono text-xs">fsjHfFLAHELACZHku8Rfcl</code> (FitMe Story Web — Design System). Parsed by the <code className="font-mono">@figma/code-connect</code> npm package.
             </p>
             <p className="text-xs text-[var(--color-neutral-500)] font-sans">
-              17 component node IDs mapped at first ship: 3 buttons · 3 tags · 5 callouts · 2 cards · 2 search · 2 layouts.
+              17 component mapping files authored (3 buttons · 3 tags · 5 callouts · 2 cards · 2 search · 2 layouts) — documentation-only; not published (Code Connect needs an Org/Enterprise plan).
             </p>
           </Card>
           <Card variant="flat" padding="md">
@@ -127,12 +127,12 @@ export default function PmFlowPage() {
               <code className="font-mono text-xs">.figma.swift</code> files map SwiftUI Views to Figma file <code className="font-mono text-xs">0Ai7s3fCFqR5JXDW8JvgmD</code> (FitTracker Design System Library). Build-safety wrapper <code className="font-mono text-xs">#if canImport(Figma)</code> keeps Xcode green without the toolchain.
             </p>
             <p className="text-xs text-[var(--color-neutral-500)] font-sans">
-              5 screen-level mappings on first ship — sourced from existing shipped features&apos; <code className="font-mono">state.json::figma_node_ids</code>. No placeholders.
+              5 screen-level mapping files authored from features&apos; <code className="font-mono">state.json::figma_node_ids</code> — documentation-only (publishing is disabled on Figma Pro).
             </p>
           </Card>
         </div>
         <p className="mt-6 max-w-[var(--measure-body)] text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          Going forward, <code className="font-mono">scripts/scaffold-figma-mapping.&#123;py,mjs&#125;</code> auto-generates mapping files from any feature&apos;s captured node IDs (Layer A). Planned: <code className="font-mono">/design build</code> auto-invokes the scaffold (Layer B); CI publish workflow runs <code className="font-mono">figma connect publish</code> on merge to main, gated on a repo secret (Layer C). Manual steps per new UI feature: 2 today → 0 once Layer C ships.
+          The scaffold + skill automation (<code className="font-mono">scripts/scaffold-figma-mapping.&#123;py,mjs&#125;</code>, Layers A/B) shipped, and the CI publish workflow (Layer C) exists — but the final <code className="font-mono">figma connect publish</code> step never succeeded: it requires the <code className="font-mono">code_connect:write</code> scope, which Figma only grants on Organization/Enterprise plans. On Pro, the workflow is a disabled stub. Figma is instead maintained as a visual mirror via the Figma plugin API; code stays the source of truth.
         </p>
         <div className="mt-6 flex flex-wrap gap-3 text-sm font-sans">
           <a
