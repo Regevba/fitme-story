@@ -6,6 +6,16 @@
 
 > This is the contribution guide for the fitme-story website's design system — components that live in `src/components/**` and the tokens that compose them. The iOS app's design system is documented separately in `FitTracker/DesignSystem/AppComponents.swift` + `docs/design-system/ios-code-connect-workflow.md`.
 
+> ⛔ **Code Connect publishing is DISABLED (2026-06-15).** Figma Code Connect requires an
+> Organization/Enterprise plan; this account is **Pro**, so `figma connect publish` cannot run
+> (the `figma-code-connect-publish.yml` workflow is a disabled stub). The manifest fields
+> `figmaNodeIds` / `hasFigmaConnect` and the `.figma.tsx` mapping files below still document
+> **design intent**, but they are **inert** — nothing publishes them to Figma Dev Mode, and the
+> referenced Figma file is empty/partial. **Code is the source of truth.** When following §7
+> below, you may author the manifest entry + mapping file as documentation, but do not expect a
+> live Dev-Mode snippet. Full decision + rebuild plan (FT2 repo):
+> `docs/design-system/figma-source-of-truth-plan-2026-06-15.md`.
+
 ---
 
 ## §1 Decision tree — should I add a new component?
