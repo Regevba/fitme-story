@@ -196,8 +196,9 @@ export default function DesignSystemPage() {
         dev={
           <p className="rounded-lg border-l-2 border-[var(--color-neutral-400)] bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
             <strong>The implementation:</strong> ~125 semantic tokens, 13 components, the
-            Style-Dictionary token pipeline, Figma↔code Code Connect, and the <code>tokens-check</code> +{' '}
-            <code>ui-audit</code> CI drift gates.
+            Style-Dictionary token pipeline, and the <code>tokens-check</code> +{' '}
+            <code>ui-audit</code> CI drift gates. (Figma↔code Code Connect was prototyped but is
+            disabled — it requires a Figma Org/Enterprise plan; code is the source of truth.)
           </p>
         }
       />
@@ -671,8 +672,9 @@ export default function DesignSystemPage() {
             <span>
               <strong>Map to Figma when possible.</strong> Author a{' '}
               <code className="font-mono text-xs">.figma.tsx</code> file alongside the component;
-              capture the Figma node ID in the manifest. Code Connect publish remains gated by
-              Figma plan-tier scope (re-activates when unblocked).
+              capture the Figma node ID in the manifest. Note: Code Connect publishing is{' '}
+              <strong>disabled</strong> (requires a Figma Org/Enterprise plan) — the mapping
+              documents intent only, and re-activates if the plan is upgraded.
             </span>
           </li>
         </ol>
