@@ -19,6 +19,16 @@ on:
     paths:
       - '.claude/features/**/state.json'
   workflow_dispatch:  # allow manual re-trigger after fixes or for re-runs
+    inputs:
+      source_commit:
+        description: "F13: diff from this commit SHA instead of HEAD~1 (catches files a prior failed/partial run missed). Ignored when full_scan=true."
+        required: false
+        default: ""
+      full_scan:
+        description: "F13: scan ALL .claude/features/*/state.json for state_owner=fitme-story (full-repo fallback), ignoring git diff. Use when files were never mirrored."
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   reverse-sync:
@@ -47,18 +57,46 @@ jobs:
         if: steps.token_check.outputs.skip == 'false'
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # need previous commit for diff
+          # F13: full history so HEAD~1 (push), git ls-files (full_scan), and
+          # an arbitrary source_commit diff all resolve.
+          fetch-depth: 0
 
       - name: Detect changed fitme-story-native state.json files
         id: detect
         if: steps.token_check.outputs.skip == 'false'
         shell: bash
+        env:
+          # F13: inputs via env (injection-safe — never interpolated into a command).
+          EVENT_NAME: ${{ github.event_name }}
+          SOURCE_COMMIT: ${{ github.event.inputs.source_commit }}
+          FULL_SCAN: ${{ github.event.inputs.full_scan }}
         run: |
           set -euo pipefail
-          # git diff between push HEAD and previous main commit
-          CHANGED=$(git diff --name-only HEAD~1 HEAD -- '.claude/features/*/state.json' || true)
+          # F13: pick the candidate file set by trigger mode.
+          #  - push: diff the just-pushed commit (HEAD~1..HEAD).
+          #  - workflow_dispatch + full_scan=true  → scan ALL state.json (full-repo fallback).
+          #  - workflow_dispatch + source_commit set → diff <source_commit>..HEAD.
+          #  - workflow_dispatch (neither) → default to full scan, since HEAD~1 is
+          #    meaningless for a manual re-trigger and the intent is "re-sync whatever's unmirrored".
+          CANDIDATES=()
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && { [ "${FULL_SCAN:-false}" = "true" ] || [ -z "${SOURCE_COMMIT:-}" ]; }; then
+            echo "F13 mode: full-repo scan (workflow_dispatch fallback)"
+            while IFS= read -r f; do CANDIDATES+=("$f"); done < <(git ls-files '.claude/features/*/state.json')
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "${SOURCE_COMMIT:-}" ]; then
+            # Validate the SHA before using it (injection-safe + clear error).
+            if ! git cat-file -e "${SOURCE_COMMIT}^{commit}" 2>/dev/null; then
+              echo "::error::F13 source_commit '${SOURCE_COMMIT}' is not a valid commit in this repo"
+              exit 1
+            fi
+            echo "F13 mode: diff from source_commit ${SOURCE_COMMIT}..HEAD"
+            while IFS= read -r f; do CANDIDATES+=("$f"); done < <(git diff --name-only "${SOURCE_COMMIT}" HEAD -- '.claude/features/*/state.json' || true)
+          else
+            echo "F13 mode: push diff HEAD~1..HEAD"
+            while IFS= read -r f; do CANDIDATES+=("$f"); done < <(git diff --name-only HEAD~1 HEAD -- '.claude/features/*/state.json' || true)
+          fi
           NATIVE_FILES=()
-          for f in $CHANGED; do
+          for f in "${CANDIDATES[@]:-}"; do
+            [ -z "$f" ] && continue
             if [ ! -f "$f" ]; then
               continue  # file deleted; skip
             fi
