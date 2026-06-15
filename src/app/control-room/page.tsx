@@ -25,14 +25,23 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import featuresData from '@/data/control-room-seeds/features.json';
+import externalSyncSnapshot from '@/data/shared/external-sync-status.json';
 import { PhaseLegendAndActivity } from '@/components/control-room/PhaseLegendAndActivity';
 import { TrackPageView } from '@/components/control-room/TrackPageView';
 import { InstrumentedAlertsBanner } from '@/components/control-room/InstrumentedAlertsBanner';
+import { LiveSourceHealthPanel } from '@/components/control-room/LiveSourceHealthPanel';
+import { gatherLiveSources } from '@/lib/control-room/live/gather';
+import { buildSourceHealthRows, type SnapshotShape } from '@/lib/control-room/live/present';
 
 export const metadata: Metadata = {
   title: 'Overview — Control room',
   robots: { index: false, follow: false },
 };
+
+// Live-feed Phase 1: re-run external source probes at most every 120s. With no
+// tokens set, every probe degrades to the synced snapshot baseline (zero
+// behavior change); each source upgrades to live independently as tokens land.
+export const revalidate = 120;
 
 // ────────────────────────────────────────────────────────────────────────────
 // Phase grouping (verbatim from dashboard/src/components/ControlRoom.jsx)
@@ -123,7 +132,7 @@ const SOURCE_TRUTH_SCORE = '100';
 // Page
 // ────────────────────────────────────────────────────────────────────────────
 
-export default function ControlRoomPage() {
+export default async function ControlRoomPage() {
   // The seeds group features by status bucket (shipped/planned/backlog) but
   // the summary needs phase-level grouping per ControlRoom.jsx logic. Combine
   // and re-bucket.
@@ -131,6 +140,13 @@ export default function ControlRoomPage() {
   const allFeatures: FeatureSeed[] = [...(seed.shipped ?? []), ...(seed.planned ?? []), ...(seed.backlog ?? [])];
   const summary = summarizeFeatures(allFeatures);
   const riskCount = summary.critical + summary.high;
+
+  // Live-feed Phase 1 — probe external sources concurrently (fail-soft). Every
+  // probe degrades to the synced snapshot baseline when its token is absent, so
+  // this never blocks render and is safe with zero secrets configured.
+  const liveSources = await gatherLiveSources();
+  const snapshot = externalSyncSnapshot as unknown as SnapshotShape;
+  const sourceHealthRows = buildSourceHealthRows(snapshot, liveSources);
 
   return (
     <article className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
@@ -204,6 +220,12 @@ export default function ControlRoomPage() {
           </div>
         </div>
       </section>
+
+      {/* ───────────────────────────────────────────────────────── */}
+      {/* Source Health (live-feed Phase 1) — live external-source     */}
+      {/* probes merged over the synced external-sync snapshot.        */}
+      {/* ───────────────────────────────────────────────────────── */}
+      <LiveSourceHealthPanel rows={sourceHealthRows} snapshotUpdated={snapshot.updated ?? null} />
 
       {/* ───────────────────────────────────────────────────────── */}
       {/* Quick links (Framework Health) — preserved from scaffold */}
