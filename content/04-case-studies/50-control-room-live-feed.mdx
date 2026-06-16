@@ -1,0 +1,81 @@
+---
+title: >-
+  Control Room Live Feed — from build-time snapshot to fail-soft request-time data
+slug: control-room-live-feed
+date: '2026-06-16'
+upstream_path: docs/case-studies/control-room-live-feed-case-study.md
+tier: light
+tldr: >-
+  The Unified Control Center was complete and deployed, but every panel rendered
+  a build-time snapshot — data only refreshed on redeploy, so the ledgers drifted
+  days stale and infra health sat at "unknown" because nothing was queried at
+  runtime. The fix routes the dashboard through a fail-soft live layer in two
+  phases: external SaaS sources (GitHub, Vercel, Linear, Notion, Supabase, GA4)
+  fetched server-side at request time, and FitTracker2's own framework state
+  published to a public Vercel Blob on every commit and read live by the
+  dashboard. The load-bearing invariant is fail-soft — any fetch failure degrades
+  to the existing snapshot and never crashes a page — which let four cross-repo
+  PRs ship independently with zero behavior change until the operator flips two
+  env vars.
+timeline_position:
+  version: '7.10'
+  order: 50
+key_numbers:
+  - label: Unit tests across the live layer
+    value: '48 (16 probes / 16 data-source / 9 producer / 7 footer)'
+    tier: T1
+  - label: Behavior change before secrets are set
+    value: '0 (renders identical to snapshot)'
+    tier: T1
+  - label: fitme-story build at each PR
+    value: '118 / 118 pages'
+    tier: T1
+  - label: PII files in the public bundle
+    value: '0 (allow-list enforced by test)'
+    tier: T1
+  - label: Data staleness target once live (declared)
+    value: 'request-time vs deploy-bound'
+    tier: T2
+kill_criteria:
+  - 'A live fetch failure ever crashes or blanks a control-room page (must always degrade to snapshot)'
+  - 'The public state Blob ever contains PII the allow-list should have excluded'
+kill_criterion_fired: false
+category: framework
+---
+
+# Control Room Live Feed — from build-time snapshot to fail-soft request-time data
+
+The control room shipped as a build-time snapshot: a prebuild step cloned FitTracker2 and copied its `.claude/*` state into the site, and pages read those files at render. Useful, but freshness was bound to deploy time. A source-refresh made the cost concrete — the synced ledgers were over a week stale, and infrastructure health showed "unknown" purely because no source was queried at runtime.
+
+<HeroMetric
+  value="0 behavior change until two env vars flip"
+  label="A fail-soft live layer, added strictly on top of the snapshot"
+  context="Four cross-repo PRs shipped independently. With no secrets configured the control room renders exactly as before; the entire risk lives behind operator-controlled env vars."
+/>
+
+## Two phases, one invariant
+
+- **Phase 1 — external SaaS.** GitHub, Vercel, Linear, Notion, Supabase, and GA4 have real APIs, so each gets a small server-side probe gathered concurrently and merged over the synced snapshot. Present and healthy means a live tile; absent or failing means the snapshot tile, tagged as such.
+- **Phase 2 — FitTracker2 framework state.** `state.json`, integrity ledgers, gate-coverage, and membrane status are git-resident with no API, so FT2 CI publishes an allow-listed JSON bundle to a public Vercel Blob on every commit to main, and the dashboard reads it once per request behind a short revalidate window.
+
+The invariant tying it together is **fail-soft**. Build-time sync is fail-fast on purpose; the live runtime is the opposite. Every probe and the bundle reader return null-or-degraded rather than throwing, so a slow API or a missing bundle quietly falls back to the committed snapshot. That single property is what made the work safe to merge in any order.
+
+## What shipped
+
+- **fitme-story #224** — the Phase 1 probe layer plus a Source Health panel on the overview.
+- **fitme-story #225** — `data-source.ts`, the live-or-snapshot bundle reader, with five dashboard loaders routed through it (each keeping its file read as the fallback).
+- **FitTracker2 #742** — the producer: an allow-list bundle assembler, a Vercel Blob PUT via the official SDK, and a paths-filtered workflow.
+- **fitme-story #226** — the freshness footer now states provenance: "Live as of … · commit" when the bundle is live, "Last synced …" when it is the snapshot.
+
+48 unit tests cover the no-credential, non-200, network-reject, and malformed paths; every fitme-story PR built 118/118 pages.
+
+## Two decisions worth keeping
+
+- **Allow-list, never denylist, for a public artifact.** The producer ships only the handful of shared files the dashboard reads (plus every feature state), so PII-bearing ledgers are structurally excluded — and a test asserts it.
+- **Lint caught an architecture boundary.** The bundle reader first lived under the dashboard tree, which the extraction-readiness rule forbids the "showcase" loaders from importing. It moved to a neutral location both sides can share — surfaced by a pre-commit lint error, not a runtime bug.
+
+## Honesty: not live yet
+
+The engineering is complete and merged; the feed is **not yet active**. Activation is two operator-only secret steps by design — Phase 1 source tokens, and the Blob read/write token plus the bundle URL. Until then the control room serves the snapshot, exactly as before. The request-time-staleness metric becomes measurable only after activation; first review is 2026-06-30.
+
+> Source case study (FitTracker2): `docs/case-studies/control-room-live-feed-case-study.md`. Shipped via fitme-story PRs #224 / #225 / #226 and FT2 PR #742.
