@@ -34,16 +34,21 @@ import { MembraneStatusPanel } from '@/components/framework-health/MembraneStatu
 import { VisitorComprehensionPanel } from '@/components/framework-health/VisitorComprehensionPanel';
 import { HadfSignaturePanel } from '@/components/framework-health/HadfSignaturePanel';
 import { loadHadfSensing } from '@/lib/framework-health/load-hadf-signatures';
+import { getBundleText } from '@/lib/live-data/data-source';
 import AuditLogPanel from '@/components/control-room/AuditLogPanel';
 
 export const dynamic = 'force-dynamic';
 
 // ── v7.8.3 C-4 — Cross-repo gate-coverage loader ─────────────────────────────
 
-function loadGateCoverage() {
+async function loadGateCoverage() {
+  // FT2 stream: live state Blob first (Phase 2), else the synced snapshot file.
+  const liveFt2 = await getBundleText('integrity/gate-coverage-ft2.jsonl');
   const ft2Path = join(process.cwd(), 'src', 'data', 'integrity', 'gate-coverage-ft2.jsonl');
+  const ft2Content =
+    liveFt2 ?? (existsSync(ft2Path) ? readFileSync(ft2Path, 'utf-8') : '');
+  // fitme-story-local stream stays a local read (it is this repo's own ledger).
   const fsPath = join(process.cwd(), '.claude', 'logs', 'gate-coverage.jsonl');
-  const ft2Content = existsSync(ft2Path) ? readFileSync(ft2Path, 'utf-8') : '';
   const fsContent = existsSync(fsPath) ? readFileSync(fsPath, 'utf-8') : '';
   return {
     events: aggregateGateCoverage(ft2Content, fsContent),
@@ -291,8 +296,8 @@ export default async function FrameworkHealthPage() {
   const currentAdoption = ledgers.adoptionCurrent;
   const debt = ledgers.documentationDebt;
 
-  // v7.8.3 C-4 — cross-repo gate coverage (build-time, no await needed)
-  const gateCoverage = loadGateCoverage();
+  // v7.8.3 C-4 — cross-repo gate coverage (live FT2 Blob stream or snapshot)
+  const gateCoverage = await loadGateCoverage();
   const ft2FireCount = gateCoverage.counts.ft2;
   const fsFireCount = gateCoverage.counts['fitme-story'];
   const totalFireCount = gateCoverage.events.length;
