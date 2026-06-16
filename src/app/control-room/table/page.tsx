@@ -22,12 +22,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function ControlRoomTablePage() {
-  // Sourced from synced `src/data/features/*.json` (mirror of FT2's
-  // `.claude/features/*/state.json`). Replaces the static seed shipped
-  // 2026-05-08 in PR #20 which had only 21 features and froze at that
-  // snapshot. Live count: 79 features.
-  const allFeatures: FeatureSeed[] = loadFeaturesFromState();
+export default async function ControlRoomTablePage() {
+  // Sourced from the FT2 state Blob (Phase 2) or, when not configured, the
+  // synced `src/data/features/*.json` mirror of FT2's `.claude/features/*/
+  // state.json`. Replaces the static seed shipped 2026-05-08 in PR #20.
+  const allFeatures: FeatureSeed[] = await loadFeaturesFromState();
 
   return (
     <article className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">

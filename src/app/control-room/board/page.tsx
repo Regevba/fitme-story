@@ -185,8 +185,8 @@ function Column({ column, features }: { column: ColumnDef; features: FeatureSeed
 // Page
 // ────────────────────────────────────────────────────────────────────────────
 
-export default function ControlRoomBoardPage() {
-  const grouped: GroupedFeatures = loadFeaturesGrouped();
+export default async function ControlRoomBoardPage() {
+  const grouped: GroupedFeatures = await loadFeaturesGrouped();
   const allFeatures: FeatureSeed[] = [
     ...grouped.shipped,
     ...grouped.planned,

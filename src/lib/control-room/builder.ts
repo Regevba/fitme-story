@@ -32,6 +32,7 @@ import caseStudiesData from '../../data/control-room-seeds/caseStudies.json';
 
 import { reconcile, type Alert, type ReconcileResult } from './reconcile';
 import { fetchIssues, type GitHubIssue } from './github';
+import { getBundleJson } from '@/lib/live-data/data-source';
 import { parseStateFiles } from './parsers/state';
 import {
   FITME_STORY_ROOT,
@@ -305,7 +306,13 @@ interface ExternalSyncStatus {
 // Internal helpers
 // ─────────────────────────────────────────────────────────
 
-function readSharedJson(filename: string): unknown {
+// Live-or-snapshot read of a `.claude/shared/<filename>` JSON. Tries the FT2
+// state Blob first (Phase 2); falls back to the synced `src/data/shared`
+// snapshot on any miss. With FT2_STATE_BLOB_URL unset this is exactly the
+// prior synchronous behavior wrapped in a resolved promise.
+async function readSharedJson(filename: string): Promise<unknown> {
+  const live = await getBundleJson<unknown>(`shared/${filename}`);
+  if (live !== null) return live;
   return JSON.parse(readFileSync(resolve(SHARED_DIR, filename), 'utf-8'));
 }
 
@@ -1114,12 +1121,21 @@ export interface BuildDashboardDataOptions {
 export async function buildDashboardData(
   { token }: BuildDashboardDataOptions = {},
 ): Promise<DashboardData> {
-  const frameworkManifest = readSharedJson('framework-manifest.json');
-  const baseExternalSyncStatus = readSharedJson('external-sync-status.json') as ExternalSyncStatus;
-  const caseStudyMonitoring = readSharedJson('case-study-monitoring.json') as CaseStudyMonitoring;
-  const documentationDebt = readSharedJson('documentation-debt.json') as DocumentationDebt;
-  const featureRegistry = readSharedJson('feature-registry.json') as FeatureRegistry;
-  const taskQueue = readSharedJson('task-queue.json') as TaskQueue;
+  const [
+    frameworkManifest,
+    baseExternalSyncStatus,
+    caseStudyMonitoring,
+    documentationDebt,
+    featureRegistry,
+    taskQueue,
+  ] = await Promise.all([
+    readSharedJson('framework-manifest.json'),
+    readSharedJson('external-sync-status.json') as Promise<ExternalSyncStatus>,
+    readSharedJson('case-study-monitoring.json') as Promise<CaseStudyMonitoring>,
+    readSharedJson('documentation-debt.json') as Promise<DocumentationDebt>,
+    readSharedJson('feature-registry.json') as Promise<FeatureRegistry>,
+    readSharedJson('task-queue.json') as Promise<TaskQueue>,
+  ]);
 
   const authoritativeFeatures = buildFeatureDataset(featureRegistry);
   const caseStudyFeed = buildCaseStudyFeed(caseStudyMonitoring);

@@ -26,6 +26,7 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getBundleJson } from '@/lib/live-data/data-source';
 
 const FITME_STORY_ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -180,6 +181,14 @@ async function readJSON<T>(filePath: string): Promise<T | null> {
   }
 }
 
+// Live-or-snapshot read of a shared ledger: FT2 state Blob first (Phase 2),
+// then the synced/sibling snapshot via pickSharedPath. Never throws.
+async function liveOrShared<T>(filename: string): Promise<T | null> {
+  const live = await getBundleJson<T>(`shared/${filename}`);
+  if (live !== null) return live;
+  return readJSON<T>(pickSharedPath(filename));
+}
+
 async function readLatestSnapshot(snapshotsDir: string): Promise<IntegritySnapshot | null> {
   try {
     const entries = await readdir(snapshotsDir);
@@ -203,20 +212,20 @@ export async function loadFrameworkLedgers(): Promise<FrameworkLedgers> {
 
   const [adoptionHistory, adoptionCurrent, documentationDebt, latestIntegritySnapshot] =
     await Promise.all([
-      readJSON<MeasurementAdoptionHistory>(
-        pickSharedPath('measurement-adoption-history.json'),
+      liveOrShared<MeasurementAdoptionHistory>(
+        'measurement-adoption-history.json',
       ).catch((e) => {
         loadErrors.push(`adoptionHistory: ${e}`);
         return null;
       }),
-      readJSON<MeasurementAdoptionCurrent>(
-        pickSharedPath('measurement-adoption.json'),
+      liveOrShared<MeasurementAdoptionCurrent>(
+        'measurement-adoption.json',
       ).catch((e) => {
         loadErrors.push(`adoptionCurrent: ${e}`);
         return null;
       }),
-      readJSON<DocumentationDebt>(
-        pickSharedPath('documentation-debt.json'),
+      liveOrShared<DocumentationDebt>(
+        'documentation-debt.json',
       ).catch((e) => {
         loadErrors.push(`documentationDebt: ${e}`);
         return null;

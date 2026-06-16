@@ -20,6 +20,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { getBundleJson, listBundleKeys } from '@/lib/live-data/data-source';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Path resolution (same pattern as load-ledgers.ts)
@@ -141,33 +142,53 @@ function derivePrdLink(state: StateJson, slug: string): string | null {
 
 /** Read every synced `src/data/features/*.json`, transform to FeatureSeed.
  *  Returns sorted by ship date desc (shipped first), then by name. */
-export function loadFeaturesFromState(): FeatureSeed[] {
-  let entries: string[];
-  try {
-    entries = readdirSync(FEATURES_DIR).filter((f) => f.endsWith('.json'));
-  } catch {
-    return [];
-  }
+/** Project one parsed state.json into the public FeatureSeed shape. */
+function stateToSeed(state: StateJson, fileSlug: string): FeatureSeed {
+  const slug = state.feature ?? fileSlug;
+  return {
+    name: slugToTitle(slug),
+    slug,
+    phase: state.current_phase ?? null,
+    priority: workTypeToPriority(state.work_type),
+    rice: null, // state.json doesn't carry RICE; surfaced via backlog.md
+    category: deriveCategory(slug),
+    shipped: findShipDate(state),
+    prd: derivePrdLink(state, slug),
+  };
+}
 
+/**
+ * Live-or-snapshot loader. Tries the FT2 state Blob's `features/*` keys first
+ * (Phase 2); falls back to reading the synced `src/data/features/*.json`
+ * snapshot. With FT2_STATE_BLOB_URL unset, `listBundleKeys` returns [] and this
+ * is exactly the prior synchronous fs behavior.
+ */
+export async function loadFeaturesFromState(): Promise<FeatureSeed[]> {
   const features: FeatureSeed[] = [];
-  for (const file of entries) {
-    try {
-      const raw = readFileSync(path.join(FEATURES_DIR, file), 'utf8');
-      const state = JSON.parse(raw) as StateJson;
-      const slug = state.feature ?? file.replace(/\.json$/, '');
 
-      features.push({
-        name: slugToTitle(slug),
-        slug,
-        phase: state.current_phase ?? null,
-        priority: workTypeToPriority(state.work_type),
-        rice: null, // state.json doesn't carry RICE; surfaced via backlog.md
-        category: deriveCategory(slug),
-        shipped: findShipDate(state),
-        prd: derivePrdLink(state, slug),
-      });
+  const liveKeys = await listBundleKeys('features/');
+  if (liveKeys.length > 0) {
+    for (const key of liveKeys) {
+      const state = await getBundleJson<StateJson>(key);
+      if (!state) continue; // skip malformed; surfaced via integrity gates
+      const fileSlug = key.replace(/^features\//, '').replace(/\.json$/, '');
+      features.push(stateToSeed(state, fileSlug));
+    }
+  } else {
+    let entries: string[];
+    try {
+      entries = readdirSync(FEATURES_DIR).filter((f) => f.endsWith('.json'));
     } catch {
-      // Skip malformed state.json files; surfaced via cycle-time integrity gates.
+      return [];
+    }
+    for (const file of entries) {
+      try {
+        const raw = readFileSync(path.join(FEATURES_DIR, file), 'utf8');
+        const state = JSON.parse(raw) as StateJson;
+        features.push(stateToSeed(state, file.replace(/\.json$/, '')));
+      } catch {
+        // Skip malformed state.json files; surfaced via cycle-time integrity gates.
+      }
     }
   }
 
@@ -200,8 +221,8 @@ const SHIPPED_PHASES = new Set([
 ]);
 const BACKLOG_PHASES = new Set(['backlog']);
 
-export function loadFeaturesGrouped(): GroupedFeatures {
-  const all = loadFeaturesFromState();
+export async function loadFeaturesGrouped(): Promise<GroupedFeatures> {
+  const all = await loadFeaturesFromState();
   const out: GroupedFeatures = { shipped: [], planned: [], backlog: [] };
   for (const f of all) {
     const phase = f.phase ?? 'backlog';

@@ -21,6 +21,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { getBundleJson } from '@/lib/live-data/data-source';
 
 const execFileAsync = promisify(execFile);
 
@@ -88,6 +89,11 @@ function isValidShape(parsed: unknown): parsed is MembraneStatus {
  * graceful empty state.
  */
 export async function loadMembraneStatus(): Promise<MembraneStatus | null> {
+  // Live path (Phase 2): FT2 state Blob. Returns null when not configured, so
+  // this is a no-op until the Blob is wired and falls through to the snapshot.
+  const live = await getBundleJson<unknown>('shared/membrane-status.json');
+  if (live && isValidShape(live)) return live;
+
   // Primary path: read the prebuild-emitted JSON file. Works in every
   // environment (local dev, Vercel build, Vercel serverless runtime).
   if (existsSync(SYNCED_PATH)) {
