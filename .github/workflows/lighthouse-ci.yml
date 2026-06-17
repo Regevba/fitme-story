@@ -88,6 +88,7 @@ jobs:
           {
             echo "urls<<EOF"
             echo "$base/"
+            echo "$base/story"
             echo "$base/case-studies"
             echo "$base/case-studies/framework-v7-9-promotion"
             echo "$base/glossary"
