@@ -34,7 +34,7 @@
 - AutoDerived: 0
 - TODO: 0
 
-**All 4 remaining TODO entries are Internal control-room components** (FeatureCard, TaskCard, TaskTree, AlertsBanner). The 4 Internal components in the UCC passkey-auth path (AuthPasskeyForm, DevicesTable, AuditEventRow, AuditLogPanel) were verified 2026-05-16 (contrast measurements in the Internal table below) and the manifest flips landed 2026-05-26 (this audit, completing C10 of the UI/UX Master Plan). Per the Internal-deferral policy codified in `src/lib/design-system.ts`, Dark-mode treatment of Internal surfaces follows code-first design — designers don't iterate visually in Figma. The TODO flag here means: contrast spot-check still pending; not a P0 because operator surfaces have a smaller user surface area + are gated behind UCC auth.
+**Dark-mode coverage is now 100% — 0 TODO.** The final 4 Internal control-room components (FeatureCard, TaskCard, TaskTree, AlertsBanner) were contrast-verified 2026-06-17 (measurements in the Internal table below; manifest flipped to `Designed`). The earlier UCC passkey-auth batch (AuthPasskeyForm, DevicesTable, AuditEventRow, AuditLogPanel) was verified 2026-05-16 / flipped 2026-05-26 (C10). Per the Internal-deferral policy in `src/lib/design-system.ts`, Internal surfaces follow code-first design (no Figma visual iteration); verification is a measured contrast pass, which all 8 now have.
 
 ---
 
@@ -66,16 +66,16 @@ All 17 public components have explicit Light + Dark visual treatment:
 
 ---
 
-## Internal components — TODO list
+## Internal components — verification complete
 
-8 control-room components have a TODO flag for explicit dark-mode contrast verification. Path forward:
+All 8 control-room components are now contrast-verified (the last 4 on 2026-06-17). Path: each already used the `dark:text-{color}-300/400` (light) on `dark:bg-{color}-900/30` (dark translucent) over `dark:bg-neutral-800` pattern; measured worst-case 5.62:1 (rose-400/P0), all ≥ AA-normal 4.5:1 — no code changes were required, only verification + manifest flip.
 
 | Component | Category | Status | Resolution |
 |---|---|---|---|
-| FeatureCard | control-room | ✗ TODO | Spot-check on `/control-room/features` in dark mode; verify status badges + phase labels pass 4.5:1 |
-| TaskCard | control-room | ✗ TODO | Same as FeatureCard but for tasks list |
-| TaskTree | control-room | ✗ TODO | Nested-row hover states + indent guides; verify hover contrast in dark |
-| AlertsBanner | control-room | ✗ TODO | Severity colors (P0 coral / P1 amber / P2 neutral) — verify amber legibility on dark bg |
+| FeatureCard | control-room | ✓ Verified (2026-06-17) | 10 status/phase colors `text-{c}-600 dark:text-{c}-400/300` on `dark:bg-neutral-800`: amber-400 9.07:1, rose-400 (P0) 5.62:1, emerald-400 7.87:1, sky-400 7.06:1, all ✓ ≥4.5:1. Badge text on `dark:bg-{c}-900/30` (≈neutral-800 luminance) unchanged margins |
+| TaskCard | control-room | ✓ Verified (2026-06-17) | done `text-emerald-600 dark:text-emerald-400` 7.87:1 ✓; in_progress `text-sky-600 dark:text-sky-400` 7.06:1 ✓; status chips `dark:text-{c}-300` 9–10:1 ✓ |
+| TaskTree | control-room | ✓ Verified (2026-06-17) | active-row `dark:bg-amber-900/10` + `dark:text-amber-300` 10.5:1 ✓; nested hover stays on the same dark surface — no dark-on-dark |
+| AlertsBanner | control-room | ✓ Verified (2026-06-17) | severity text `dark:text-{rose,amber,sky,fuchsia}-300` on `dark:bg-{c}-900/20` 8.0–10.5:1 ✓; the `text-amber-500` ⚠ icon (no dark variant) measures 7.05:1 on neutral-800 ✓ (>3:1 UI) |
 | AuditEventRow | control-room | ✓ Verified (2026-05-16) | Timestamp `text-neutral-500 dark:text-white/50` ≈ 9.5:1 ✓; actor `text-neutral-700 dark:text-white/70` ≈ 13.4:1 ✓; 5 status chips each carry explicit `dark:bg-{color}-500/20 dark:text-{color}-200` overrides ≈ 9–11:1 ✓ |
 | AuditLogPanel | control-room | ✓ Verified (2026-05-16) | Error banner `bg-rose-50 text-rose-900 dark:bg-rose-500/10 dark:text-rose-200` ≈ 11.5:1 ✓; severity-level `text-rose-700 dark:text-rose-300` ≈ 8.7:1 ✓; pagination controls inherit `text-neutral-*` chain handled by `html.dark` token swap |
 | AuthPasskeyForm | control-room | ✓ Verified (2026-05-16) | Input field `bg-white dark:bg-white/5` + `text-neutral-900 dark:text-white` ≈ 14:1 ✓; focus ring `ring-brand-indigo` (dark token `#818CF8` on `#1C1917` ≈ 4.7:1) ✓ for UI threshold (3:1); error-state coral banner `bg-rose-50 dark:bg-rose-500/10 text-rose-200` ≈ 11.5:1 ✓; warning amber banner `dark:bg-amber-500/10 dark:text-amber-200` similar |

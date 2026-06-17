@@ -332,7 +332,7 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     status: 'Internal',
     figmaNodeIds: null,
     hasFigmaConnect: false,
-    darkModeStatus: 'TODO',
+    darkModeStatus: 'Designed',
   },
   {
     name: 'TaskCard',
@@ -343,7 +343,7 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     status: 'Internal',
     figmaNodeIds: null,
     hasFigmaConnect: false,
-    darkModeStatus: 'TODO',
+    darkModeStatus: 'Designed',
   },
   {
     name: 'TaskTree',
@@ -354,7 +354,7 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     status: 'Internal',
     figmaNodeIds: null,
     hasFigmaConnect: false,
-    darkModeStatus: 'TODO',
+    darkModeStatus: 'Designed',
   },
   {
     name: 'AlertsBanner',
@@ -365,7 +365,7 @@ export const DESIGN_SYSTEM_COMPONENTS: ComponentManifestEntry[] = [
     status: 'Internal',
     figmaNodeIds: null,
     hasFigmaConnect: false,
-    darkModeStatus: 'TODO',
+    darkModeStatus: 'Designed',
   },
   {
     name: 'AuditEventRow',
