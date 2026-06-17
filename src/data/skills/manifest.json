@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-05T09:42:13.550Z",
+  "syncedAt": "2026-06-17T13:13:57.875Z",
   "source": "/Volumes/DevSSD/FitTracker2/.claude/skills",
   "skills": [
     {
@@ -44,7 +44,7 @@
       "adaptersUsed": [
         "axe"
       ],
-      "loc": 381
+      "loc": 384
     },
     {
       "name": "dev",
@@ -55,7 +55,7 @@
       "adaptersUsed": [
         "security-audit"
       ],
-      "loc": 253
+      "loc": 257
     },
     {
       "name": "marketing",
@@ -79,7 +79,7 @@
         "security-audit",
         "sentry"
       ],
-      "loc": 269
+      "loc": 271
     },
     {
       "name": "pm-workflow",
@@ -90,7 +90,7 @@
       "adaptersUsed": [
         "ga4"
       ],
-      "loc": 1851
+      "loc": 1853
     },
     {
       "name": "qa",

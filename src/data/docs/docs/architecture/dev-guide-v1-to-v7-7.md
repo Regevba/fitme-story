@@ -1,9 +1,9 @@
-# PM Framework — Developer Guide (v1.0 → v7.9.1)
+# PM Framework — Developer Guide (v1.0 → v7.10)
 
 > **Audience:** developers landing in this codebase who need to understand how the PM framework actually works — not the marketing narrative, not the case-study story arc, but the wiring. If you are about to add a new feature, extend a check code, fix a CI workflow, or bump the framework version, start here.
 >
-> **Current version:** **v7.9.1** (build window closed 2026-06-04) — single-day build window that opened at v7.9 Phase E exit and shipped 8 observability surfaces, doc updates, and warn-only CI workflows across 14 PRs. **0 new enforcement gates** (Phase E exit discipline preserved). Synthesis case study: [`framework-v7-9-1-promotion-case-study.md`](../case-studies/framework-v7-9-1-promotion-case-study.md). For v7.9 (the enforcement-flip release shipped 2026-05-21 — 3 advisory gates → enforced via single-flag flip at `scripts/check-state-schema.py:138`) see [§2.0](#20-predecessor-snapshot-v79-shipped-2026-05-21). For prior versions see [§12 timeline](#12-compressed-evolution-timeline-v10--v79).
-> **Filename note:** the file stays `dev-guide-v1-to-v7-7.md` for ref-stability across 16+ cross-references in FT2 + fitme-story. Content tracks the latest framework version (v7.9.1).
+> **Current version:** **v7.10** (shipped 2026-06-10) — observability hardening of the gates themselves: the `GATE_COVERAGE_ZERO` meta-check gained a 0-candidate mis-wire detector, three cycle-time checks (`BROKEN_PR_CITATION`, `CASE_STUDY_MISSING_TIER_TAGS`, `PATTERN_SKILL_UNMAPPED`) now emit Mechanism A coverage so the F17 index can see them, and a field-rename silent-pass class was closed in the measurement layer (observed-patterns #24). T10 AI golden-set evals also shipped. **0 new product-facing enforcement gates.** Predecessor v7.9.1 (single-day build window, 8 observability ships across 14 PRs, closed 2026-06-04) is the most recent gate-shipping window; synthesis case study: [`framework-v7-9-1-promotion-case-study.md`](../case-studies/framework-v7-9-1-promotion-case-study.md). For v7.9 (the enforcement-flip release shipped 2026-05-21 — 3 advisory gates → enforced via single-flag flip at `scripts/check-state-schema.py:149`) see [§2.0](#20-predecessor-snapshot-v79-shipped-2026-05-21). For canonical current gate counts always defer to [`docs/FRAMEWORK-FACTS.md`](../FRAMEWORK-FACTS.md). For prior versions see [§12 timeline](#12-compressed-evolution-timeline-v10--v710).
+> **Filename note:** the file stays `dev-guide-v1-to-v7-7.md` for ref-stability across 16+ cross-references in FT2 + fitme-story. Content tracks the latest framework version (v7.10).
 > **Companion docs:** [`docs/architecture/feature-lifecycle-event-catalog.md`](./feature-lifecycle-event-catalog.md) (event/log/gate catalog with mermaid flow diagrams), [`docs/skills/architecture.md`](../skills/architecture.md) (skill-by-skill anatomy), [`docs/skills/evolution.md`](../skills/evolution.md) (full version-by-version history), [`CLAUDE.md`](../../CLAUDE.md) (project rules, fastest reference).
 > **Reading order:** §0 is a 90-second tour. §1 is audience and reading hints. §1.5 is the glossary. §§ 2–3 give you the mental model. §§ 4–8 are the schemas and contracts you'll edit against. §§ 9–11 are the integrity layer (where failures get caught). § 12 is the compressed timeline. §§ 13–15 are operational walkthroughs. § 16 is the cross-repo Code Connect bridge. § 17 is references.
 
@@ -14,7 +14,7 @@
 - [§0. TL;DR — 90-second tour](#0-tldr--90-second-tour)
 - [§1. Audience and how to read](#1-audience-and-how-to-read)
 - [§1.5 Glossary](#15-glossary)
-- [§2. Big picture (current state — v7.9.1, build window closed 2026-06-04)](#2-big-picture-current-state--v791-build-window-closed-2026-06-04)
+- [§2. Big picture (current state — v7.10, shipped 2026-06-10)](#2-big-picture-current-state--v710-shipped-2026-06-10)
 - [§3. Where the code lives](#3-where-the-code-lives)
 - [§4. The skill ecosystem (hub + 11 spokes)](#4-the-skill-ecosystem-hub--11-spokes)
 - [§5. `state.json` — the canonical per-feature contract](#5-statejson--the-canonical-per-feature-contract)
@@ -24,7 +24,7 @@
 - [§9. Measurement protocol (CU formula, cache_hits, timing)](#9-measurement-protocol-cu-formula-cache_hits-timing)
 - [§10. Integrity layer — write-time + per-PR + cycle-time + weekly](#10-integrity-layer--write-time--per-pr--cycle-time--weekly)
 - [§11. Pre-commit hooks and GitHub Actions](#11-pre-commit-hooks-and-github-actions)
-- [§12. Compressed evolution timeline (v1.0 → v7.9)](#12-compressed-evolution-timeline-v10--v79)
+- [§12. Compressed evolution timeline (v1.0 → v7.10)](#12-compressed-evolution-timeline-v10--v710)
 - [§13. Operational walkthrough — adding a new feature](#13-operational-walkthrough--adding-a-new-feature)
 - [§14. Operational walkthrough — extending an integrity check code](#14-operational-walkthrough--extending-an-integrity-check-code)
 - [§15. Operational walkthrough — bumping the framework version](#15-operational-walkthrough--bumping-the-framework-version)
@@ -97,11 +97,13 @@ Cross-cutting terms used throughout this guide and in commit messages, PR descri
 
 ---
 
-## 2. Big picture (current state — v7.9.1, build window closed 2026-06-04)
+## 2. Big picture (current state — v7.10, shipped 2026-06-10)
 
-### Current version snapshot (v7.9.1, build window closed 2026-06-04)
+### Current version snapshot (v7.10, shipped 2026-06-10)
 
-**v7.9.1 was a single-day build window** that opened at v7.9 Phase E exit (2026-06-04) and closed the same day. **0 new enforcement gates** added — Phase E exit discipline preserved (no new gates for the first 14 days post-promotion). 8 ships across 14 PRs, all observability surfaces, doc updates, reusable substrates, or warn-only CI workflows.
+**v7.10 hardens the observability of the gates themselves** — the meta-layer that watches whether each gate is actually running. No new product-facing gates. Three changes: (1) `GATE_COVERAGE_ZERO` (built v7.9.1 #673, extended #689) gained a 0-candidate mis-wire detector — a gate registered in the F17 index with `candidates==checked==skipped==0` runs but never reaches a candidate (the `cache_hits`-keying / unreachable-loop class), distinct from a healthy zero-firing gate; (2) three cycle-time checks (`BROKEN_PR_CITATION`, `CASE_STUDY_MISSING_TIER_TAGS`, `PATTERN_SKILL_UNMAPPED`) now emit `mode="cycle"` Mechanism A coverage (#689) — previously the F17 index was blind to them; (3) observed-patterns #24 closed a field-rename silent-pass in the measurement layer (#687/#688). T10 AI golden-set evals also shipped (#691). For canonical current gate counts defer to [`docs/FRAMEWORK-FACTS.md`](../FRAMEWORK-FACTS.md).
+
+**Predecessor — v7.9.1 was a single-day build window** that opened at v7.9 Phase E exit (2026-06-04) and closed the same day. **0 new enforcement gates** added — Phase E exit discipline preserved (no new gates for the first 14 days post-promotion). 8 ships across 14 PRs, all observability surfaces, doc updates, reusable substrates, or warn-only CI workflows.
 
 **Ships (cascade order, grouped by theme):**
 
@@ -373,6 +375,8 @@ Every feature has a `.claude/features/<name>/state.json` file. This file is the 
 | `complexity` | object | v6.0 protocol: `cu_version`, `factors_applied[]`, `view_count`, etc. (see § 9.1) |
 | `timing` | object | v6.0 protocol: `session_start`, `total_wall_time_minutes`, per-phase `started_at`/`ended_at` |
 | `cache_hits` | array | v6.0 protocol: each entry is `{timestamp, level, key, type, skill, event_type, phase}` |
+| `platforms_tested` | object | **T14 (2026-06-07).** `{ios, web, backend, ai}` booleans recording which platforms a feature's tests exercised. "Non-empty" = ≥1 key `true`. Validated by the advisory `PLATFORMS_TESTED` sub-check at `current_phase=complete`. Framework-meta features (`work_type=chore` / `work_subtype=framework_feature`) are exempt. See §5.4. |
+| `platforms_tested_provenance` | string | T14 provenance marker: `authored` \| `backfill-heuristic-<date>` \| `backfill-heuristic-low-confidence` \| `exempt:framework_meta`. |
 
 ### 5.2 Phase-specific sub-fields
 
@@ -391,6 +395,15 @@ Each entered phase typically also has:
 - `PHASE_TRANSITION_NO_TIMING` (v7.6) — phase changed but no `timing.phases.<new>.started_at` and/or old-phase `ended_at` update
 
 The `--staged` flag scopes the check to staged files (used by the pre-commit hook). The `FORCE_TRANSITION_CHECKS=1` env var unscopes for testing.
+
+### 5.4 `platforms_tested` parity (T14, 2026-06-07)
+
+`platforms_tested` records which platforms a feature's tests exercised, so platform-test parity is a queryable property of every completed feature (not just "tests passed somewhere"). Shape: `{"ios": bool, "web": bool, "backend": bool, "ai": bool}` (semantics: `ios`=SwiftUI app, `web`=fitme-story/website/dashboard, `backend`=sync/Supabase/Railway, `ai`=ai-engine cohort).
+
+- **Gate:** the advisory `PLATFORMS_TESTED` sub-check (in `check-state-schema.py`) fires on `current_phase=complete` transitions and reports when no platform key is `true`. It has its own `PLATFORMS_TESTED_ADVISORY_MODE` flag + isolated Mechanism A coverage key, so its advisory→enforced flip (~v7.10, after a 14-day calibration window) is independent of the enforced `FEATURE_CLOSURE_COMPLETENESS` gate it fires alongside.
+- **Q2 exemption:** framework-meta features (`work_type=chore` or `work_subtype=framework_feature`, or `platforms_tested_provenance` starting `exempt:`) are skipped — they ship no product-platform code, so an all-`false` record would be meaningless.
+- **Backfill:** `scripts/backfill-platforms-tested.py` populated all pre-T14 complete features from offline text signals, tagging each with a `platforms_tested_provenance` marker; low-confidence inferences are flagged for optional operator spot-check (0 mandatory review).
+- **Out of scope:** per-platform coverage *percentages* (T15+, depends on R9 Track B coverage data).
 
 ---
 
@@ -555,7 +568,7 @@ Forward-only: case studies dated `>= 2026-04-21` get file-level tag-presence enf
 
 ## 10. Integrity layer — write-time + per-PR + cycle-time + weekly
 
-### 10.1 Check codes (write-time + cycle-time, current through v7.9, 2026-05-21)
+### 10.1 Check codes (write-time + cycle-time, current through v7.10, 2026-06-10)
 
 > The table below enumerates every check code emitted by the enforcement scripts. The v7.8.1 branch-isolation + feature-closure family and the v7.8.3 cross-repo `state_owner` family were promoted/added after the original §10.1 table was written; they are now included. When debugging a gate that fired, **check the [Observed Patterns Catalog](#105-observed-patterns-catalog-v785) (§10.5) first** — most fire-patterns are documented there with a signal-vs-noise rule and a silence path.
 
@@ -583,7 +596,7 @@ Forward-only: case studies dated `>= 2026-04-21` get file-level tag-presence enf
 | `SCHEMA_DRIFT_LEGACY_CREATED` (2026-05-01 honesty-fixes patch, PR #169) | Write | `check-state-schema.py` | Legacy `created` key on state.json (canonical: `created_at`). Closes the silent-pass that left v7.7 `CACHE_HITS_EMPTY_POST_V6` at 0/46 effective coverage when 43/46 features used the legacy field name. |
 | `FRAMEWORK_VERSION_FORMAT` (2026-05-01 honesty-fixes patch, PR #169) | Write | `check-state-schema.py` | When `framework_version` is set, must match `(pre-)?v<major>.<minor>`. Presence-required deferred to v7.9 backfill. |
 | **`CACHE_HITS_AUTO_INSTRUMENTATION_INACTIVE` (v7.8 advisory, Mechanism C)** | Cycle (advisory) | `integrity-check.py` | Session ledger (`.claude/logs/_session-<id>.events.jsonl`) attributes Read events to a feature, but `state.json::cache_hits[]` is empty/absent. Mechanism C captures session events; state.json::cache_hits requires manual `scripts/log-cache-hit.py` until v7.9 promotes `observe-cache-hit.py` to dual-write. **Advisory only** in v7.8; v7.9 promotes to enforced. |
-| **`GATE_COVERAGE_ZERO` (v7.8 advisory, Mechanism A; v7.9-enforced)** | Cycle (advisory) | `integrity-check.py` (planned) | Write-time gate that fired with `checked=0` (every candidate skipped) for 7+ days. Catches the failure mode where a gate's predicate is too restrictive and silently passes everything. Coverage data lands in `.claude/logs/gate-coverage.jsonl` per Mechanism A. **Advisory in v7.8** (need 7+ days of stats to calibrate); v7.9 promotes to enforced once the threshold is empirically grounded. |
+| **`GATE_COVERAGE_ZERO` (built v7.9.1 #673; extended v7.10 #689, advisory)** | Cycle (advisory) | `integrity-check.py` | Reads the F17 `gate-last-fired.json` index and flags a gate that went silent relative to the active corpus. v7.10 added a **0-candidate mis-wire detector**: a gate in the index with `candidates==checked==skipped==0` has a check site that runs but never reaches a candidate (the `cache_hits`-keying / unreachable-loop class) — distinct from a healthy zero-firing gate (e.g. `STATE_OWNER_MISSING`: many candidates, 0 violations). Coverage lands in `.claude/logs/gate-coverage.jsonl` per Mechanism A. **Remains advisory.** |
 | `BRANCH_ISOLATION_VIOLATION` Mode B (v7.8.1 advisory → **enforced v7.9**, 2026-05-21) | Write | `check-state-schema.py` | Infra-path commit (`.githooks/*`, `.github/workflows/*`, `scripts/*`, `.claude/skills/*`, `.claude/shared/*`, `CLAUDE.md`, `docs/architecture/*`, `Makefile`, OR `work_subtype: framework_feature` / `work_type: chore`) on a non-feature branch. Per-feature `isolation_opt_out` does NOT bypass Mode B (Q3 infra override). Auto-isolation dispatches `scripts/create-isolated-worktree.py`. |
 | `BRANCH_ISOLATION_VIOLATION` Mode C (v7.8.1 advisory → **enforced v7.9**) | Write | `check-state-schema.py` (`BRANCH_ISOLATION_VIOLATION_MODE_C`) | `state.json::current_phase` mutation from a non-feature branch. Per-feature `isolation_opt_out: true` + reason bypasses Mode C only. |
 | `ISOLATION_OPT_OUT_REASON_MISSING` (v7.8.1, **enforced at ship**) | Write | `check-state-schema.py` | `isolation_opt_out: true` with empty/missing `isolation_opt_out_reason`. |
@@ -592,6 +605,9 @@ Forward-only: case studies dated `>= 2026-04-21` get file-level tag-presence enf
 | `BRANCH_ISOLATION_HISTORICAL` (v7.8.1 cycle advisory — **stays advisory by design**) | Cycle (advisory) | `integrity-check.py` | T17 forward-only audit — feature files first appear on `main` with no `feature/*`/`chore/*` branch attribution (squash-merge + branch-cleanup artifact; see Observed Patterns #1). |
 | `BRANCH_ISOLATION_LAUNCHD_DRIFT` (v7.8.1 cycle advisory — macOS-only, **stays advisory**) | Cycle (advisory) | `integrity-check.py` | T18 — launchd plist anchored to a stale repo path (the 2026-04-30 HADF Phase 2 trigger incident). |
 | `PR_CACHE_STALE` (v7.8.4 operability) | Pre-check | `ensure-pr-cache-fresh.py` | `.cache/gh-pr-cache.json` empty/missing/>24h → auto-refresh runs before `make integrity-check` + inside `integrity-cycle.yml`. Refresh failure logs but does NOT abort. Closes the 33-finding empty-cache false-positive incident (2026-05-12; see Observed Patterns #12 + W11). |
+| `PLATFORMS_TESTED` (T14, **advisory**; advisory→enforced ~v7.10) | Write | `check-state-schema.py` | `current_phase=complete` transition with no platform set to `true` in `platforms_tested`. Own `PLATFORMS_TESTED_ADVISORY_MODE` flag + isolated coverage key (independent flip from FEATURE_CLOSURE_COMPLETENESS). Q2-exempt: `work_type=chore` / `work_subtype=framework_feature` / `provenance exempt:*`. Also validates field shape any phase. See §5.4. |
+| `TRACKING_DRIFT_OPEN_BUT_SHIPPED` (2026-06-07, advisory) | On-demand | `tracking-drift-check.py` (`make tracking-drift-check`) | Planning rows that claim OPEN (`[ ]` / un-struck RICE row) while their feature `state.json` is `complete` or the row's own title carries a ship marker. Advisory only. |
+| `PR_NUMBER_UNRESOLVED` window (raised 500 → 2000, 2026-06-07) | Write | `check-state-schema.py` `_load_pr_cache` | `gh pr list --limit 2000` (was 500): a commit touching an OLD complete feature re-validates its merge pr_number, so the window must span full PR history (same W34 truncation class PR #631 closed for the integrity-check reader). |
 
 ### 10.2 The 72h cycle
 
@@ -623,7 +639,7 @@ Defined in `.github/workflows/framework-status-weekly.yml` (v7.6 Phase 2c). Cron
 
 When a gate fires, the finding alone does not tell you whether it is a real problem or an expected artifact (a squash-merge leaving no branch attribution, an empty PR cache, a heuristic over-trigger, etc.). The **Observed Patterns Catalog** at [`.claude/integrity/observed-patterns.md`](../../.claude/integrity/observed-patterns.md) is the canonical manifest of every recognized fire-pattern. Each entry carries a **trigger**, a **why-expected** classification (by-design / cleanup-artifact / silent-pass-then-fixed / heuristic-FP / schema-drift), a **distinguishing-real-signal** rule, and a **silence path**.
 
-- **Coverage (current):** 23 gate-firing patterns (Section 1, `#1`–`#23`) + 32 workflow/operational patterns (Section 2, `W1`–`W32`) + 1 self-doc entry (`W33` — the pattern↔skill preflight overlay tool itself).
+- **Coverage (current):** 24 gate-firing patterns (Section 1, `#1`–`#24`) + workflow/operational patterns through `W36` (Section 2; `W33` is the pattern↔skill preflight overlay self-doc entry). See `.claude/integrity/observed-patterns.md` for the live ceiling — this number advances every time a novel pattern is appended.
 - **CLI:** `make observed-patterns`.
 - **Preflight-loaded** by `/pm-workflow` and referenced by all spoke skills.
 - **Operator obligation (mandatory):** when any framework gate or advisory fires, the FIRST step is to consult this catalog. Apply the documented remediation if the pattern matches; investigate only if novel; and **append a new entry** to the catalog before the feature that surfaced the novel pattern is closed. The catalog is append-only-by-default.
@@ -749,7 +765,7 @@ All dynamic values used inside `run:` blocks **MUST** be routed through the `env
 
 ---
 
-## 12. Compressed evolution timeline (v1.0 → v7.9)
+## 12. Compressed evolution timeline (v1.0 → v7.10)
 
 Full per-version detail: [`docs/skills/evolution.md`](../skills/evolution.md). This section is the compressed dev-only summary — what each version changed structurally.
 
@@ -780,7 +796,8 @@ Full per-version detail: [`docs/skills/evolution.md`](../skills/evolution.md). T
 | v7.8.5 | 2026-05-13 | Observability layer (docs + a hook, no new gates). **Observed Patterns Catalog** ([`.claude/integrity/observed-patterns.md`](../../.claude/integrity/observed-patterns.md), `make observed-patterns`) — canonical manifest of gate-firing patterns; check it FIRST when a gate fires. **W9 branch-drift real-time alert** (`PostToolUse:Bash` → `check-branch-drift.py`). Shipped via PR #327/#328 + #341. | The catalog is the doc you consult when a gate fires; W9 warns you if a concurrent session flipped your branch (§10.5 + §10.6). |
 | v7.8.6 | 2026-05-15 | Cadence batch — read/diff/warn surfaces closing the 96h drift window. `make integrity-diff` (vs 2026-05-14 anchor), unified `make preflight` (mandatory Phase 0.0 aggregator → `preflight-cache.json`), weekly gate-coverage zero-drift scan + per-dimension adoption trend nudge (extends `framework-status-weekly.yml`), W1 ssh-agent SessionStart preflight, `dependency-audit-weekly.yml`, daily stale-branch / orphan-worktree / idle-PR surfaces. Shipped via PR #363 + #365. | `make preflight WORK_TYPE=<type>` is the one command to run before any new work — it aggregates every pre-work check (§10.6). |
 | v7.9 | 2026-05-21 | Promotion release. Single-flag flip at [`scripts/check-state-schema.py:138`](../../scripts/check-state-schema.py) (`BRANCH_ISOLATION_ADVISORY_MODE = True → False`) promotes the 3 v7.8.1 advisory gates (Mode B, Mode C, `FEATURE_CLOSURE_COMPLETENESS` write-time) to enforced after their 14-day telemetry window (0 false positives across 18 + 13 + 13 firings). No new gate code. Phase E validation soak 2026-05-21 → 2026-06-04. Shipped via PR #417. | **The current enforced state.** Those 3 gates now block commits. The 3 cycle-time advisories stay advisory by design. Reversibility: single-line revert, < 5 min (§2.0). |
-| v7.9.1 | 2026-06-04 | **F16 try-repo pre-commit harness** — adds the 3rd test layer for gates (unit → dispatch → try-repo). Spawns throwaway `pytest tmp_path` git repos, stages canonical positive/negative fixtures under `tests/fixtures/<GATE_ID>/{positive,negative}/`, runs the real `.githooks/pre-commit` via subprocess, asserts exit code + stderr match fixture intent. Coverage: 15/16 write-time gates end-to-end (1 documented skip — `STATE_OWNER_LOCATION_MISMATCH` skips with `path_neutral` when the throwaway repo is not under `/FitTracker2[-/]` or `/fitme-story/`; deferred to F16.1). Empirical wall-clock: ~15s for 59 tests + 1 skip (PRD budget <60s). **F16 caught two real bugs in the framework's own infrastructure during T4 development** — `GATE_COVERAGE_LEDGER` was a module-level constant not env-var (Q5), and `REPO_ROOT` was hardcoded to where the .py file lived (Q6, fixed via `REPO_ROOT_OVERRIDE` env-var support — PR #611). T7 deliberate-regression test PROVES F16 catches what F14 architecturally cannot. **F17 per-gate `last_fired_at` index** (RICE 66.7 — highest of all v7.9.1 items) — `scripts/refresh-gate-last-fired.py` derives `.claude/shared/gate-last-fired.json` from `gate-coverage.jsonl` at wall-clock <1s for ~2k rows. Wired into `make integrity-check` + daily checkpoint + weekly cron. AWS Config Rules `LastSuccessfulInvocationTime` pattern; enables planned v7.10 `GATE_COVERAGE_ZERO` meta-check at O(1) instead of O(records × gates). **B_medium tier formalized** in [CLAUDE.md "Work Item Types"](../../CLAUDE.md) (closes F6 doc gap). **T14 platform-parity stub** opened at [`.claude/features/t14-platform-parity-state-field/`](../../.claude/features/t14-platform-parity-state-field/) — `platforms_tested` schema field design queued for v7.10 calibration. Shipped via PR #606 (F6 + T14 stub) + #607 (F16 scoping) + #608 (T2+T3) + #610 (T4a + Q6) + #611 (REPO_ROOT_OVERRIDE fix) + #612 (T4 complete + T6 CI + T7 regression + T8-T10 docs). | F16 is the discipline you adopt for any new gate going forward: add a fixture pair under `tests/fixtures/<GATE_ID>/{positive,negative}/state.overrides.json` + a parametrized test in the appropriate bucket file. See [`CLAUDE.md` "v7.9.1 F16 — Try-repo Pre-commit Harness"](../../CLAUDE.md) for the full discipline. |
+| v7.9.1 | 2026-06-04 | **F16 try-repo pre-commit harness** — adds the 3rd test layer for gates (unit → dispatch → try-repo). Spawns throwaway `pytest tmp_path` git repos, stages canonical positive/negative fixtures under `tests/fixtures/<GATE_ID>/{positive,negative}/`, runs the real `.githooks/pre-commit` via subprocess, asserts exit code + stderr match fixture intent. Coverage: 15/16 write-time gates end-to-end (1 documented skip — `STATE_OWNER_LOCATION_MISMATCH` skips with `path_neutral` when the throwaway repo is not under `/FitTracker2[-/]` or `/fitme-story/`; deferred to F16.1). Empirical wall-clock: ~15s for 59 tests + 1 skip (PRD budget <60s). **F16 caught two real bugs in the framework's own infrastructure during T4 development** — `GATE_COVERAGE_LEDGER` was a module-level constant not env-var (Q5), and `REPO_ROOT` was hardcoded to where the .py file lived (Q6, fixed via `REPO_ROOT_OVERRIDE` env-var support — PR #611). T7 deliberate-regression test PROVES F16 catches what F14 architecturally cannot. **F17 per-gate `last_fired_at` index** (RICE 66.7 — highest of all v7.9.1 items) — `scripts/refresh-gate-last-fired.py` derives `.claude/shared/gate-last-fired.json` from `gate-coverage.jsonl` at wall-clock <1s for ~2k rows. Wired into `make integrity-check` + daily checkpoint + weekly cron. AWS Config Rules `LastSuccessfulInvocationTime` pattern; enables planned v7.10 `GATE_COVERAGE_ZERO` meta-check at O(1) instead of O(records × gates). **B_medium tier formalized** in [CLAUDE.md "Work Item Types"](../../CLAUDE.md) (closes F6 doc gap). **T14 platform-parity** SHIPPED 2026-06-07 at [`.claude/features/t14-platform-parity-state-field/`](../../.claude/features/t14-platform-parity-state-field/) — `platforms_tested {ios, web, backend, ai}` boolean field + advisory `PLATFORMS_TESTED` sub-check (own flag + isolated coverage key) + single-pass backfill of all 94 complete features (25 exempt / 61 inferred / 8 low-confidence flagged, 0 mandatory review); advisory→enforced flip queued for ~v7.10 after its 14-day calibration window (B15, 2026-06-21). See §5.4. Stub opened via PR #606 (F6 + T14 stub) + #607 (F16 scoping) + #608 (T2+T3) + #610 (T4a + Q6) + #611 (REPO_ROOT_OVERRIDE fix) + #612 (T4 complete + T6 CI + T7 regression + T8-T10 docs). | F16 is the discipline you adopt for any new gate going forward: add a fixture pair under `tests/fixtures/<GATE_ID>/{positive,negative}/state.overrides.json` + a parametrized test in the appropriate bucket file. See [`CLAUDE.md` "v7.9.1 F16 — Try-repo Pre-commit Harness"](../../CLAUDE.md) for the full discipline. |
+| v7.10 | 2026-06-10 | **GATE_COVERAGE_ZERO observability + field-rename closure.** (a) `GATE_COVERAGE_ZERO` (shipped #673) extended (#689) with a **0-candidate mis-wire detector** — a gate in the index with `candidates==checked==skipped==0` runs but never reaches a candidate (the `cache_hits`-keying / unreachable-loop class); distinct from a healthy zero-firing gate (`STATE_OWNER_MISSING`: 1936 candidates, 0 violations). (b) **Cycle-time Mechanism A coverage** for `BROKEN_PR_CITATION` / `CASE_STUDY_MISSING_TIER_TAGS` / `PATTERN_SKILL_UNMAPPED` — ran without emitting coverage, so the F17 index was blind; now emit `mode="cycle"`. (c) Observed-patterns **pattern #24** — field-rename silent-pass in a READER/INDEX (`cu_v2` top-level-vs-`complexity.cu_version` undercount fixed #687, post-v6 fully-adopted 3→6; `w9.auto_isolate` `ts`-vs-`timestamp` drop fixed #688 — the #7/#9 class in the measurement layer). (d) **verify-local ergonomics** (#690) — `tokens-check`/`verify-web`/`verify-ai` skip cleanly when deps absent (CI still enforces). **T10 AI golden-set evals** (#691) — deterministic `InsightService` golden set; ai-engine suite 60 pass / 1 skip. | The lesson: when you rename or fork a field, grep EVERY reader (`grep -rn '.get("<oldname>"' scripts/`) in the same change. The meta-layer is now self-observing for cycle-time checks too. |
 
 ### 12.1 Version-bump policy
 
@@ -829,6 +846,16 @@ The hub creates `.claude/features/widget-customization/state.json` with:
 ```
 
 It also creates `.claude/logs/widget-customization.log.json` with a `phase_started` event.
+
+**`tasks[].experiment_outcome` (F10, v8.x — optional, advisory).** Each task in
+`tasks[]` may carry an `experiment_outcome` enum recording the *disposition* of a
+task whose work has concluded: `"shipped"` / `"deferred"` / `"cancelled"` /
+`"superseded"`. This is orthogonal to `tasks[].status` (`pending`/`in_progress`/
+`complete`) — `status` tracks execution state; `experiment_outcome` records *why*
+a non-shipped task ended (a deferred task and a cancelled one are both "not
+complete" but mean different things). Previously this distinction lived only in
+case-study prose. The field is **optional and advisory** — no blocking gate
+validates it (it is a vocabulary formalization, not a new enforcement layer).
 
 ### 13.2 Phase progression
 

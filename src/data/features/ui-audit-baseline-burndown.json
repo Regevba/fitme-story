@@ -12,6 +12,8 @@
   },
   "started": "2026-04-21",
   "current_phase": "complete",
+  "platforms_tested": {},
+  "platforms_tested_provenance": "exempt:framework_meta",
   "status": "complete",
   "branch": "claude/review-ui-consistency-zSkvJ",
   "merged_to": "main",
@@ -83,7 +85,9 @@
       "complete": {
         "started_at": "2026-04-27T05:52:02Z"
       }
-    }
+    },
+    "total_wall_time_minutes": 172.6,
+    "total_wall_time_minutes_provenance": "backfill-derived-from-phase-durations-2026-06-10"
   },
   "metrics": {
     "primary": "baseline_p0_count",

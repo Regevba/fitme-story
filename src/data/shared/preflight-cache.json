@@ -1,7 +1,7 @@
 {
   "work_type": "feature",
-  "feature": "framework-f14-f15-dispatch-test-coverage",
-  "generated_at": "2026-05-22T19:08:32Z",
+  "feature": "garmin-health-connection",
+  "generated_at": "2026-06-12T03:56:05Z",
   "checks": [
     {
       "name": "W1_ssh_agent",
@@ -23,17 +23,17 @@
     },
     {
       "name": "branch_isolation",
-      "status": "warning",
-      "detail": "current branch: main (on main \u2014 infra commits will trigger BRANCH_ISOLATION_VIOLATION advisory)",
-      "current_branch": "main",
+      "status": "ok",
+      "detail": "current branch: feature/garmin-health-connection",
+      "current_branch": "feature/garmin-health-connection",
       "blocking": false
     },
     {
       "name": "integrity_check",
-      "status": "blocking",
-      "detail": "-1 findings + -1 advisory",
-      "findings_count": -1,
-      "advisory_count": -1,
+      "status": "ok",
+      "detail": "0 findings + 1 advisory",
+      "findings_count": 0,
+      "advisory_count": 1,
       "blocking": false
     },
     {
@@ -42,22 +42,22 @@
       "detail": "3 regression(s) vs 2026-05-14 anchor",
       "regressions": [
         {
-          "key": "adoption_pct_post_v6",
-          "baseline": 8.3,
-          "current": 7.3,
-          "delta": -1.0
+          "key": "doc_debt_open",
+          "baseline": 1,
+          "current": 2,
+          "delta": 1
         },
         {
           "key": "timing_wall_time_pct_post_v6",
           "baseline": 47.2,
-          "current": 41.5,
-          "delta": -5.7
+          "current": 23.9,
+          "delta": -23.3
         },
         {
           "key": "cache_hits_pct_post_v6",
           "baseline": 52.8,
-          "current": 48.8,
-          "delta": -4.0
+          "current": 39.4,
+          "delta": -13.4
         }
       ],
       "blocking": false
@@ -65,87 +65,32 @@
     {
       "name": "documentation_debt",
       "status": "info",
-      "detail": "1 open documentation-debt item(s)",
-      "open_count": 1,
+      "detail": "2 open documentation-debt item(s)",
+      "open_count": 2,
       "blocking": false
     },
     {
       "name": "measurement_adoption",
       "status": "info",
-      "detail": "post-v6 adoption: 7.3% (3/41) \u2014 baseline for any new shipped feature",
-      "fully_adopted_post_v6": 3,
-      "features_post_v6": 41,
-      "adoption_pct_post_v6": 7.3,
+      "detail": "post-v6 adoption: 8.5% (6/71) \u2014 baseline for any new shipped feature",
+      "fully_adopted_post_v6": 6,
+      "features_post_v6": 71,
+      "adoption_pct_post_v6": 8.5,
       "blocking": false
     },
     {
       "name": "feature_state_json",
-      "status": "info",
-      "detail": "feature 'framework-f14-f15-dispatch-test-coverage' has no state.json yet (Phase 0 will create it)",
+      "status": "ok",
+      "detail": "feature 'garmin-health-connection' current_phase=testing",
+      "current_phase": "testing",
       "blocking": false
     }
   ],
   "summary": {
     "total_checks": 9,
     "blocking": 0,
-    "warnings": 2,
-    "ok": 3
+    "warnings": 1,
+    "ok": 6
   },
-  "blocking_issues": [],
-  "skill_overlay": {
-    "pm-workflow": {
-      "generated_at": "2026-06-04T18:22:07Z",
-      "checked": [
-        "#1",
-        "#2",
-        "#3",
-        "#4",
-        "#5",
-        "#6",
-        "#7",
-        "#8",
-        "#9",
-        "#10",
-        "#11",
-        "#12",
-        "#13",
-        "#15",
-        "#16",
-        "#17",
-        "#18",
-        "#20"
-      ],
-      "blocking": [
-        "#3",
-        "#4",
-        "#5",
-        "#6",
-        "#7",
-        "#9",
-        "#10",
-        "#11",
-        "#13",
-        "#15",
-        "#16",
-        "#17",
-        "#18"
-      ],
-      "advisory": [
-        "#1",
-        "#2",
-        "#8",
-        "#20"
-      ],
-      "manual": [
-        "#19",
-        "#21",
-        "W2",
-        "W6",
-        "W20",
-        "W27",
-        "W30",
-        "W32"
-      ]
-    }
-  }
+  "blocking_issues": []
 }

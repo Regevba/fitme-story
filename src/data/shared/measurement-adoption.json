@@ -1,48 +1,70 @@
 {
   "version": "1.0",
-  "updated": "2026-06-05T03:53:45Z",
+  "updated": "2026-06-17T12:47:02Z",
   "v6_ship_date": "2026-04-16",
   "description": "Gemini audit Tier 1.1 adoption inventory. Counts which features have v6.0 measurement fields (timing.total_wall_time_minutes, per-phase timing, cache_hits, CU v2) in their state.json.",
   "summary": {
-    "features_total": 96,
-    "features_post_v6": 62,
+    "features_total": 113,
+    "features_post_v6": 79,
     "features_pre_v6": 34,
-    "fully_adopted": 3,
-    "partial_adopted": 51,
-    "zero_adopted": 42,
-    "fully_adopted_post_v6": 3,
+    "fully_adopted": 9,
+    "partial_adopted": 68,
+    "zero_adopted": 36,
+    "fully_adopted_post_v6": 9,
     "tier_1_1_status": "partial"
   },
   "dimension_coverage": {
     "timing_wall_time": {
-      "overall_present": 17,
-      "overall_percent": 17.7,
-      "post_v6_present": 17,
-      "post_v6_percent": 27.4
+      "overall_present": 36,
+      "overall_percent": 31.9,
+      "post_v6_present": 36,
+      "post_v6_percent": 45.6,
+      "overall_instrumented": 17,
+      "overall_derived": 19,
+      "post_v6_instrumented": 17,
+      "post_v6_derived": 19
     },
     "per_phase_timing": {
-      "overall_present": 54,
-      "overall_percent": 56.2,
-      "post_v6_present": 51,
-      "post_v6_percent": 82.3
+      "overall_present": 77,
+      "overall_percent": 68.1,
+      "post_v6_present": 74,
+      "post_v6_percent": 93.7,
+      "overall_instrumented": 77,
+      "overall_derived": 0,
+      "post_v6_instrumented": 74,
+      "post_v6_derived": 0
     },
     "cache_hits": {
-      "overall_present": 26,
-      "overall_percent": 27.1,
-      "post_v6_present": 25,
-      "post_v6_percent": 40.3
+      "overall_present": 31,
+      "overall_percent": 27.4,
+      "post_v6_present": 30,
+      "post_v6_percent": 38.0,
+      "overall_instrumented": 31,
+      "overall_derived": 0,
+      "post_v6_instrumented": 30,
+      "post_v6_derived": 0
     },
     "cu_v2": {
-      "overall_present": 14,
-      "overall_percent": 14.6,
-      "post_v6_present": 14,
-      "post_v6_percent": 22.6
+      "overall_present": 26,
+      "overall_percent": 23.0,
+      "post_v6_present": 26,
+      "post_v6_percent": 32.9,
+      "overall_instrumented": 26,
+      "overall_derived": 0,
+      "post_v6_instrumented": 26,
+      "post_v6_derived": 0
     }
   },
   "fully_adopted_features": [
+    "audit-1-corrections",
+    "case-study-comparison-table",
+    "case-study-presentation",
     "data-integrity-framework-v7-6",
     "framework-v7-7-validity-closure",
-    "meta-analysis-audit"
+    "meta-analysis-audit",
+    "meta-analysis-refresh-phase-1",
+    "push-notifications",
+    "roadmap-stress-test-2026-05-07"
   ],
   "partial_adopted_features": [
     {
@@ -64,25 +86,25 @@
       }
     },
     {
-      "feature": "ai-user-feedback-loop",
+      "feature": "ai-golden-set-evals",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "ai-user-feedback-loop",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": true,
         "cu_v2": false
       }
     },
     {
       "feature": "analytics-observability",
-      "adoption": {
-        "timing_wall_time": false,
-        "per_phase_timing": true,
-        "cache_hits": false,
-        "cu_v2": false
-      }
-    },
-    {
-      "feature": "audit-1-corrections",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
@@ -100,27 +122,9 @@
       }
     },
     {
-      "feature": "case-study-comparison-table",
-      "adoption": {
-        "timing_wall_time": true,
-        "per_phase_timing": true,
-        "cache_hits": true,
-        "cu_v2": false
-      }
-    },
-    {
-      "feature": "case-study-presentation",
-      "adoption": {
-        "timing_wall_time": true,
-        "per_phase_timing": true,
-        "cache_hits": true,
-        "cu_v2": false
-      }
-    },
-    {
       "feature": "code-connect-automation",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
@@ -129,7 +133,16 @@
     {
       "feature": "cross-repo-state-sync-impl",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "dev-env-r11-r13-r14-r17-r18-batch",
+      "adoption": {
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
@@ -139,6 +152,15 @@
       "feature": "exercise-search-filter",
       "adoption": {
         "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "f-deployed-url-probe-ft2",
+      "adoption": {
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
@@ -156,6 +178,42 @@
     {
       "feature": "f-launchd-drift-extension-sub-a",
       "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "f-phase-e-adoption-freeze-discipline",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "f1-state-tasks-filesystem-drift",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "f11-reverse-sync-historical-exempt",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "f12-actionlint-gate",
+      "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": false,
@@ -165,7 +223,7 @@
     {
       "feature": "f16-try-repo-harness",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
@@ -174,7 +232,7 @@
     {
       "feature": "f17-last-fired-at-index",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
@@ -182,6 +240,24 @@
     },
     {
       "feature": "f2-phase-0-reality-check",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "f3-dependency-graph-cycle-check",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "f4-framework-version-stale",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
@@ -217,12 +293,21 @@
       }
     },
     {
+      "feature": "fitme-story-dual-audience-redesign",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
       "feature": "fitme-story-public-enhancements",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
       }
     },
     {
@@ -235,7 +320,7 @@
       }
     },
     {
-      "feature": "framework-f14-f15-dispatch-test-coverage",
+      "feature": "foundation-models-tier3",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
@@ -244,9 +329,18 @@
       }
     },
     {
+      "feature": "framework-f14-f15-dispatch-test-coverage",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": true,
+        "cu_v2": false
+      }
+    },
+    {
       "feature": "framework-honesty-fixes-2026-05-01",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
@@ -276,6 +370,15 @@
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": true,
+        "cu_v2": true
+      }
+    },
+    {
+      "feature": "framework-v7-9-1-promotion",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
         "cu_v2": false
       }
     },
@@ -286,6 +389,24 @@
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      }
+    },
+    {
+      "feature": "framework-w30-w31-w32-durable-fixes",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "garmin-health-connection",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": true,
+        "cu_v2": true
       }
     },
     {
@@ -313,6 +434,24 @@
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      }
+    },
+    {
+      "feature": "hadf-phase3a-sensing",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": true
+      }
+    },
+    {
+      "feature": "hadf-signature-expansion",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": true
       }
     },
     {
@@ -352,15 +491,6 @@
       }
     },
     {
-      "feature": "meta-analysis-refresh-phase-1",
-      "adoption": {
-        "timing_wall_time": false,
-        "per_phase_timing": true,
-        "cache_hits": true,
-        "cu_v2": true
-      }
-    },
-    {
       "feature": "onboarding-v2-retroactive",
       "adoption": {
         "timing_wall_time": false,
@@ -379,11 +509,11 @@
       }
     },
     {
-      "feature": "push-notifications",
+      "feature": "r9-track-b-coverage-aggregator",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
-        "cache_hits": true,
+        "cache_hits": false,
         "cu_v2": false
       }
     },
@@ -397,25 +527,52 @@
       }
     },
     {
-      "feature": "roadmap-stress-test-2026-05-07",
-      "adoption": {
-        "timing_wall_time": true,
-        "per_phase_timing": true,
-        "cache_hits": true,
-        "cu_v2": false
-      }
-    },
-    {
       "feature": "smart-reminders-behavioral-learning",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
       }
     },
     {
       "feature": "stats-v2",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "t13-last-failed-at-index",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "t14-platform-parity-state-field",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": true
+      }
+    },
+    {
+      "feature": "t3-signinservice-passkey-tests",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "t5-mock-protocol-drift",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
@@ -437,7 +594,7 @@
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
-        "cache_hits": false,
+        "cache_hits": true,
         "cu_v2": false
       }
     },
@@ -480,7 +637,7 @@
     {
       "feature": "ui-audit-baseline-burndown",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
@@ -502,6 +659,24 @@
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": true
+      }
+    },
+    {
+      "feature": "v8-f10-f5-schema-vocab",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "w9-drift-triggered-auto-isolation",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
       }
     }
   ],
@@ -557,11 +732,6 @@
       "post_v6": false
     },
     {
-      "feature": "dev-env-r11-r13-r14-r17-r18-batch",
-      "created": "2026-06-04",
-      "post_v6": true
-    },
-    {
       "feature": "development-dashboard",
       "created": "2026-04-02",
       "post_v6": false
@@ -569,16 +739,6 @@
     {
       "feature": "dispatch-intelligence-v5.2",
       "created": "2026-04-16",
-      "post_v6": true
-    },
-    {
-      "feature": "f-deployed-url-probe-ft2",
-      "created": "2026-06-04",
-      "post_v6": true
-    },
-    {
-      "feature": "f-phase-e-adoption-freeze-discipline",
-      "created": "2026-06-04",
       "post_v6": true
     },
     {
@@ -599,11 +759,6 @@
     {
       "feature": "framework-v7-8-bridge",
       "created": "2026-05-04",
-      "post_v6": true
-    },
-    {
-      "feature": "framework-v7-9-1-promotion",
-      "created": "2026-06-04",
       "post_v6": true
     },
     {
@@ -662,11 +817,6 @@
       "post_v6": true
     },
     {
-      "feature": "r9-track-b-coverage-aggregator",
-      "created": "2026-06-04",
-      "post_v6": true
-    },
-    {
       "feature": "readiness-score-v2",
       "created": "2026-04-10",
       "post_v6": false
@@ -695,11 +845,6 @@
       "feature": "stats-progress-hub",
       "created": "2026-04-06",
       "post_v6": false
-    },
-    {
-      "feature": "t14-platform-parity-state-field",
-      "created": "2026-06-04",
-      "post_v6": true
     },
     {
       "feature": "training-plan-v2",
@@ -729,6 +874,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -742,6 +893,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -757,6 +914,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -770,6 +933,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -785,6 +954,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -799,8 +974,34 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
+    },
+    {
+      "feature": "ai-golden-set-evals",
+      "created": "2026-06-10",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
     },
     {
       "feature": "ai-recommendation-ui",
@@ -813,6 +1014,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -824,8 +1031,14 @@
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
-        "cache_hits": false,
+        "cache_hits": true,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -834,12 +1047,18 @@
       "feature": "analytics-observability",
       "created": "2026-05-13",
       "post_v6": true,
-      "current_phase": "testing",
+      "current_phase": "complete",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
-        "cache_hits": false,
-        "cu_v2": false
+        "cache_hits": true,
+        "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -855,6 +1074,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -869,6 +1094,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -878,12 +1109,18 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": true
       },
-      "fully_adopted": false,
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
+      "fully_adopted": true,
       "any_adopted": true
     },
     {
@@ -896,6 +1133,12 @@
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -911,6 +1154,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -923,9 +1172,15 @@
         "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
       },
-      "fully_adopted": false,
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
+      "fully_adopted": true,
       "any_adopted": true
     },
     {
@@ -937,9 +1192,15 @@
         "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
       },
-      "fully_adopted": false,
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
+      "fully_adopted": true,
       "any_adopted": true
     },
     {
@@ -948,10 +1209,16 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -962,10 +1229,16 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -981,6 +1254,12 @@
         "cache_hits": true,
         "cu_v2": true
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
       "fully_adopted": true,
       "any_adopted": true
     },
@@ -994,6 +1273,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1009,6 +1294,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1016,15 +1307,21 @@
       "feature": "dev-env-r11-r13-r14-r17-r18-batch",
       "created": "2026-06-04",
       "post_v6": true,
-      "current_phase": "implementation",
+      "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
-        "per_phase_timing": false,
+        "timing_wall_time": true,
+        "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
-      "any_adopted": false
+      "any_adopted": true
     },
     {
       "feature": "development-dashboard",
@@ -1036,6 +1333,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1051,6 +1354,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1065,6 +1374,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1072,15 +1387,21 @@
       "feature": "f-deployed-url-probe-ft2",
       "created": "2026-06-04",
       "post_v6": true,
-      "current_phase": "implementation",
+      "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
-        "per_phase_timing": false,
+        "timing_wall_time": true,
+        "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
-      "any_adopted": false
+      "any_adopted": true
     },
     {
       "feature": "f-launchd-drift-extension",
@@ -1093,6 +1414,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1102,10 +1429,16 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1114,19 +1447,25 @@
       "feature": "f-phase-e-adoption-freeze-discipline",
       "created": "2026-06-04",
       "post_v6": true,
-      "current_phase": "implementation",
+      "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
-        "per_phase_timing": false,
+        "timing_wall_time": true,
+        "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
-      "any_adopted": false
+      "any_adopted": true
     },
     {
-      "feature": "f16-try-repo-harness",
-      "created": "2026-06-04",
+      "feature": "f1-state-tasks-filesystem-drift",
+      "created": "2026-06-17",
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
@@ -1134,6 +1473,72 @@
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "f11-reverse-sync-historical-exempt",
+      "created": "2026-06-15",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "f12-actionlint-gate",
+      "created": "2026-06-15",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "f16-try-repo-harness",
+      "created": "2026-06-04",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1144,10 +1549,16 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1158,10 +1569,56 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "f3-dependency-graph-cycle-check",
+      "created": "2026-06-17",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "f4-framework-version-stale",
+      "created": "2026-06-16",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1177,6 +1634,12 @@
         "cache_hits": true,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1190,6 +1653,12 @@
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1205,6 +1674,32 @@
         "cache_hits": true,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "fitme-story-dual-audience-redesign",
+      "created": "2026-06-09",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1217,7 +1712,13 @@
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1233,6 +1734,32 @@
         "cache_hits": true,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "foundation-models-tier3",
+      "created": "2026-06-15",
+      "post_v6": true,
+      "current_phase": "implementation",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": true,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1242,10 +1769,16 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1256,10 +1789,16 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1275,6 +1814,12 @@
         "cache_hits": false,
         "cu_v2": true
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1288,6 +1833,12 @@
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1303,6 +1854,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1316,6 +1873,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1331,6 +1894,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1345,6 +1914,12 @@
         "cache_hits": true,
         "cu_v2": true
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
       "fully_adopted": true,
       "any_adopted": true
     },
@@ -1357,7 +1932,13 @@
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1373,6 +1954,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1380,15 +1967,21 @@
       "feature": "framework-v7-9-1-promotion",
       "created": "2026-06-04",
       "post_v6": true,
-      "current_phase": "implementation",
+      "current_phase": "complete",
       "adoption": {
         "timing_wall_time": false,
-        "per_phase_timing": false,
+        "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
-      "any_adopted": false
+      "any_adopted": true
     },
     {
       "feature": "framework-v7-9-promotion",
@@ -1400,6 +1993,52 @@
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "framework-w30-w31-w32-durable-fixes",
+      "created": "2026-06-05",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "garmin-health-connection",
+      "created": "2026-06-10",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": true,
+        "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1415,6 +2054,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1428,6 +2073,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1443,6 +2094,12 @@
         "cache_hits": false,
         "cu_v2": true
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1457,6 +2114,12 @@
         "cache_hits": false,
         "cu_v2": true
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1464,12 +2127,58 @@
       "feature": "hadf-phase2bis-replication",
       "created": "2026-05-12",
       "post_v6": true,
-      "current_phase": "tasks_phase",
+      "current_phase": "complete",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "hadf-phase3a-sensing",
+      "created": "2026-06-05",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "hadf-signature-expansion",
+      "created": "2026-06-05",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1485,6 +2194,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1498,6 +2213,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1513,6 +2234,12 @@
         "cache_hits": true,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1526,6 +2253,12 @@
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1541,6 +2274,12 @@
         "cache_hits": true,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1554,6 +2293,12 @@
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1569,6 +2314,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1583,6 +2334,12 @@
         "cache_hits": true,
         "cu_v2": true
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
       "fully_adopted": true,
       "any_adopted": true
     },
@@ -1592,12 +2349,18 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": true
       },
-      "fully_adopted": false,
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
+      "fully_adopted": true,
       "any_adopted": true
     },
     {
@@ -1610,6 +2373,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1625,6 +2394,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1638,6 +2413,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1653,6 +2434,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1666,6 +2453,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1681,6 +2474,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1694,6 +2493,12 @@
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1709,6 +2514,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1718,27 +2529,39 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
       },
-      "fully_adopted": false,
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
+      "fully_adopted": true,
       "any_adopted": true
     },
     {
       "feature": "r9-track-b-coverage-aggregator",
       "created": "2026-06-04",
       "post_v6": true,
-      "current_phase": "implementation",
+      "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
-        "per_phase_timing": false,
+        "timing_wall_time": true,
+        "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
-      "any_adopted": false
+      "any_adopted": true
     },
     {
       "feature": "readiness-aware-training-alert",
@@ -1750,6 +2573,12 @@
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1765,6 +2594,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1779,6 +2614,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1791,9 +2632,15 @@
         "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
       },
-      "fully_adopted": false,
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
+      "fully_adopted": true,
       "any_adopted": true
     },
     {
@@ -1806,6 +2653,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1821,6 +2674,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1835,6 +2694,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1847,7 +2712,13 @@
         "timing_wall_time": false,
         "per_phase_timing": true,
         "cache_hits": true,
-        "cu_v2": false
+        "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1863,6 +2734,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1877,6 +2754,32 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "t13-last-failed-at-index",
+      "created": "2026-06-10",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1884,15 +2787,61 @@
       "feature": "t14-platform-parity-state-field",
       "created": "2026-06-04",
       "post_v6": true,
-      "current_phase": "research",
+      "current_phase": "implementation",
       "adoption": {
         "timing_wall_time": false,
-        "per_phase_timing": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "t3-signinservice-passkey-tests",
+      "created": "2026-06-10",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
-      "any_adopted": false
+      "any_adopted": true
+    },
+    {
+      "feature": "t5-mock-protocol-drift",
+      "created": "2026-06-10",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
     },
     {
       "feature": "training-plan-v2",
@@ -1904,6 +2853,12 @@
         "per_phase_timing": false,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": false
@@ -1919,6 +2874,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1933,6 +2894,12 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
     },
@@ -1944,8 +2911,14 @@
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
-        "cache_hits": false,
+        "cache_hits": true,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1961,6 +2934,12 @@
         "cache_hits": true,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -1974,6 +2953,12 @@
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -1989,6 +2974,12 @@
         "cache_hits": true,
         "cu_v2": true
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -2003,6 +2994,12 @@
         "cache_hits": false,
         "cu_v2": true
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": "instrumented"
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -2012,10 +3009,16 @@
       "post_v6": true,
       "current_phase": "complete",
       "adoption": {
-        "timing_wall_time": false,
+        "timing_wall_time": true,
         "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -2031,6 +3034,12 @@
         "cache_hits": true,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": "instrumented",
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": true
     },
@@ -2044,6 +3053,12 @@
         "per_phase_timing": true,
         "cache_hits": true,
         "cu_v2": true
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": "instrumented"
       },
       "fully_adopted": false,
       "any_adopted": true
@@ -2059,8 +3074,54 @@
         "cache_hits": false,
         "cu_v2": false
       },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": null,
+        "cache_hits": null,
+        "cu_v2": null
+      },
       "fully_adopted": false,
       "any_adopted": false
+    },
+    {
+      "feature": "v8-f10-f5-schema-vocab",
+      "created": "2026-06-15",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
+      "feature": "w9-drift-triggered-auto-isolation",
+      "created": "2026-06-06",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": true,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": "derived",
+        "per_phase_timing": "instrumented",
+        "cache_hits": null,
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
     }
   ]
 }

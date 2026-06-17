@@ -1,6 +1,8 @@
 {
   "feature_name": "f-launchd-drift-extension-sub-a",
   "current_phase": "complete",
+  "platforms_tested": {},
+  "platforms_tested_provenance": "exempt:framework_meta",
   "created_at": "2026-06-04T15:50:00Z",
   "updated_at": "2026-06-04T15:50:00Z",
   "framework_version": "v7.9.1",
@@ -120,7 +122,9 @@
         "started_at": "2026-06-04T16:02:42Z",
         "ended_at": "2026-06-04T16:02:42Z"
       }
-    }
+    },
+    "total_wall_time_minutes": 12.7,
+    "total_wall_time_minutes_provenance": "backfill-derived-from-phase-durations-2026-06-10"
   },
   "merge_pr_number": 623,
   "merge_commit_sha": "32c41b1a3cd4cb26dc5505d1db94afacbd9ef9e4",

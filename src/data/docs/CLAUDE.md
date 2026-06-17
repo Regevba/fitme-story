@@ -55,7 +55,7 @@ Backlog rows + v7.9.1+ docket entries carry an **impact tier label** like `(cu_v
 
 **Why this taxonomy:** before v7.9.1, the Feature/Enhancement/Fix/Chore taxonomy left an ambiguous middle for "this is bigger than a chore but doesn't need a PRD because the scope is mechanical (e.g. add a schema field + backfill)." Operators had to pick Feature (heavy) or Enhancement (technically requires parent PRD — which doesn't exist for net-new framework scaffolding). B_medium formalizes that middle: a `Feature` work_type with `work_subtype: b_medium` may skip PRD/tasks/UX phases as long as the skip reason is documented in `phases.<skipped>.skip_reason` per the existing skipped-phase audit-trail mechanism.
 
-**Forward-only:** existing backlog rows with `B_medium` labels (e.g. v8.x icebox L417 style-dictionary v5 migration) retain their label. New work items use the table above to choose. Old rows are not retroactively re-labeled.
+**Forward-only:** existing backlog rows with `B_medium` labels (e.g. the v8.x icebox style-dictionary v5 migration — since shipped 2026-06-08 via PR #677) retain their label. New work items use the table above to choose. Old rows are not retroactively re-labeled.
 
 ## Branching Strategy
 
@@ -316,7 +316,7 @@ v7.8.6 ships observability surfaces that close the **96-hour drift window** betw
 
 ## v7.9 Promotion Release (shipped 2026-05-21)
 
-v7.9 is the **enforcement-flip release** for the three v7.8.1 advisory gates that completed their 14-day Mechanism A telemetry window on 2026-05-21. No new gate code; no new schema fields; no new observability surfaces. The single change is `BRANCH_ISOLATION_ADVISORY_MODE = True → False` at [`scripts/check-state-schema.py:132`](scripts/check-state-schema.py), which controls all three gates simultaneously.
+v7.9 is the **enforcement-flip release** for the three v7.8.1 advisory gates that completed their 14-day Mechanism A telemetry window on 2026-05-21. No new gate code; no new schema fields; no new observability surfaces. The single change is `BRANCH_ISOLATION_ADVISORY_MODE = True → False` at [`scripts/check-state-schema.py:149`](scripts/check-state-schema.py), which controls all three gates simultaneously.
 
 **Promotion decision criteria (per [infra master plan §2.2](docs/master-plan/infra-master-plan-2026-05-12.md)):** all four required for each candidate.
 
@@ -352,7 +352,7 @@ v7.9 is the **enforcement-flip release** for the three v7.8.1 advisory gates tha
 - **2026-05-28** — B2 post-v7.9 baseline snapshot via `make snapshot-phase PHASE=post-v7-9-baseline FEATURE=framework-v7-8-branch-isolation`
 - **~2026-06-04** — Phase E exit; v7.9.1 build window opens
 
-**Reversibility runbook:** if a regression surfaces during Phase E soak, flip back via single-line edit at [`scripts/check-state-schema.py:132`](scripts/check-state-schema.py) (`BRANCH_ISOLATION_ADVISORY_MODE = True`), commit on `chore/v7-9-rollback`, merge to main. <5 min end-to-end.
+**Reversibility runbook:** if a regression surfaces during Phase E soak, flip back via single-line edit at [`scripts/check-state-schema.py:149`](scripts/check-state-schema.py) (`BRANCH_ISOLATION_ADVISORY_MODE = True`), commit on `chore/v7-9-rollback`, merge to main. <5 min end-to-end.
 
 **Case study:** [`docs/case-studies/framework-v7-9-promotion-case-study.md`](docs/case-studies/framework-v7-9-promotion-case-study.md).
 **Cold-start entrypoint:** [`.claude/entrypoints/framework-v7-9.md`](.claude/entrypoints/framework-v7-9.md).
@@ -553,6 +553,35 @@ These were **process regressions** — added features moved into the denominator
 
 **See also.** [v7.9 promotion case study §99.4 lesson 2](docs/case-studies/framework-v7-9-promotion-case-study.md) for the original measurement; [`f-phase-e-adoption-freeze-discipline-case-study.md`](docs/case-studies/f-phase-e-adoption-freeze-discipline-case-study.md) for this rule's source case study.
 
+**Mechanical complement (2026-06-10).** Denominator dilution is now *measured around*, not just disciplined against. `make integrity-multi-anchor` ([`scripts/integrity-multi-anchor.py`](scripts/integrity-multi-anchor.py)) classifies every adoption-% delta vs the **canonical 2026-05-14 anchor** as `REAL_REGRESSION` / `dilution` / `improved` using a cohort-intersection + absolute-numerator rule (`classify_delta`), so corpus growth no longer raises phantom regressions. `make integrity-diff` and `daily-integrity-checkpoint.py` regression verdicts consume the same rule (raw deltas still printed for transparency; only `REAL_REGRESSION` gates). `make measurement-adoption` reports an **instrumented-vs-derived** provenance split so a backfill-derived value never masquerades as contemporaneous T1 instrumentation. `make integrity-data-lake` ([`scripts/integrity-data-lake.py`](scripts/integrity-data-lake.py)) layers ALL telemetry (ledgers, crons, snapshots, anchors) into one read-only cross-source reconciliation + dilution-normalized digest (stdlib-first; optional local DuckDB, not cloud BigQuery). The 2026-05-14 anchor stays canonical (non-superseding) per [data-integrity sub-plan §2.6/§2.7](docs/master-plan/data-integrity-and-rollback-2026-05-14.md). Source: honesty ledger [FT2-FH-004](docs/case-studies/framework-honesty-ledger.md).
+
+## Platform-test parity — `platforms_tested` field (T14, advisory, shipped 2026-06-07)
+
+`state.json` carries a `platforms_tested: {ios, web, backend, ai}` boolean object recording **which platforms a feature's tests actually exercised** — making platform-test parity a queryable, gate-able property of every completed feature (not just "tests passed somewhere"). Platform semantics: `ios`=SwiftUI app, `web`=fitme-story/website/dashboard, `backend`=sync/Supabase/Railway, `ai`=ai-engine cohort. A sibling `platforms_tested_provenance` string records origin (`authored` / `backfill-heuristic-<date>` / `backfill-heuristic-low-confidence` / `exempt:framework_meta`).
+
+**Gate (advisory):** the `PLATFORMS_TESTED` write-time sub-check (in [`scripts/check-state-schema.py`](scripts/check-state-schema.py)) fires on `current_phase=complete` transitions when no platform key is `true`, and validates field shape at any phase. It uses its own `PLATFORMS_TESTED_ADVISORY_MODE` flag + an isolated Mechanism A coverage key, so its **advisory→enforced flip (~v7.10, after a 14-day calibration window)** is independent of the enforced `FEATURE_CLOSURE_COMPLETENESS` gate it fires alongside.
+
+**Q2 exemption:** framework-meta features (`work_type=chore` / `work_subtype=framework_feature` / `provenance exempt:*`) are skipped — they ship no product-platform code.
+
+**Backfill:** [`scripts/backfill-platforms-tested.py`](scripts/backfill-platforms-tested.py) populated all pre-T14 complete features from offline text signals (25 exempt, 61 inferred, 8 low-confidence flagged for optional spot-check; 0 mandatory review). **Out of scope:** per-platform coverage *percentages* (T15+, gated on R9 Track B data). Spec: `docs/master-plan/test-coverage-master-plan-2026-05-13.md` §4 T14. Source case study: [`docs/case-studies/t14-platform-parity-state-field-case-study.md`](docs/case-studies/t14-platform-parity-state-field-case-study.md).
+
+## v7.10 — GATE_COVERAGE_ZERO observability + field-rename closure (shipped 2026-06-10)
+
+v7.10 hardens the *observability of the gates themselves* — the meta-layer that watches whether each gate is actually running. No new product-facing gates; the change is making the silent-pass detector see the checks it previously couldn't.
+
+**Shipped to main (2026-06-10):**
+
+- **`GATE_COVERAGE_ZERO` meta-check** (built v7.9.1 #673; extended at v7.10 via PR #689, **advisory**) — reads the F17 [`gate-last-fired.json`](.claude/shared/gate-last-fired.json) index and flags a gate that went silent relative to the active corpus. v7.10 added a **0-candidate mis-wire detector**: a gate registered in the index but with every counter zero (`candidates==checked==skipped==0`) has a check site that runs but never reaches a candidate — the `cache_hits`-keying / unreachable-loop bug class. This is distinct from a *healthy* zero-firing gate (e.g. `STATE_OWNER_MISSING`: 1936 candidates, 0 violations — has candidates, stays silent).
+- **Cycle-time coverage emission** (PR #689) — three cycle-time checks (`BROKEN_PR_CITATION`, `CASE_STUDY_MISSING_TIER_TAGS`, `PATTERN_SKILL_UNMAPPED`) previously emitted **no** Mechanism A coverage, so the F17 index + `GATE_COVERAGE_ZERO` were blind to them. They now emit `mode="cycle"` coverage via the shared `GateCoverage` tracker (live: 127/127/56 candidates). If one silently stops, the meta-check now catches it.
+- **Field-rename silent-pass closure** (observed-patterns pattern **#24**) — the 2026-06-10 data-integrity audit found two READER/INDEX field-mismatches of the `created`/`created_at` (#7/#9) class: `measurement-adoption-report.py::has_cu_v2` read only the legacy `complexity.cu_version` (15 feats) not the canonical top-level `cu_v2` object (12 feats), halving adoption — **fixed PR #687** (post-v6 fully-adopted 3→6); and `refresh-gate-last-fired.py` read only `timestamp`, dropping 30 `w9.auto_isolate` rows keyed `ts` — **fixed PR #688** (18 gates indexed, 0 malformed). Pattern #24 generalizes #7/#9 to the measurement layer (no failing gate surfaces it — the lesson: grep every reader when you rename a field).
+
+**In flight (open PRs as of 2026-06-10):**
+
+- **Self-test meta-analysis + verify-local ergonomics** (PR #690) — the second what-if meta-analysis ran the v7.10 framework against every layer (iOS BUILD SUCCEEDED + 672 tests, ai-engine 34/34, web 286/289, framework 0 findings). Headline fix: `tokens-check` / `verify-web` / `verify-ai` now **skip cleanly** with a loud `⚠ … SKIPPING locally — CI enforces this gate.` message when deps are absent (matching the `lint-*`/`coverage-*` convention) instead of crashing cryptically. CI still enforces. Artifact: [`docs/case-studies/meta-analysis/2026-06-10-second-what-if-self-test-all-layers.md`](docs/case-studies/meta-analysis/2026-06-10-second-what-if-self-test-all-layers.md).
+- **T10 — AI golden-set eval harness** (PR #691) — closes the test-coverage plan's "biggest layer gap". Scoping reframe: the FitMe AI is **deterministic** (`InsightService` rule engine), not generative (LLM path gated behind an unset `LLM_API_KEY`/DPA), so a deterministic golden set is *better* (zero flake, no key, hard PR gate). 24 golden cases + parametrized harness in `ai-engine/tests/golden/`; full ai-engine suite 60 pass / 1 skip; negative-control proven. Feature `ai-golden-set-evals`. Source case study: [`docs/case-studies/ai-golden-set-evals-case-study.md`](docs/case-studies/ai-golden-set-evals-case-study.md).
+
+**Calibration ladder still pending (date-gated, not in this release):** F16 advisory→enforced flip 2026-06-18 · W9 2026-06-20 · `PLATFORMS_TESTED` (T14) 2026-06-21 · R9 Track B 30-day coverage read 2026-07-04 (feeds `GATE_TEST_MISSING`) · `GATE_TEST_MISSING` (T1) gated on F14 Phase E 2026-08-22. **F18 mutation testing** remains v8.0 (depends on F14+F16 Phase E). **Un-ticketed test gaps:** Supabase Edge Functions (0 tests); the gated live-LLM eval body (lands with the LLM-escalation feature).
+
 ## Known Mechanical Limits
 
 v7.6 promoted 4 silent gaps to pre-commit failures and added 3 recurring CI defenses. v7.8 PR-1 ships **Mechanism C** (PostToolUse:Read hook + `scripts/observe-cache-hit.py`) which moves Gap 1 from Class B → A in advisory mode (capture only); v7.9 promotes the writer-path to enforced once 7+ days of session-ledger data calibrate the threshold. Four gaps remain mechanically unclosable:
@@ -600,8 +629,8 @@ This app is data-driven at every level:
 
 The design system is a **living, evolving framework** — not a static constraint. It should serve the product.
 
-- ~125 semantic tokens in `FitTracker/Services/AppTheme.swift`
-- 13 reusable components in `FitTracker/DesignSystem/`
+- ~175 semantic tokens in `FitTracker/Services/AppTheme.swift`
+- 17 reusable components in `FitTracker/DesignSystem/`
 - Token pipeline: `design-tokens/tokens.json` → Style Dictionary → `DesignTokens.swift`
 - CI gate: `make tokens-check` prevents token drift
 - Always use semantic tokens (AppColor, AppText, AppSpacing) — never raw literals
@@ -631,7 +660,17 @@ Phase 3 + Phase 6 of the PM workflow now mechanically gate the spec ↔ code ↔
 
 Full documentation: [`docs/skills/evolution.md`](docs/skills/evolution.md) §26.
 
-### v4.X+CC Cross-repo Code Connect bridge (added 2026-05-09 → 2026-05-10)
+### v4.X+CC Cross-repo Code Connect bridge (added 2026-05-09 → 2026-05-10; ⛔ DISABLED 2026-06-15)
+
+> ⛔ **DISABLED 2026-06-15 — Code Connect is not operational.** A full design-system audit found the
+> Code Connect publish bridge has **failed on every real run since 2026-05-10** in both repos. Root
+> cause: Figma Code Connect requires an **Organization/Enterprise** plan; this account is **Pro**
+> (iOS publish → 403 "Invalid scope(s)"; web publish → W14, page-frame mappings `31-3`/`31-106`
+> abort validation). The Figma library files are also empty/partial, so the node IDs cited in this
+> section do not exist live. Both `figma-code-connect-publish.yml` workflows are now disabled stubs.
+> The `.figma.{swift,tsx}` mappings + configs remain in-tree but **inert**. **Code is the source of
+> truth.** Decision + rebuild plan: [`docs/design-system/figma-source-of-truth-plan-2026-06-15.md`](docs/design-system/figma-source-of-truth-plan-2026-06-15.md);
+> honesty ledger [FT2-FH-005](docs/case-studies/framework-honesty-ledger.md). The historical record below is retained for context.
 
 Closes the loop in the OTHER direction: `/design build` pushes screens INTO Figma; the Code Connect bridge maps Figma library frames BACK to source code so Dev Mode shows the actual React/SwiftUI snippet for each component. Cross-repo, both web and iOS.
 
@@ -660,7 +699,7 @@ Closes the loop in the OTHER direction: `/design build` pushes screens INTO Figm
 - Figma↔code matrix + Code Connect verification contract: [`docs/design-system/figma-code-sync-status.md`](docs/design-system/figma-code-sync-status.md)
 - Public showcase: fitme-story `/pm-flow` page §`#code-connect`
 
-**Manual steps per new UI feature: 2 → 0** once operator setup completes (which it has, as of 2026-05-10). Tracked feature: [`code-connect-automation`](.claude/features/code-connect-automation/) — 4/5 tasks done (T1-T4 shipped; T5 = end-to-end test on next real new UI feature).
+**Manual steps per new UI feature:** the code-side automation (scaffold + skill hook) shipped, but the **publish step never worked** — operator setup did *not* complete operationally (the `code_connect:write` scope is not grantable on Pro). The "2 → 0" target was **not** achieved; effective state is "Code Connect publishing unavailable on this plan." Tracked feature: [`code-connect-automation`](.claude/features/code-connect-automation/) — T1-T4 code shipped, T5 (E2E publish) permanently blocked by plan tier; bridge decommissioned 2026-06-15 (see plan above).
 
 ### Verification Layer (added 2026-04-20)
 
@@ -680,8 +719,8 @@ colorset.
   (Gap-A: `Color("name")` in AppTheme without a backing colorset).
 - **Baseline:** `docs/design-system/ui-audit-baseline.md` (regenerate
   with `make ui-audit-baseline`). Baseline snapshot: 0 P0 + 103 P1
-  (P0 burndown completed 2026-05-05); current live: 0 P0 + 108 P1
-  (P1 drift +5 since baseline, fix-as-you-touch active).
+  (P0 burndown completed 2026-05-05); current live: 0 P0 + 0 P1
+  (P1 burndown fully completed since baseline; verify with `make ui-audit`).
 - **Fix-as-you-touch rule:** any PR touching a file with findings should
   clear that file's findings as part of the change. `ui-audit` is now a
   hard gate within `verify-local` (achieved 2026-05-05 once P0 baseline
@@ -836,7 +875,7 @@ The rule applies prospectively from 2026-04-08. Existing events that pre-date th
 - Handoff archive: `docs/master-plan/` (all session summaries, stabilization reports, branch reviews)
 
 ### Skills ecosystem
-- **DEV-only framework guide (v1.0 → v7.8):** [`docs/architecture/dev-guide-v1-to-v7-7.md`](docs/architecture/dev-guide-v1-to-v7-7.md) — start here if you are a developer onboarding to the framework. Covers the 4 enforcement layers, `state.json` schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, integrity check codes (12 write-time + 13 cycle-time + 3 advisory in v7.8), §2.4 v7.8 bridge mechanisms (A–F), and operational walkthroughs (adding a feature, extending a check code, bumping the framework version). Filename retained at `-v7-7` for ref-stability across 16+ cross-references in FT2 + fitme-story; content tracks v7.8 (last bumped 2026-05-07).
+- **DEV-only framework guide (v1.0 → v7.9.1):** [`docs/architecture/dev-guide-v1-to-v7-7.md`](docs/architecture/dev-guide-v1-to-v7-7.md) — start here if you are a developer onboarding to the framework. Covers the 4 enforcement layers, `state.json` schema, phase lifecycle, dispatch model, cache architecture, measurement protocol, integrity check codes, §2.4 bridge mechanisms (A–F), and operational walkthroughs (adding a feature, extending a check code, bumping the framework version). Filename retained at `-v7-7` for ref-stability across 16+ cross-references in FT2 + fitme-story; content tracks v7.9.1. **Current framework state is v7.10 (shipped 2026-06-10); for canonical, machine-derived gate counts always defer to [`docs/FRAMEWORK-FACTS.md`](docs/FRAMEWORK-FACTS.md)** — the per-version count prose scattered through this file is an accurate record of each era, not necessarily current state.
 - **Lifecycle event catalog (companion to dev-guide):** [`docs/architecture/feature-lifecycle-event-catalog.md`](docs/architecture/feature-lifecycle-event-catalog.md) — answers "at any point in a feature's lifecycle, what should be triggered, logged, measured, and persisted, and which gate enforces it?" 12 sections + 2 mermaid flow diagrams (L0 phase lifecycle + per-commit fan-out across all 4 loops). Authoritative spec source for the planned `FEATURE_CLOSURE_COMPLETENESS` gate ([`framework-v7-8-branch-isolation`](.claude/features/framework-v7-8-branch-isolation/state.json)).
 - Skills one-pager: `docs/skills/README.md`
 - Skills architecture deep-dive: `docs/skills/architecture.md` (merged from former skills-ecosystem.md + skills-ecosystem-analysis.md)
