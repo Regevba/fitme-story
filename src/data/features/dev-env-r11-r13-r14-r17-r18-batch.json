@@ -1,6 +1,8 @@
 {
   "feature_name": "dev-env-r11-r13-r14-r17-r18-batch",
   "current_phase": "complete",
+  "platforms_tested": {},
+  "platforms_tested_provenance": "exempt:framework_meta",
   "created_at": "2026-06-04T16:45:00Z",
   "updated_at": "2026-06-04T16:45:00Z",
   "framework_version": "v7.9.1",
@@ -130,7 +132,9 @@
         "started_at": "2026-06-05T05:04:14Z",
         "ended_at": "2026-06-05T05:04:14Z"
       }
-    }
+    },
+    "total_wall_time_minutes": 739.2,
+    "total_wall_time_minutes_provenance": "backfill-derived-from-phase-durations-2026-06-10"
   },
   "merge_pr_number": 627,
   "merge_commit_sha": "8f3524f56dcf09db588cc7ea2bfd5022c3b30087",

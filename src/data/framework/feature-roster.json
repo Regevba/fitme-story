@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-06-06T07:41:01Z",
+  "generated_at": "2026-06-17T13:13:58Z",
   "entries": [
     {
       "slug": "3d-interactive-framework-flow-diagram",
       "status": "in_progress",
       "framework_version": "v7.9.1",
       "current_phase": "tasks_phase",
-      "case_study": "docs/case-studies/3d-interactive-framework-flow-diagram-case-study.md",
+      "case_study": null,
       "parent_feature": null,
       "state_owner": "fitme-story",
       "isolation_opt_out": true,
@@ -75,6 +75,18 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "ai-golden-set-evals",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/ai-golden-set-evals-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "ai-recommendation-ui",
       "status": "complete",
       "framework_version": "v5.0",
@@ -100,9 +112,9 @@
     },
     {
       "slug": "analytics-observability",
-      "status": "in_progress",
+      "status": "complete",
       "framework_version": "v7.8.5",
-      "current_phase": "testing",
+      "current_phase": "complete",
       "case_study": "docs/case-studies/analytics-observability-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
@@ -351,6 +363,42 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "f1-state-tasks-filesystem-drift",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": true,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "f11-reverse-sync-historical-exempt",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": true,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "f12-actionlint-gate",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": true,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "f16-try-repo-harness",
       "status": "complete",
       "framework_version": "v7.9.1",
@@ -383,6 +431,30 @@
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "f3-dependency-graph-cycle-check",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": true,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "f4-framework-version-stale",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": true,
       "has_brainstorm": false,
       "hadf_phase3a_hooks": null
     },
@@ -423,6 +495,18 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "fitme-story-dual-audience-redesign",
+      "status": "complete",
+      "framework_version": "v7.9.1",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/fitme-story-dual-audience-redesign-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "fitme-story-public-enhancements",
       "status": "complete",
       "framework_version": "v7.8.1",
@@ -440,6 +524,18 @@
       "framework_version": "v7.8.2",
       "current_phase": "complete",
       "case_study": "docs/case-studies/fitme-story-website-design-system-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "foundation-models-tier3",
+      "status": "in_progress",
+      "framework_version": "v7.10",
+      "current_phase": "implementation",
+      "case_study": null,
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
@@ -603,6 +699,18 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "garmin-health-connection",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/garmin-health-connection-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "gdpr-compliance",
       "status": "complete",
       "framework_version": "pre-v5.0",
@@ -664,10 +772,10 @@
     },
     {
       "slug": "hadf-phase3a-sensing",
-      "status": "in_progress",
+      "status": "complete",
       "framework_version": "v7.9.1",
-      "current_phase": "implementation",
-      "case_study": "docs/case-studies/hadf-phase2bis-cross-sub-exp-synthesis-case-study.md",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/hadf-phase3a-sensing-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
@@ -678,6 +786,18 @@
         "drift_monitor_present": true,
         "gate_coverage_extras": []
       }
+    },
+    {
+      "slug": "hadf-signature-expansion",
+      "status": "complete",
+      "framework_version": "v7.9.1",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/hadf-signature-expansion-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
     },
     {
       "slug": "home-status-goal-card",
@@ -1028,14 +1148,50 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "t13-last-failed-at-index",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/t13-last-failed-at-index-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "t14-platform-parity-state-field",
       "status": "in_progress",
       "framework_version": "v7.9.1",
-      "current_phase": "research",
+      "current_phase": "implementation",
       "case_study": "docs/case-studies/t14-platform-parity-state-field-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": true,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "t3-signinservice-passkey-tests",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/t3-signinservice-passkey-tests-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "t5-mock-protocol-drift",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/t5-mock-protocol-drift-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
       "has_brainstorm": false,
       "hadf_phase3a_hooks": null
     },
@@ -1181,6 +1337,30 @@
       "state_owner": "ft2",
       "isolation_opt_out": false,
       "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "v8-f10-f5-schema-vocab",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": true,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "w9-drift-triggered-auto-isolation",
+      "status": "complete",
+      "framework_version": "v7.9.1",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/w9-drift-triggered-auto-isolation-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": true,
       "hadf_phase3a_hooks": null
     }
   ]

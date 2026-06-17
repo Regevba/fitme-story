@@ -270,7 +270,7 @@
     "skills": [
       "qa"
     ],
-    "remediation": "Update scripts/tests/test-v7-5-pipeline.sh fixtures to satisfy new required gates; run make test-v7-5-pipeline."
+    "remediation": "Update scripts/test-v7-5-pipeline.sh fixtures to satisfy new required gates; run make test-v7-5-pipeline."
   },
   {
     "id": "#23",
@@ -284,6 +284,32 @@
       "dev"
     ],
     "remediation": "Commit periodic gate-coverage / session-ledger snapshots to non-gitignored paths so remote agents can audit."
+  },
+  {
+    "id": "#24",
+    "title": "Field-rename silent-pass in a READER/INDEX (measurement layer) \u2014 generalization of #7/#9",
+    "section": "gate",
+    "blocker": false,
+    "detector": "manual (audit) \u2014 no gate; surfaced by adoption/coverage cross-count",
+    "autoheal": false,
+    "skills": [
+      "pm-workflow",
+      "dev"
+    ],
+    "remediation": "Make the reader accept BOTH field representations (d.get('new') or d.get('legacy')); add a unit test pinning both; grep every reader of a renamed field in the same change."
+  },
+  {
+    "id": "#25",
+    "title": "Derived index from gitignored session-local source regresses on overwrite — union-merge, don't overwrite",
+    "section": "gate",
+    "blocker": false,
+    "detector": "manual (audit) — no gate; committed index entry-count drop vs prior commit",
+    "autoheal": false,
+    "skills": [
+      "pm-workflow",
+      "dev"
+    ],
+    "remediation": "A committed artifact derived from a gitignored session-local source must union-merge with the existing committed copy (max counters, min first_seen, max last_*, carry over entries present only in committed), never overwrite. A thin/empty local source must not shrink it. Provide a --rebuild escape hatch for intentional resets. Fixed in scripts/refresh-gate-last-fired.py (PR #749)."
   },
   {
     "id": "W1",
@@ -703,5 +729,45 @@
       "ops"
     ],
     "remediation": "Verify the cache window covers the historically-cited PR range: `python3 -c \"import json; v=json.load(open('.cache/gh-pr-cache.json'))['repos']['Regevba/FitTracker2']; ns=sorted({x['number'] for b in('open','merged','closed') for x in v[b]}); print('floor',ns[0],'ceil',ns[-1],'count',len(ns))\"`. If the floor is far above 1 while citations reference numbers below it, the `gh pr list --limit N` window is truncated. Fix: raise `--limit` in `scripts/refresh-pr-cache.py` (shipped 2026-06-05 PR #631 raised it to 2000 \u2014 covers FT2's 571 PRs + headroom). Sibling patterns: #12 PR_CACHE_STALE (empty cache), W11 (incomplete repo set)."
+  },
+  {
+    "id": "W35",
+    "title": "Hook session-id keyed on never-set CLAUDE_SESSION_ID env \u2192 constant \"default\" \u2192 cross-session marker suppresses the gate forever",
+    "section": "workflow",
+    "blocker": true,
+    "detector": "manual",
+    "autoheal": false,
+    "skills": [
+      "dev",
+      "pm-workflow"
+    ],
+    "remediation": "When a hook needs the session id, read it from the hook STDIN payload (`session_id`), never `os.environ['CLAUDE_SESSION_ID']` (Claude Code does not set it). Use scripts/w9_session.py::session_id(). Symptoms: a gate's once-per-session marker piles up as `.claude/_session-state/default-*`; a gate's telemetry all carries one outcome from one code path while a documented sibling path emits nothing. When one gate name has two producers, give each its own gate name so GATE_COVERAGE_ZERO can see each independently. Fixed via feature fix/w9-session-id-keying (2026-06-14)."
+  },
+  {
+    "id": "W36",
+    "title": "Plan/seat-gated external capability documented as operational while it never once succeeded",
+    "section": "workflow",
+    "blocker": true,
+    "detector": "manual",
+    "autoheal": false,
+    "skills": [
+      "design",
+      "dev",
+      "ops"
+    ],
+    "remediation": "Treat a plan/seat-gated capability as an external dependency and verify it end-to-end: check the workflow run history (not existence) for successes. Scaffolding present \u2260 pipeline working. Detection: `gh run list --workflow=<name>.yml --limit 20 | grep -c success` (scaffold-only runs?); for Figma Code Connect: MCP get_code_connect_map returns plan-gate error on Pro. Remediation: (1) disable the scaffold CI if the plan is not available; (2) reconcile all docs to reflect the actual state; (3) add a honesty-ledger entry; (4) write a rebuild plan that uses capabilities actually available on the current plan. See observed-patterns.md W36, FT2-FH-005."
+  },
+  {
+    "id": "W37",
+    "title": "Bot-authored (GITHUB_TOKEN) PR can never satisfy required checks under strict branch protection \u2192 permanent 'expected' deadlock",
+    "section": "workflow",
+    "blocker": true,
+    "detector": "manual",
+    "autoheal": false,
+    "skills": [
+      "dev",
+      "ops"
+    ],
+    "remediation": "GITHUB_TOKEN-created PRs don't trigger pull_request CI; with strict+enforce_admins the required checks stay 'expected' and API --admin merge is refused (web-UI admin bypass only). For append-only ledger workflows: commit+push straight to main (option B, shipped 2026-06-15) with the github-actions app in main's bypass_pull_request_allowances; PR fallback if push rejected. Alternative: GitHub App token so the PR triggers CI + enable-auto-merge (option A). See observed-patterns.md W37."
   }
 ]

@@ -1,6 +1,8 @@
 {
   "feature_name": "framework-v7-9-1-promotion",
   "current_phase": "complete",
+  "platforms_tested": {},
+  "platforms_tested_provenance": "exempt:framework_meta",
   "created_at": "2026-06-04T17:00:00Z",
   "updated_at": "2026-06-04T17:00:00Z",
   "framework_version": "v7.9.1",
@@ -157,7 +159,8 @@
         "started_at": "2026-06-05T05:45:00Z",
         "ended_at": "2026-06-05T05:30:46Z"
       }
-    }
+    },
+    "wall_time_backfill": "excluded-dirty-timestamps"
   },
   "merge_pr_number": 629,
   "merge_commit_sha": "a79aebeeb116c44c95c7f59e33a50afb220a397d",
