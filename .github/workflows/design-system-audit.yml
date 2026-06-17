@@ -1,0 +1,50 @@
+# .github/workflows/design-system-audit.yml
+#
+# Design-system value-drift gate — the fitme-story analogue of FT2's
+# `make ui-audit` + `make tokens-check`. Complements figma-drift-weekly.yml
+# (manifest <-> filesystem parity) by checking color-VALUE drift:
+#
+#   - audit-token-contrast (REQUIRED): WCAG contrast of every declared token
+#     pair (pure sRGB math, deterministic, currently green).
+#   - audit-token-usage (ADVISORY): hardcoded arbitrary-value colors
+#     (bg-[#hex], text-[rgb(...)]) that bypass the --color-* token layer.
+#     continue-on-error so it surfaces drift without blocking while it
+#     calibrates; promote to required after a clean soak.
+#
+# Security: no github.event.* values flow into any run: step (path-filtered
+# push/PR triggers only; no issue/PR-body interpolation).
+
+name: design-system-audit
+
+on:
+  pull_request:
+    paths:
+      - 'src/components/**'
+      - 'src/app/globals.css'
+      - 'src/lib/design-tokens.ts'
+      - 'src/lib/design-system.ts'
+      - 'scripts/audit-token-contrast.mjs'
+      - 'scripts/token-usage-audit.mjs'
+  push:
+    branches: [main]
+    paths:
+      - 'src/components/**'
+      - 'src/app/globals.css'
+      - 'src/lib/design-tokens.ts'
+
+permissions:
+  contents: read
+
+jobs:
+  ds-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Token contrast audit (required)
+        run: node scripts/audit-token-contrast.mjs
+      - name: Token usage audit (advisory)
+        continue-on-error: true
+        run: node scripts/token-usage-audit.mjs

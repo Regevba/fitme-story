@@ -21,7 +21,10 @@
     "audit-case-studies": "node scripts/audit-frontmatter.mjs",
     "case-study-audit": "npm run validate-content && npm run audit-case-studies",
     "verify-blind-switch": "bash scripts/verify-blind-switch.sh",
-    "figma-drift": "tsx scripts/figma-drift.mjs"
+    "figma-drift": "tsx scripts/figma-drift.mjs",
+    "audit-token-contrast": "node scripts/audit-token-contrast.mjs",
+    "audit-token-usage": "node scripts/token-usage-audit.mjs",
+    "audit-design-system": "npm run audit-token-contrast && npm run audit-token-usage"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
