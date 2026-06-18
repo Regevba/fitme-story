@@ -73,7 +73,7 @@ const FLOORS: Floor[] = [
     title: 'Integrity & enforcement (v7.x)',
     summary: (
       <>
-        <strong>37 mechanical gates + 5 advisories</strong> across v7.5 → v7.9.1 (3 advisories promoted to enforced via the v7.9 promotion 2026-05-21): the v7.5 Data Integrity Framework, write-time pre-commit hooks, the 72h integrity cycle, per-PR review bot, weekly framework-status cron, branch isolation, feature-closure completeness, cross-repo state sync, the Observed Patterns Catalog, and the v7.9.1 build window (F16 try-repo harness, F17 last-fired index, F2 reality-check). Includes the <strong>HADF</strong> dispatch program through its Phase&nbsp;3A sensing layer.
+        <strong>37 mechanical gates + 5 advisories</strong> across v7.5 → v7.9.1 (3 advisories promoted to enforced via the v7.9 promotion 2026-05-21): the v7.5 Data Integrity Framework, write-time pre-commit hooks, the 72h integrity cycle, per-PR review bot, weekly framework-status cron, branch isolation, feature-closure completeness, cross-repo state sync, the Observed Patterns Catalog, and the v7.9.1 build window (F16 try-repo harness, F17 last-fired index, F2 reality-check). <strong>v7.10</strong> (2026-06-10) hardened the meta-layer with the <strong>GATE_COVERAGE_ZERO</strong> observability check, and the <strong>v8.x build window</strong> (opened 2026-06-17) promoted the F16 try-repo harness advisory→enforced via main required status checks and shipped the F4/F1/F3 roadmap-realism advisory gates — bringing the framework to <strong>28 instrumented gates</strong>. Includes the <strong>HADF</strong> dispatch program through its Phase&nbsp;3A sensing layer.
       </>
     ),
     href: '/framework/dispatch',
@@ -154,6 +154,16 @@ const BRIDGE_TIMELINE: BridgeEntry[] = [
     version: 'v7.9.1',
     date: '2026-06-04',
     summary: <>Build window opened at Phase E exit — 8 ships / 14 PRs, <strong>0 new enforcement gates</strong> (Phase E exit discipline held). Observability + dev-env hardening: F16 try-repo pre-commit harness (3rd gate-test layer), F17 per-gate <code>last_fired_at</code> index, F2 Phase 0 reality-check, launchd-drift extension, reusable deployed-URL probe. CI workflows 8 → 14; Observed-Patterns W1–W28 → W1–W32.</>,
+  },
+  {
+    version: 'v7.10',
+    date: '2026-06-10',
+    summary: <>GATE_COVERAGE_ZERO observability + field-rename closure — hardens the meta-layer watching whether each gate is actually firing, with <strong>no new product-facing gates</strong>. The <code>GATE_COVERAGE_ZERO</code> meta-check reads the F17 <code>gate-last-fired.json</code> index to flag silent gates plus 0-candidate mis-wires; three cycle-time checks now emit <code>mode=&quot;cycle&quot;</code> coverage; two reader/index field-rename silent-passes closed (observed-patterns #24).</>,
+  },
+  {
+    version: 'v8.x build window',
+    date: '2026-06-17',
+    summary: <>Build window opened (kickoff gate cleared) — <strong>F16 try-repo harness promoted advisory→enforced</strong> 1 day early via main required status checks (the <code>try-repo-harness</code> CI job, not a code flag; K2 0% false-positive rate over 60 CI runs / 13 days). Three ready-now roadmap-realism advisory gates shipped: F4 <code>FRAMEWORK_VERSION_STALE</code> (write-time, PR #740), F1 <code>STATE_TASKS_FILESYSTEM_DRIFT</code> (cycle-time, PR #752), F3 <code>DEPENDENCY_GRAPH_CYCLE</code> (cycle-time, PR #753). 28 instrumented gates total.</>,
   },
 ];
 
