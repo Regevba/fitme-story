@@ -98,6 +98,14 @@ const MILESTONES: Milestone[] = [
     what: 'Hardens the observability of the gates themselves. GATE_COVERAGE_ZERO gains a 0-candidate mis-wire detector (a gate registered in the F17 index with candidates==checked==skipped==0 runs but never reaches a candidate — the cache_hits-keying / unreachable-loop class), and three cycle-time checks (BROKEN_PR_CITATION / CASE_STUDY_MISSING_TIER_TAGS / PATTERN_SKILL_UNMAPPED) that previously emitted no Mechanism A coverage now emit mode="cycle" so the meta-check can watch them. Observed-patterns #24 codifies the field-rename silent-pass in a READER/INDEX — two instances fixed: cu_v2 (top-level vs legacy complexity.cu_version, halving adoption; post-v6 fully-adopted 3→6) and w9.auto_isolate (ts vs timestamp, 30 rows dropped). Plus a second what-if self-test across every layer (iOS build + 672 tests, ai-engine 34/34, web 286/289, framework 0 findings) that fixed verify-local dep-skip ergonomics, and T10 — the AI golden-set eval harness (the FitMe AI is deterministic, not generative, so a deterministic golden set is a hard PR gate: 24 cases, ai-engine suite 60 pass).',
     tintVar: 'var(--skill-ops)',
   },
+  {
+    version: 'v8.x build window',
+    date: '2026-06-17',
+    headline: 'v8.x build window — F16 enforced + roadmap-realism gates',
+    what: 'The v8.x build window opened once the kickoff gate cleared. F16, the try-repo pre-commit harness (the 3rd gate-test layer that spawns a throwaway git repo and runs the real pre-commit hook via subprocess), was promoted advisory→enforced one day early — not via a code flag but by adding the try-repo-harness CI job to main\'s required status checks via gh api branch protection (an integration-test gate at the CI layer). Calibration: K2 false-positive rate 0% over 60 CI runs / 13 days, so a gate\'s integration surface can no longer regress silently into main. Three v8.x ready-now roadmap-realism advisory gates shipped alongside: F4 FRAMEWORK_VERSION_STALE (write-time advisory, PR #740, fires when a feature is advanced while its framework_version is older than canonical — detection only, advisory→enforced ~2026-06-30), F1 STATE_TASKS_FILESYSTEM_DRIFT (cycle-time advisory-permanent, PR #752), and F3 DEPENDENCY_GRAPH_CYCLE (cycle-time advisory-permanent, PR #753). Canonical counts: 113 features tracked, 28 instrumented gates (18 write-time + 7 cycle-time + 2 W9 hooks).',
+    caseStudyHref: '/case-studies/framework-v7-9-1-promotion',
+    tintVar: 'var(--skill-ops)',
+  },
 ];
 
 export function EvolutionStrip() {
