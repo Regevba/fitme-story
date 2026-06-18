@@ -44,7 +44,8 @@ import { Terrain } from '../primitives/Terrain';
 import { Signage } from '../primitives/Signage';
 import { HoverCard } from '../primitives/HoverCard';
 import { flyInTick } from '../../../../lib/motion-3d/primitives';
-import { patternsForSkill } from '../../../../lib/framework-snapshot';
+import { patternsForSkill, hadfPhase3aHooks } from '../../../../lib/framework-snapshot';
+import type { HadfPhase3aHooks } from '../../../../lib/framework-snapshot';
 import type { ActProps } from './types';
 
 // ─── Layout constants ───────────────────────────────────────────────────
@@ -118,6 +119,28 @@ const ASCENDING_SLOTS: readonly ChamberSlot[] = [
 
 const MAX_OVERLAY_PATTERNS_PER_CHAMBER = 2;
 
+// Level 9: HADF Phase 3a sensing layer (Phase 4.I scene-consumer half,
+// path 1 — operator decision 2026-06-18 D3). Rendered ONLY when the
+// `hadf-phase3a-sensing` feature's aggregator hook-block (shipped #203) is
+// present in the feature roster. Ascends last, after level 8.
+const SENSING_SLOT: ChamberSlot = {
+  level: 9,
+  accent: '#2DD4BF',
+  label: 'v7.9.1 Sensing',
+  to: [0, 12.9, 0],
+  size: [1.9, 0.95, 1.9],
+  delaySec: 3 * STAGGER_SEC,
+};
+
+// Maps each sensing hook to its scene annotation label. Filtered to the
+// hooks the aggregator reported present, so a future drift (a hook removed
+// upstream) silently drops its annotation instead of showing a dead label.
+const SENSING_HOOK_LABELS: readonly { key: keyof HadfPhase3aHooks; label: string }[] = [
+  { key: 'reference_store_present', label: 'Reference Store' },
+  { key: 'attestation_present', label: 'Attestation' },
+  { key: 'drift_monitor_present', label: 'Drift Monitor' },
+] as const;
+
 // ─── Helpers ────────────────────────────────────────────────────────────
 
 function getFlyInPosition(
@@ -152,6 +175,22 @@ function Act3ArchitectureImpl({ elapsedSec }: ActProps) {
       };
     });
   }, []);
+
+  // HADF Phase 3a sensing layer (path 1, D3). Static build-time data, so a
+  // mount-stable memo. `sensingHooks` is null when the feature/hook-block is
+  // absent → the whole sensing chamber is skipped (no dead chamber).
+  const sensingHooks = useMemo(() => hadfPhase3aHooks(), []);
+  const sensingLabels = useMemo(() => {
+    if (!sensingHooks) return [] as string[];
+    return SENSING_HOOK_LABELS.filter((h) => sensingHooks[h.key]).map(
+      (h) => h.label,
+    );
+  }, [sensingHooks]);
+
+  // Per-frame fly-in position (cheap; mirrors the ascending-chamber path).
+  const sensingPosition = getFlyInPosition(SENSING_SLOT, elapsedSec);
+  const sensingAnnotationX =
+    SENSING_SLOT.to[0] + SENSING_SLOT.size[0] / 2 + 0.6;
 
   return (
     <>
@@ -233,10 +272,38 @@ function Act3ArchitectureImpl({ elapsedSec }: ActProps) {
         );
       })}
 
-      {/* Title above the completed stack. */}
+      {/* Level 9 — HADF Phase 3a sensing layer (path 1, D3). Rendered only
+          when the aggregator reported the hook block (#203); each present
+          hook surfaces as a labelled annotation beside the chamber. */}
+      {sensingHooks && (
+        <group key="sensing">
+          <Chamber
+            position={sensingPosition}
+            size={SENSING_SLOT.size}
+            accent={SENSING_SLOT.accent}
+            labelChild={<Signage text={SENSING_SLOT.label} fontSize={0.24} />}
+          />
+          {sensingLabels.map((label, idx) => {
+            const annotationY =
+              sensingPosition[1] +
+              (idx - (sensingLabels.length - 1) / 2) * 0.4;
+            return (
+              <group
+                key={label}
+                position={[sensingAnnotationX, annotationY, SENSING_SLOT.to[2]]}
+              >
+                <Signage text={label} fontSize={0.18} color="#0F766E" />
+              </group>
+            );
+          })}
+        </group>
+      )}
+
+      {/* Title above the completed stack (raised to clear the sensing
+          chamber at level 9). */}
       <Signage
         text="v7.5 — Architecture Locks In"
-        position={[0, 14.0, 0]}
+        position={[0, 14.8, 0]}
         fontSize={0.55}
       />
     </>
