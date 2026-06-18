@@ -1,0 +1,76 @@
+---
+title: >-
+  Foundation Models Tier 3 — real on-device AI personalization, with an
+  SDK-gated cloud-escalation path
+slug: foundation-models-tier3
+date: '2026-06-15'
+upstream_path: docs/case-studies/foundation-models-tier3-case-study.md
+tier: light
+tldr: >-
+  The AI engine's Tier-3 on-device personalization was a placeholder — a
+  hardcoded confidence of 0.5 that never called a model, so the "on-device
+  personalization" metric read above zero while delivering none. This replaces
+  the stub with a real Apple Foundation Models LanguageModelSession returning a
+  typed @Generable result (curated signals + a plain-language summary +
+  confidence), guarded by an anti-hallucination filter that drops any signal
+  outside the allowed set. The cloud-escalation half (Tier 3b, Private Cloud
+  Compute) ships as flag-gated architecture that no-ops until the WWDC26 PCC API
+  lands in a future SDK — it's absent from the iOS 26.5 SDK today. Tier 3a ships
+  real value now; Tier 3b waits for the SDK behind a default-off flag, keeping
+  the build green and the gated half's kill criteria un-trippable.
+timeline_position:
+  version: '7.10'
+  order: 64
+key_numbers:
+  - label: Unit tests (incl. AB1–AB3 eval coverage)
+    value: '27 / 27'
+    tier: T1
+  - label: ui-audit P0 findings
+    value: '0'
+    tier: T1
+  - label: Tier-3 adoption — real on-device personalization
+    value: '0% baseline → ≥60% target @30d'
+    tier: T2
+  - label: New analytics event
+    value: ai_summary_generated
+    tier: T1
+  - label: Tier 3b live path
+    value: flag-gated off (SDK-pending)
+    tier: T1
+kill_criteria:
+  - 'KC1 — on-device inference p50 latency > 3000 ms on a capable device → revert Tier 3a to baseline'
+  - 'KC2 — >20% of sampled summaries carry medical claims / hallucinated metrics that bypass the filter → disable summary surfacing'
+  - 'KC3 — crash-free rate < 99.5% attributable to Foundation Models calls → revert'
+kill_criterion_fired: false
+---
+
+<HeroMetric
+  value="real LanguageModelSession · 0 keys · 0 network"
+  label="On-device AI personalization, finally real — and a cloud path that waits for the SDK instead of blocking the feature"
+  context="Apple Foundation Models (LanguageModelSession + @Generable) make Tier 3a buildable with zero key and zero network. WWDC26 Private Cloud Compute removes the escalation blocker — but its API isn't in the iOS 26.5 SDK yet, so Tier 3b ships flag-gated."
+/>
+
+## The reframe: a "working" metric that was vacuous
+
+The architecture always reserved **Tier 3** for on-device personalization, but the implementation was a stub: `FoundationModelService.adapt()` returned `confidence = 0.5` and never called a model. Because `0.5 ≥ 0.4` (the tier-selection threshold), the orchestrator *technically* stamped `source_tier = on_device` — so the adoption metric read above 0% while delivering a fixed rule-tweak, not model output. The honest baseline is **"0% *real* on-device personalization."**
+
+## What shipped (PR #724 — code; PR #725 — ai-engine README)
+
+- **Tier 3a (live, on-device):** `adapt()` now opens a real on-device `LanguageModelSession` and returns a typed `@Generable PersonalizedInsight` — curated/re-prioritized signals + a short natural-language `summary` + confidence. The `summary` surfaces in the AI recommendation cards; `ai_summary_generated` analytics (`segment`, `source_tier`, `duration_ms`).
+- **Anti-hallucination filter:** only signals in the allowed set survive — an injected fake signal is dropped; an all-hallucinated result falls back to baseline (AB2 eval coverage).
+- **Tier selection:** `on_device` is used only when confidence ≥ threshold; else baseline (AB3 eval coverage).
+- **Tier 3b (architecture, flag-gated off):** `PCCEscalationService` + protocol, orchestrator wiring gated on `escalateToLLM` + low on-device confidence + availability. The live `PrivateCloudComputeLanguageModel` path is behind `FOUNDATION_MODELS_PCC` (default off).
+
+## The empirical limitation, handled honestly
+
+The PCC live path was designed against the WWDC26 announcement — but the API is **absent from the iOS 26.5 SDK** (verified by grepping the `.swiftinterface`). Rather than block the whole feature on an API that doesn't exist yet, Tier 3b is flag-gated: it compiles (`@available`-guarded), no-ops at runtime, and therefore *cannot trip a kill criterion*. Tier 3a delivers real value now; Tier 3b flips on when the SDK ships.
+
+## Why it's contained
+
+All new code is `@available`-gated (iOS 26 for Tier 3a, 26.4 for Tier 3b); deployment target stays 17.0, so non-capable devices keep the existing baseline path unchanged. On-device inference means no network round-trip and no key. The deterministic ai-engine rule engine and its golden set are untouched.
+
+## Metrics & honesty
+
+Primary: Tier-3 adoption = % of AI insight refreshes whose terminal `source_tier ∈ {on_device, pcc}` — **0% real baseline → ≥60% on capable devices @30d** [T2 — declared, measured T1 via `logAiInferenceCompleted`]. Engineering evidence at ship: **27/27 unit tests** incl. AB1–AB3 eval coverage, `make ui-audit` **P0 = 0** [both T1]. Kill criteria KC1–KC3 are post-launch; none fired as of closure. First metrics review **2026-06-29** (T+14d), then 30/60/90d.
+
+> Source case study (FitTracker2): `docs/case-studies/foundation-models-tier3-case-study.md`. Code via FT2 PR #724 (squash-merged 2026-06-15); ai-engine README via PR #725. Tracker: Linear FIT-198.
