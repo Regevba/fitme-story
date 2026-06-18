@@ -17,6 +17,7 @@ import {
   featuresByStatus,
   patternsForSkill,
   patternById,
+  hadfPhase3aHooks,
 } from './framework-snapshot';
 
 // ─── feature-roster.json ────────────────────────────────────────────────
@@ -121,4 +122,18 @@ test('patternById: known W-id resolves to the matching entry; unknown returns un
   assert.ok(w34?.skills.includes('dev') || w34?.skills.includes('ops'));
 
   assert.equal(patternById('W999-does-not-exist'), undefined);
+});
+
+test('hadfPhase3aHooks: returns the sensing hook block for the hadf-phase3a-sensing slug', () => {
+  // Aggregator half (FT2/fitme-story #203) populates this block for the
+  // `hadf-phase3a-sensing` slug only; the Act III sensing chamber (path 1,
+  // D3) consumes it. If this regresses, the sensing chamber silently
+  // disappears from the scene.
+  const hooks = hadfPhase3aHooks();
+  assert.ok(hooks, 'hadf-phase3a-sensing hook block must be present in the roster');
+  // Each present-flag is a boolean; gate_coverage_extras is a string[].
+  assert.equal(typeof hooks?.reference_store_present, 'boolean');
+  assert.equal(typeof hooks?.attestation_present, 'boolean');
+  assert.equal(typeof hooks?.drift_monitor_present, 'boolean');
+  assert.ok(Array.isArray(hooks?.gate_coverage_extras));
 });
