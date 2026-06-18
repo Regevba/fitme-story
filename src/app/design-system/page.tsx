@@ -197,8 +197,12 @@ export default function DesignSystemPage() {
           <p className="rounded-lg border-l-2 border-[var(--color-neutral-400)] bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
             <strong>The implementation:</strong> ~125 semantic tokens, 13 components, the
             Style-Dictionary token pipeline, and the <code>tokens-check</code> +{' '}
-            <code>ui-audit</code> CI drift gates. (Figma↔code Code Connect was prototyped but is
-            disabled — it requires a Figma Org/Enterprise plan; code is the source of truth.)
+            <code>ui-audit</code> CI drift gates. (Figma↔code Code Connect <em>publishing</em> is
+            disabled — it requires a Figma Org/Enterprise plan — but the Figma library itself is a
+            real, manually-maintained mirror, re-verified live 2026-06-18 across both surfaces (iOS:
+            80-var token collection + 22 component sets; web: 56 components + the <code>globals.css</code>{' '}
+            token collection). Code is the source of truth; the mirror is kept honest by a maintenance
+            protocol + a <code>figma-mirror-staleness</code> drift advisory.)
           </p>
         }
       />
