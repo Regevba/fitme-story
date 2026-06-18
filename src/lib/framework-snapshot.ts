@@ -205,3 +205,15 @@ export function patternsForSkill(skill: string): PatternSkillMapEntry[] {
 export function patternById(id: string): PatternSkillMapEntry | undefined {
   return patternSkillMap.find((p) => p.id === id);
 }
+
+/** HADF Phase 3a sensing-layer hooks, or null if the `hadf-phase3a-sensing`
+ * feature isn't present (or its aggregator block wasn't populated). Used by
+ * Act III to render the sensing chamber (Phase 4.I scene-consumer half, path
+ * 1 — operator decision 2026-06-18 D3). The aggregator half (#203) populates
+ * the block for the `hadf-phase3a-sensing` slug only. */
+export function hadfPhase3aHooks(): HadfPhase3aHooks | null {
+  const entry = featureRoster.entries.find(
+    (e) => e.slug === 'hadf-phase3a-sensing',
+  );
+  return entry?.hadf_phase3a_hooks ?? null;
+}
