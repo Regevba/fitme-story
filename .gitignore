@@ -80,3 +80,9 @@ pnpm-workspace.yaml
 # prebuild/predev; regenerated each build, not source-of-truth).
 /public/search-index.json
 .worktrees/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
