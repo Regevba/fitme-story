@@ -86,7 +86,7 @@ Mirror the working iOS pipeline (`sd.config.mjs` → `DesignTokens.swift`, gated
 - `tokens:android:check` → exits 0 in-sync; non-zero after a token edit (verified mutate-then-revert).
 - 49 colors + 34 dimens, **0 duplicate** resource names; Kotlin val-name "collisions" (`small`, `medium`) are across *different objects* — valid Kotlin.
 
-<Callout variant="warning">
+<Callout variant="warn">
   **Honest limit:** the generated Kotlin is **not compiled** — there is no Android toolchain in-repo (which is also why AND-3, the native app, stays deferred indefinitely; re-eval 2027-05-26). Verification is determinism + structural validity + drift-gate, not `gradlew assemble`.
 </Callout>
 
