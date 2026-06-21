@@ -136,6 +136,17 @@ function parseKeyNumber(value: string): ParsedNumber {
   return { kind: 'plain', raw: value };
 }
 
+// Length-aware sizing for plain (non-parsed) values. A short token like "27/27"
+// or "O(1)" reads as a headline number; a phrase like "ai_summary_generated" or
+// "flag-gated off (SDK-pending)" must shrink + wrap or it overflows its grid cell.
+function plainValueSize(s: string): string {
+  const len = s.trim().length;
+  if (len <= 10) return 'text-2xl';
+  if (len <= 18) return 'text-xl';
+  if (len <= 30) return 'text-base';
+  return 'text-sm';
+}
+
 function NumberVisual({ parsed }: { parsed: ParsedNumber }) {
   if (parsed.kind === 'progress') {
     const pct = Math.round((parsed.numerator / parsed.denominator) * 100);
@@ -195,7 +206,7 @@ function NumberVisual({ parsed }: { parsed: ParsedNumber }) {
     );
   }
   return (
-    <div className="mt-2 font-serif text-2xl leading-tight text-[var(--color-brand-indigo)]">
+    <div className={`mt-2 font-serif leading-tight text-[var(--color-brand-indigo)] break-words ${plainValueSize(parsed.raw)}`}>
       {parsed.raw}
     </div>
   );

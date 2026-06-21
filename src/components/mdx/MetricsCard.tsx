@@ -19,7 +19,7 @@ export function MetricsCard({
       <ul className="space-y-3 font-sans">
         {metrics.map((m, i) => (
           <li key={i}>
-            <div className="text-2xl font-semibold text-[var(--color-brand-indigo)]">{m.value}</div>
+            <div className="text-2xl font-semibold text-[var(--color-brand-indigo)] break-words">{m.value}</div>
             <div className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">{m.label}</div>
           </li>
         ))}
