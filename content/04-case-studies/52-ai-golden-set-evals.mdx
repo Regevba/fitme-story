@@ -51,6 +51,9 @@ kill_criteria:
   - 'Golden harness becomes flaky (non-deterministic) — would violate the "deterministic AI is gateable" premise → revert to advisory.'
   - 'Golden set pins implementation detail rather than behavioral contract (brittle to benign refactors).'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'The harness only exercises the deterministic `InsightService` rule engine — the generative LLM path is gated behind an unset `LLM_API_KEY` (requires a Data Processing Agreement) and is NOT tested live; the live-LLM eval scaffold skips cleanly by design, so this proves the rule engine, not any prompt quality.'
+  - 'The 24 golden cases pin behavioral contracts authored by a single practitioner from reading the code — they catch regressions against the current intended behavior (negative-control proven), not against an independently-validated ground truth of what the AI *should* recommend.'
 category: framework
 ---
 

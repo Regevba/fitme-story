@@ -50,6 +50,10 @@ kill_criteria:
   - 'Attestation presented as authoritative per-request (violates the RQ5 honesty boundary) → revert T2 to advisory-only or pull it'
   - 'Any T1–T3 producer makes a dispatch/routing decision (violates the Phase 3A non-goal; acting is gated on RQ4 / Phase 3B)'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'Detection-only by construction: the sensing layer makes exactly 0 dispatch or routing decisions, and every attestation output carries `advisory: true` plus a "do NOT route" caveat. Whether routing on a signature improves outcomes (RQ4) is unbuilt; per-request single-shot accuracy (RQ5) is unvalidated.'
+  - 'The signature is validated at the distribution level, not per-request: same-model endpoints (anthropic vs aws-bedrock claude-haiku-4-5) score only "weak" by design (<1σ gap), so aggregate distinguishability does not promise per-request separability.'
+  - 'Research-stage, single-operator: the reference store is built from one operator''s closed Phase 2-bis collections (8 endpoints, 7197 records after dropping 7 implausible-TTFT outliers); server-side real streaming `ttft_s`/`tps` (T5b) is deferred, so live attestation runs on a thinner signal than the offline store.'
 ---
 
 <HeroMetric

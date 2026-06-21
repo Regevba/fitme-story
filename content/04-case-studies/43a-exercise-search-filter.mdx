@@ -56,6 +56,10 @@ kill_criteria:
   - 'p95 search latency > 100ms on iPhone 17'
   - 'Crash rate on library sheet > 0.5% of opens'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'Test coverage is pure-logic only: the 7 tests cover the filter algorithm + analytics param shapes (>90% on new files), but view-mode behavior (picker vs read-only) and entry-point fire-correct-source tests are deferred — SwiftUI view-level testing is a known project gap (the parallel-clone simulator hang env-flake makes UI tests high-cost/high-flake).'
+  - 'The primary metric (library opens ≥0.30 per WAU) is pre-registered with baseline 0 and not yet evaluable — first kill-criteria evaluation is T+14d (2026-06-16), with no live adoption data at ship time.'
+  - 'The "~50 exercises were rich but invisible for the entire v7.x window" framing is a T3 narrative claim, not instrumented.'
 ---
 
 <HeroMetric

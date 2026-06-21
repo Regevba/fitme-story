@@ -61,6 +61,10 @@ kill_criteria:
   - 'Drift gate false-positives on a clean tree'
   - 'Style Dictionary v6 removes the v5 format API'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'The generated Kotlin is NOT compiled — there is no Android toolchain in-repo — so verification is determinism + structural validity + the drift gate, not `gradlew assemble`; the kill criterion "Kotlin won''t compile in a real Android module" therefore cannot yet be evaluated.'
+  - 'This ships the token layer only, not an app: no Gradle, no Compose screens, no `AndroidManifest.xml`. The native Android app (AND-3) remains deferred indefinitely (re-eval 2027-05-26).'
+  - 'The pipeline emits no typography sizes — the 16 `typography.*` tokens are semantic style strings (e.g. `largeTitle/bold/rounded`), not numeric `sp` values, so they ship as a reference comment block pointing at the MD3 type-scale mapping rather than generated dimens.'
 ---
 
 # Android Token Pipeline — making the design system real (AND-1)

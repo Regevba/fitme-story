@@ -60,6 +60,10 @@ visual_aid:
 kill_criteria:
   - 'If the iOS Figma mirror is <50% faithful (rebuild never landed), STOP and re-scope as "re-rebuild the mirror" (a larger, separate Feature).'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'Code Connect publish is DISABLED on the Pro plan — Figma is a manually-maintained mirror, NOT auto-synced from code; "code is canonical" means the mirror can drift and must be governed by hand (the new staleness advisory is advisory-only, not an enforced gate).'
+  - 'The ~95% (iOS) / ~90% (web) fidelity figures are eyeballed audit estimates, not a mechanical diff — the 80/80 token-value match is verified, but "fidelity" is a human judgment over component sets and pages.'
+  - 'The T1 audit''s kill criterion fired falsely — `get_metadata`/`get_variable_defs` read the iOS library as an empty "Cover" page (0% fidelity) because Figma read tools reflect desktop-app context, not the `fileKey` (observed-pattern W38). It took an authoritative `use_figma` plugin-API read to contradict it before a destructive rebuild; a single-read trust would have been wrong.'
 ---
 
 # figma-design-architecture — honest closure of the design-system source-of-truth story

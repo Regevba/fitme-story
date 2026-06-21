@@ -52,6 +52,10 @@ kill_criteria:
   - '>0 email_not_allowlisted for regvash21@gmail.com → env-var misconfiguration → fix UCC_ALLOWED_EMAILS'
   - 'sign-in latency p50 increase > 5ms → investigate Redis round-trip overhead'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'The latency kill criterion (K2/K3) used the wrong instrumentation: `duration_ms` measured end-to-end WebAuthn ceremony time (server + user touch + FIDO2 hardware), not the server-side overhead the +5ms threshold was sized for — so the +137ms post-hardening delta is network/cold-start/touch variance, not the +1 Redis GET. The metric was marked invalid and a dedicated server-side metric queued for v7.9.1 rather than claim a false signal.'
+  - 'The T+7d PROMOTE verdict rests on a single operator exercising the system (4 sign-ins, 7 bootstrap tokens) against a small live audit-log window (39 events) — it proves no false-positive lockouts and no unauthorized registrations for one user, not multi-user load behavior.'
+  - 'The +~2ms auth-path latency figure is T2 (declared/expected from one extra Redis GET), not directly instrumented in production.'
 ---
 
 <HeroMetric

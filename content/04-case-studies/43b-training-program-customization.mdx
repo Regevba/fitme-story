@@ -59,6 +59,10 @@ kill_criteria:
   - 'Migration regression: any existing user loses access to their fixed PPL'
   - 'Active-program-switch rate > 1.5/day per user (thrash signal)'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'The 15 tests cover only the pure-logic surfaces (Codable round-trip, migration resolver, template materialization, analytics param shapes) at ≥90%; view-level smoke tests for the day-by-day editor are deferred per the project''s ViewInspector / UI-test gap.'
+  - 'The primary metric (≥0.15 per WAU with a saved custom program) is pre-registered with baseline 0 and not first evaluated until T+60d (2026-08-01) — no adoption signal exists at ship time.'
+  - 'The "every user followed the same fixed PPL split" problem framing is a T3 narrative claim; the wall-time figure (~5h) is T2 (declared).'
 ---
 
 <HeroMetric
