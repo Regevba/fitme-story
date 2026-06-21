@@ -178,7 +178,7 @@ export const LOCKED_PATTERNS: LockedPattern[] = [
     id: 'case-study-alt-a-chrome',
     name: 'Case-study presentation: Alternative A chrome',
     lockedDate: '2026-04-28',
-    description: 'Every case-study MDX renders: SummaryCard → DataKey → VisualAidResolver → KillCriterionBanner → DeferredItemsList → narrative body. Frontmatter audit gates this composition.',
+    description: 'Story-first composition (2026-06-21): header (badge · h1 · tldr lead) → visual-aid band + compact TierLegend → narrative body → HonestDisclosures · KillCriterionBanner · DeferredItemsList epilogue. One config-driven template (CaseStudyArticle) renders every tier. Frontmatter audit gates the chrome.',
     rationale: 'Picked over Alternative B (lighter, less structured chrome) because cross-case-study comparison + skim-readability was a primary user goal. 25/25 case studies backfilled to validate.',
     source: 'docs/case-studies/case-study-presentation-refactor-case-study.md',
     appliesTo: ['/case-studies/[slug]', 'all MDX in content/04-case-studies/'],

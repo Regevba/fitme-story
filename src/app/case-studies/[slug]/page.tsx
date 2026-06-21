@@ -8,9 +8,7 @@ import type { Metadata } from 'next';
 import { getAllCaseStudies, getCaseStudyBySlug } from '@/lib/content';
 import { buildMetadata } from '@/lib/seo';
 import { useMDXComponents } from '@/mdx-components';
-import { LightTemplate } from '@/components/case-study/LightTemplate';
-import { StandardTemplate } from '@/components/case-study/StandardTemplate';
-import { FlagshipTemplate } from '@/components/case-study/FlagshipTemplate';
+import { CaseStudyArticle } from '@/components/case-study/CaseStudyArticle';
 import { JsonLd } from '@/components/JsonLd';
 import { blogPostingJsonLd, breadcrumbJsonLd } from '@/lib/seo';
 
@@ -113,38 +111,14 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
     { name: fm.title, href: `/case-studies/${fm.slug}` },
   ]);
 
-  switch (entry.frontmatter.tier) {
-    case 'flagship':
-      return (
-        <>
-          <JsonLd data={articleJsonLd} />
-          <JsonLd data={crumbsJsonLd} />
-          <FlagshipTemplate entry={entry} siblings={siblings}>
-            {content}
-          </FlagshipTemplate>
-        </>
-      );
-    case 'standard':
-      return (
-        <>
-          <JsonLd data={articleJsonLd} />
-          <JsonLd data={crumbsJsonLd} />
-          <StandardTemplate entry={entry} siblings={siblings}>
-            {content}
-          </StandardTemplate>
-        </>
-      );
-    case 'light':
-    case 'appendix':
-    default:
-      return (
-        <>
-          <JsonLd data={articleJsonLd} />
-          <JsonLd data={crumbsJsonLd} />
-          <LightTemplate entry={entry} siblings={siblings}>
-            {content}
-          </LightTemplate>
-        </>
-      );
-  }
+  // One config-driven template renders every tier (consolidated 2026-06-21).
+  return (
+    <>
+      <JsonLd data={articleJsonLd} />
+      <JsonLd data={crumbsJsonLd} />
+      <CaseStudyArticle entry={entry} siblings={siblings}>
+        {content}
+      </CaseStudyArticle>
+    </>
+  );
 }
