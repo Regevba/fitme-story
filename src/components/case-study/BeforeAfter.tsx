@@ -52,6 +52,14 @@ export function BeforeAfter({
   const beforeAccent = before?.accentVar ?? 'var(--color-neutral-500)';
   const afterAccent = after?.accentVar ?? afterAccentVar ?? 'var(--color-brand-indigo)';
 
+  // Length-aware value sizing so a phrase value ("25 gates + 1 advisory",
+  // "build-time snapshot") steps down from the 4xl headline size and wraps,
+  // instead of overflowing the half-width comparison cell.
+  const sizeFor = (v: string) => {
+    const len = v.trim().length;
+    return len > 20 ? 'text-2xl' : len > 12 ? 'text-3xl' : 'text-4xl';
+  };
+
   return (
     <figure
       className={`my-10 max-w-[var(--measure-body)] mx-auto ${className}`}
@@ -68,7 +76,7 @@ export function BeforeAfter({
           <div className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
             {bLabel}
           </div>
-          <div className="mt-2 font-serif text-4xl" style={{ color: beforeAccent }}>
+          <div className={`mt-2 font-serif break-words ${sizeFor(bValue)}`} style={{ color: beforeAccent }}>
             {bValue}
           </div>
           {bSubtitle && (
@@ -98,7 +106,7 @@ export function BeforeAfter({
           <div className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
             {aLabel}
           </div>
-          <div className="mt-2 font-serif text-4xl" style={{ color: afterAccent }}>
+          <div className={`mt-2 font-serif break-words ${sizeFor(aValue)}`} style={{ color: afterAccent }}>
             {aValue}
           </div>
           {aSubtitle && (
