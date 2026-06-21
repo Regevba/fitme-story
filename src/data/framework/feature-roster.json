@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-06-17T13:13:58Z",
+  "generated_at": "2026-06-21T13:21:50Z",
   "entries": [
     {
       "slug": "3d-interactive-framework-flow-diagram",
@@ -131,6 +131,18 @@
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "android-token-pipeline",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/android-token-pipeline-case-study.md",
+      "parent_feature": "android-design-system",
+      "state_owner": "ft2",
+      "isolation_opt_out": true,
       "has_brainstorm": false,
       "hadf_phase3a_hooks": null
     },
@@ -459,6 +471,18 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "figma-design-architecture",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/figma-design-architecture-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "fitme-story-design-system-p2-cleanup",
       "status": "complete",
       "framework_version": "v7.8.2",
@@ -532,10 +556,10 @@
     },
     {
       "slug": "foundation-models-tier3",
-      "status": "in_progress",
+      "status": "complete",
       "framework_version": "v7.10",
-      "current_phase": "implementation",
-      "case_study": null,
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/foundation-models-tier3-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
@@ -1155,15 +1179,15 @@
       "case_study": "docs/case-studies/t13-last-failed-at-index-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
-      "isolation_opt_out": false,
+      "isolation_opt_out": true,
       "has_brainstorm": false,
       "hadf_phase3a_hooks": null
     },
     {
       "slug": "t14-platform-parity-state-field",
-      "status": "in_progress",
+      "status": "complete",
       "framework_version": "v7.9.1",
-      "current_phase": "implementation",
+      "current_phase": "complete",
       "case_study": "docs/case-studies/t14-platform-parity-state-field-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
@@ -1179,7 +1203,7 @@
       "case_study": "docs/case-studies/t3-signinservice-passkey-tests-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
-      "isolation_opt_out": false,
+      "isolation_opt_out": true,
       "has_brainstorm": false,
       "hadf_phase3a_hooks": null
     },
@@ -1191,7 +1215,7 @@
       "case_study": "docs/case-studies/t5-mock-protocol-drift-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
-      "isolation_opt_out": false,
+      "isolation_opt_out": true,
       "has_brainstorm": false,
       "hadf_phase3a_hooks": null
     },

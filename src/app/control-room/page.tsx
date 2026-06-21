@@ -245,7 +245,7 @@ export default async function ControlRoomPage() {
                   Framework Health
                 </h2>
                 <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
-                  v7.8
+                  v7.10
                 </span>
               </div>
               <p className="font-sans text-sm text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">

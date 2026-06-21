@@ -10,9 +10,9 @@ import { useMDXComponents } from '@/mdx-components';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'PM Framework — Developer Guide (v1.0 → v7.9)',
+  title: 'PM Framework — Developer Guide (v1.0 → v7.10)',
   description:
-    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema (incl. v7.8.3 cross-repo state_owner enum), phase lifecycle, dispatch, cache, measurement protocol, 37 mechanical gates + 5 advisories, v7.8 bridge mechanisms (A–F), v7.8.3 cross-repo state-sync release umbrella (V2 enforced + V9 logs + D-3 unified PR cite cache + D-1 reverse-sync GH Action), v7.8.4 pre-v7.9 telemetry calibration (PR_CACHE_STALE auto-refresh + TIER_TAG heuristic narrowing), v7.8.5 observability layer (Observed Patterns Catalog of 23 gate patterns + 9 workflow patterns + W9 branch-drift real-time alert via PostToolUse:Bash hook), v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit + daily stale-branch/PR-babysit), v7.9 promotion release (single-flag flip at scripts/check-state-schema.py:132 promotes 3 v7.8.1 advisory gates to enforced — BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS — after 14d Mechanism A calibration; Phase E validation soak 2026-05-21 → 2026-06-04; first real-world gate fire caught + resolved same-session), 3 operational walkthroughs, and the compressed v1.0 → v7.9 timeline.',
+    'Technical, dev-only guide to the PM framework: 4 enforcement layers, state.json schema (incl. v7.8.3 cross-repo state_owner enum), phase lifecycle, dispatch, cache, measurement protocol, 28 instrumented gates (38 mechanical + 4 advisories), v7.8 bridge mechanisms (A–F), v7.8.3 cross-repo state-sync release umbrella (V2 enforced + V9 logs + D-3 unified PR cite cache + D-1 reverse-sync GH Action), v7.8.4 pre-v7.9 telemetry calibration (PR_CACHE_STALE auto-refresh + TIER_TAG heuristic narrowing), v7.8.5 observability layer (Observed Patterns Catalog of 25 gate patterns + W1–W39 workflow patterns + W9 branch-drift real-time alert via PostToolUse:Bash hook), v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit + daily stale-branch/PR-babysit), v7.9 promotion release (single-flag flip promotes 3 v7.8.1 advisory gates to enforced — BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS — after 14d Mechanism A calibration), v7.10 GATE_COVERAGE_ZERO observability + field-rename closure, T14 PLATFORMS_TESTED + F16 try-repo harness enforced (June 2026), 3 operational walkthroughs, and the compressed v1.0 → v7.10 timeline.',
   slug: '/framework/dev-guide',
   type: 'article',
 });
@@ -77,7 +77,7 @@ export default async function DevGuidePage() {
           Developer guide
         </p>
         <h1 className="mt-2 font-serif text-[length:var(--text-display-lg)]">
-          PM Framework — Developer Guide (v1.0 → v7.9)
+          PM Framework — Developer Guide (v1.0 → v7.10)
         </h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           Technical reference for developers onboarding to the framework. Not the
@@ -112,7 +112,7 @@ export default async function DevGuidePage() {
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Last updated:</dt>
-            <dd>2026-05-21 at v7.9 promotion ship — 3 advisory gates → enforced (Phase E live 2026-05-21 → 2026-06-04)</dd>
+            <dd>2026-06-21 at v7.10 — GATE_COVERAGE_ZERO observability + field-rename closure; T14 PLATFORMS_TESTED + F16 try-repo harness enforced (June 2026)</dd>
           </div>
           <div className="flex gap-2">
             <dt className="font-semibold">Canonical source:</dt>
@@ -121,7 +121,7 @@ export default async function DevGuidePage() {
                 docs/architecture/dev-guide-v1-to-v7-7.md
               </a>{' '}
               <span className="text-[var(--color-neutral-500)]">
-                (filename retained for ref-stability; content tracks v7.9)
+                (filename retained for ref-stability; content tracks v7.10)
               </span>
             </dd>
           </div>

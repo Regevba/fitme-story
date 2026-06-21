@@ -73,7 +73,7 @@ const FLOORS: Floor[] = [
     title: 'Integrity & enforcement (v7.x)',
     summary: (
       <>
-        <strong>37 mechanical gates + 5 advisories</strong> across v7.5 → v7.9.1 (3 advisories promoted to enforced via the v7.9 promotion 2026-05-21): the v7.5 Data Integrity Framework, write-time pre-commit hooks, the 72h integrity cycle, per-PR review bot, weekly framework-status cron, branch isolation, feature-closure completeness, cross-repo state sync, the Observed Patterns Catalog, and the v7.9.1 build window (F16 try-repo harness, F17 last-fired index, F2 reality-check). <strong>v7.10</strong> (2026-06-10) hardened the meta-layer with the <strong>GATE_COVERAGE_ZERO</strong> observability check, and the <strong>v8.x build window</strong> (opened 2026-06-17) promoted the F16 try-repo harness advisory→enforced via main required status checks and shipped the F4/F1/F3 roadmap-realism advisory gates — bringing the framework to <strong>28 instrumented gates</strong>. Includes the <strong>HADF</strong> dispatch program through its Phase&nbsp;3A sensing layer.
+        <strong>28 instrumented gates (17 write-time emitting + 9 cycle-time + 2 W9 hooks), 25 firing</strong> across v7.5 → v7.10 (38 mechanical + 4 advisories; 3 advisories promoted to enforced via the v7.9 promotion 2026-05-21): the v7.5 Data Integrity Framework, write-time pre-commit hooks, the 72h integrity cycle, per-PR review bot, weekly framework-status cron, branch isolation, feature-closure completeness, cross-repo state sync, the Observed Patterns Catalog, and the v7.9.1 build window (F16 try-repo harness, F17 last-fired index, F2 reality-check). <strong>v7.10</strong> (2026-06-10) hardened the meta-layer with the <strong>GATE_COVERAGE_ZERO</strong> observability check, and the <strong>v8.x build window</strong> (opened 2026-06-17) promoted F16 try-repo harness advisory→enforced (2026-06-17) and T14 PLATFORMS_TESTED advisory→enforced (2026-06-21) and shipped the F4/F1/F3 roadmap-realism advisory gates. Includes the <strong>HADF</strong> dispatch program through its Phase&nbsp;3A sensing layer.
       </>
     ),
     href: '/framework/dispatch',
@@ -238,7 +238,7 @@ export default function FrameworkPage() {
       <section id="bridge" className="mt-12 scroll-mt-16" aria-label="v7.8 to v7.9 bridge timeline">
         <h2 className="font-serif text-2xl">v7.8 → v7.9 bridge timeline</h2>
         <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
-          Each entry is a patch-level release on Floor 8. All advisory surfaces; the enforcement-gate count holds at <strong>34 mechanical + 5 advisories</strong> until v7.9 promotion.
+          Each entry is a patch-level release on Floor 8. All advisory surfaces; in this pre-v7.9 era the enforcement-gate count held at <strong>34 mechanical + 5 advisories</strong> until the v7.9 promotion (2026-05-21) flipped 3 advisories to enforced.
         </p>
         <ol className="mt-6 space-y-4 border-l border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pl-6">
           {BRIDGE_TIMELINE.map((entry) => (
@@ -315,10 +315,10 @@ export default function FrameworkPage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="font-serif text-xl group-hover:text-[var(--color-brand-indigo)]">
-                  Developer guide (v1.0 → v7.9) →
+                  Developer guide (v1.0 → v7.10) →
                 </h2>
                 <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                  Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema (incl. v7.8.3 cross-repo <code>state_owner</code> enum), phase lifecycle, dispatch model, cache architecture, measurement protocol, 34 mechanical gates + 5 advisories, v7.8 bridge mechanisms A–F, v7.8.3 cross-repo state-sync, v7.8.5 Observed Patterns Catalog + W9 branch-drift alert, v7.8.5+S skills-review execution (12 skills + <code>make skills-audit</code>), v7.8.6 cadence batch (unified preflight + integrity-diff + weekly trend scan + dependency audit), 3 operational walkthroughs, compressed v1.0 → v7.9 timeline.
+                  Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema (incl. v7.8.3 cross-repo <code>state_owner</code> enum), phase lifecycle, dispatch model, cache architecture, measurement protocol, 28 instrumented gates, v7.8 bridge mechanisms A–F, v7.8.3 cross-repo state-sync, v7.8.5 Observed Patterns Catalog + W9 branch-drift alert, v7.8.5+S skills-review execution (12 skills + <code>make skills-audit</code>), v7.8.6 cadence batch (unified preflight + integrity-diff + weekly trend scan + dependency audit), 3 operational walkthroughs, compressed v1.0 → v7.10 timeline.
                 </p>
               </div>
               <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />

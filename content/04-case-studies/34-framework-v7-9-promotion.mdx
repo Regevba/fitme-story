@@ -19,9 +19,10 @@ tldr: >-
   feature/v7-9-promotion branch declaration; resolved via 1-line
   state.json::branch field update. Total framework mechanisms
   post-promotion 37 mechanical gates plus 5 advisories. Reversibility
-  is single-line revert in under 5 min. Phase E validation soak runs
-  2026-05-21 through 2026-06-04. Section 99 synthesis lands 2026-05-28
-  post-B2 baseline snapshot.
+  is single-line revert in under 5 min. Phase E validation soak ran
+  2026-05-21 through 2026-06-04. Section 99 synthesis is complete: all
+  3 kill criteria not_fired (verdict PASSED, evaluated 2026-05-28 post-B2
+  baseline); the promotion holds and the feature is complete.
 timeline_position:
   version: '7.9'
   order: 50
@@ -38,7 +39,7 @@ dispatch_pattern: operator-driven (decision) + agent-driven (per-gate flip imple
 framework_version: v7.9
 tier_tags_present: true
 external_audit_status: pending
-status: placeholder
+status: complete
 primary_metric: >-
   Number of advisory gates successfully promoted to enforced with 0 false
   positives in the 7-day post-flip soak (target 3 promoted, 0 rollbacks).
@@ -51,16 +52,23 @@ success_metrics:
   secondary:
     - All 4 section 2.2 promotion criteria verified GREEN before flip (T1)
     - Side-effects PR opens single-day; 6 doc surfaces updated in same commit (T1)
-    - Post-promotion T+7d baseline snapshot 2026-05-28 shows zero new findings vs 2026-05-14 platform anchor (T2 pending)
+    - Post-promotion T+7d baseline snapshot 2026-05-28 — the only deltas vs the 2026-05-14 platform anchor were denominator-dilution process regressions (9 features added during Phase E without adoption-metric backfill), NOT v7.9-caused; flagged for v7.9.1 backfill (T1)
 kill_criteria:
   - Mechanism A telemetry shows 0 percent coverage for any advisory-being-promoted gate at decision time (cannot promote what was never calibrated)
   - False positive rate over 5 percent during 14-day calibration window for any proposed-promotion gate
   - Post-promotion bug surfaces requiring rollback within T+7d soak — defer promotion or restore advisory mode
 kill_criteria_resolution: >-
-  pending — evaluated 2026-05-28 (B2 post-v7.9 baseline snapshot per
-  .claude/shared/must-have-cadence-followups.md section B2). Final
-  disposition (passed / partially_passed / tripped) lands here with
-  deltas.
+  All 3 kill criteria not_fired (evaluated 2026-05-28, Phase E Day 7,
+  post-B2 baseline snapshot). K1 (Mech A 0% coverage at decision time):
+  18 + 13 + 13 firings across the 14-day calibration window; 0% coverage
+  was never observed for any candidate gate [T1]. K2 (false-positive rate
+  >5%): 0 false positives across 44 firings; rate 0% < 5% [T1]. K3
+  (post-promotion rollback within T+7d): no rollback PR opened;
+  BRANCH_ISOLATION_ADVISORY_MODE still reads False on main [T1]. Verdict:
+  PASSED — v7.9 promotion holds; feature advanced docs → complete. The
+  adoption_pct / timing_wall_time / cache_hits deltas seen via
+  make integrity-diff are denominator dilution (Phase E features without
+  metric backfill), NOT v7.9-caused — flagged for v7.9.1 backfill.
 related_prs:
   - 417
   - 419
@@ -101,11 +109,11 @@ category: framework
 
 # Framework v7.9 — Promotion Release
 
-> **Placeholder slot (2026-05-21).** Full case study lives upstream at
+> **Synthesized slot.** Full case study lives upstream at
 > [`docs/case-studies/framework-v7-9-promotion-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/framework-v7-9-promotion-case-study.md).
-> This MDX is the showcase index entry. Section 99 synthesis +
-> kill_criteria_resolution backfill land 2026-05-28 post-B2 baseline
-> snapshot, per case study section 99 design + Linear FIT-85 In Progress.
+> This MDX is the showcase index entry. Section 99 synthesis is complete:
+> all 3 kill criteria `not_fired` (verdict PASSED, evaluated 2026-05-28
+> post-B2 baseline). The promotion holds and the feature is `complete`.
 
 ## What v7.9 shipped (one paragraph)
 
@@ -145,5 +153,12 @@ silent-pass at v7.9.
 
 ## Status
 
-`placeholder` — full content + section 99 synthesis lands 2026-05-28
-when B2 baseline data is available. Linear FIT-85 tracks closure.
+`complete` — Section 99 synthesis is done. All 3 kill criteria evaluated
+`not_fired` on 2026-05-28 (Phase E Day 7, post-B2 baseline): K1 (0% Mech A
+coverage at decision) not_fired — 18 + 13 + 13 firings observed; K2 (>5%
+false-positive rate) not_fired — 0/44 firings; K3 (rollback within T+7d)
+not_fired — no rollback PR, advisory mode still False on main. **Verdict:
+PASSED — v7.9 promotion holds.** The adoption-percentage deltas surfaced by
+`make integrity-diff` are denominator-dilution process regressions (Phase E
+features added without adoption-metric backfill), not v7.9-caused — filed as
+a v7.9.1 backfill follow-up.

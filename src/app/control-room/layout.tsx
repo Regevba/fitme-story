@@ -18,7 +18,7 @@
  *   - PipelineOverview slot — T27
  *   - ThemeToggle — fitme-story uses system-pref dark mode; explicit toggle deferred
  *
- * The version badge is hardcoded to v7.8 for now; T20 will server-load
+ * The version badge is hardcoded to v7.10 for now; T20 will server-load
  * framework_version from the builder.ts framework manifest.
  */
 

@@ -7,7 +7,7 @@
  * Renders:
  *  - Tier 1.1 adoption trend (AdoptionTrendChart)
  *  - Documentation-debt coverage (DocDebtTrendChart)
- *  - Automation map of all 20 check codes (AutomationMap)
+ *  - Automation map of all 28 instrumented gates (AutomationMap)
  *  - Mechanically-unclosable deferred items D1+D2 (HumanActionPanel)
  *  - Latest 72h integrity cycle snapshot (CycleSnapshotPanel)
  *  - v7.8 Mechanism F membrane status — advisory smartlog (MembraneStatusPanel)
@@ -59,7 +59,7 @@ async function loadGateCoverage() {
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
   description:
-    'Live dashboard for the FitMe PM framework v7.9 (Phase E validation soak 2026-05-21 → 2026-06-04): Tier 1.1 adoption trends, documentation-debt coverage, automation map (37 mechanical gates + 5 advisories — 3 promoted at v7.9 from advisory: BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.4 pre-v7.9 telemetry calibration baseline, v7.8.5 Observed Patterns Catalog with W9 branch-drift real-time alert hook + W15 MDX <digit parse failure pattern, v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit), and v7.9 promotion outcome with FT2-FH-003 honesty ledger calibration-discipline codification.',
+    'Live dashboard for the FitMe PM framework v7.10 (shipped 2026-06-10): Tier 1.1 adoption trends, documentation-debt coverage, automation map (28 instrumented gates = 38 mechanical + 4 advisories — incl. BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS enforced at v7.9, PLATFORMS_TESTED enforced 2026-06-21, F16 try-repo harness enforced 2026-06-17), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.5 Observed Patterns Catalog (25 gate-firing patterns + W1–W39 workflow patterns) with W9 branch-drift real-time alert hook, v7.8.6 cadence batch (make integrity-diff + make preflight unified entry point + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit), and v7.10 GATE_COVERAGE_ZERO observability + field-rename closure.',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -194,13 +194,22 @@ const PREDECESSOR_LINKS = [
     description: 'Patch-level. Closes the 96h drift window between weekly framework-status cron and 72h integrity cycle (data-integrity §2.1+§2.3). Adds make integrity-diff vs 2026-05-14 anchor; make preflight WORK_TYPE=<type> unified entry point writing .claude/shared/preflight-cache.json consumed by all 10 skills; W1 ssh-agent SessionStart preflight; weekly Mechanism A gate-coverage zero-drift scan + per-dimension trend nudge (cu_v2/fully_adopted_post_v6 watch); calendar reminders for B1/B2/B4/B5 follow-ups. Nice-to-have batch: weekly dependency audit workflow + daily stale-branch + PR babysit sections. No new enforcement gates. PRs #363 (MUST) + #365 (nice-to-have).',
   },
   {
-    label: 'v7.9 — Promotion Release (Phase E live)',
+    label: 'v7.9 — Promotion Release',
     version: 'v7.9',
     date: '2026-05-21',
     href: 'https://github.com/Regevba/FitTracker2/pull/417',
     external: true,
+    current: false,
+    description: 'SHIPPED 2026-05-21 via single-flag flip at scripts/check-state-schema.py (BRANCH_ISOLATION_ADVISORY_MODE = True → False). Promotes 3 v7.8.1 advisory gates to enforced: BRANCH_ISOLATION_VIOLATION Mode B (infra commit-level) + Mode C (per-state.json mutation) + FEATURE_CLOSURE_COMPLETENESS (write-time). All 4 §2.2 promotion criteria met against 14d Mechanism A telemetry (18 + 13 + 13 firings, 0 zero-candidate). First real-world Mode C gate fire caught + resolved same-session. Phase E validation soak ran 2026-05-21 → 2026-06-04. FT2-FH-003 honesty ledger codifies the calibration discipline.',
+  },
+  {
+    label: 'v7.10 — GATE_COVERAGE_ZERO observability + field-rename closure',
+    version: 'v7.10',
+    date: '2026-06-10',
+    href: 'https://github.com/Regevba/FitTracker2/blob/main/docs/FRAMEWORK-FACTS.md',
+    external: true,
     current: true,
-    description: 'SHIPPED 2026-05-21 via single-flag flip at scripts/check-state-schema.py:132 (BRANCH_ISOLATION_ADVISORY_MODE = True → False). Promotes 3 v7.8.1 advisory gates to enforced: BRANCH_ISOLATION_VIOLATION Mode B (infra commit-level) + Mode C (per-state.json mutation) + FEATURE_CLOSURE_COMPLETENESS (write-time). All 4 §2.2 promotion criteria met against 14d Mechanism A telemetry (18 + 13 + 13 firings, 0 zero-candidate). First real-world Mode C gate fire caught + resolved same-session. 37 mechanical gates + 5 advisories post-promotion. Phase E validation soak LIVE 2026-05-21 → 2026-06-04 (B2 baseline 2026-05-28). FT2-FH-003 honesty ledger codifies the calibration discipline. Reversibility: single-line revert in under 5 min.',
+    description: 'SHIPPED 2026-06-10. Hardens observability of the gates themselves: GATE_COVERAGE_ZERO meta-check reads the F17 gate-last-fired index + adds a 0-candidate mis-wire detector; cycle-time coverage emission wired for BROKEN_PR_CITATION + CASE_STUDY_MISSING_TIER_TAGS + PATTERN_SKILL_UNMAPPED; two field-rename reader mismatches closed (measurement-adoption cu_v2; gate-last-fired ts key). Current canonical state: 115 features, 28 instrumented gates (17 write-time emitting + 9 cycle-time + 2 W9 hooks; F4 is an 18th write-time advisory gate), 25 firing, 0 integrity findings. PLATFORMS_TESTED enforced 2026-06-21; F16 try-repo harness enforced 2026-06-17.',
   },
 ];
 
@@ -323,13 +332,13 @@ export default async function FrameworkHealthPage() {
         </div>
         <h1 className="font-serif text-[length:var(--text-display-lg)]">Framework Health</h1>
         <p className="mt-3 text-lg text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-2xl font-sans">
-          v7.8 live dashboard — Tier 1.1 measurement adoption, documentation-debt coverage, full
+          v7.10 live dashboard — Tier 1.1 measurement adoption, documentation-debt coverage, full
           automation map, last 72h integrity cycle snapshot, and Mechanism F membrane status.
         </p>
         <div className="mt-4 flex flex-wrap gap-3 text-xs font-sans">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-            v7.8 — Bridge to v7.9
+            v7.10
           </span>
           {currentAdoption && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
@@ -413,8 +422,8 @@ export default async function FrameworkHealthPage() {
       {/* ── T23 — Automation map ── */}
       <Section
         id="automation-map"
-        title="Automation map — all 20 check codes"
-        subtitle="Every gating and advisory check code active as of v7.7. Three enforcement layers: write-time (pre-commit), cycle-time gating (72h CI), and cycle-time advisory."
+        title="Automation map — all 28 instrumented gates"
+        subtitle="Every instrumented gate as of v7.10: 18 write-time (pre-commit, incl. F4 advisory) + 9 cycle-time (72h CI) + 2 W9 real-time hooks, plus 3 non-gating cycle-time advisories."
       >
         <AutomationMap />
       </Section>
