@@ -10,12 +10,12 @@ export const metadata = buildMetadata({
 
 export default function AboutPage() {
   return (
-    <article className="max-w-[var(--measure-wide)] mx-auto px-6 py-16">
-      <h1 className="font-serif text-[length:var(--text-display-lg)]">About</h1>
+    <article className="page-shell section-padding-x py-16">
+      <h1 className="font-serif text-[length:var(--text-display-lg)] max-w-[var(--measure-body)] mx-auto">About</h1>
       {/* BHF-1 (DS lens audit 2026-05-10): migrated from inline rounded-md
           border + bg-neutral-50 pattern to <Card variant="tinted">. The aside
           element wraps Card so the aria-label + semantic role stay correct. */}
-      <aside aria-label="Project disclaimer" className="not-prose mt-8 max-w-[var(--measure-body)]">
+      <aside aria-label="Project disclaimer" className="not-prose mt-8 max-w-[var(--measure-body)] mx-auto">
         <Card variant="tinted" padding="md" className="font-sans text-sm leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
           <p className="text-xs uppercase tracking-wider text-[var(--color-neutral-500)] mb-2">
             Disclaimer
@@ -33,7 +33,7 @@ export default function AboutPage() {
           </p>
         </Card>
       </aside>
-      <p className="mt-8 font-sans text-sm text-[var(--color-neutral-500)] max-w-[var(--measure-body)]">
+      <p className="mt-8 font-sans text-sm text-[var(--color-neutral-500)] max-w-[var(--measure-body)] mx-auto">
         The fuller story — who built this, why, and how it grew — now lives on the{' '}
         <Link href="/" className="text-[var(--color-brand-indigo)] hover:underline">
           home page

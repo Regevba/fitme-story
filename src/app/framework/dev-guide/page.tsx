@@ -65,7 +65,7 @@ export default async function DevGuidePage() {
   });
 
   return (
-    <article className="max-w-[min(110ch,calc(100vw-3rem))] mx-auto px-6 py-16">
+    <article className="page-shell section-padding-x py-16">
       <nav className="mb-8 text-sm">
         <Link href="/framework" className="underline">
           ← Back to /framework

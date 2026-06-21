@@ -31,7 +31,7 @@ export default async function VersionPage({ params }: { params: Promise<{ versio
   const studies = all.filter((c) => c.frontmatter.timeline_position?.version === version);
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-16">
+    <div className="page-shell section-padding-x py-16">
       <div className="font-sans text-sm uppercase tracking-wider text-[var(--color-neutral-500)]">
         Framework version · {v.date}
       </div>

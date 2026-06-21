@@ -63,9 +63,9 @@ export interface TypeScaleEntry {
 }
 
 export const TYPE_SCALE: TypeScaleEntry[] = [
-  { cssVar: '--text-display-xl', value: 'clamp(2.5rem, 5vw, 4.5rem)', label: 'Display XL', note: 'Hero headlines.' },
-  { cssVar: '--text-display-lg', value: 'clamp(2rem, 4vw, 3.25rem)', label: 'Display LG', note: 'Page titles.' },
-  { cssVar: '--text-display-md', value: 'clamp(1.5rem, 3vw, 2.25rem)', label: 'Display MD', note: 'Section titles.' },
+  { cssVar: '--text-display-xl', value: 'clamp(2rem, 4vw, 3rem)', label: 'Display XL', note: 'Hero headlines.' },
+  { cssVar: '--text-display-lg', value: 'clamp(1.75rem, 3.25vw, 2.5rem)', label: 'Display LG', note: 'Page titles.' },
+  { cssVar: '--text-display-md', value: 'clamp(1.375rem, 2.5vw, 2rem)', label: 'Display MD', note: 'Section titles.' },
   { cssVar: '--text-body', value: '1.0625rem', label: 'Body', note: 'Line-height 1.7 — editorial reading pace.' },
 ];
 

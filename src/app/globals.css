@@ -46,9 +46,9 @@
   /* Editorial type scale */
   --text-body: 1.0625rem;
   --text-body-lh: 1.7;
-  --text-display-xl: clamp(2.5rem, 5vw, 4.5rem);
-  --text-display-lg: clamp(2rem, 4vw, 3.25rem);
-  --text-display-md: clamp(1.5rem, 3vw, 2.25rem);
+  --text-display-xl: clamp(2rem, 4vw, 3rem);        /* hero — 32px min, 48px max (was 72) */
+  --text-display-lg: clamp(1.75rem, 3.25vw, 2.5rem); /* page title — 28px min, 40px max (was 52) */
+  --text-display-md: clamp(1.375rem, 2.5vw, 2rem);   /* section — 22px min, 32px max (was 36) */
 
   /* Motion tokens — Material M3 vocabulary, Apple HIG duration tiers.
      Wrapped in @media (prefers-reduced-motion: reduce) below for opt-out. */
@@ -154,6 +154,18 @@ html.dark .divider-row {
 }
 @media (min-width: 1280px) {
   .section-padding-x { padding-inline: 3.5rem; }
+}
+
+/* Adaptive page shell — the single site-wide content-width rule (2026-06-21
+   layout pass). Viewport-fluid: fills the viewport on laptops, caps at ~110rem
+   on ultrawide. Pair with `.section-padding-x` for inset padding. Replaces the
+   six hand-rolled max-w-* conventions. `100%` (not `100vw`) is scrollbar-safe.
+   Body prose inside stays `max-w-[var(--measure-body)] mx-auto` so reading
+   width never exceeds a comfortable measure even in the wide shell. */
+.page-shell {
+  width: 100%;
+  max-width: min(110rem, 100%);
+  margin-inline: auto;
 }
 
 /* P2-006 + P2-033 (DS lens audit 2026-05-10): inline link with subtle

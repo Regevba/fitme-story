@@ -31,7 +31,7 @@ export function StandardTemplate({
       fm.visual_aid,
   );
   return (
-    <article className="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-[1fr_280px] gap-12">
+    <article className="max-w-[84rem] mx-auto section-padding-x py-16 grid md:grid-cols-[minmax(0,1fr)_280px] gap-12">
       <div>
         <CaseStudyToolbar />
         <header className="mb-10">

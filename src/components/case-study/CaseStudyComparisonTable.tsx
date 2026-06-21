@@ -192,8 +192,8 @@ export default function CaseStudyComparisonTable({ rows }: { rows: ComparisonRow
         Showing {sorted.length} of {rows.length} case studies
       </p>
 
-      {/* Table — hidden on small screens */}
-      <div className="hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white sm:block dark:border-white/10 dark:bg-white/[0.02]">
+      {/* Table — shown from lg up (8 cols need room); tablets get the card list below */}
+      <div className="hidden overflow-x-auto rounded-2xl border border-slate-200 bg-white lg:block dark:border-white/10 dark:bg-white/[0.02]">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/4">
@@ -287,8 +287,8 @@ export default function CaseStudyComparisonTable({ rows }: { rows: ComparisonRow
         </table>
       </div>
 
-      {/* Mobile: card list */}
-      <ul className="space-y-2 sm:hidden">
+      {/* Mobile + tablet: card list (up to lg, where the 8-col table takes over) */}
+      <ul className="space-y-2 lg:hidden">
         {sorted.length === 0 ? (
           <li className="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500 dark:border-white/10 dark:bg-white/4 dark:text-white/50">
             No case studies match. Adjust filters.

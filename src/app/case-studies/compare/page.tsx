@@ -37,7 +37,7 @@ export default async function ComparePage() {
   });
 
   return (
-    <article className="w-full max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16">
+    <article className="w-full page-shell section-padding-x py-16">
       <nav className="mb-6">
         <Link
           href="/case-studies"
