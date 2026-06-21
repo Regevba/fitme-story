@@ -32,12 +32,12 @@ export default async function StoryPage() {
 
       <section
         data-story-section="who"
-        className="max-w-4xl mx-auto px-6 pt-16 pb-8"
+        className="page-shell section-padding-x pt-16 pb-8"
       >
-        <h1 className="font-serif text-[length:var(--text-display-lg)] leading-tight">
+        <h1 className="font-serif text-[length:var(--text-display-lg)] leading-tight max-w-[var(--measure-body)] mx-auto">
           The story
         </h1>
-        <p className="mt-4 font-sans text-lg text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)] leading-relaxed">
+        <p className="mt-4 font-sans text-lg text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)] mx-auto leading-relaxed">
           Who built this, what it is, how it started, and how it grew into a framework that measures
           itself.
         </p>
@@ -57,7 +57,7 @@ export default async function StoryPage() {
       {/* today — where it landed + where to go next */}
       <section
         data-story-section="today"
-        className="max-w-4xl mx-auto px-6 py-16 text-center"
+        className="page-shell section-padding-x py-16 text-center"
       >
         <h2 className="font-serif text-[length:var(--text-display-md)]">Where it is today</h2>
         <p className="mt-4 font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)] mx-auto leading-relaxed">

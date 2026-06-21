@@ -116,7 +116,7 @@ export default async function CaseStudiesIndex() {
     .sort((a, b) => dateSortKey(b.date).localeCompare(dateSortKey(a.date)));
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-16">
+    <div className="page-shell section-padding-x py-16">
       <JsonLd data={CASE_STUDIES_BREADCRUMBS} />
       <header className="mb-12">
         <h1 className="font-serif text-[length:var(--text-display-lg)] mb-4">Case studies</h1>
@@ -304,10 +304,10 @@ export default async function CaseStudiesIndex() {
                 className="block group py-4 px-2 -mx-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors"
               >
                 <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                  <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
+                  <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap shrink-0 sm:w-16">
                     {c.version ? `v${c.version}` : 'meta'}
                   </span>
-                  <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
+                  <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1 min-w-[12rem]">
                     {c.title}
                   </span>
                   {formatPublishedDate(c.date) && (

@@ -12,8 +12,8 @@ export const metadata = buildMetadata({
 
 export default function TrustPage() {
   return (
-    <article className="max-w-[var(--measure-wide)] mx-auto px-6 py-16">
-      <header className="mb-10">
+    <article className="page-shell section-padding-x py-16">
+      <header className="mb-10 max-w-[var(--measure-body)] mx-auto">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">
           How this site stays honest
         </h1>
@@ -24,7 +24,7 @@ export default function TrustPage() {
         </p>
       </header>
 
-      <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)]">
+      <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mx-auto">
         <h2>What the audit checks for</h2>
         <ul>
           <li>

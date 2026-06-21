@@ -174,7 +174,7 @@ const LIVE_APP_SCREENS = [
 
 export default function DesignSystemPage() {
   return (
-    <article className="max-w-4xl mx-auto px-6 py-16">
+    <article className="page-shell section-padding-x py-16">
       <header className="mb-10">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">The design system</h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">

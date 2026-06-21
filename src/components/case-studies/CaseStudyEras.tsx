@@ -39,10 +39,10 @@ function StudyRow({
         className="block group py-3 px-2 -mx-2 rounded hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)] transition-colors"
       >
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap">
+          <span className="font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-500)] font-medium whitespace-nowrap shrink-0 sm:w-16">
             {study.version ? `v${study.version}` : 'meta'}
           </span>
-          <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1">
+          <span className="font-serif text-base group-hover:text-[var(--color-brand-indigo)] flex-1 min-w-[12rem]">
             {study.title}
             {study.isMilestone && (
               <span className="ml-2 align-middle">

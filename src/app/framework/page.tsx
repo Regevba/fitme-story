@@ -169,7 +169,7 @@ const BRIDGE_TIMELINE: BridgeEntry[] = [
 
 export default function FrameworkPage() {
   return (
-    <article className="max-w-4xl mx-auto px-6 py-16">
+    <article className="page-shell section-padding-x py-16">
       <header className="mb-10">
         <h1 className="font-serif text-[length:var(--text-display-lg)]">The framework</h1>
         <p className="mt-4 text-xl text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
@@ -178,7 +178,7 @@ export default function FrameworkPage() {
       </header>
 
       <LensFraming
-        className="mb-8 rounded-lg border-l-2 border-[var(--color-brand-indigo)] bg-[var(--color-brand-indigo)]/5 px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]"
+        className="mb-8 rounded-lg border-l-2 border-[var(--color-brand-indigo)] bg-[var(--color-brand-indigo)]/5 px-5 py-4 font-sans text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)] mx-auto"
         pm={
           <>
             <strong>Reading as a PM:</strong> the framework is the product lifecycle made
@@ -204,7 +204,7 @@ export default function FrameworkPage() {
       />
 
       <BlueprintOverlay interactive />
-      <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mt-16">
+      <div className="prose prose-lg dark:prose-invert max-w-[var(--measure-body)] mx-auto mt-16">
         <h2>How the floors cooperate</h2>
         <p>
           Seven floors stacked on a shared state slab. Each floor adds one capability on top of the floors below it — read top-down to see how state becomes skills, skills become primitives, primitives become measurement, and measurement becomes the consolidated v7.x integrity-and-enforcement layer.
@@ -237,7 +237,7 @@ export default function FrameworkPage() {
 
       <section id="bridge" className="mt-12 scroll-mt-16" aria-label="v7.8 to v7.10 release timeline">
         <h2 className="font-serif text-2xl">v7.8 → v7.10 release timeline</h2>
-        <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
+        <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)] mx-auto">
           The early entries are patch-level releases on Floor 8 (the v7.8 bridge); later entries carry the framework through the v7.9 promotion and into v7.10. In that pre-v7.9 bridge era the enforcement-gate count held at <strong>34 mechanical + 5 advisories</strong> until the v7.9 promotion (2026-05-21) flipped 3 advisories to enforced.
         </p>
         <ol className="mt-6 space-y-4 border-l border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pl-6">

@@ -29,13 +29,13 @@ export default function HomePage() {
       {/* About this project — moved here from /about (operator decision
           2026-06-09); /about now carries only the disclaimer. */}
       <section
-        className="max-w-3xl mx-auto px-6 py-12 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)]"
+        className="page-shell section-padding-x py-12 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-800)]"
         aria-labelledby="about-heading"
       >
-        <h2 id="about-heading" className="font-serif text-[length:var(--text-display-md)] mb-5">
+        <h2 id="about-heading" className="font-serif text-[length:var(--text-display-md)] mb-5 max-w-[var(--measure-body)] mx-auto">
           About this project
         </h2>
-        <div className="space-y-4 font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed max-w-[var(--measure-body)]">
+        <div className="space-y-4 font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed max-w-[var(--measure-body)] mx-auto">
           <p>
             FitMe is a personal project — an iOS app I built to track my own fitness and wellbeing
             the way I wanted: fast, privacy-first, and entirely owned by the person using it. Data
@@ -58,7 +58,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 pb-20 text-center">
+      <section className="page-shell section-padding-x pb-20 text-center">
         <Link
           href="/story"
           className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] px-6 py-3 font-sans font-medium hover:border-[var(--color-brand-indigo)] hover:text-[var(--color-brand-indigo)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brand-indigo)]"
