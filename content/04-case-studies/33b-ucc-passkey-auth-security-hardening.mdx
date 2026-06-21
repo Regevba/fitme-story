@@ -1,0 +1,90 @@
+---
+title: >-
+  UCC Passkey Auth Security Hardening — closing 4 deferred gaps before the v7.9
+  freeze
+slug: ucc-passkey-auth-security-hardening
+date: '2026-05-20'
+upstream_path: docs/case-studies/ucc-passkey-auth-security-hardening-case-study.md
+tier: light
+tldr: >-
+  A single-day enhancement that closed 4 explicitly-deferred security gaps from
+  the parent ucc-passkey-auth PRD: an email allowlist gate, a hybrid Redis
+  lockout (per-email + per-IP), a bootstrap-token issuance audit event, and an
+  operator unlock CLI. The hardening code (12 files, ~1,400 LoC, 17 new tests)
+  shipped in fitme-story PR #127 with FT2 prep/state PRs alongside, at +~2ms
+  auth-path latency from one extra Redis GET. At the T+7d kill-criteria
+  checkpoint (2026-05-27) the verdict was PROMOTE — zero false-positive lockouts,
+  zero unauthorized registrations, 4 healthy operator sign-ins. The latency kill
+  criterion (K3) was found to use the wrong instrumentation (it measured
+  end-to-end WebAuthn ceremony time, not server overhead) and a dedicated
+  server-side metric was queued for v7.9.1.
+timeline_position:
+  version: '7.8.6'
+  order: 49.7
+key_numbers:
+  - label: Deferred gaps closed
+    value: '4 (allowlist + hybrid lockout + token audit + unlock CLI)'
+    tier: T1
+  - label: Hardening code (fitme-story PR #127)
+    value: '12 files, ~1,400 LoC, 17 new tests'
+    tier: T1
+  - label: Auth-path latency added
+    value: '+~2ms (one extra Redis GET)'
+    tier: T2
+  - label: Unauthorized operator registrations (T+7d)
+    value: '0'
+    tier: T1
+  - label: False-positive lockouts of operator (T+7d)
+    value: '0'
+    tier: T1
+  - label: Bootstrap-token issuance audit coverage
+    value: '7/7 = 1.0'
+    tier: T1
+kill_criteria:
+  - '>0 auth_lockout_blocked_attempt for the operator''s own IP class → false positive → tune EMAIL_LOCK_THRESHOLD up'
+  - '>0 email_not_allowlisted for regvash21@gmail.com → env-var misconfiguration → fix UCC_ALLOWED_EMAILS'
+  - 'sign-in latency p50 increase > 5ms → investigate Redis round-trip overhead'
+kill_criterion_fired: false
+---
+
+<HeroMetric
+  value="PROMOTE — 0 false-positive lockouts · 0 unauthorized registrations · 4 healthy sign-ins"
+  label="Four deferred passkey-auth security gaps, closed in a single day and verified live at T+7d"
+  context="The parent ucc-passkey-auth PRD deferred 4 gaps. This enhancement closed all four — email allowlist, hybrid Redis lockout, bootstrap-token audit, and an operator unlock CLI — at +~2ms auth-path latency, then verified the verdict against live production audit-log data a week later."
+/>
+
+## What shipped
+
+Closes 4 explicitly-deferred gaps from the parent `ucc-passkey-auth` PRD §7 Q1 + Q2:
+
+| Gap | Closure | Tier |
+|---|---|---|
+| **G1+G2** | Email allowlist gate (`UCC_ALLOWED_EMAILS` env var) | T1 (instrumented via `auth_passkey_register_failed reason:email_not_allowlisted`) |
+| **G3** | Hybrid Redis lockout (per-email 10/15-min + per-IP 20/30-min) | T1 (instrumented via `auth_lockout_triggered` / `_blocked_attempt`) |
+| **G4** | Bootstrap-token issuance audit event | T1 (instrumented via `auth_bootstrap_token_issued`) |
+| **CLI** | `scripts/clear-lockout.ts` operator unlock | T2 (declared; logged via `auth_lockout_cleared reason:manual_clear`) |
+
+**Net code:** 5 new modules + 5 route wirings + 1 CLI + 2 enum extensions, **+~2ms auth-path latency** from one extra Redis GET in `checkLockout` **(T2)**.
+
+## Process
+
+Single-day execution against the 2026-05-20 EOD hard deadline (the v7.9 freeze landed 2026-05-21), across a pause-resume cycle over two sessions. The actual hardening code — 12 files, ~1,400 LoC, 17 new tests (7 allowlist + 10 redis-lockout) — shipped in **fitme-story PR #127**, squash-merged at 03:53Z with Vercel auto-deploying in ~3 minutes. Companion FT2 PRs (#410 prep, #412 state advance, #411 operability) carried the spec / risk / state-of-custody chain. The full suite passed 148/149 (the single failure was a pre-existing, unrelated `timeline.test.ts` case verified on main).
+
+## Outcome — T+7d evaluation (2026-05-27): PROMOTE
+
+Evaluated against the live production audit-log blob (59 events total, 39 in the 2026-05-20 → 2026-05-27 window):
+
+| Kill criterion | Result | Evidence |
+|---|---|---|
+| K1 — lockout false-positive rate | NOT FIRED | 0 `auth_lockout_triggered` + 0 `auth_lockout_blocked_attempt` events in window **(T1)** |
+| K2 — auth-path latency p50 overhead | INVALID INSTRUMENTATION (operator unaffected) | `duration_ms` measures end-to-end ceremony time, not server time — see below |
+| K3 — allowlist-unset events | NOT FIRED | 0 events **(T1)** |
+| K4 — operator locked out > 5 min | NOT FIRED | 4 successful sign-ins (2026-05-23, 05-24, 05-25 ×2) across 3 IP classes **(T1)** |
+
+**Primary metric** — `unauthorized_operator_registration_attempts_succeeded` = **0** in the T+7d window **(T1)**. Bootstrap-token issuance audit coverage was **7/7 = 1.0** **(T1)**. The operator registered a break-glass Touch ID credential, performed 4 successful authentications, and issued 7 audited bootstrap tokens — no friction.
+
+## The honest latency disclosure
+
+The K3 instrumentation chosen at spec time (`auth_passkey_authenticate_succeeded.duration_ms`) measures **end-to-end WebAuthn ceremony time** — server round-trip + user touch + FIDO2 hardware response — not the **server-side function-execution time** the +5ms threshold was sized for. Pre-hardening samples averaged 545.5 ms (n=2); post-hardening averaged 682.7 ms (n=3), but that +137 ms Δ is almost certainly cold-start + user-touch + IP-class network variance (the samples cross 3 different IP classes), not the +1 Redis GET (~2 ms expected). Rather than claim a false signal, the metric was marked invalid and a dedicated server-side `auth_function_duration_ms` metric was filed as v7.9.1 candidate **F-AUTH-LATENCY-SERVER-METRIC** so future evaluations measure the right quantity.
+
+> Source case study (FitTracker2): `docs/case-studies/ucc-passkey-auth-security-hardening-case-study.md`. Hardening code via fitme-story PR #127; FT2 chain-of-custody PRs #410 / #411 / #412.
