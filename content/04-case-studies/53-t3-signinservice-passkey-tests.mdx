@@ -49,6 +49,9 @@ kill_criteria:
   - 'Tests assert against the ASAuthorizationController UI flow (would be non-deterministic / device-only).'
   - 'Tests pin implementation detail rather than the behavioral/persistence contract.'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'Scope is deterministic + device-free only: the actual passkey registration/assertion happy path runs through `ASAuthorizationController` (Apple''s system WebAuthn UI), needs a real device + user interaction, and stays an untested gap — these 10 tests pin config invariants, the `SessionTokenType` raw-value contract, and Codable round-trips, not the live ceremony.'
+  - 'The first run surfaced that the test bundle inherits the app Info.plist (so `isPasskeyConfigured` is true in-test and the not-configured guard is unreachable), forcing a rewrite to environment-independent logical invariants — i.e. some originally-intended guard paths cannot be exercised in the unit environment at all.'
 category: framework
 ---
 

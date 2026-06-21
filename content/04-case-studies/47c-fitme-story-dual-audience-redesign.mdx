@@ -56,6 +56,10 @@ kill_criteria:
   - 'T+60d: lens-selection rate <20% AND home bounce not improved (>70%) → revert to a neutral lens-less home; keep the case-study + timeline improvements'
   - 'Lens switching causes measurable confusion: cross-page navigation depth drops >15% vs baseline OR direct confusion feedback → simplify the lens (PM as silent default, demote toggle)'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'The 76.2% home bounce-rate baseline is from very low traffic (~21 home sessions/30d), so it is directional, not statistically tight — the problem is real but the number should not be read as a precise measurement.'
+  - 'The success bet is pre-registered and not yet evaluable: the mechanism is new (baseline 0), the lens-selection-rate ≥40% and bounce ≤60% targets need a ≥60-day window, and the first metric evaluation is not until 2026-08-09 (T+60d).'
+  - 'The era-grouped `/case-studies` layout relies on `category` + `era` frontmatter backfilled from the slug map and spot-checked (not derived mechanically), and the secondary problems (long scroll, missing timeline entry) are T2 declared from a content inventory.'
 ---
 
 <HeroMetric

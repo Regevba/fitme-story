@@ -57,6 +57,9 @@ kill_criteria:
   - 'last_failed_at conflated with last_fired_at (a gate that ran but never failed shows a stale last_failed) — would mislead the meta-check.'
   - 'Snapshot scan slows the index refresh beyond the &lt;1s budget.'
 kill_criterion_fired: false
+honest_disclosures:
+  - '`last_failed_at` is meaningful for cycle-time + advisory codes only — write-time gates block commits rather than logging findings, so their blocks never reach an integrity snapshot and never populate failure history (recorded as the index''s `failure_history_note`; a write-time block ledger is a deferred T13.1 follow-up).'
+  - 'Failure history is derived from just 14 integrity snapshots populating 6 cycle-time gates — a thin, single-environment corpus, so "last failed" reflects the local snapshot history rather than a comprehensive cross-environment record.'
 ---
 
 # T13 Per-Gate `last_failed_at` Index

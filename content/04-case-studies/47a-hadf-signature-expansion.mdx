@@ -56,6 +56,10 @@ kill_criteria:
   - 'K1 — adding prior_unvalidated rows degrades attestation accuracy on the calibrated set → drop priors'
   - 'K2 — on-device harness cannot reproduce a Sub-exp-2-quality signature on the operator''s Mac → descope on-device'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'Sensing/recognition only — no task changes any dispatch or routing decision; the acting layer stays gated on RQ4 (Phase 3B), so this proves a signature can be recognized, not that acting on it improves any outcome.'
+  - 'The instrumented-signature count came in at 9, under the ≥12 target — by design: you can only calibrate substrates you can physically reach. The 24 spec-sheet chip profiles + 12 datacenter rows stay labeled `prior_unvalidated` (guesses), and the cloud calibrator ships ready but unrun (paid API calls are an operator decision).'
+  - 'Single-shot per-request attestation is empirically unreliable on tight on-device clusters (the M4''s Mahalanobis ellipse is so tight it mis-matched to a loose cloud cluster) — the recognition claim holds only at the distribution level (RQ5 limitation, surfaced not hidden). This is single-operator, small-N research-stage work.'
 ---
 
 <HeroMetric

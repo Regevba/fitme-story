@@ -56,6 +56,10 @@ kill_criteria:
     window, defer gate enforcement to v7.10 and ship the hygiene-only outcome
     (taxonomy cleanup + instrumentation fixes retained regardless).
 kill_criterion_fired: false
+honest_disclosures:
+  - 'This is a retroactive closure — no formal PRD-defined primary metric existed in `state.json` at the time, so most headline numbers (taxonomy drift, declared-but-unfired events, GA4 connectivity) are honestly tiered T2 (declared), not T1-instrumented; the source is largely the PR roster + session notes.'
+  - 'The live GA4 loop is not yet validated end-to-end: the one remaining task (D-2 — configuring GA4 conversions for `workout_complete` + `nutrition_meal_logged`) is operator-only and deferred to App Store launch, because pre-launch TestFlight traffic is 100% same-day new users (vanity numbers, not measurement).'
+  - 'The Phase 1.B enforcement gates (CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED) that this feature was scoped around were folded into the v8.0 docket (F19/F20) rather than shipped in-feature — so the taxonomy is cleaned but not yet mechanically gated against re-drifting.'
 ---
 
 <HeroMetric

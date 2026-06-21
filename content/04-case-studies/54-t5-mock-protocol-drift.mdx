@@ -49,6 +49,9 @@ kill_criteria:
   - 'Anchors duplicate private mocks in a way that adds maintenance burden without catching new drift.'
   - 'A protocol gains an optional/defaulted requirement the anchor masks (false negative).'
 kill_criterion_fired: false
+honest_disclosures:
+  - 'The original spec was unbuildable as written: none of the four named mocks (`MockKeychainStorage`, `MockSupabaseClient`, `StubAIEngineClient`, `CountingAIEngineClient`) exist, and four of the six real mocks are `private` to their own test files — so the central registry pins protocol *surfaces* via minimal anchors rather than wrapping the actual mocks.'
+  - 'Verification is compile-time only (`build-for-testing` green) — the registry asserts protocol surfaces still match their anchors, but exercises no runtime behavior beyond two shareable app-target mocks; a known false-negative class remains (a protocol gaining an optional/defaulted requirement the anchor masks).'
 category: framework
 ---
 
