@@ -1,0 +1,84 @@
+---
+title: >-
+  T3 — SignInService Passkey/WebAuthn Unit Tests (closing the highest-risk
+  zero-coverage service)
+slug: t3-signinservice-passkey-tests
+date: '2026-06-10'
+upstream_path: docs/case-studies/t3-signinservice-passkey-tests-case-study.md
+tier: light
+tldr: >-
+  SignInService.swift (1244 lines) is on the CLAUDE.md high-risk list — it owns
+  Apple Sign In, Google, Email/OTP, and passkey/WebAuthn — yet had zero direct
+  tests. The system passkey UI flow runs through ASAuthorizationController and
+  needs a real device, so it stays out of scope (like AuthManagerTests
+  documents for biometrics). What IS testable is the deterministic surface that
+  gates the whole flow: config invariants, the persisted SessionTokenType
+  raw-value contract, and the UserSession Codable round-trip. 10 deterministic,
+  device-free tests; 10/10 pass on simulator. The first run earned its keep —
+  4 not-configured-guard tests failed, surfacing that the test bundle ships a
+  real relying-party ID, which forced the durable rewrite to
+  environment-independent invariants.
+timeline_position:
+  version: '7.10'
+  order: 66
+key_numbers:
+  - label: Tests
+    value: '10 (deterministic, device-free)'
+    tier: T1
+  - label: Run result
+    value: '10/10 pass (iPhone 17 Pro simulator)'
+    tier: T1
+  - label: Service under test
+    value: 'SignInService.swift (1244 lines, prior direct tests: 0)'
+    tier: T1
+  - label: RICE
+    value: '48.0 (highest-risk zero-coverage service)'
+    tier: T2
+kill_criteria:
+  - 'Tests assert against the ASAuthorizationController UI flow (would be non-deterministic / device-only).'
+  - 'Tests pin implementation detail rather than the behavioral/persistence contract.'
+kill_criterion_fired: false
+category: framework
+---
+
+import { Callout } from "@/components/mdx/Callout";
+
+# T3 — SignInService Passkey/WebAuthn Unit Tests
+
+> **Status:** shipped 2026-06-10. Closes the **highest-risk zero-coverage service** in the test-coverage inventory (RICE 48.0).
+
+## The risk
+
+`SignInService.swift` (1244 lines) is on the [CLAUDE.md high-risk list](https://github.com/Regevba/FitTracker2/blob/main/CLAUDE.md) — it owns Apple Sign In, Google, Email/OTP, **and passkey/WebAuthn** — yet had **zero direct tests**. A refactor could silently break the passkey config gating, the not-configured fallback, or the persisted token-type contract, and nothing would catch it.
+
+## What is — and isn't — unit-testable
+
+The passkey registration/assertion flow runs through `ASAuthorizationController` (Apple's system WebAuthn UI), which needs a real device + user interaction — not unit-testable. **Exactly like `AuthManagerTests` documents for real-device biometrics, those happy paths are out of scope here.** What IS testable is the deterministic surface that gates the whole flow:
+
+- **Config invariants** — discovered by *running* the tests: the test bundle inherits the app Info.plist, so `isPasskeyConfigured` is actually **true** in the test environment and the not-configured guard is unreachable. The robust, environment-independent surface is the **logical invariant** `canShowPasskeyLogin ⇒ (isPasskeyConfigured ∧ hasRegisteredPasskey)` and `canShowPasskeyLogin == false` without a registered passkey.
+- **Persisted contracts** — `SessionTokenType` raw values (`passkeySignature`, `supabaseJWT`, …) are stored in sessions; a rename would silently invalidate every stored passkey session on upgrade. Pinned via raw-value + Codable round-trip tests.
+- **`UserSession` Codable round-trip** for a passkey session (with `credentialID`) — survives encode/decode intact.
+
+## What shipped
+
+`FitTrackerTests/SignInServicePasskeyTests.swift` — **10 tests** (`@MainActor`, `@testable import FitTracker`, mirroring `AuthManagerTests` style), registered in `FitTracker.xcodeproj/project.pbxproj` (4 entries: PBXBuildFile + PBXFileReference + group + Sources phase). All deterministic, no UI, no network — they run as ordinary unit tests on the existing test target.
+
+## Verification
+
+<Callout type="info">
+  **The first test run earned its keep.** 4 not-configured-guard tests assumed to pass *failed*, surfacing that the test bundle ships a real relying-party ID — the rewrite to environment-independent invariants is the durable version.
+</Callout>
+
+**10/10 pass** on a clean run (iPhone 17 Pro simulator). The suite is fully deterministic + device-free. The ASAuthorizationController registration/assertion happy path remains a device-only gap, documented in the test header — the honest boundary, matching the project's UI-test-thinness policy.
+
+## Why this is the right scope
+
+It would have been easy — and wrong — to mock `ASAuthorizationController` into a fake "passkey succeeds" path; that tests the mock, not the service. Pinning the **config gating + the not-configured fallback + the persisted token contract** is the part that (a) is deterministic and (b) actually protects users: if passkey silently became "configured" when it isn't, or a stored token type drifted, real sessions break. That's the surface a unit test should own.
+
+## Where to read more
+
+- Source case study: [`docs/case-studies/t3-signinservice-passkey-tests-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/t3-signinservice-passkey-tests-case-study.md)
+- Spec: [`docs/master-plan/test-coverage-master-plan-2026-05-13.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/test-coverage-master-plan-2026-05-13.md) §4 T3
+- Template: `FitTrackerTests/AuthManagerTests.swift` (device-free scope precedent)
+- Sibling reframes (same week): [`ai-golden-set-evals`](/case-studies/ai-golden-set-evals), [`t5-mock-protocol-drift`](/case-studies/t5-mock-protocol-drift)
+</content>

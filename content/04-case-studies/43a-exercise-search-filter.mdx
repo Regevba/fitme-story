@@ -1,0 +1,99 @@
+---
+title: >-
+  Exercise Search/Filter — a discoverable read-only library on top of the
+  50-exercise catalog (C3)
+slug: exercise-search-filter
+date: '2026-06-02'
+upstream_path: docs/case-studies/exercise-search-filter-case-study.md
+tier: light
+tldr: >-
+  C3 closes backlog L347 — the longest-running "no in-app library" complaint.
+  The training catalog already carried ~50 exercises with rich metadata
+  (category / equipment / muscle groups / coaching cue / sets / reps / rest) but
+  was consumed silently by other screens. C3 ships a discoverable read-only
+  sheet on top of the existing data layer — search + 3 chip dimensions (Muscle /
+  Equipment / Category), no schema change, no data migration. ~1068 LoC across 6
+  standalone-buildable commits in a single ~2h session. Its picker-mode init
+  signature is the dependency contract that sibling C6 (training program
+  customization) consumes to add exercises.
+timeline_position:
+  version: '7.9'
+  order: 56.3
+key_numbers:
+  - label: Catalog exercises surfaced
+    value: '~50 (TrainingProgramData.allExercises)'
+    tier: T1
+  - label: Net LoC (6 standalone-buildable commits)
+    value: '~1068'
+    tier: T1
+  - label: New analytics events (screen-prefixed training_)
+    value: '4'
+    tier: T1
+  - label: Filter + analytics tests
+    value: '7/7 passed (iPhone 17 Simulator)'
+    tier: T1
+  - label: Wall time
+    value: '~2h actual (3-4h PRD estimate)'
+    tier: T2
+  - label: Primary metric — library opens per WAU
+    value: 'baseline 0 → target ≥0.30 @T+30d'
+    tier: T1
+kill_criteria:
+  - 'Library-opened rate at T+14d < 0.05 per WAU (feature unused)'
+  - 'Detail-tap-through < 0.10 (browse-only, no engagement)'
+  - 'p95 search latency > 100ms on iPhone 17'
+  - 'Crash rate on library sheet > 0.5% of opens'
+kill_criterion_fired: false
+---
+
+<HeroMetric
+  value="~50 exercises, finally discoverable · 4 events · 7/7 tests · ~2h"
+  label="A read-only library sheet on top of a catalog that was already rich but invisible"
+  context="The training catalog carried ~50 exercises with full metadata for the entire v7.x window, but TrainingPlanView only surfaced today's day-locked subset. A user asking 'what hamstring exercises does FitMe support?' had no in-app answer. C3 adds the library — no schema change, no migration."
+/>
+
+## Problem framing
+
+| Tier | Claim |
+|---|---|
+| T3 | The training catalog has carried ~50 exercises with full metadata for the entire v7.x window, but `TrainingPlanView` only surfaces today's day-locked subset. A user wanting to know "what hamstring exercises does FitMe support?" had no in-app answer. |
+| T2 | Backlog L347 ("Exercise search/filter — fixed order, no search") has been filed since the 2026-04-02 Phase 0 backlog dump (~8 weeks) and reaffirmed during the 2026-04-16 v5.2 stress test. |
+| T1 | The 2026-05-31 E1 RICE refresh ranked C3 at #4 on the Planned table (RICE 8.0) — high-reach × moderate-impact ÷ low-effort. |
+
+## What C3 shipped
+
+A discoverable **read-only sheet** on top of the existing data layer — **no schema change, no data migration**, ~1068 LoC across 6 standalone-buildable Phase 4 commits.
+
+- **A 7-section frozen PRD** locks 7 algorithmic decisions (immediate filter at 50 items, `localizedCaseInsensitiveContains` against name + muscle groups, 3 chip dimensions, one-of-N-within-dimension AND-across-dimensions chip logic, `.large`-only detent, 2-char analytics trigger, and the picker-mode init signature).
+- **3 chip dimensions** — Muscle / Equipment / Category. The user-facing "Strength" chip is a rollup (machine ∪ freeWeight ∪ calisthenics) expanded in `ExerciseLibraryFilter.matchesCategory`.
+- **4 new analytics events** (screen-prefixed `training_`): `training_exercise_library_opened`, `training_exercise_search_query`, `training_exercise_filter_tapped`, `training_exercise_detail_opened` **(T1)**.
+- **The picker-mode init signature** `ExerciseLibraryView(picker: ((ExerciseDefinition) -> Void)? = nil)` — the **C6 dependency contract**. Once C3 merged, C6 could call the library in picker mode without further coordination.
+
+## Verification
+
+| Check | Result |
+|---|---|
+| `xcodebuild build` (generic iOS Simulator) | BUILD SUCCEEDED after every commit **(T1)** |
+| Filter + analytics tests | 7/7 PASSED on iPhone 17 Simulator **(T1)** |
+| `make ui-audit` | P0=0 maintained (1 pre-existing P1 on `HRVTrendChart.swift`, not C3-touched) **(T1)** |
+| Tier 2.2 contemporaneous log | 5 `phase_transition` entries **(T1)** |
+
+The lifecycle ran Research → PRD → Tasks → Implement → Test — 5 phases in ~3 hours on 2026-06-02 afternoon, mirroring the C5 single-session pattern. Actual LoC (~1068) came in above the PRD's 600 estimate because the chip taxonomy strings were inline and a lightweight FlowLayout helper was added in `ExerciseDetailView`; wall time (~2h) came in under because no Figma round-trip was needed (`AppPickerChip` + `AppFilterBar` already existed).
+
+## Coverage scope (honest)
+
+The 7 tests cover all **pure-logic surfaces** (filter algorithm + analytics param shapes) at >90% on new production files. View-mode behavior (picker vs read-only) and entry-point fire-correct-source tests are **deferred** — SwiftUI view-level testing without ViewInspector is a known project gap (the parallel-clone simulator hang env-flake makes UI tests high-cost/high-flake). They land in a follow-up once the env-flake root cause is resolved.
+
+## What's deliberately not in C3
+
+- "Add to plan" affordance → C6 (writable surface)
+- Custom UGC exercises → post-launch
+- Image/video demonstrations → future asset pipeline
+- AI-suggested alternatives → D1 (adaptive intelligence)
+- Favourites / sort / multi-select chips / recently-viewed → all future
+
+## Phase E discipline
+
+C3 shipped during the v7.9 Phase E 14-day soak (2026-05-21 → ~2026-06-04). **No new enforcement gates, no new schema fields, no new observability surfaces** — pure consumption of existing v7.8.6 + v7.9 infrastructure. Phase E compliant.
+
+> Source case study (FitTracker2): `docs/case-studies/exercise-search-filter-case-study.md`. Shipped via FT2 PR #573. Kill-criteria first evaluation: T+14d (2026-06-16).
