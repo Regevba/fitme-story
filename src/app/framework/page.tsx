@@ -235,10 +235,10 @@ export default function FrameworkPage() {
         ))}
       </section>
 
-      <section id="bridge" className="mt-12 scroll-mt-16" aria-label="v7.8 to v7.9 bridge timeline">
-        <h2 className="font-serif text-2xl">v7.8 → v7.9 bridge timeline</h2>
+      <section id="bridge" className="mt-12 scroll-mt-16" aria-label="v7.8 to v7.10 release timeline">
+        <h2 className="font-serif text-2xl">v7.8 → v7.10 release timeline</h2>
         <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] max-w-[var(--measure-body)]">
-          Each entry is a patch-level release on Floor 8. All advisory surfaces; in this pre-v7.9 era the enforcement-gate count held at <strong>34 mechanical + 5 advisories</strong> until the v7.9 promotion (2026-05-21) flipped 3 advisories to enforced.
+          The early entries are patch-level releases on Floor 8 (the v7.8 bridge); later entries carry the framework through the v7.9 promotion and into v7.10. In that pre-v7.9 bridge era the enforcement-gate count held at <strong>34 mechanical + 5 advisories</strong> until the v7.9 promotion (2026-05-21) flipped 3 advisories to enforced.
         </p>
         <ol className="mt-6 space-y-4 border-l border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] pl-6">
           {BRIDGE_TIMELINE.map((entry) => (
