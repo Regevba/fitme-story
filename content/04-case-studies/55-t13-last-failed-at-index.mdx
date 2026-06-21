@@ -42,7 +42,7 @@ key_numbers:
 category: framework
 kill_criteria:
   - 'last_failed_at conflated with last_fired_at (a gate that ran but never failed shows a stale last_failed) — would mislead the meta-check.'
-  - 'Snapshot scan slows the index refresh beyond the <1s budget.'
+  - 'Snapshot scan slows the index refresh beyond the &lt;1s budget.'
 kill_criterion_fired: false
 ---
 
@@ -72,7 +72,7 @@ The clean source turned out to be the **integrity-snapshot history** (`.claude/i
 
 Gates that appear *only* in failure history (a cycle-time code with no coverage row) get a minimal index entry, so the index stays complete. The snapshots dir is derived **relative to the ledger path** so a tmp-dir ledger in tests resolves to an empty dir (hermetic) while production resolves the real one.
 
-**Live:** 6 cycle-time codes populated from 14 snapshots [T1] (`BROKEN_PR_CITATION` last failed 2026-06-04, `TIER_TAG_LIKELY_INCORRECT` 2026-06-07 across 7 snapshots, etc.). Refresh stays well under the <1s budget.
+**Live:** 6 cycle-time codes populated from 14 snapshots [T1] (`BROKEN_PR_CITATION` last failed 2026-06-04, `TIER_TAG_LIKELY_INCORRECT` 2026-06-07 across 7 snapshots, etc.). Refresh stays well under the &lt;1s budget.
 
 ## The interaction that became a refinement
 

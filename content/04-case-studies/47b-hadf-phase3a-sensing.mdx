@@ -68,11 +68,11 @@ Phase 3A turns that validated signal into a **passive observability surface** �
 
 **Attestation (advisory).** Scores an observed `(ttft_s, tps)` against every reference endpoint via Mahalanobis distance and reports the best match + a confidence band: **strong** (within 2σ AND ≥1σ closer than runner-up), **weak** (within 4σ), **uncertain** (beyond 4σ ⇒ unknown / unseen substrate). Every output carries `advisory: true` and the "do NOT route" caveat.
 
-**Drift monitor.** Compares a recent window vs each endpoint's locked baseline. Mahalanobis mean-shift in baseline-σ units → `stable` (<1σ) / `minor_drift` (1–3σ) / `significant_drift` (>3σ, re-baseline recommended). A KS divergence on either marginal (p<0.01) raises `ks_diverged`. Windows below 30 samples report `insufficient_window`. Drift is *expected* over time (provider infra changes); flagging it is the point.
+**Drift monitor.** Compares a recent window vs each endpoint's locked baseline. Mahalanobis mean-shift in baseline-σ units → `stable` (&lt;1σ) / `minor_drift` (1–3σ) / `significant_drift` (>3σ, re-baseline recommended). A KS divergence on either marginal (p&lt;0.01) raises `ks_diverged`. Windows below 30 samples report `insufficient_window`. Drift is *expected* over time (provider infra changes); flagging it is the point.
 
 ## The honesty boundary made concrete
 
-`anthropic/claude-haiku-4-5` and `aws-bedrock/.../claude-haiku-4-5` serve the *same model* with overlapping TPS, so the attestation runner-up gap is <1σ → confidence is **weak**, never strong. This is the correct conservative posture and a live demonstration of the RQ5 caveat: the Sub-exp 3 result (these two endpoints ARE distinguishable in aggregate, `signature_delta_ratio` 2.89) holds at the *distribution* level — which is what the drift monitor uses — and does **not** promise per-request separability.
+`anthropic/claude-haiku-4-5` and `aws-bedrock/.../claude-haiku-4-5` serve the *same model* with overlapping TPS, so the attestation runner-up gap is &lt;1σ → confidence is **weak**, never strong. This is the correct conservative posture and a live demonstration of the RQ5 caveat: the Sub-exp 3 result (these two endpoints ARE distinguishable in aggregate, `signature_delta_ratio` 2.89) holds at the *distribution* level — which is what the drift monitor uses — and does **not** promise per-request separability.
 
 ## The follow-ons (T4, T5, calibration)
 

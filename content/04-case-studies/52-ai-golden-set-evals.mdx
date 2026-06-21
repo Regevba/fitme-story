@@ -64,7 +64,7 @@ T10 was spec'd in the test-coverage master plan as an *"LLM golden-set eval harn
 - **`ai-engine/tests/golden/insight_cases.jsonl`** — 24 golden cases [T1, instrumented] covering:
   - all 3 rules in each of the 4 segments (training / nutrition / recovery / stats) + their no-match cases;
   - confidence scoring (full-coverage-large-cohort → ≈1.0; sparse-tiny-cohort → escalates);
-  - the `escalate_to_llm` < 0.40 boundary;
+  - the `escalate_to_llm` &lt; 0.40 boundary;
   - edge cases: empty `user_fields` (no div-by-zero), empty/saturated `cohort_totals`, unknown segment.
 - **`ai-engine/tests/test_golden_insights.py`** — a parametrized harness that runs each case through the real `InsightService` and asserts the behavioral contract (`signals_contains` / `signals_excludes` / `signals_empty`, `confidence_min`/`max`, `escalate_to_llm`, `supporting_total_cohort_size`), plus a coverage assertion (≥20 cases, all 4 segments present) and an explicit escalation-threshold pin.
 - **Live-LLM eval scaffold** — `test_llm_eval_golden_subset_when_key_present` skips cleanly when `LLM_API_KEY` is unset (the default), so the weekly promptfoo-equivalent run can land later without changing the harness shape.
@@ -85,5 +85,3 @@ Before T10, the 34 ai-engine tests covered the *transport* (auth, payload valida
 - Spec: [`docs/master-plan/test-coverage-master-plan-2026-05-13.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/test-coverage-master-plan-2026-05-13.md) §T10
 - Target: `ai-engine/app/services/insight_service.py`
 - Sibling reframes (same week): [`t3-signinservice-passkey-tests`](/case-studies/t3-signinservice-passkey-tests), [`t5-mock-protocol-drift`](/case-studies/t5-mock-protocol-drift)
-</content>
-</invoke>
