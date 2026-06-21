@@ -89,6 +89,18 @@ key_numbers:
     value: '~2,650'
     tier: T1
     note: git diff --stat HEAD on the merged PR. Excludes package-lock.json churn.
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '0'
+    label: 'shared phishable passwords on /control-room/* — replaced by per-operator WebAuthn passkeys'
+    context: >-
+      iOS users shipped passkeys on 2026-05-01; the operator dashboard was still
+      gated by one shared HTTP basic-auth credential. This feature closes that
+      asymmetry — per-operator identity, per-device credentials, server-side
+      session allowlist (instant revoke). Target: 0 unauthenticated dashboard
+      reads/day post-cutover.
+    accentVar: 'var(--skill-release)'
 primary_metric:
   name: unauthenticated_dashboard_reads_per_day
   target: 0

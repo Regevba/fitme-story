@@ -39,7 +39,20 @@ key_numbers:
     value: '0 findings'
     tier: T1
     note: 'The 4 false GATE_COVERAGE_ZERO advisories cleared.'
-category: framework
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before T13 (F17 index only)'
+    before:
+      label: 'GATE_COVERAGE_ZERO (last_fired only)'
+      value: '4'
+      subtitle: 'false advisories — 0-candidate cycle-time gates flagged as silent, though they were demonstrably running and catching.'
+    afterLabel: 'After T13 (schema v2, +last_failed_at)'
+    after:
+      label: 'GATE_COVERAGE_ZERO (last_fired + last_failed)'
+      value: '0'
+      subtitle: 'false advisories — a 0-candidate gate WITH failure history is proven running, so it is no longer flagged.'
+    delta: '4 false advisories → 0 · integrity-check clean'
 kill_criteria:
   - 'last_failed_at conflated with last_fired_at (a gate that ran but never failed shows a stale last_failed) — would mislead the meta-check.'
   - 'Snapshot scan slows the index refresh beyond the &lt;1s budget.'

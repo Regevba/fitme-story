@@ -97,6 +97,17 @@ key_numbers:
       from 'advisory' → 'enforced', OR revert if kill criteria fire
       (false-positive rate > 20% in week 1, or pre-commit hook runtime > 10s, or
       coverage ledger shows checked=0 for 7 consecutive days).
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '9 phases · 1 session'
+    label: >-
+      a full PM cycle — Research → Documentation — in one sitting
+    context: >-
+      28 / 28 implementation tasks done · 130 / 130 unit tests pass · 19 / 19
+      pipeline assertions pass. The first feature shipped end-to-end via the
+      v7.8 protocol (Mechanism C session attribution + isolated worktree from
+      Phase 1 + Tier 2.2 logging on every transition).
 kill_criteria:
   - >-
     BRANCH_ISOLATION_VIOLATION blocks > 20% of legitimate-on-main commits in

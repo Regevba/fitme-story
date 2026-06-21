@@ -47,6 +47,18 @@ key_numbers:
   - label: Wall time
     value: '~97 min'
     tier: T2
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'After parent burndown'
+      value: '44 P1'
+      subtitle: 'Where ios-ui-audit-p1-burndown (PRs #292 + #294) left the surface — 40 DS-MAGIC-FRAME + 4 DS-MAGIC-PADDING.'
+    after:
+      label: 'After drift cleanup (#307)'
+      value: '14 P1'
+      subtitle: '10 new AppSize tokens (frequency ≥ 2 only) + 4 magic-padding swaps; DS-MAGIC-PADDING to 0. The 14 remaining are true singletons kept as fix-as-you-touch per Option B.'
+    delta: '-30 (68%)'
 honest_disclosures:
   - >-
     This was a deliberate scope-locked enhancement, not a bulldoze. The

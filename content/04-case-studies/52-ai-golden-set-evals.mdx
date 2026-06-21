@@ -36,6 +36,17 @@ key_numbers:
   - label: Negative control
     value: mutating one rule made exactly the matching golden case fail
     tier: T1
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '24'
+    label: 'deterministic golden cases — 26/26 pass, run as a hard PR gate (not a flaky weekly advisory)'
+    context: >-
+      Reading the code reframed the spec: the FitMe AI is a pure deterministic
+      rule engine (InsightService), not generative. That makes a golden set
+      strictly better than promptfoo — zero flake, no LLM key. A negative-control
+      mutation made exactly the matching case fail, proving the set catches
+      AI-logic regressions by construction.
 kill_criteria:
   - 'Golden harness becomes flaky (non-deterministic) — would violate the "deterministic AI is gateable" premise → revert to advisory.'
   - 'Golden set pins implementation detail rather than behavioral contract (brittle to benign refactors).'

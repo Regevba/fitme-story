@@ -46,6 +46,20 @@ key_numbers:
   - label: Wall time
     value: '~35 min'
     tier: T2
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before this sweep (after #84 + #93)'
+    before:
+      label: 'P2s closed'
+      value: '5 of 16'
+      subtitle: 'Parent #84 (4) + #93 (1). 10 P2 items still deferred from the 2026-05-10 lens audit.'
+    afterLabel: 'After this final sweep (#95)'
+    after:
+      label: 'P2s closed'
+      value: '10 of 16'
+      subtitle: '62.5% cumulative across 3 enhancements. 3 new utility classes, 6 inline patterns migrated; 5 re-deferred with sharper regression docs.'
+    delta: '+5 closed (1 was an audit false positive, P2-013)'
 honest_disclosures:
   - >-
     The user's "continue with all fitme story tasks" directive expanded

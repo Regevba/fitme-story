@@ -52,6 +52,18 @@ key_numbers:
     value: '5'
     tier: T1
     note: 'Each PR rebased against the new main after its predecessor merged; cleanly each time via `git rebase + git push --force-with-lease`.'
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '8 ships · 14 PRs · 0 new gates'
+    label: >-
+      a single-day build window that honored Phase E exit discipline
+    context: >-
+      Opened at v7.9 Phase E exit (2026-06-04) and closed the same day. Every
+      ship was an observability surface, doc update, reusable substrate, or
+      warn-only CI workflow — 5 of the 8 closed documented silent-pass classes.
+      CI workflows grew 8 → 14; FT2 dev-env open R-items 7 → 0. 5 cascading
+      rebases, zero manual conflict resolution, zero rollbacks.
 category: framework
 ---
 

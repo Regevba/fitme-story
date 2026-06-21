@@ -85,6 +85,27 @@ key_numbers:
   - label: pbxproj slots wired
     value: '10 (6 source + 4 test)'
     tier: T1
+visual_aid:
+  component: FlowDiagram
+  data:
+    caption: >-
+      The frozen trigger: a personal HRV floor derived from a 30-day baseline,
+      then a 3-consecutive-day below-floor check (with a 7-day re-fire guard)
+      catches sustained fatigue the score-crossing and training-day observers
+      miss.
+    nodes:
+      - label: '30-day baseline'
+        sublabel: 'median HRV samples'
+        colorVar: 'var(--skill-research)'
+      - label: 'Personal floor'
+        sublabel: 'max(baseline−1σ, 25ms)'
+        colorVar: 'var(--skill-dev)'
+      - label: 'Last 3 days ≤ floor'
+        sublabel: '3/3 data quality'
+        colorVar: 'var(--skill-qa)'
+      - label: 'Fire trend alert'
+        sublabel: '7-day re-fire guard'
+        colorVar: 'var(--skill-cx)'
 category: product
 ---
 

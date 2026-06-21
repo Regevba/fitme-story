@@ -40,6 +40,13 @@ key_numbers:
   - label: Bootstrap-token issuance audit coverage
     value: '7/7 = 1.0'
     tier: T1
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '4 / 4'
+    label: 'deferred security gaps from the parent PRD closed before the v7.9 freeze — allowlist, hybrid Redis lockout, token-issuance audit, operator unlock CLI'
+    accentVar: 'var(--skill-qa)'
+    context: 'T+7d kill-criteria verdict (2026-05-27): PROMOTE. Zero false-positive lockouts, zero unauthorized registrations, 7/7 token-issuance audit coverage — at +~2ms auth-path latency from one extra Redis GET.'
 kill_criteria:
   - '>0 auth_lockout_blocked_attempt for the operator''s own IP class → false positive → tune EMAIL_LOCK_THRESHOLD up'
   - '>0 email_not_allowlisted for regvash21@gmail.com → env-var misconfiguration → fix UCC_ALLOWED_EMAILS'

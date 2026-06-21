@@ -43,7 +43,20 @@ key_numbers:
     value: '7/7 pass'
     tier: T1
     note: 'figma-mirror-staleness advisory; emitted a checked=1 Mechanism A coverage row on first run.'
-category: design-system
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before (B+C+D open)'
+    before:
+      label: 'Surfaces with a current, linked arch doc'
+      value: '0 / 2'
+      subtitle: 'iOS had no architecture doc; the web doc was stale. No maintenance protocol or drift detection.'
+    afterLabel: 'After (B+C+D closed)'
+    after:
+      label: 'Surfaces with a current, linked arch doc'
+      value: '2 / 2'
+      subtitle: 'iOS (~95% mirror fidelity) + web (~90%) each have a current, no-false-claim doc, both linked from CLAUDE.md.'
+    delta: '0/2 → 2/2 — kill criterion fired falsely (W38), retracted before any rebuild write'
 kill_criteria:
   - 'If the iOS Figma mirror is <50% faithful (rebuild never landed), STOP and re-scope as "re-rebuild the mirror" (a larger, separate Feature).'
 kill_criterion_fired: false

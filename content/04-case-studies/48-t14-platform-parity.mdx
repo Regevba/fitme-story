@@ -37,6 +37,22 @@ key_numbers:
   - label: New enforcement gates at ship
     value: '0 at ship (advisory); promoted to enforced 2026-06-21 (PR #781)'
     tier: T1
+visual_aid:
+  component: RankedBars
+  data:
+    title: '94 complete features backfilled in one mechanical pass — provenance split'
+    items:
+      - label: 'Heuristic-inferred'
+        value: 61
+        valueSuffix: ' features'
+      - label: 'Framework-meta exempt'
+        value: 25
+        valueSuffix: ' features'
+        colorVar: 'var(--color-neutral-500)'
+      - label: 'Low-confidence flagged (optional spot-check)'
+        value: 8
+        valueSuffix: ' features'
+    caption: '0 of the 94 required mandatory operator review — the 8 low-confidence inferences were flagged for optional spot-check only.'
 kill_criteria:
   - 'False-positive rate >5% during the advisory window (gate flags legitimately-platformless features)'
   - 'Operator burden — >20% of new complete transitions have an empty array post-backfill'

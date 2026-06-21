@@ -76,6 +76,28 @@ key_numbers:
   - label: New analytics events
     value: '4 home_-prefixed (shown / tap / action_taken / dismissed)'
     tier: T1
+visual_aid:
+  component: FlowDiagram
+  data:
+    caption: >-
+      The pure-function trigger fires at the learned training-start time and maps
+      readiness band + flags to one of three CTAs on the Home AIInsightCard.
+    nodes:
+      - label: 'Learned start time'
+        sublabel: 'median over 30d'
+        colorVar: 'var(--skill-research)'
+      - label: 'Evaluate readiness'
+        sublabel: 'pure-function trigger'
+        colorVar: 'var(--skill-dev)'
+      - label: 'Train now'
+        sublabel: '≥65 + confidence, no flag'
+        colorVar: 'var(--skill-qa)'
+      - label: 'Lighten'
+        sublabel: '50–65 or adverse flag'
+        colorVar: 'var(--skill-pm-workflow)'
+      - label: 'Swap to rest'
+        sublabel: '≤35 + adverse flag'
+        colorVar: 'var(--skill-cx)'
 category: product
 ---
 

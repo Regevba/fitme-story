@@ -38,6 +38,18 @@ key_numbers:
   - label: Primary metric — library opens per WAU
     value: 'baseline 0 → target ≥0.30 @T+30d'
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'Before C3'
+      value: '0 discoverable'
+      subtitle: 'The ~50-exercise catalog carried full metadata for the entire v7.x window, but only today’s day-locked subset was visible. A user asking "what hamstring exercises does FitMe support?" had no in-app answer.'
+    after:
+      label: 'After C3'
+      value: '~50 searchable'
+      subtitle: 'A read-only library sheet on top of the existing data layer — search + 3 chip dimensions (Muscle / Equipment / Category), 4 training_ events, 7/7 tests. No schema change, no migration.'
+    delta: 'invisible → searchable'
 kill_criteria:
   - 'Library-opened rate at T+14d < 0.05 per WAU (feature unused)'
   - 'Detail-tap-through < 0.10 (browse-only, no engagement)'

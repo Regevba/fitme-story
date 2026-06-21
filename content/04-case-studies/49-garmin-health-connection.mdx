@@ -35,6 +35,17 @@ key_numbers:
   - label: Connect-rate target (declared)
     value: '≥70% w/ readiness in 7d'
     tier: T2
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '0 · 0 · 0'
+    label: 'new backend · new permissions · data egress — Garmin readiness connected'
+    context: >-
+      Garmin Connect already exports HRV/sleep/RHR/VO2Max/steps to Apple Health.
+      Tier 1 just detects, attributes (HKSource), and confirms — never fetches —
+      so the zero-knowledge invariant holds and the DPA is unaffected. The gap
+      was discovery and confirmation, not data access.
+    accentVar: 'var(--skill-dev)'
 kill_criteria:
   - '<20% of Garmin-device Data-Sources openers complete a connection within 60 days'
 kill_criterion_fired: false

@@ -27,6 +27,12 @@ key_numbers:
   - label: 'Both features carry case_study_type'
     value: 'pre_pm_workflow_backfill (existing exempt type)'
     tier: T1
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '2 of 6'
+    label: 'features from the original roundup that stay roundup-only — too thin for a dedicated case study (3 dense siblings split to slots 24a/b/c, 1 already had its own)'
+    context: 'The honest disposition: 2 pre-rule features (development-dashboard, ai-cohort-intelligence) have only state.json + a PR diff, so a dedicated study would mean fabrication or file-tour redundancy. They stay here as historical record.'
 honest_disclosures:
   - 'These two features genuinely lack rich source material. The honest record is "shipped pre-rule, captured retroactively via state.json + PR." A dedicated case study would have to either fabricate PM decisions that weren''t made, or be a file-tour redundant with the PR diff.'
   - '`development-dashboard` is the only feature in the project that''s a standalone Astro/React web app, not iOS code. Its rich material is post-merge stabilization (~10 follow-up commits made it useful) — but each individual fix is small, and "many small fixes stabilized the dashboard" is thin narrative.'

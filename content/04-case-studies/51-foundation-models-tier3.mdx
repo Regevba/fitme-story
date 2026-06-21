@@ -37,6 +37,18 @@ key_numbers:
   - label: Tier 3b live path
     value: flag-gated off (SDK-pending)
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'Before (vacuous stub)'
+      value: '0% real'
+      subtitle: 'adapt() returned a hardcoded confidence = 0.5 and never called a model. Because 0.5 ≥ the 0.4 tier threshold, the orchestrator stamped source_tier = on_device — so the adoption metric read above 0% while delivering a fixed rule-tweak, not model output.'
+    after:
+      label: 'After (Tier 3a live)'
+      value: 'real session'
+      subtitle: 'A real on-device LanguageModelSession returns a typed @Generable PersonalizedInsight, guarded by an anti-hallucination filter — 0 keys, 0 network. 27/27 tests, ui-audit P0 = 0. Target ≥60% adoption on capable devices @30d.'
+    delta: 'stub → on-device model'
 kill_criteria:
   - 'KC1 — on-device inference p50 latency > 3000 ms on a capable device → revert Tier 3a to baseline'
   - 'KC2 — >20% of sampled summaries carry medical claims / hallucinated metrics that bypass the filter → disable summary surfacing'
