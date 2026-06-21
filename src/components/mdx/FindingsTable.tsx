@@ -5,19 +5,23 @@ export interface Finding {
   description: string;
 }
 
+// Severity dot colors. Critical/high reuse the brand coral (the site's single
+// "danger/attention" accent); medium uses amber (matches the T2 tier badge);
+// low uses a neutral token. Keeps the table in the site palette rather than
+// raw Tailwind red/orange/yellow.
 const SEVERITY_COLOR: Record<Finding['severity'], string> = {
-  critical: 'bg-red-500',
-  high: 'bg-orange-500',
-  medium: 'bg-yellow-500',
-  low: 'bg-gray-400',
+  critical: 'bg-[var(--color-brand-coral)]',
+  high: 'bg-[var(--color-brand-coral)]/70',
+  medium: 'bg-amber-500 dark:bg-amber-400',
+  low: 'bg-[var(--color-neutral-300)] dark:bg-[var(--color-neutral-700)]',
 };
 
 export function FindingsTable({ findings }: { findings: Finding[] }) {
   return (
-    <div className="my-10 overflow-x-auto">
+    <div className="not-prose my-10 overflow-x-auto">
       <table className="w-full text-sm font-sans">
         <thead>
-          <tr className="border-b border-[var(--color-neutral-300)] text-left text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
+          <tr className="border-b border-[var(--color-neutral-300)] dark:border-[var(--color-neutral-700)] text-left text-xs uppercase tracking-wider text-[var(--color-neutral-500)]">
             <th className="py-2">ID</th>
             <th className="py-2">Severity</th>
             <th className="py-2">Domain</th>

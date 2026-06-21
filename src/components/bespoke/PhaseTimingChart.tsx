@@ -2,16 +2,18 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 
+// Phase colors reuse the project's semantic --skill-* token palette so the
+// stack reads as siblings to the rest of the site rather than an ad-hoc gradient.
 const PHASES = [
-  { name: 'Research', minutes: 45, color: '#4F46E5' },
-  { name: 'PRD', minutes: 30, color: '#6366F1' },
-  { name: 'Tasks', minutes: 20, color: '#8B5CF6' },
-  { name: 'UX', minutes: 40, color: '#A855F7' },
-  { name: 'Implement', minutes: 90, color: '#EC4899' },
-  { name: 'Test', minutes: 35, color: '#F97066' },
-  { name: 'Review', minutes: 15, color: '#F59E0B' },
-  { name: 'Merge', minutes: 10, color: '#10B981' },
-  { name: 'Release', minutes: 15, color: '#10B981' },
+  { name: 'Research', minutes: 45, color: 'var(--skill-research)' },
+  { name: 'PRD', minutes: 30, color: 'var(--skill-pm-workflow)' },
+  { name: 'Tasks', minutes: 20, color: 'var(--color-brand-indigo)' },
+  { name: 'UX', minutes: 40, color: 'var(--skill-ux)' },
+  { name: 'Implement', minutes: 90, color: 'var(--skill-design)' },
+  { name: 'Test', minutes: 35, color: 'var(--color-brand-coral)' },
+  { name: 'Review', minutes: 15, color: 'var(--skill-qa)' },
+  { name: 'Merge', minutes: 10, color: 'var(--skill-release)' },
+  { name: 'Release', minutes: 15, color: 'var(--skill-release)' },
 ];
 
 const totalMinutes = PHASES.reduce((sum, p) => sum + p.minutes, 0);

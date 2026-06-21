@@ -32,7 +32,7 @@ function Floor({
     <motion.li
       animate={reduced ? { opacity } : { opacity, boxShadow: glow, scale: isFiring ? 1.015 : 1 }}
       transition={{ duration: reduced ? 0 : 0.45, ease: [0.2, 0.8, 0.2, 1] }}
-      className="relative rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-5 bg-white dark:bg-[var(--color-neutral-900)] transition-colors"
+      className="relative rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-5 bg-white dark:bg-[var(--color-neutral-800)] transition-colors"
       style={{
         borderLeft: `6px solid ${floor.accent}`,
         backgroundColor: isFiring ? `${floor.accent}18` : undefined,
@@ -141,7 +141,7 @@ export function DispatchReplay({ traceId, allowTraceSwitch = true }: Props) {
                 aria-pressed={t.id === trace.id}
                 className={`px-3 py-2 min-h-[44px] rounded-full transition-colors ${
                   t.id === trace.id
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-[var(--color-brand-indigo)] text-white'
                     : 'hover:bg-[var(--color-neutral-100)] dark:hover:bg-[var(--color-neutral-800)]'
                 }`}
               >
@@ -156,7 +156,7 @@ export function DispatchReplay({ traceId, allowTraceSwitch = true }: Props) {
           type="button"
           onClick={() => setPlaying((p) => !p)}
           aria-label={playing ? 'Pause auto-play' : 'Auto-play'}
-          className="flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-full bg-indigo-600 text-white text-sm hover:bg-indigo-700"
+          className="flex items-center gap-2 px-3 py-2 min-h-[44px] rounded-full bg-[var(--color-brand-indigo)] text-white text-sm hover:bg-[var(--color-brand-indigo-hover)]"
         >
           {playing ? <Pause size={14} /> : <Play size={14} />}
           <span>{playing ? 'Pause' : 'Auto-play'}</span>
