@@ -55,7 +55,7 @@ T10 was spec'd in the test-coverage master plan as an *"LLM golden-set eval harn
 
 `ai-engine/app/services/insight_service.py::InsightService.generate()` is a **pure deterministic rule engine**: given a segment + `user_fields` + `cohort_totals`, it emits population-level `signals`, a `confidence` score (`coverage_ratio × 0.6 + cohort_signal × 0.4`), and an `escalate_to_llm` boolean (`confidence < 0.40`). The generative LLM path is **gated behind an unset `LLM_API_KEY`** (requires a Data Processing Agreement) and is not the live behavior. The federated-cohort intelligence + on-device Foundation Models layer do the personalization; the server emits *signals*, not prose.
 
-<Callout type="info">
+<Callout variant="info">
   Because the behavior is deterministic, a golden set is **strictly better than a promptfoo run**: it has **zero flake, needs no API key, and runs as a hard PR gate** in the existing pytest suite — rather than a flaky weekly advisory.
 </Callout>
 

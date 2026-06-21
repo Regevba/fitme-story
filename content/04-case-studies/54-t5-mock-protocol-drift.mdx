@@ -70,7 +70,7 @@ Swift catches drift at each `Mock: Protocol` site — but those sites are scatte
 
 `build-for-testing` green — the whole point of T5 is compile-time, so a successful test-target build *is* the assertion that all six protocol surfaces still match their anchors. The runtime tests additionally prove the two shareable mocks bind + respond.
 
-<Callout type="info">
+<Callout variant="info">
   **The mechanism demonstrated itself during development.** The first build failed with `_EmailAuthAnchor does not conform to protocol 'EmailAuthProviding'` — because `EmailAuthProviding` actually has *seven* methods (it also requires `requestPasswordReset` / `updatePassword` / `processRecoveryURL`), not the four anchored. The registry caught the incomplete anchor at exactly the labelled point it's designed to. That's the drift detector working — on its own author.
 </Callout>
 
