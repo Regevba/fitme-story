@@ -128,7 +128,7 @@ The dev-env master plan explicitly defers gate calibration to "once a 30-day bas
 |---|---|
 | **2026-06-11** | T+7d fault-injection verification of F-LAUNCHD-DRIFT-EXTENSION + F-DEPLOYED-URL-PROBE |
 | **2026-06-12** | External Audit #2 (operator-driven; audit pack will include today's gitleaks + pip-audit JSON + future SBOM artifacts) |
-| **2026-06-18** | F16 T11 advisory→enforced flip (14-day calibration window ends; same single-line-flip pattern as v7.9) |
+| **2026-06-17** | F16 T11 advisory→enforced flip — **enforced 2026-06-17 (PR #764)**, one day early via adding the `try-repo-harness` CI job to main's required status checks (K2 false-positive rate 0% over 60 runs / 13 days) |
 | **2026-07-04** | R9 Track B 30-day coverage data read → v8.0 `GATE_TEST_MISSING` meta-gate calibration can begin |
 
 ## Cross-repo follow-ups (fitme-story-side, separate session)
@@ -147,7 +147,7 @@ The dev-env master plan explicitly defers gate calibration to "once a 30-day bas
 
 ## What's queued for v7.10
 
-1. **F16 advisory→enforced flip** — 14-day calibration ends 2026-06-18; expected to flip identical to v7.9 (single-line edit, 4-criterion §2.2 validation, no rollback).
+1. **F16 advisory→enforced flip** — **enforced 2026-06-17 (PR #764)**, one day early. Not a single-line code flag like v7.9: the `try-repo-harness` CI job was added to main's required status checks via `gh api` branch protection (an integration-test gate at the CI layer). K2 false-positive rate 0% over 60 CI runs / 13 days.
 2. **R9 Track B coverage data** — 30 days of CI runs to accumulate; first read 2026-07-04 → drives v8.0 `GATE_TEST_MISSING` meta-gate per-module threshold calibration.
 3. **3D Framework Universe feature** — `scheduled_after` gate lifted at today's v7.9.1 closure; operator decides whether to advance to Phase 2.
 

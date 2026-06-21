@@ -6,14 +6,14 @@ export function Hero() {
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 xl:px-14 py-16 sm:py-20 text-center">
       <Link
-        href="/case-studies/framework-v7-9-1-promotion"
+        href="/framework"
         className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full text-xs font-sans font-medium bg-[var(--color-brand-indigo)]/10 text-[var(--color-brand-indigo)] hover:bg-[var(--color-brand-indigo)]/15 transition-colors"
       >
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--color-brand-indigo)] opacity-75 motion-safe:animate-ping" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-brand-indigo)]" />
         </span>
-        v7.9.1 build window shipped — 8 ships, 0 new enforcement gates
+        v7.10 shipped — GATE_COVERAGE_ZERO observability + T14/F16 enforced
       </Link>
       <p className="font-sans text-xs uppercase tracking-[0.08em] text-[var(--color-neutral-500)] font-semibold">
         A worked example of building software differently

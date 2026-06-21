@@ -1,7 +1,9 @@
 /**
  * AutomationMap — T23
- * Static lookup table of all framework check codes as of v7.7.
- * 10 write-time (pre-commit) + 9 cycle gating + 1 cycle advisory = 20 total.
+ * Static lookup table of the framework's instrumented gates as of v7.10.
+ * 18 write-time (pre-commit; incl. F4 FRAMEWORK_VERSION_STALE advisory) +
+ * 9 cycle-time (72h CI) + 2 W9 real-time hooks = 28 instrumented gates.
+ * Source of truth: FitTracker2 docs/FRAMEWORK-FACTS.md (reconciled 2026-06-21).
  */
 
 interface CheckCode {
@@ -12,9 +14,14 @@ interface CheckCode {
 
 const WRITE_TIME_CODES: CheckCode[] = [
   {
-    code: 'SCHEMA_DRIFT',
+    code: 'SCHEMA_DRIFT_LEGACY_PHASE',
     shipped_in: 'v7.5',
     description: 'Rejects legacy phase key; canonical is current_phase.',
+  },
+  {
+    code: 'SCHEMA_DRIFT_LEGACY_CREATED',
+    shipped_in: 'v7.8',
+    description: 'Rejects legacy created key; canonical is created_at.',
   },
   {
     code: 'PR_NUMBER_UNRESOLVED',
@@ -32,21 +39,6 @@ const WRITE_TIME_CODES: CheckCode[] = [
     description: 'Rejects current_phase change without timing.phases.<new_phase>.started_at.',
   },
   {
-    code: 'BROKEN_PR_CITATION',
-    shipped_in: 'v7.6',
-    description: 'Rejects case-study commits citing a PR # that does not resolve in gh pr list.',
-  },
-  {
-    code: 'CASE_STUDY_MISSING_TIER_TAGS',
-    shipped_in: 'v7.6',
-    description: 'Rejects post-2026-04-21 case-study commits with no T1/T2/T3 tier tag.',
-  },
-  {
-    code: 'CACHE_HITS_EMPTY_POST_V6',
-    shipped_in: 'v7.7',
-    description: 'Rejects state.json with cache_hits=[] for post-v6 features that have completed at least one phase.',
-  },
-  {
     code: 'CU_V2_INVALID',
     shipped_in: 'v7.7',
     description: 'Rejects cu_v2 entries with factor outside valid range or missing required fields.',
@@ -57,57 +49,92 @@ const WRITE_TIME_CODES: CheckCode[] = [
     description: 'Rejects complete-phase state.json transitions without a case_study field.',
   },
   {
-    code: 'CASE_STUDY_MISSING_FIELDS',
-    shipped_in: 'v7.7',
-    description: 'Rejects case-study MDX commits missing required frontmatter fields (slug, tier, timeline_position).',
+    code: 'CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT',
+    shipped_in: 'v7.8.3',
+    description: 'Enforced — flags features where session Read events exist but state.json::cache_hits[] is empty.',
+  },
+  {
+    code: 'BRANCH_ISOLATION_VIOLATION',
+    shipped_in: 'v7.8.1 (enforced v7.9)',
+    description: 'Mode B — fires on every commit when staged files match infra-path globs.',
+  },
+  {
+    code: 'BRANCH_ISOLATION_VIOLATION_MODE_C',
+    shipped_in: 'v7.8.1 (enforced v7.9)',
+    description: 'Mode C — fires on state.json::current_phase mutations from a non-feature branch.',
+  },
+  {
+    code: 'FEATURE_CLOSURE_COMPLETENESS',
+    shipped_in: 'v7.8.1 (enforced v7.9)',
+    description: 'Fires on current_phase=complete — validates 7 case-study frontmatter fields + Q6/Q7 parity.',
+  },
+  {
+    code: 'ISOLATION_OPT_OUT_REASON_MISSING',
+    shipped_in: 'v7.8.1',
+    description: 'When isolation_opt_out=true, isolation_opt_out_reason must be non-empty.',
+  },
+  {
+    code: 'STATE_OWNER_MISSING',
+    shipped_in: 'v7.8.3',
+    description: 'Required top-level state_owner enum field ({ft2, fitme-story}).',
+  },
+  {
+    code: 'STATE_OWNER_INVALID',
+    shipped_in: 'v7.8.3',
+    description: 'state_owner must be a member of the valid enum.',
+  },
+  {
+    code: 'STATE_OWNER_LOCATION_MISMATCH',
+    shipped_in: 'v7.8.3',
+    description: 'state.json file location must match its declared state_owner (reverse-sync exempt).',
+  },
+  {
+    code: 'FRAMEWORK_VERSION_FORMAT',
+    shipped_in: 'v7.8',
+    description: 'framework_version must be canonical vX.Y form.',
+  },
+  {
+    code: 'PLATFORMS_TESTED',
+    shipped_in: 'T14 (enforced 2026-06-21, PR #781)',
+    description: 'Fires on current_phase=complete when no platforms_tested key is true; validates field shape.',
+  },
+  {
+    code: 'FRAMEWORK_VERSION_STALE',
+    shipped_in: 'F4 v8.x (advisory until ~2026-06-30)',
+    description: 'Advisory — detects stale framework_version on phase-advance. Not yet emitting coverage.',
   },
 ];
 
 const CYCLE_GATING_CODES: CheckCode[] = [
+  {
+    code: 'BROKEN_PR_CITATION',
+    shipped_in: 'v7.6',
+    description: 'Flags case-study PR # / pull/N citations that do not resolve in the cached gh pr list result.',
+  },
+  {
+    code: 'CASE_STUDY_MISSING_TIER_TAGS',
+    shipped_in: 'v7.6',
+    description: 'Flags post-2026-04-21 case studies with no T1/T2/T3 tier tag.',
+  },
   {
     code: 'PHASE_LIE',
     shipped_in: 'v7.5',
     description: 'Feature reports complete phase but linked tasks are not done.',
   },
   {
-    code: 'TASK_LIE',
-    shipped_in: 'v7.5',
-    description: 'Task counts in state.json do not match actual task list.',
+    code: 'PATTERN_SKILL_UNMAPPED',
+    shipped_in: 'v7.9.1',
+    description: 'Flags Observed-Patterns entries not mapped to a skill in pattern-skill-map.json.',
   },
   {
-    code: 'NO_CS_LINK',
-    shipped_in: 'v7.5',
-    description: 'Complete feature has no case_study field in state.json.',
+    code: 'STATE_TASKS_FILESYSTEM_DRIFT',
+    shipped_in: 'f1 (2026-06-17, advisory-permanent)',
+    description: 'Advisory — state.json tasks reference filesystem paths that drift from on-disk reality.',
   },
   {
-    code: 'V2_FILE_MISSING',
-    shipped_in: 'v7.5',
-    description: 'state.json references a v2 file path that does not exist in the repo.',
-  },
-  {
-    code: 'PARTIAL_SHIP_TERMINAL',
-    shipped_in: 'v7.5',
-    description: 'Feature has been in partial-ship state for more than 14 days.',
-  },
-  {
-    code: 'NO_STATE',
-    shipped_in: 'v7.5',
-    description: 'Feature directory exists but has no state.json.',
-  },
-  {
-    code: 'INVALID_JSON',
-    shipped_in: 'v7.5',
-    description: 'state.json or case-study file is not valid JSON/YAML.',
-  },
-  {
-    code: 'NO_PHASE',
-    shipped_in: 'v7.5',
-    description: 'state.json is missing the current_phase field.',
-  },
-  {
-    code: 'CU_V2_INVALID',
-    shipped_in: 'v7.7',
-    description: 'Cycle-time mirror of write-time CU_V2_INVALID — catches backfill bypasses.',
+    code: 'DEPENDENCY_GRAPH_CYCLE',
+    shipped_in: 'f3 (2026-06-17, advisory-permanent)',
+    description: 'Advisory — detects cycles in the feature dependency graph.',
   },
 ];
 
@@ -116,7 +143,32 @@ const CYCLE_ADVISORY_CODES: CheckCode[] = [
     code: 'TIER_TAG_LIKELY_INCORRECT',
     shipped_in: 'v7.7',
     description:
-      'Advisory: T1/T2/T3 tag present but heuristically suspicious (e.g., T1 on a metric with no instrumentation path). Kill criterion 2 fired at baseline n=1 — shipped permanently advisory due to 100% FP rate.',
+      'Advisory: T1/T2/T3 tag present but heuristically suspicious. Kill criterion 2 fired at baseline — shipped permanently advisory.',
+  },
+  {
+    code: 'CACHE_HITS_AUTO_INSTRUMENTATION_INACTIVE',
+    shipped_in: 'v7.8',
+    description:
+      'Advisory: session events show Reads but state.json::cache_hits[] is empty (auto-instrumentation inactive).',
+  },
+  {
+    code: 'BRANCH_ISOLATION_HISTORICAL',
+    shipped_in: 'v7.8.1',
+    description:
+      'Advisory: forward-only audit for squash-merge + branch-cleanup attribution artifacts.',
+  },
+];
+
+const W9_HOOK_CODES: CheckCode[] = [
+  {
+    code: 'w9.auto_isolate',
+    shipped_in: 'v7.8.5',
+    description: 'PostToolUse:Bash hook — auto-isolation drift detection on infra-path edits.',
+  },
+  {
+    code: 'w9.concurrency',
+    shipped_in: 'v7.8.5 (re-keyed 2026-06-14)',
+    description: 'PostToolUse:Bash hook — detects concurrent-session branch flips (HEAD drift). Calibration re-eval ~2026-06-28.',
   },
 ];
 
@@ -124,6 +176,7 @@ const VERSION_COLORS: Record<string, string> = {
   'v7.5': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
   'v7.6': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
   'v7.7': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
+  'v7.8': 'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200',
 };
 
 function CodeRow({ item }: { item: CheckCode }) {
@@ -182,34 +235,47 @@ function LayerCard({
 }
 
 export function AutomationMap() {
+  const totalInstrumented =
+    WRITE_TIME_CODES.length + CYCLE_GATING_CODES.length + W9_HOOK_CODES.length;
   return (
     <div>
       <div className="grid gap-6 lg:grid-cols-3">
         <LayerCard
           title="Write-time gates"
-          subtitle="Fire on git commit (pre-commit hook)"
+          subtitle="Fire on git commit (pre-commit hook) — incl. F4 advisory"
           count={WRITE_TIME_CODES.length}
           codes={WRITE_TIME_CODES}
           accentClass="bg-indigo-50 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-100"
         />
         <LayerCard
-          title="Cycle-time gates (gating)"
-          subtitle="Fire every 72h via GitHub Actions — blocks CI on new findings"
+          title="Cycle-time checks (72h CI)"
+          subtitle="Fire every 72h via GitHub Actions — instrumented gates + advisories"
           count={CYCLE_GATING_CODES.length}
           codes={CYCLE_GATING_CODES}
           accentClass="bg-purple-50 dark:bg-purple-950 text-purple-900 dark:text-purple-100"
         />
         <LayerCard
-          title="Cycle-time (advisory)"
-          subtitle="Fire every 72h — informational only, does not block CI"
+          title="W9 real-time hooks"
+          subtitle="PostToolUse:Bash drift detection within a session"
+          count={W9_HOOK_CODES.length}
+          codes={W9_HOOK_CODES}
+          accentClass="bg-rose-50 dark:bg-rose-950 text-rose-900 dark:text-rose-100"
+        />
+      </div>
+      <div className="mt-6">
+        <LayerCard
+          title="Cycle-time advisories (non-gating)"
+          subtitle="Fire every 72h — informational only, do not block CI"
           count={CYCLE_ADVISORY_CODES.length}
           codes={CYCLE_ADVISORY_CODES}
           accentClass="bg-amber-50 dark:bg-amber-950 text-amber-900 dark:text-amber-100"
         />
       </div>
       <p className="text-xs text-[var(--color-neutral-500)] mt-4 font-sans">
-        Total: {WRITE_TIME_CODES.length} write-time + {CYCLE_GATING_CODES.length} cycle gating + {CYCLE_ADVISORY_CODES.length} advisory ={' '}
-        {WRITE_TIME_CODES.length + CYCLE_GATING_CODES.length + CYCLE_ADVISORY_CODES.length} check codes as of v7.7.
+        {WRITE_TIME_CODES.length} write-time (incl. F4 advisory) + {CYCLE_GATING_CODES.length}{' '}
+        cycle-time + {W9_HOOK_CODES.length} W9 hooks = {totalInstrumented} instrumented gates as of
+        v7.10 ({CYCLE_ADVISORY_CODES.length} additional cycle-time advisories shown separately;
+        25 of 28 actively firing).
       </p>
     </div>
   );
