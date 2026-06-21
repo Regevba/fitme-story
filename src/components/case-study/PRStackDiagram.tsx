@@ -12,10 +12,13 @@ interface Props {
   caption?: string;
 }
 
+// Backgrounds are derived from the accent token via color-mix so they tint
+// correctly in both light and dark mode (the previous raw pastel hexes —
+// #ECFDF5 / #FEF2F2 / #EFF6FF — were light-only and washed out on dark bg).
 const HIGHLIGHT_STYLES: Record<NonNullable<PRNode['highlight']>, { bg: string; border: string; fg: string }> = {
-  ok:       { bg: '#ECFDF5', border: 'var(--skill-release)',     fg: 'var(--color-neutral-800)' },
-  wrong:    { bg: '#FEF2F2', border: 'var(--color-brand-coral)', fg: 'var(--color-brand-coral)' },
-  intended: { bg: '#EFF6FF', border: 'var(--color-brand-indigo)',fg: 'var(--color-brand-indigo)' },
+  ok:       { bg: 'color-mix(in srgb, var(--skill-release) 10%, transparent)',     border: 'var(--skill-release)',     fg: 'var(--color-neutral-800)' },
+  wrong:    { bg: 'color-mix(in srgb, var(--color-brand-coral) 10%, transparent)', border: 'var(--color-brand-coral)', fg: 'var(--color-brand-coral)' },
+  intended: { bg: 'color-mix(in srgb, var(--color-brand-indigo) 10%, transparent)',border: 'var(--color-brand-indigo)',fg: 'var(--color-brand-indigo)' },
 };
 
 export function PRStackDiagram({ nodes, nodesJson, caption }: Props) {
@@ -41,12 +44,14 @@ export function PRStackDiagram({ nodes, nodesJson, caption }: Props) {
               style={{ paddingLeft: base ? '1.5rem' : 0 }}
             >
               <div
-                className="flex-1 rounded-md border px-4 py-3"
-                style={{
-                  backgroundColor: style ? style.bg : 'var(--color-neutral-50)',
-                  borderColor: style ? style.border : 'var(--color-neutral-300)',
-                  color: style ? style.fg : 'var(--color-neutral-800)',
-                }}
+                className={`flex-1 rounded-md border px-4 py-3 ${
+                  style ? '' : 'bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)] text-[var(--color-neutral-800)] dark:text-[var(--color-neutral-200)]'
+                }`}
+                style={
+                  style
+                    ? { backgroundColor: style.bg, borderColor: style.border, color: style.fg }
+                    : { borderColor: 'var(--color-neutral-300)' }
+                }
               >
                 <div className="flex items-baseline gap-2">
                   <code className="font-mono text-sm font-semibold">{n.label}</code>

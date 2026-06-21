@@ -22,7 +22,7 @@ export function BlueprintOverlay({ interactive = true }: { interactive?: boolean
               onBlur={() => interactive && setHovered(null)}
               tabIndex={interactive ? 0 : -1}
               animate={reduced ? {} : { scale: isHovered ? 1.02 : 1 }}
-              className="relative rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-5 bg-white dark:bg-[var(--color-neutral-900)] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-indigo)]"
+              className="relative rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-5 bg-white dark:bg-[var(--color-neutral-800)] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-indigo)]"
               style={{
                 borderLeft: `6px solid ${floor.accent}`,
                 backgroundColor: isHovered ? `${floor.accent}14` : undefined,

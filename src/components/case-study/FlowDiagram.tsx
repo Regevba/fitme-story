@@ -32,7 +32,7 @@ export function FlowDiagram({ nodes, nodesJson, caption, arrowLabel, className =
             return (
               <Fragment key={node.label + i}>
                 <div
-                  className="min-w-[140px] max-w-[180px] shrink-0 rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-3 bg-white dark:bg-[var(--color-neutral-900)]"
+                  className="min-w-[140px] max-w-[180px] shrink-0 rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] p-3 bg-white dark:bg-[var(--color-neutral-800)]"
                   style={{ borderLeft: `4px solid ${color}` }}
                 >
                   <div className="text-xs font-semibold truncate" style={{ color }}>

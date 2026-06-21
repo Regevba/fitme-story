@@ -30,8 +30,7 @@ export function AuditFunnel({ tiers, tiersJson, caption }: Props) {
             <li key={tier.label} className="flex items-center gap-4">
               <div className="flex-1">
                 <div
-                  className="relative h-12 rounded-md overflow-hidden border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]"
-                  style={{ background: 'var(--color-neutral-50)' }}
+                  className="relative h-12 rounded-md overflow-hidden border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-50)] dark:bg-[var(--color-neutral-900)]"
                 >
                   <div
                     className="h-full flex items-center justify-center text-white font-semibold tabular-nums"
