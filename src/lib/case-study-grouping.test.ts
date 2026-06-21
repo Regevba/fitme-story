@@ -6,6 +6,7 @@ import {
   eraIdForVersion,
   isEraEligible,
   parseVersion,
+  compareVersionsDesc,
   type GroupableStudy,
   type Category,
 } from './case-study-grouping';
@@ -93,6 +94,26 @@ test('recency sort: higher version first, then newest date — lens does not reo
   const order = buildEraGroups(mixed)[0].subGroups[0].studies.map((x) => x.slug);
   // v7.2 (higher version) before v7.1; within v7.2, newest date first.
   assert.deepEqual(order, ['v72-jun', 'v72-may', 'v71-apr']);
+});
+
+test('recency sort: multi-segment versions — v7.10 > v7.9.1 > v7.9 > v7.8.6 > v7.8.5 (parseFloat regression guard)', () => {
+  const mixed = [
+    s({ slug: 'v785', v: '7.8.5', d: '2026-06-09', c: 'product' }),
+    s({ slug: 'v90', v: '7.9', d: '2026-05-21', c: 'product' }),
+    s({ slug: 'v710', v: '7.10', d: '2026-06-10', c: 'product' }),
+    s({ slug: 'v786', v: '7.8.6', d: '2026-05-20', c: 'product' }),
+    s({ slug: 'v791', v: '7.9.1', d: '2026-06-04', c: 'product' }),
+  ];
+  const order = buildEraGroups(mixed)[0].subGroups[0].studies.map((x) => x.slug);
+  // Newest framework version first — v7.10 must NOT sink below v7.9.
+  assert.deepEqual(order, ['v710', 'v791', 'v90', 'v786', 'v785']);
+});
+
+test('compareVersionsDesc: segment-wise newest-first', () => {
+  assert.ok(compareVersionsDesc('7.10', '7.9') < 0); // 7.10 newer
+  assert.ok(compareVersionsDesc('7.9.1', '7.9') < 0); // patch newer than base
+  assert.ok(compareVersionsDesc('7.8.6', '7.8.5') < 0);
+  assert.equal(compareVersionsDesc('7.9', '7.9'), 0);
 });
 
 test('version-less studies are excluded from eras (kept in nonEraStudies)', () => {
