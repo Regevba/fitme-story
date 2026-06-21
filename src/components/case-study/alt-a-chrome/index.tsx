@@ -5,17 +5,17 @@
 // renders only when its data is present — partial frontmatter degrades
 // gracefully rather than blowing up.
 //
-// Order on every case study page:
-//   1. SummaryCard      — TL;DR + 5 fields + 3 inline honest disclosures
-//   2. DataKey          — collapsed "How to read this" panel
-//   3. <visual aid>     — REQUIRED, picked per case (visual_aid: in frontmatter)
-//   4. KillCriterionBanner — emerald (not fired) / coral (fired)
-//   5. DeferredItemsList — title · ledger · reason per item
+// Story-first order on every case study page (2026-06-21 reorder, assembled in
+// CaseStudyArticle.tsx):
+//   header (badge · h1 · reading time · tldr lead)
+//   → <visual aid> (at-a-glance) + TierLegend (compact T1/T2/T3 key)
+//   → narrative body
+//   → HonestDisclosures · KillCriterionBanner · DeferredItemsList (epilogue)
 // Visual catalog: docs/design-system/case-study-visual-aid-catalog.md (FitTracker2).
 
 import { CheckCircle2, XCircle, AlertTriangle, Clock } from 'lucide-react';
 import type { ReactNode } from 'react';
-import type { Frontmatter, KeyNumber } from '@/lib/content-schema';
+import type { KeyNumber } from '@/lib/content-schema';
 
 // ---------------------------------------------------------------------------
 // Inline-code-safe markdown renderer for short strings (e.g. disclosures)
@@ -43,156 +43,61 @@ function renderInlineMarkdown(text: string): ReactNode[] {
 }
 
 // ---------------------------------------------------------------------------
-// SummaryCard
+// HonestDisclosures — credibility callout, rendered below the narrative
+// (2026-06-21: extracted from the former SummaryCard; the tldr now leads the
+// header and the version/date/tier strip lives in the template header).
 // ---------------------------------------------------------------------------
-export function SummaryCard({ fm }: { fm: Frontmatter }) {
-  const version = fm.timeline_position ? `v${fm.timeline_position.version}` : null;
-  const tldr = fm.tldr;
-  if (!tldr && !fm.honest_disclosures) return null;
+export function HonestDisclosures({ items }: { items: string[] }) {
+  if (!items || items.length === 0) return null;
   return (
-    <div className="rounded-lg border border-[var(--color-neutral-200)] bg-white dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-800)] p-6 sm:p-8 shadow-sm">
-      <div className="font-sans text-xs uppercase tracking-wider text-[var(--color-brand-indigo)] mb-2">
-        Summary card · 60-second read
+    <div className="not-prose rounded-lg border border-[var(--color-brand-coral)]/30 bg-[var(--color-brand-coral)]/5 p-5 sm:p-6">
+      <div className="font-sans text-xs uppercase tracking-wider text-[var(--color-brand-coral)] mb-3 flex items-center gap-1.5">
+        <AlertTriangle width={14} height={14} strokeWidth={2} />
+        Honest disclosures
       </div>
-      {/* Audit A-019 (2026-05-08): h1 lives in template <header>, not here.
-          Removing the duplicate h1 keeps the document outline single-h1. */}
-      <dl className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 font-sans text-sm">
-        {version ? (
-          <div>
-            <dt className="text-[var(--color-neutral-500)] text-xs uppercase tracking-wide">
-              Version
-            </dt>
-            <dd className="font-medium">{version}</dd>
-          </div>
-        ) : null}
-        {fm.date ? (
-          <div>
-            <dt className="text-[var(--color-neutral-500)] text-xs uppercase tracking-wide">
-              Date
-            </dt>
-            <dd className="font-medium">{fm.date}</dd>
-          </div>
-        ) : null}
-        <div>
-          <dt className="text-[var(--color-neutral-500)] text-xs uppercase tracking-wide">Tier</dt>
-          <dd className="font-medium capitalize">{fm.tier}</dd>
-        </div>
-      </dl>
-      {tldr ? (
-        <p className="mt-5 font-serif text-lg leading-relaxed text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-          {tldr}
-        </p>
-      ) : null}
-      {fm.honest_disclosures && fm.honest_disclosures.length > 0 ? (
-        <div className="mt-5 pt-5 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]">
-          <div className="font-sans text-xs uppercase tracking-wider text-[var(--color-brand-coral)] mb-2 flex items-center gap-1.5">
-            <AlertTriangle width={14} height={14} strokeWidth={2} />
-            Honest disclosures
-          </div>
-          <ul className="space-y-1.5 text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-            {fm.honest_disclosures.map((d, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="text-[var(--color-brand-coral)] shrink-0">•</span>
-                <span>{renderInlineMarkdown(d)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <ul className="space-y-1.5 text-sm font-sans text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
+        {items.map((d, i) => (
+          <li key={i} className="flex gap-2">
+            <span className="text-[var(--color-brand-coral)] shrink-0">•</span>
+            <span>{renderInlineMarkdown(d)}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// DataKey — collapsed "How to read this case study" panel
+// TierLegend — compact inline T1/T2/T3 key beside the visual band. Replaces the
+// heavy "How to read this case study" DataKey panel that repeated on every page
+// (the full explainer lives once on the /case-studies methodology accordion).
 // ---------------------------------------------------------------------------
-export function DataKey() {
+const TIER_BADGE: Record<'T1' | 'T2' | 'T3', string> = {
+  T1: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+  T2: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+  T3: 'bg-stone-100 text-stone-700 dark:bg-stone-900 dark:text-stone-300',
+};
+
+export function TierLegend() {
   return (
-    <details className="rounded-md border border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)] bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-900)] group">
-      <summary className="cursor-pointer list-none px-4 py-3 min-h-11 flex items-center justify-between font-sans text-xs uppercase tracking-wider text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-        <span className="flex items-center gap-2">
-          <span className="font-semibold">How to read this case study</span>
-          <span className="text-[var(--color-neutral-500)] normal-case tracking-normal text-[11px]">
-            T1/T2/T3 · ledger · kill criterion
-          </span>
-        </span>
-        <span className="text-[var(--color-neutral-500)] group-open:rotate-180 transition-transform">
-          ▾
-        </span>
+    <details className="not-prose group mt-2 text-xs font-sans">
+      <summary className="cursor-pointer list-none inline-flex items-center gap-1.5 text-[var(--color-neutral-500)] hover:text-[var(--color-neutral-700)] dark:hover:text-[var(--color-neutral-300)]">
+        <span className="underline decoration-dotted underline-offset-2">What do T1 / T2 / T3 mean?</span>
+        <span className="group-open:rotate-180 transition-transform">▾</span>
       </summary>
-      <div className="px-4 pb-4 pt-2 border-t border-[var(--color-neutral-200)] dark:border-[var(--color-neutral-700)]">
-        <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 font-sans text-xs">
-          <KeyEntry tier="T1" name="Instrumented">
-            Numbers come from a machine-generated ledger or commit. Reproducible.
-            Highest reader trust.
-          </KeyEntry>
-          <KeyEntry tier="T2" name="Declared">
-            Numbers stated by a structured declaration (PRD, plan, frontmatter)
-            but not directly measured.
-          </KeyEntry>
-          <KeyEntry tier="T3" name="Narrative">
-            Estimates and observations from session memory. Useful for context;
-            not citable as evidence.
-          </KeyEntry>
-          <KeyEntryLabel name="Ledger">
-            Where to verify the claim — a file path, GitHub issue, or backlog
-            entry. Anything labelled <code className="text-[0.85em] px-1 py-0.5 rounded bg-[var(--color-neutral-200)] dark:bg-[var(--color-neutral-800)]">ledger:</code>{' '}
-            is the audit trail.
-          </KeyEntryLabel>
-          <KeyEntryLabel name="Kill criterion">
-            The pre-registered threshold under which this work would have been
-            killed mid-flight. <strong>Not fired</strong> = work shipped without
-            hitting the threshold.
-          </KeyEntryLabel>
-          <KeyEntryLabel name="Deferred">
-            Items intentionally not closed in this version. Each cites the
-            ledger that tracks remaining work.
-          </KeyEntryLabel>
-        </dl>
-      </div>
+      <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-1.5 text-[var(--color-neutral-600)] dark:text-[var(--color-neutral-400)]">
+        {(['T1', 'T2', 'T3'] as const).map((t) => (
+          <div key={t} className="flex items-center gap-1.5">
+            <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${TIER_BADGE[t]}`}>
+              {t}
+            </span>
+            <span>
+              {t === 'T1' ? 'Instrumented — from a ledger/commit' : t === 'T2' ? 'Declared — stated, not measured' : 'Narrative — estimate from memory'}
+            </span>
+          </div>
+        ))}
+      </dl>
     </details>
-  );
-}
-
-function KeyEntry({
-  tier,
-  name,
-  children,
-}: {
-  tier: 'T1' | 'T2' | 'T3';
-  name: string;
-  children: ReactNode;
-}) {
-  const styles =
-    tier === 'T1'
-      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-      : tier === 'T2'
-        ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
-        : 'bg-stone-100 text-stone-700 dark:bg-stone-900 dark:text-stone-300';
-  return (
-    <div>
-      <dt className="flex items-center gap-2 mb-1">
-        <span
-          className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold ${styles}`}
-        >
-          {tier}
-        </span>
-        <span className="font-semibold">{name}</span>
-      </dt>
-      <dd className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
-        {children}
-      </dd>
-    </div>
-  );
-}
-function KeyEntryLabel({ name, children }: { name: string; children: ReactNode }) {
-  return (
-    <div>
-      <dt className="font-semibold mb-1">{name}</dt>
-      <dd className="text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)] leading-relaxed">
-        {children}
-      </dd>
-    </div>
   );
 }
 
