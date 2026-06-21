@@ -46,6 +46,17 @@ key_numbers:
     note: >-
       declared from build success across all PRs; no formal regression test
       wired
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '0'
+    label: 'showcase regressions across a 20-PR, 2-repo, 11-day dashboard migration'
+    context: >-
+      Retired the legacy standalone Astro dashboard, migrated it inside the
+      public showcase as a basic-auth-gated /control-room route, instrumented
+      all 8 GA4 events, and killed the standalone Vercel project — 42/44 tasks
+      done — without a single showcase regression.
+    accentVar: 'var(--skill-release)'
 kill_criteria:
   - >-
     Auth (proxy.ts basic-auth) blocks legitimate operator access — repeated 401s

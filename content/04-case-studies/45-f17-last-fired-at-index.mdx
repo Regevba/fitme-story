@@ -38,6 +38,19 @@ key_numbers:
     value: '66.7 — highest of all v7.9.1 candidates'
     tier: T1
     note: 'R=10 (every gate benefits) × I=2 × C=100% / E=0.3w = 66.7. Beats F16 (RICE 48.0) by 39%.'
+visual_aid:
+  component: HeroMetric
+  data:
+    value: 'O(1)'
+    label: >-
+      per-gate "when did this last fire?" lookup — down from O(records × gates)
+      over the ~1,800-row gate-coverage stream
+    context: >-
+      The derived index at .claude/shared/gate-last-fired.json refreshes in
+      under 1s for 1,828 rows (PRD budget under 2s), covers all 16 gates that
+      have ever emitted, and is consumed at 4 callsites. AWS Config Rules
+      LastSuccessfulInvocationTime pattern; highest RICE (66.7) of all v7.9.1
+      candidates.
 category: framework
 ---
 

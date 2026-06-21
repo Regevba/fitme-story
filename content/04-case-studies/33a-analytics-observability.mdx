@@ -35,6 +35,20 @@ key_numbers:
   - label: PRs merged
     value: '16 (#332 → #388)'
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before (write-and-hope)'
+    before:
+      label: 'iOS event test coverage'
+      value: '81%'
+      subtitle: 'Instrumentation shipped, but declared events went untested — no proof they fired.'
+    afterLabel: 'After (16 PRs, #332 → #388)'
+    after:
+      label: 'iOS event test coverage'
+      value: '100%'
+      subtitle: '112/112 events covered via 19 new XCTest methods; declared-but-unfired events 4 → 0.'
+    delta: '+19 pp · T1'
 kill_criteria:
   - >-
     If the Phase 1.B taxonomy/connectivity gates (CSV_TAXONOMY_DRIFT +

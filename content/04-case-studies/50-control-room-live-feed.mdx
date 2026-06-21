@@ -36,6 +36,18 @@ key_numbers:
   - label: Data staleness target once live (declared)
     value: 'request-time vs deploy-bound'
     tier: T2
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'Before'
+      value: 'build-time snapshot'
+      subtitle: 'Every panel rendered data copied in at build; it only refreshed on redeploy. Ledgers drifted over a week stale and infra health read "unknown" because nothing was queried at runtime.'
+    after:
+      label: 'After'
+      value: 'fail-soft live'
+      subtitle: 'External SaaS sources fetched server-side at request time; FT2 framework state published to a public Vercel Blob on every commit. Any fetch failure degrades to the snapshot — 48 tests, 0 behavior change until two env vars flip.'
+    delta: 'snapshot → request-time'
 kill_criteria:
   - 'A live fetch failure ever crashes or blanks a control-room page (must always degrade to snapshot)'
   - 'The public state Blob ever contains PII the allow-list should have excluded'

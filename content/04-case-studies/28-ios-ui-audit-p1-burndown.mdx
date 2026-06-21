@@ -100,6 +100,18 @@ key_numbers:
       complex multi-line label blocks without significant cross-button
       false-negative risk (modifiers attach to closest view; intervening
       Button { blocks scope their own search).
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'Pre-burndown (drift)'
+      value: '108 P1'
+      subtitle: 'ui-audit P1 findings across 42 files — drifted +5 from the 103 baseline under fix-as-you-touch by 2026-05-11.'
+    after:
+      label: 'Post PR-1 + PR-2'
+      value: '44 P1'
+      subtitle: '59 findings closed via 7 shared tokens + 73 mass-substitutions; DS-RAW-FONT-SHORTHAND and DS-A11Y-BUTTON to 0. The 44 remaining are accepted design-specific singletons per Option B.'
+    delta: '-59 (57%)'
 related_prs:
   - 292
   - 294

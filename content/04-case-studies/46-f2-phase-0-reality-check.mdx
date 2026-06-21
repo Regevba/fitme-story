@@ -40,6 +40,19 @@ key_numbers:
     value: '2'
     tier: T1
     note: '/pm-workflow SKILL.md Phase 0.1 section + Makefile target make phase-0-reality-check FEATURE=<name>.'
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '5 in 4 days'
+    label: >-
+      post-squash-merge state-drift instances (2026-06-01 → 2026-06-04) — the
+      calibration baseline that justified the gate
+    context: >-
+      Each time, state.json::tasks still said pending while the changes were
+      already on main, costing a 3-phase re-plan. F2's Phase 0.1 sub-step
+      cross-checks each pending task against 30 days of git log + merged PR
+      titles + Tier 2.2 events; ≥2 evidence items surface a "may already be
+      done" advisory. Runs in 0.09s; never blocking.
 category: framework
 ---
 

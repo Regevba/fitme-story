@@ -56,6 +56,13 @@ key_numbers:
       Tag<muted> uses byte-for-byte the same classes as the original inline
       spans (bg-neutral-100 light / bg-neutral-800 dark / !rounded-full).
       Pixel-identical migration.
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '1 of 11'
+    label: 'deferred P2 closed — the only one whose blocker (a Tag<muted> variant) was tractable without designer input or visual-regression infra'
+    accentVar: 'var(--color-brand-indigo)'
+    context: 'Lifts the parent feature P2 closure rate 4/16 → 5/16 (31%). The other 10 stay deferred with their per-item reasons — judgement calls about hero gradients, heading scales, and stat-component regression do not belong inside a mechanical cleanup pass.'
 honest_disclosures:
   - >-
     This enhancement deliberately did NOT attack 10 of the 11 deferred P2s. The

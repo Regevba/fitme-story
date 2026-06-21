@@ -70,6 +70,20 @@ key_numbers:
     value: '32 → 33 (added W17)'
     tier: T1
     note: 'observed-patterns.md PR #492; proposes v7.9.1 candidate F-STALE-BASE-DETECTION as the enforcement layer.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'What gh pr view --json files reported (PR #488)'
+    before:
+      label: 'Files changed'
+      value: '6'
+      subtitle: 'gh counts commit-touched files against the branch''s ORIGINAL base SHA — looked routine, CI green.'
+    afterLabel: 'What the merge would actually do'
+    after:
+      label: 'Merge-time diff'
+      value: '23 files / −2157 lines'
+      subtitle: 'Post-fork additions appear DELETED: HADF runbook, oldSSD addendum, R-track configs, integrity snapshot, UCC hardening study.'
+    delta: 'cherry-pick onto fresh main is ground truth'
 category: framework
 ---
 

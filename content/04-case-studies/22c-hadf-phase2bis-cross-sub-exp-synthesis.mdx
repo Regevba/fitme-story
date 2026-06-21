@@ -81,6 +81,20 @@ key_numbers:
   - label: 'Total program cost (all 4 sub-exps)'
     value: '~$1.74 (1: $0.32, 2: $0, 3: $0.74, 1B: $0.68) — well under $5 nominal / $20 ceiling'
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Phase 2 (predecessor, slot 22b)'
+    before:
+      label: 'cloud silhouette (k=5)'
+      value: '0.5566'
+      subtitle: 'n=700, 2 endpoints. The original cloud-generalization signal.'
+    afterLabel: 'Phase 2-bis Sub-exp 1 (this synthesis)'
+    after:
+      label: 'cloud silhouette (k=5)'
+      value: '0.7003'
+      subtitle: 'n=2,600, 4 endpoints / 2 providers. One of 4 orthogonal sub-experiments — all PASS.'
+    delta: '+25.8% generalization at ~3.7× the records — dispatch claim CONFIRMED (sensing layer)'
 honest_disclosures:
   - 'Skeleton authored 2026-05-27 (Phase E Day 6) as Block C task C16 pre-work; verdict cells populate as each sub-exp closes. The skeleton exists to ensure the synthesis is mechanical-not-creative at closure — every analytical section is pre-structured before data lands, eliminating after-the-fact narrative drift.'
   - 'Sub-exp 1 launched 2026-05-25 with a narrowed 4-endpoint matrix (openai gpt-4o-mini + gpt-4o + anthropic claude-haiku-4-5 + claude-sonnet-4-6) instead of the originally-specified 9 endpoints. Operator decision 2026-05-25 per smoke-fire findings (Gemini reasoning-model TTFT distortion; placeholder API keys not minted for Vercel AI Gateway + Mistral + xAI). Sub-exp 1B queued for full 9-endpoint follow-up after key acquisition + reasoning-model investigation.'

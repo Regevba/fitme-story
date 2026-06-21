@@ -88,6 +88,18 @@ key_numbers:
   - label: Frozen algorithm constants
     value: 'acceptanceUpgradeThreshold=0.70 / dismissalSuppressionThreshold=3 in 30-day window / quorumCount=5 outcomes per segment / adjustmentMode=confidenceTierOnly / 5-enum dismissReasonOptions / 200-LRU per segment'
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'Before C5 (UI-024 deferred)'
+      value: 'memory at 0'
+      subtitle: '47+ home_ai_feedback_submitted events fired in the 2026-05-31 → 06-01 GA4 window, but RecommendationMemory.totalCount stayed at 0 on every device — the home screen re-surfaced dismissed recommendations forever. No mechanical learning.'
+    after:
+      label: 'After C5 (wired)'
+      value: 'loop live'
+      subtitle: 'record(outcome:) wired via RecommendationFeedbackController; AIOrchestrator suppresses signals after 3 dismissals / 30d and boosts segments above 0.70 acceptance (5-outcome quorum). Audit UI-024 closed on main.'
+    delta: 'wired'
 category: product
 ---
 

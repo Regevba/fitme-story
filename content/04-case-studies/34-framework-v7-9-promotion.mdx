@@ -104,6 +104,24 @@ key_numbers:
     value: under 5 min
     tier: T2
     note: Single-line revert + commit + merge. Verified locally.
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'v7.8.6'
+    before:
+      label: 'v7.8.6 (3 gates advisory)'
+      value: '34 gates'
+      subtitle: >-
+        BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS
+        ran advisory through a 14-day Mechanism A calibration window.
+    afterLabel: 'v7.9'
+    after:
+      label: 'v7.9 (promotion release)'
+      value: '37 gates'
+      subtitle: >-
+        Same 3 gates flipped advisory → enforced via one line at
+        check-state-schema.py:132. 44 firings, 0 false positives, 0 rollbacks.
+    delta: '+3 enforced · 0 false positives'
 category: framework
 ---
 

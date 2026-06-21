@@ -40,6 +40,18 @@ key_numbers:
   - label: Primary metric — users with ≥1 saved custom program per WAU
     value: 'baseline 0 → target ≥0.15 @T+60d'
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'Before C6'
+      value: '1 fixed split'
+      subtitle: 'Every user followed the same hard-coded 6-day Push/Pull/Legs split with no way to swap exercises or choose a different structure.'
+    after:
+      label: 'After C6'
+      value: '4 templates'
+      subtitle: 'Per-user custom programs — PPL 6-day / Upper-Lower 4-day / Full-body 3-day / Empty — with a day-by-day editor, exercise swaps via the C3 picker, and active-program switching. Zero destructive migration: existing users keep the fixed PPL until they customize.'
+    delta: 'fixed → customizable'
 kill_criteria:
   - 'Custom program save rate at T+60d < 0.05 per WAU (low adoption)'
   - 'Custom program crash rate > 1% of editor sessions (UI bug)'

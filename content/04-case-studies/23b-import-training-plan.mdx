@@ -52,6 +52,26 @@ key_numbers:
     note: >-
       v4.X /design build's first production run; page 916:2 in design system
       library
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'Pre-resume (partial ship)'
+      value: '0 entry points'
+      subtitle: >-
+        Audit UI-015 open. No persistence path (TrainingProgramData is a struct
+        of static lets; confirmImport() was a no-op). Views existed but were
+        never wired into navigation.
+      accentVar: 'var(--color-neutral-500)'
+    after:
+      label: 'Post-resume (Phase 1 ship)'
+      value: '2 entry points'
+      subtitle: >-
+        Audit UI-015 closed. Persists to EncryptedDataStore.importedTrainingPlans
+        (encrypted, GDPR Art-17/20), reachable from Settings list + Training
+        toolbar. 9 analytics events wired through the consent gate.
+      accentVar: 'var(--skill-dev)'
+    delta: 'partial ship → full Phase 1 in one ~14h resume'
 kill_criteria:
   - >-
     Encrypted persistence layer regression (any read/write failure on

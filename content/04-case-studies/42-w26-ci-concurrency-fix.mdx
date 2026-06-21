@@ -79,6 +79,20 @@ key_numbers:
   - label: End-to-end diagnose-fix-to-merge
     value: '~30 minutes (most of which was diagnosis from CANCELLED status check + finding the github.workflow expression resolving to identical strings)'
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before (shared github.workflow group)'
+    before:
+      label: 'Build and Test checks per mixed PR'
+      value: '1 CANCELLED + 1 SUCCESS'
+      subtitle: 'ci.yml and ci-docs-skip.yml both named CI → identical concurrency.group → mutual cancellation blocks merge even with admin override.'
+    afterLabel: 'After (4-line fix)'
+    after:
+      label: 'Build and Test checks per mixed PR'
+      value: '2 SUCCESS'
+      subtitle: 'File-specific group prefixes (ci-yml- / ci-docs-skip-) → workflows run independently. Verified clean on #561 + 3 subsequent mixed PRs.'
+    delta: '4-line concurrency.group fix'
 category: framework
 ---
 

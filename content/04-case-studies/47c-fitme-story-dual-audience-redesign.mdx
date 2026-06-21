@@ -38,6 +38,20 @@ key_numbers:
   - label: New UI primitives justified
     value: '1 (LensToggle — no segmented control existed)'
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Problem baseline (GA4, measured)'
+    before:
+      label: 'Home bounce rate'
+      value: '76.2%'
+      subtitle: '~3.5× the content pages, which bounced 0% / engaged 100%.'
+    afterLabel: 'Pre-registered target (T+60d)'
+    after:
+      label: 'Home bounce target'
+      value: '≤60%'
+      subtitle: 'The success bet — not yet evaluable. Baseline 0, needs a ≥60-day window.'
+    delta: 'the bet: re-narrate one site for two audiences, drop ≥16pp of bounce'
 kill_criteria:
   - 'T+60d: lens-selection rate <20% AND home bounce not improved (>70%) → revert to a neutral lens-less home; keep the case-study + timeline improvements'
   - 'Lens switching causes measurable confusion: cross-page navigation depth drops >15% vs baseline OR direct confusion feedback → simplify the lens (PM as silent default, demote toggle)'

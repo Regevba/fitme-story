@@ -78,6 +78,27 @@ key_numbers:
       937:46 (Settings row 3 states) + 938:2 (denial banner) + 938:50
       (readinessAlert high+low). 2 iterations (sizing-mode reset bug on first
       pass).
+visual_aid:
+  component: BeforeAfter
+  data:
+    before:
+      label: 'v1 (audit UI-016)'
+      value: '0 events fired'
+      subtitle: >-
+        Substrate shipped, tested, reviewed, and merged — but the priming view
+        was never instantiated and NotificationService was never called from app
+        lifecycle. A complete feature nobody could see. No gate caught the dead
+        ship.
+      accentVar: 'var(--color-neutral-500)'
+    after:
+      label: 'v2 (platform layer)'
+      value: '3 reachability tests'
+      subtitle: >-
+        Rebuilt as a platform layer (gateway + registry + deep-link router +
+        observers). 3 XCTest reachability cases (<10ms total) now assert every
+        wire is reachable from a real navigation path — dead-ship can't recur.
+      accentVar: 'var(--skill-qa)'
+    delta: 'dead-shipped substrate → reachability-gated platform'
 kill_criteria:
   - >-
     Deep-link routing success rate <95% in week-1 production telemetry once

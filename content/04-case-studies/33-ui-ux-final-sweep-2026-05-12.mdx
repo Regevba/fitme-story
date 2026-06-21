@@ -44,6 +44,20 @@ key_numbers:
     value: '~41 min'
     tier: T2
     note: 'Single session, scope-locked attack on remaining items.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Baseline (across 3 burndowns)'
+    before:
+      label: 'iOS make ui-audit P1'
+      value: '103'
+      subtitle: 'Pre-burndown baseline; trajectory 103 → 44 → 14 before this sweep.'
+    afterLabel: 'After this sweep (PR #311)'
+    after:
+      label: 'iOS make ui-audit P1'
+      value: '0'
+      subtitle: 'ui-audit now a hard gate within verify-local. Verified post-merge.'
+    delta: '−100%'
 honest_disclosures:
   - >-
     This sweep accepted the design-system "bloat" trade-off Option B was

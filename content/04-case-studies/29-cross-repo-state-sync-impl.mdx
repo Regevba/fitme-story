@@ -82,6 +82,19 @@ key_numbers:
       F11 = BRANCH_ISOLATION_HISTORICAL false positive on reverse-sync mirror
       branches. F12 = actionlint for job-level secrets.* detection. F13 =
       workflow_dispatch source_commit input for bootstrap path.
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '10 PRs · 2 repos'
+    label: >-
+      the first PM-framework Feature spanning two git repos as one coordinated
+      unit
+    context: >-
+      5 FT2 + 5 fitme-story PRs in a single session. The Phase 4 cutover took
+      3 attempts — each failure a real latent framework bug at a different
+      enforcement layer (pre-commit spec compliance, GH Actions job-level
+      secrets.* syntax, workflow_dispatch HEAD~1 window), all caught before any
+      production feature relied on the broken paths.
 kill_criteria:
   - >-
     Reverse-sync PRs create gate-firing storm (>10 false-positive failures in

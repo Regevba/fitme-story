@@ -39,6 +39,13 @@ key_numbers:
   - label: Dispatch decisions made
     value: '0 (detection-only by construction)'
     tier: T1
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '7,197'
+    label: 'valid records across 8 endpoints — the locked reference store the whole sensing layer reads from (min_n=50, max_ttft 30s)'
+    accentVar: 'var(--skill-qa)'
+    context: 'Three producers ship on top of it — a reference store, an advisory Mahalanobis attestation, and a >3σ drift monitor — and make exactly 0 dispatch decisions. The discipline is refusing to act on a signal validated only for sensing.'
 kill_criteria:
   - 'Attestation presented as authoritative per-request (violates the RQ5 honesty boundary) → revert T2 to advisory-only or pull it'
   - 'Any T1–T3 producer makes a dispatch/routing decision (violates the Phase 3A non-goal; acting is gated on RQ4 / Phase 3B)'

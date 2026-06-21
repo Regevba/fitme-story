@@ -44,7 +44,18 @@ key_numbers:
     value: 'green in-sync / red on edit'
     tier: T1
     note: 'tokens:android:check exits 0 in-sync, non-zero after a token edit (verified mutate-then-revert).'
-category: design-system
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '49 + 34 + 8'
+    label: 'colors + dimens + Compose objects — committed, byte-identical across builds, behind a drift gate that fails on any token edit'
+    context: >-
+      The 2026-04-04 android-design-system shipped research-only: a Style
+      Dictionary config that generated nothing, broken against the v3→v5 migration.
+      This ships the real token layer — committed Kotlin + XML artifacts that are
+      byte-identical across two consecutive builds. Honest limit: the Kotlin is
+      structurally valid and drift-gated but NOT compiled (no Android toolchain
+      in-repo).
 kill_criteria:
   - "Generated Kotlin won't compile in a real Android module"
   - 'Drift gate false-positives on a clean tree'

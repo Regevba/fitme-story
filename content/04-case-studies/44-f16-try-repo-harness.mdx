@@ -42,6 +42,19 @@ key_numbers:
     value: '~1,720 across all 6 PRs'
     tier: T2
     note: 'Test code + fixtures + harness helpers + CI workflow + CLAUDE.md + dev-guide row + case study + showcase MDX.'
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '15 / 16'
+    label: >-
+      write-time gates exercised end-to-end through the real shell hook →
+      Python subprocess → git chain
+    context: >-
+      The new 3rd test layer caught 2 real bugs in the framework's own
+      infrastructure that unit + dispatch tests could not see (Q5 — module
+      constant not env-var; Q6 — hardcoded REPO_ROOT). 1 documented skip
+      (STATE_OWNER_LOCATION_MISMATCH, deferred to F16.1). 61 tests run in
+      16.21s — well under the 60s PRD budget.
 category: framework
 ---
 

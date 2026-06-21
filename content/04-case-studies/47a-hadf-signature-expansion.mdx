@@ -38,6 +38,20 @@ key_numbers:
   - label: No-regression tests
     value: '19 / 19 pass (incl. 9 Phase 3A)'
     tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'M2 (Sub-exp 2 baseline)'
+    before:
+      label: 'ollama llama3.2 TTFT'
+      value: '0.179s'
+      subtitle: 'Prior on-device signature, established in Phase 2-bis Sub-exp 2.'
+    afterLabel: 'M4 (this expansion)'
+    after:
+      label: 'real on-device calibration'
+      value: '0.095s'
+      subtitle: 'ttft_median · tps 41 · n=80 (100% valid). K2 PASS — substrates discriminated, not just generalized.'
+    delta: '~1.9× faster median TTFT — two reachable substrates, two distinct measured fingerprints'
 kill_criteria:
   - 'K1 — adding prior_unvalidated rows degrades attestation accuracy on the calibrated set → drop priors'
   - 'K2 — on-device harness cannot reproduce a Sub-exp-2-quality signature on the operator''s Mac → descope on-device'

@@ -34,6 +34,17 @@ key_numbers:
   - label: RICE
     value: '48.0 (highest-risk zero-coverage service)'
     tier: T2
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '10'
+    label: 'deterministic, device-free tests — first direct coverage on SignInService.swift (1244 lines, 0 prior tests)'
+    context: >-
+      SignInService is on the CLAUDE.md high-risk list (Apple / Google / Email-OTP
+      / passkey) yet had zero direct tests. The ASAuthorizationController UI flow
+      needs a real device, so the tests pin the deterministic surface that gates
+      the whole flow: config invariants, the SessionTokenType raw-value contract,
+      and the UserSession Codable round-trip. 10/10 pass on simulator.
 kill_criteria:
   - 'Tests assert against the ASAuthorizationController UI flow (would be non-deterministic / device-only).'
   - 'Tests pin implementation detail rather than the behavioral/persistence contract.'

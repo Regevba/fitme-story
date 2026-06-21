@@ -34,6 +34,17 @@ key_numbers:
   - label: RICE
     value: '40.0'
     tier: T2
+visual_aid:
+  component: HeroMetric
+  data:
+    value: '6'
+    label: 'protocol conformance anchors — one minimal compile-time anchor per test-mocked protocol, so drift fails the build at a single labelled point'
+    context: >-
+      The spec named four mocks that do not exist, and four of the six real mocks
+      are private to their own test files — so a literal central drift detector
+      was impossible. The durable form is a conformance registry. The mechanism
+      caught its own author: the first build failed because EmailAuthProviding has
+      seven methods, not the four anchored.
 kill_criteria:
   - 'Anchors duplicate private mocks in a way that adds maintenance burden without catching new drift.'
   - 'A protocol gains an optional/defaulted requirement the anchor masks (false negative).'
