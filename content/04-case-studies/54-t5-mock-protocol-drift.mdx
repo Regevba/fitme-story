@@ -1,0 +1,81 @@
+---
+title: >-
+  T5 — Mock-Protocol Drift Detection (a central conformance registry, reframed
+  for the real codebase)
+slug: t5-mock-protocol-drift
+date: '2026-06-10'
+upstream_path: docs/case-studies/t5-mock-protocol-drift-case-study.md
+tier: light
+tldr: >-
+  T5 was spec'd as "wrap MockKeychainStorage, MockSupabaseClient,
+  StubAIEngineClient, CountingAIEngineClient in a shared MockValidation.swift
+  that fails build if protocol surface drifts." Two facts from the actual
+  codebase changed the shape: none of those four named mocks exist, and four of
+  the six real mocks are private to their own test files. So a literal central
+  drift detector over the named mocks is impossible and low-value. The durable
+  form is a central conformance registry — one minimal compile-time anchor per
+  test-mocked protocol — so a protocol-surface drift fails the build at a single
+  labelled point. Six anchors; build-for-testing green. The mechanism caught its
+  own author: the first build failed because EmailAuthProviding has seven
+  methods, not the four anchored.
+timeline_position:
+  version: '7.10'
+  order: 67
+key_numbers:
+  - label: Protocol anchors
+    value: '6 (AnalyticsProvider, GoogleAuthProviding, AppleAuthProviding, EmailAuthProviding, URLSessionProtocol, AIInputAdapter)'
+    tier: T1
+  - label: App-target mocks bound + smoke-tested
+    value: '2 (MockAnalyticsAdapter, MockGoogleAuthProvider)'
+    tier: T1
+  - label: Verification
+    value: build-for-testing green (compile-time assertion)
+    tier: T1
+  - label: RICE
+    value: '40.0'
+    tier: T2
+kill_criteria:
+  - 'Anchors duplicate private mocks in a way that adds maintenance burden without catching new drift.'
+  - 'A protocol gains an optional/defaulted requirement the anchor masks (false negative).'
+kill_criterion_fired: false
+category: framework
+---
+
+import { Callout } from "@/components/mdx/Callout";
+
+# T5 — Mock-Protocol Drift Detection
+
+> **Status:** shipped 2026-06-10. RICE 40.0.
+
+## The scoping reframe (the third this week)
+
+T5 was spec'd (2026-05-13) as "wrap `MockKeychainStorage`, `MockSupabaseClient`, `StubAIEngineClient`, `CountingAIEngineClient` in a shared `MockValidation.swift` that fails build if protocol surface drifts." Two facts from the actual codebase changed the shape:
+
+1. **None of those four named mocks exist.** The real test doubles are `MockAnalyticsAdapter`, `MockGoogleAuthProvider`, `MockURLSession`, `StubAppleAuthProvider`, `StubEmailAuthProvider`, `TestAdapter`.
+2. **Four of the six are `private`** to their own test files (good encapsulation) — a central file can't reference them — and Swift already compile-enforces each `Mock: Protocol` declaration, so re-asserting them is redundant.
+
+So a literal "central drift detector over the named mocks" is impossible *and* low-value. (This joins T10 — the AI is deterministic, not generative — and T3 — the test bundle ships a real passkey relying-party ID — as cases where running/reading the code corrected the 2026-05-13 plan.)
+
+## The durable form for this codebase
+
+A **central conformance registry**: `FitTrackerTests/MockProtocolConformanceTests.swift` defines one minimal *anchor* per test-mocked protocol — the smallest type that satisfies it. The anchor exists only to pin the protocol's surface at compile time; it's never called. If a protocol's surface drifts (a requirement added / renamed / re-signed), the matching anchor fails to compile and **this one labelled file is the failure point** — instead of a confusing error deep inside whichever private mock happened to break, on whatever unrelated PR touched the protocol.
+
+Six anchors: `AnalyticsProvider`, `GoogleAuthProviding`, `AppleAuthProviding`, `EmailAuthProviding`, `URLSessionProtocol`, `AIInputAdapter`. Plus the two app-target mocks that ARE shareable (`MockAnalyticsAdapter`, `MockGoogleAuthProvider`) are bound to their protocol type and smoke-tested, so the registry tracks the live types, not just the anchors.
+
+## Why a registry beats per-mock conformance
+
+Swift catches drift at each `Mock: Protocol` site — but those sites are scattered across private test files, and a protocol change surfaces as an error wherever the mock lives, with no single "these are the protocols we mock" inventory. The registry adds: (a) one documented place listing every mocked protocol ↔ its double, (b) a single, clearly-labelled compile failure on drift, and (c) protection against a protocol's *only* mock being deleted/orphaned without notice (the anchor still pins the surface).
+
+## Verification
+
+`build-for-testing` green — the whole point of T5 is compile-time, so a successful test-target build *is* the assertion that all six protocol surfaces still match their anchors. The runtime tests additionally prove the two shareable mocks bind + respond.
+
+<Callout type="info">
+  **The mechanism demonstrated itself during development.** The first build failed with `_EmailAuthAnchor does not conform to protocol 'EmailAuthProviding'` — because `EmailAuthProviding` actually has *seven* methods (it also requires `requestPasswordReset` / `updatePassword` / `processRecoveryURL`), not the four anchored. The registry caught the incomplete anchor at exactly the labelled point it's designed to. That's the drift detector working — on its own author.
+</Callout>
+
+## Where to read more
+
+- Source case study: [`docs/case-studies/t5-mock-protocol-drift-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/t5-mock-protocol-drift-case-study.md)
+- Spec: [`docs/master-plan/test-coverage-master-plan-2026-05-13.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/test-coverage-master-plan-2026-05-13.md) §4 T5
+- Sibling reframes (same week): [`ai-golden-set-evals`](/case-studies/ai-golden-set-evals), [`t3-signinservice-passkey-tests`](/case-studies/t3-signinservice-passkey-tests)

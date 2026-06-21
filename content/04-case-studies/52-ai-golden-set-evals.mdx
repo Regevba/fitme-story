@@ -1,0 +1,87 @@
+---
+title: >-
+  T10 — AI Golden-Set Eval Harness (and why the FitMe AI is deterministic, not
+  generative)
+slug: ai-golden-set-evals
+date: '2026-06-10'
+upstream_path: docs/case-studies/ai-golden-set-evals-case-study.md
+tier: light
+tldr: >-
+  T10 was spec'd as an "LLM golden-set eval harness — promptfoo-equivalent
+  weekly run." Reading the actual code corrected the framing: the FitMe AI is a
+  pure deterministic rule engine (InsightService), not generative. The live
+  LLM path is gated behind an unset LLM_API_KEY. That makes a golden set
+  strictly better than a promptfoo run — zero flake, no key, and it runs as a
+  hard PR gate in the existing pytest suite rather than a flaky weekly
+  advisory. 24 golden cases pin every InsightService rule, confidence band, and
+  the escalate_to_llm threshold; ai-engine suite green at 60 passed / 1 skipped;
+  a negative-control mutation proved the set catches AI-logic regressions by
+  construction.
+timeline_position:
+  version: '7.10'
+  order: 65
+key_numbers:
+  - label: Golden cases
+    value: '24'
+    tier: T1
+  - label: Golden-harness run
+    value: '26 passed, 1 skipped'
+    tier: T1
+  - label: Full ai-engine suite
+    value: '60 passed, 1 skipped (34 pre-existing endpoint tests + new coverage, no regression)'
+    tier: T1
+  - label: Segments covered
+    value: '4 (training / nutrition / recovery / stats)'
+    tier: T1
+  - label: Negative control
+    value: mutating one rule made exactly the matching golden case fail
+    tier: T1
+kill_criteria:
+  - 'Golden harness becomes flaky (non-deterministic) — would violate the "deterministic AI is gateable" premise → revert to advisory.'
+  - 'Golden set pins implementation detail rather than behavioral contract (brittle to benign refactors).'
+kill_criterion_fired: false
+category: framework
+---
+
+import { Callout } from "@/components/mdx/Callout";
+
+# T10 — AI Golden-Set Eval Harness
+
+> **Status:** shipped 2026-06-10. The first behavioral test coverage of FitMe's AI decision logic — the "biggest layer gap" per the test-coverage master plan.
+
+## The scoping surprise: the AI is deterministic, not generative
+
+T10 was spec'd in the test-coverage master plan as an *"LLM golden-set eval harness — promptfoo-equivalent weekly run."* That framing assumed the AI is generative. **It isn't.**
+
+`ai-engine/app/services/insight_service.py::InsightService.generate()` is a **pure deterministic rule engine**: given a segment + `user_fields` + `cohort_totals`, it emits population-level `signals`, a `confidence` score (`coverage_ratio × 0.6 + cohort_signal × 0.4`), and an `escalate_to_llm` boolean (`confidence < 0.40`). The generative LLM path is **gated behind an unset `LLM_API_KEY`** (requires a Data Processing Agreement) and is not the live behavior. The federated-cohort intelligence + on-device Foundation Models layer do the personalization; the server emits *signals*, not prose.
+
+<Callout type="info">
+  Because the behavior is deterministic, a golden set is **strictly better than a promptfoo run**: it has **zero flake, needs no API key, and runs as a hard PR gate** in the existing pytest suite — rather than a flaky weekly advisory.
+</Callout>
+
+## What shipped
+
+- **`ai-engine/tests/golden/insight_cases.jsonl`** — 24 golden cases [T1, instrumented] covering:
+  - all 3 rules in each of the 4 segments (training / nutrition / recovery / stats) + their no-match cases;
+  - confidence scoring (full-coverage-large-cohort → ≈1.0; sparse-tiny-cohort → escalates);
+  - the `escalate_to_llm` &lt; 0.40 boundary;
+  - edge cases: empty `user_fields` (no div-by-zero), empty/saturated `cohort_totals`, unknown segment.
+- **`ai-engine/tests/test_golden_insights.py`** — a parametrized harness that runs each case through the real `InsightService` and asserts the behavioral contract (`signals_contains` / `signals_excludes` / `signals_empty`, `confidence_min`/`max`, `escalate_to_llm`, `supporting_total_cohort_size`), plus a coverage assertion (≥20 cases, all 4 segments present) and an explicit escalation-threshold pin.
+- **Live-LLM eval scaffold** — `test_llm_eval_golden_subset_when_key_present` skips cleanly when `LLM_API_KEY` is unset (the default), so the weekly promptfoo-equivalent run can land later without changing the harness shape.
+
+## Verification (all 2026-06-10, T1 — instrumented)
+
+- **`pytest tests/test_golden_insights.py` → 26 passed, 1 skipped.**
+- **Full ai-engine suite → 60 passed, 1 skipped** (34 pre-existing endpoint tests + the new behavioral coverage; no regression).
+- **Negative control (the value proof):** mutating one rule (`cohort_muscle_gain_foundation_common` → a typo) made exactly the corresponding golden case **fail** — the set catches AI-logic regressions by construction, not by rubber-stamp.
+
+## Why this matters
+
+Before T10, the 34 ai-engine tests covered the *transport* (auth, payload validation, fire-and-forget) but **none asserted what the AI actually decides.** A refactor could silently drop the `deload_advised` recovery signal or shift the escalation threshold and every test would still pass. T10 closes that: the AI's decision behavior is now pinned, deterministic, and gated at PR time — the highest-value AI test work, whose only blocker (the Phase 2-bis prompt-set stabilizing) was cleared when all four sub-experiments closed PASS on 2026-06-05.
+
+## Where to read more
+
+- Source case study: [`docs/case-studies/ai-golden-set-evals-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/ai-golden-set-evals-case-study.md)
+- Spec: [`docs/master-plan/test-coverage-master-plan-2026-05-13.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/test-coverage-master-plan-2026-05-13.md) §T10
+- Target: `ai-engine/app/services/insight_service.py`
+- Sibling reframes (same week): [`t3-signinservice-passkey-tests`](/case-studies/t3-signinservice-passkey-tests), [`t5-mock-protocol-drift`](/case-studies/t5-mock-protocol-drift)

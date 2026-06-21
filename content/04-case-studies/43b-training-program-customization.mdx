@@ -1,0 +1,97 @@
+---
+title: >-
+  Training Program Customization — custom splits on top of the fixed PPL (C6)
+slug: training-program-customization
+date: '2026-06-02'
+upstream_path: docs/case-studies/training-program-customization-case-study.md
+tier: light
+tldr: >-
+  C6 replaces the fixed 6-day Push/Pull/Legs split with per-user custom training
+  programs. Users pick from 4 starter templates (PPL 6-day / Upper-Lower 4-day /
+  Full-body 3-day / Empty), edit days, add/remove/reorder exercises via the C3
+  picker, and save multiple programs with active-program switching — all with NO
+  destructive migration (existing users keep the fixed PPL until they explicitly
+  customize). It was the largest item in the 2026-05-31 tier carryover (RICE 7.0,
+  4-6 person-days estimated), and came in at ~2152 LoC across 9
+  standalone-buildable commits in a single ~5h session, including a cross-branch
+  merge with sibling C3 to consume its picker-mode signature.
+timeline_position:
+  version: '7.9'
+  order: 56.5
+key_numbers:
+  - label: Net LoC (9 standalone-buildable commits)
+    value: '~2152'
+    tier: T1
+  - label: New surfaces
+    value: '6'
+    tier: T1
+  - label: Starter templates
+    value: '4 (PPL 6-day / Upper-Lower 4-day / Full-body 3-day / Empty)'
+    tier: T1
+  - label: New analytics events (screen-prefixed training_)
+    value: '8'
+    tier: T1
+  - label: Tests
+    value: '15/15 PASSED (iPhone 17 Simulator)'
+    tier: T1
+  - label: Wall time
+    value: '~5h (matches 4-6 person-day PRD estimate scaled to single session)'
+    tier: T2
+  - label: Primary metric — users with ≥1 saved custom program per WAU
+    value: 'baseline 0 → target ≥0.15 @T+60d'
+    tier: T1
+kill_criteria:
+  - 'Custom program save rate at T+60d < 0.05 per WAU (low adoption)'
+  - 'Custom program crash rate > 1% of editor sessions (UI bug)'
+  - 'p95 editor first-render > 500ms on iPhone 17 (perf)'
+  - 'Migration regression: any existing user loses access to their fixed PPL'
+  - 'Active-program-switch rate > 1.5/day per user (thrash signal)'
+kill_criterion_fired: false
+---
+
+<HeroMetric
+  value="4 templates · 6 surfaces · 8 events · 15/15 tests · zero destructive migration"
+  label="The fixed PPL split becomes a starting point, not a ceiling"
+  context="Every user followed the same hard-coded 6-day Push/Pull/Legs split. C6 ships per-user custom programs — templates, a day-by-day editor, exercise swaps via the C3 picker, and active-program switching — without ever taking the fixed PPL away from existing users."
+/>
+
+## Problem framing
+
+| Tier | Claim |
+|---|---|
+| T3 | Every user followed the same fixed 6-day PPL split. Backlog L348 ("Training program customization") was filed 2026-04-02 and reaffirmed during the 2026-04-16 v5.2 stress test. Power users wanted Upper/Lower or Full-body 3-day options plus the ability to swap individual exercises. |
+| T2 | Import Training Plan v1 (PR #234, 2026-05-06) shipped IMPORT-from-external CSV/JSON/Markdown but not in-app CREATE/EDIT. C6 closes the create/edit gap. |
+| T1 | The 2026-05-31 E1 RICE refresh ranked C6 at #7 on the Planned table (RICE 7.0) — moderate-reach, high-impact (structural product capability), confidence 0.7, effort 1.25 person-weeks. |
+
+## What C6 shipped
+
+- **Data model** (`CustomProgram` → `CustomDay` → `ExerciseSlot`) where `exerciseID` is a **string reference, not a copy** (catalog updates flow through to all custom programs), with 3 nil-default override fields (sparse storage), `schemaVersion: 1`, and a `maxSavedProgramsPerUser: 10` soft cap.
+- **NO destructive migration.** The fixed PPL stays as a fallback constant: if `activeProgramID` is nil or points at a missing program, the resolver returns the fixed PPL safely. Existing users see unchanged behavior until they explicitly customize.
+- **4 starter templates** (PPL 6-day / Upper-Lower 4-day / Full-body 3-day / Empty), each materializing slots from the existing `TrainingProgramData.allExercises` catalog.
+- **6 new surfaces** — program list, template picker, the headline day-by-day editor, a day-edit sheet, a per-slot override sheet, and a Settings entry-point row.
+- **8 new analytics events** (all screen-prefixed `training_`): list opened, template selected, saved, activated, deleted, day edited, slot added, slot removed **(T1)**.
+
+## Cross-branch dependency on C3
+
+C6's editor calls C3's picker-mode signature — `ExerciseLibraryView(source: "picker:c6_editor", picker: { exercise in addSlot(exercise) })`. C3 (PR #573) merged to main mid-C6-Phase-4; C6 then merged main, resolving the small AnalyticsProvider / AnalyticsService / pbxproj overlaps (keeping C3's shared `exerciseId` constant, commented for C6 reuse) and continuing with the C3 picker signature live on disk.
+
+## Verification — all green
+
+| Check | Result |
+|---|---|
+| `xcodebuild build` (generic iOS Simulator) | BUILD SUCCEEDED after every commit **(T1)** |
+| Test suite | **15/15 PASSED** on iPhone 17 Simulator **(T1)** |
+| `make ui-audit` | P0=0 maintained (1 pre-existing P1 on `HRVTrendChart.swift`, not C6-touched) **(T1)** |
+| Tier 2.2 contemporaneous log | 6+ `phase_transition` entries **(T1)** |
+
+The lifecycle ran Research → PRD → Tasks → Implement → Test in a single ~5h session across 9 standalone-buildable commits. Actual LoC (~2152) came in slightly higher than the PRD's ~1700 estimate (lightweight editor + per-row affordances + override-count tracking). The 15 tests cover the pure-logic surfaces (Codable round-trip, migration resolver, template materialization, analytics param shapes) at ≥90%; view-level smoke tests are deferred per the project's ViewInspector gap.
+
+## What's NOT in C6 (explicit guards)
+
+Per-day progression curves · periodization phase blocks · AI-suggested replacements (→ D1) · shared community programs · mid-week swap warnings · bulk replacement · cross-user sharing · supersets/circuits/drop-sets — all deliberately out of scope.
+
+## Phase E discipline
+
+C6 shipped during the v7.9 Phase E 14-day soak (2026-05-21 → ~2026-06-04). **No new enforcement gates** and no new schema fields beyond `customPrograms[]` + `activeProgramID` — consuming existing v7.8.6 + v7.9 infrastructure exclusively. Phase E compliant.
+
+> Source case study (FitTracker2): `docs/case-studies/training-program-customization-case-study.md`. Shipped via FT2 PR #574, consuming C3's picker (PR #573). Kill-criteria first evaluation: T+60d (2026-08-01).
