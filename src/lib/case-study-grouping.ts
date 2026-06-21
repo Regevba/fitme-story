@@ -69,6 +69,31 @@ export function parseVersion(raw: string | null): number {
   return parseFloat(String(raw).replace(/^v/, ''));
 }
 
+/**
+ * Segment-wise version compare for SORTING (descending: newer first).
+ * `parseVersion` (parseFloat) is fine for coarse era BUCKETING but wrong for
+ * ordering: parseFloat('7.10') === 7.1 < 7.9, so v7.10 sinks below v7.9, and
+ * '7.9.1' collapses onto '7.9'. This compares each dot-separated segment
+ * numerically: 7.10 > 7.9.1 > 7.9 > 7.8.6 > 7.8.5 > 7.8.
+ * Returns <0 when `a` is newer (sorts first), >0 when `b` is newer.
+ */
+export function compareVersionsDesc(a: string | null, b: string | null): number {
+  const seg = (v: string | null) =>
+    String(v ?? '')
+      .replace(/^v/, '')
+      .split('.')
+      .map((x) => parseInt(x, 10) || 0);
+  const pa = seg(a);
+  const pb = seg(b);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const da = pa[i] ?? 0;
+    const db = pb[i] ?? 0;
+    if (da !== db) return db - da; // higher segment first (newest version on top)
+  }
+  return 0;
+}
+
 export function eraIdForVersion(vnum: number): string {
   if (Number.isNaN(vnum)) return 'v2';
   for (const e of ERAS) if (vnum >= e.lower) return e.id;
@@ -93,13 +118,14 @@ function dateKey(iso: string): string {
  */
 function sortByRecency(studies: GroupableStudy[]): GroupableStudy[] {
   return studies.slice().sort((a, b) => {
-    const va = parseVersion(a.version);
-    const vb = parseVersion(b.version);
-    const na = Number.isNaN(va);
-    const nb = Number.isNaN(vb);
+    const na = Number.isNaN(parseVersion(a.version));
+    const nb = Number.isNaN(parseVersion(b.version));
     if (na !== nb) return na ? 1 : -1; // versioned before version-less
-    if (!na && vb !== va) return vb - va; // higher version first
-    return dateKey(b.date).localeCompare(dateKey(a.date)); // newest date first
+    if (!na) {
+      const vc = compareVersionsDesc(a.version, b.version); // segment-wise: 7.10 > 7.9.1 > 7.9
+      if (vc !== 0) return vc;
+    }
+    return dateKey(b.date).localeCompare(dateKey(a.date)); // then newest date first
   });
 }
 
