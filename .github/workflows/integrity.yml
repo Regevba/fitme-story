@@ -99,3 +99,11 @@ jobs:
 
       - name: Run unit tests
         run: npm test
+
+      # E-15 consumer-side contract validation. WARN-ONLY for now: shape drift
+      # in a vendored fixture or live src/data/features is the 2026-05-24 W16
+      # incident class, but the gate stays advisory until the weekly re-sample
+      # cron guarantees fixture freshness (mirrors FT2's warn-only contract gate;
+      # promotes to blocking jointly once the cadence lands).
+      - name: Contract-fixture check (consumer side, warn-only)
+        run: npm run contract:check || echo "::warning::contract:check reported findings (advisory — see log)"
