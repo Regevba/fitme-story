@@ -1,0 +1,103 @@
+name: contract-resample-weekly
+
+# F-CONTRACT-FIXTURE-SAMPLING — weekly re-sample cadence (E-15).
+#
+# Keeps fitme-story's vendored contract fixtures fresh so the consumer-side
+# `contract:check` freshness assertion stays meaningful (and can be promoted
+# from warn-only to blocking). Two fixture sources:
+#   • audit-log         — fitme-story OWNS this contract; re-sampled from
+#                         Upstash Redis (canonical). Needs the Upstash secret.
+#   • gate-coverage,    — FT2 PRODUCES these; re-vendored by cloning FT2 and
+#     state-json-schema   re-running its sampler, then copying the output.
+#                         Needs FITTRACKER2_DEPLOY_TOKEN (same token the
+#                         prebuild sync already uses).
+#
+# Each source is independently guarded on its secret — a missing secret skips
+# that source cleanly rather than failing the run. Whatever refreshed is opened
+# as a PR for review (no direct push to main). No untrusted github.event.* input
+# flows into any run: step.
+#
+# Cadence: Mondays 07:00 UTC (after framework-status 05:00 + figma-drift 06:00).
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  resample:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fitme-story
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Set up Python (for FT2 sampler)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install deps
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Re-sample audit-log (canonical, fitme-story-owned)
+        env:
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: npx tsx scripts/sample-audit-log-contract.ts
+
+      - name: Re-vendor FT2-produced fixtures (gate-coverage, state-json-schema)
+        env:
+          FT2_TOKEN: ${{ secrets.FITTRACKER2_DEPLOY_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${FT2_TOKEN:-}" ]; then
+            echo "::notice::FITTRACKER2_DEPLOY_TOKEN not set — skipping FT2 fixture re-vendor"
+            exit 0
+          fi
+          git clone --depth=1 "https://oauth2:${FT2_TOKEN}@github.com/Regevba/FitTracker2.git" ../FitTracker2
+          ( cd ../FitTracker2 && python3 scripts/sample-contract-fixtures.py )
+          dest="src/lib/control-room/__fixtures__/contracts"
+          for c in gate-coverage state-json-schema; do
+            cp "../FitTracker2/tests/fixtures/contracts/${c}.jsonl" "${dest}/${c}.jsonl"
+            cp "../FitTracker2/tests/fixtures/contracts/${c}.meta.json" "${dest}/${c}.meta.json"
+          done
+          echo "Re-vendored gate-coverage + state-json-schema from FT2."
+
+      - name: Run consumer contract check (summary)
+        run: |
+          set +e
+          npm run contract:check | tee contract-check.log
+          echo "## Contract check" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat contract-check.log >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open PR with refreshed fixtures (if any changed)
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore(contracts): weekly fixture re-sample"
+          branch: chore/contract-resample-weekly
+          delete-branch: true
+          title: "chore(contracts): weekly contract-fixture re-sample"
+          body: |
+            Automated weekly re-sample of the consumer-side contract fixtures
+            (F-CONTRACT-FIXTURE-SAMPLING / E-15).
+
+            - `audit-log` re-sampled from Upstash Redis (canonical, fitme-story-owned)
+            - `gate-coverage` + `state-json-schema` re-vendored from FitTracker2
+
+            Keeps `contract:check` freshness meaningful. Review the diff; merge to
+            refresh. If nothing changed, this PR is not created.
+          add-paths: |
+            src/lib/control-room/__fixtures__/contracts/*.jsonl
+            src/lib/control-room/__fixtures__/contracts/*.meta.json
