@@ -15,6 +15,7 @@
     "test": "tsx --test $(find scripts src -type f \\( -name '*.test.ts' -o -name '*.test.tsx' \\))",
     "test:coverage": "c8 --config .c8rc.json npm test",
     "test:coverage:html": "c8 --config .c8rc.json --reporter=html npm test",
+    "contract:check": "tsx scripts/check-contract-fixtures.ts",
     "lint:md": "markdownlint-cli2",
     "lint:md:fix": "markdownlint-cli2 --fix",
     "validate-content": "tsx scripts/validate-frontmatter.ts",
