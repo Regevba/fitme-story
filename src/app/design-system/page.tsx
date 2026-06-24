@@ -269,13 +269,13 @@ export default function DesignSystemPage() {
               key={shot.src}
               className="overflow-hidden rounded-[28px] border border-[var(--color-neutral-200)] bg-white/70 shadow-sm dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]"
             >
-              <div className="bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)]">
+              <div className="flex justify-center bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] p-4">
                 <Image
                   src={shot.src}
                   alt={shot.alt}
                   width={1320}
                   height={2868}
-                  className="h-auto w-full"
+                  className="h-auto max-h-[420px] w-auto object-contain"
                 />
               </div>
               <figcaption className="p-5 font-sans">
@@ -303,13 +303,13 @@ export default function DesignSystemPage() {
               key={shot.src}
               className="overflow-hidden rounded-[28px] border border-[var(--color-neutral-200)] bg-white/70 shadow-sm dark:border-[var(--color-neutral-700)] dark:bg-[var(--color-neutral-900)]"
             >
-              <div className="bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)]">
+              <div className="flex justify-center bg-[var(--color-neutral-100)] dark:bg-[var(--color-neutral-800)] p-4">
                 <Image
                   src={shot.src}
                   alt={shot.alt}
                   width={1320}
                   height={2868}
-                  className="h-auto w-full"
+                  className="h-auto max-h-[480px] w-auto object-contain"
                 />
               </div>
               <figcaption className="p-5 font-sans">
