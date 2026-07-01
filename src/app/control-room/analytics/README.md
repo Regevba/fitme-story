@@ -1,10 +1,20 @@
 # /control-room/analytics — route notes
 
-Operator dashboard for the analytics-observability feature. Phase 3.A.1 scaffold.
+Operator dashboard for the analytics-observability feature. Phase 3.A.2–3.A.6 (live binding).
 
-## Calibration window (2026-05-14 → 2026-06-04)
+## Data provenance (post-calibration, 2026-06-04+)
 
-GA4-backed tiles render fixture data during this window. Wiring to live GA4 reads is intentionally deferred so the Phase 1.B Calibration Protocol soak window measures a clean baseline. See [FT2 master plan §7.5](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/analytics-master-plan-2026-05-13.md) for the full green/yellow/red classification.
+The Phase 1.B Calibration Protocol soak window closed 2026-06-04, so `page.tsx` now calls `getAnalyticsDashboard()` from [`src/lib/control-room/analytics-live.ts`](../../../lib/control-room/analytics-live.ts):
+
+| Tile | Source | Status |
+|---|---|---|
+| DriftTrend | `src/data/shared/external-sync-status.json` (`ios_csv_drift_count`) | **live** |
+| TaxonomyHealth | `src/data/shared/external-sync-status.json` (`analytics_taxonomy_status`) | **live** |
+| ForwardDeclared | `src/data/docs/docs/product/analytics-taxonomy.csv` (`[FORWARD-DECLARED]` rows) | **live** |
+| EventVolume | GA4 Reporting API (eventCount) | **fixture** — not build-time-resolvable pre-launch |
+| RecentEventsStream | GA4 Realtime API | **fixture** — needs a live server-side GA4 client (post-launch) |
+
+Each tile's `meta.status` badge shows its provenance. The two GA4-API tiles stay on fixtures by design until the property reports post-launch traffic — see [FT2 master plan §7.5](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/analytics-master-plan-2026-05-13.md) for the green/yellow/red classification. Each getter falls back to its fixture on any read/parse error, so a bad synced file degrades one tile, never the build.
 
 ## Files in this scaffold
 
