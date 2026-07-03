@@ -43,5 +43,9 @@ export default defineConfig({
         url: 'http://localhost:3000',
         timeout: 180_000,
         reuseExistingServer: !process.env.CI,
+        // FIT-155 (T7): DASHBOARD_PUBLIC bypasses the /control-room/* proxy
+        // auth (src/proxy.ts documented local-dev escape hatch) so the
+        // dashboard-route smokes render without operator basic-auth creds.
+        env: { DASHBOARD_PUBLIC: 'true' },
       },
 });
