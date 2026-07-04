@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     files: ["src/**/*.{ts,tsx,js,jsx}"],
     ignores: [
       "src/app/control-room/**/*",
+      "src/app/api/control-room/**/*",
       "src/components/control-room/**/*",
       "src/lib/control-room/**/*",
       "src/proxy.ts",
