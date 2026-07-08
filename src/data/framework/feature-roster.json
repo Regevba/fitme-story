@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-06-21T13:21:50Z",
+  "generated_at": "2026-07-08T03:01:30Z",
   "entries": [
     {
       "slug": "3d-interactive-framework-flow-diagram",
@@ -104,6 +104,30 @@
       "framework_version": "v7.9",
       "current_phase": "complete",
       "case_study": "docs/case-studies/ai-user-feedback-loop-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "an-1b1-csv-taxonomy-drift",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "an-1b2-ga4-mcp-disconnected",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
@@ -231,6 +255,18 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "contract-fixture-consumer-adoption",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/contract-fixture-consumer-adoption-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "cross-repo-state-sync-impl",
       "status": "complete",
       "framework_version": "v7.8.3",
@@ -258,6 +294,18 @@
       "slug": "data-sync",
       "status": "complete",
       "framework_version": "pre-v5.0",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "de-r14-integrity-parallel",
+      "status": "complete",
+      "framework_version": "v7.10",
       "current_phase": "complete",
       "case_study": null,
       "parent_feature": null,
@@ -428,6 +476,18 @@
       "framework_version": "v7.9.1",
       "current_phase": "complete",
       "case_study": "docs/case-studies/f17-last-fired-at-index-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "f18-mutation-testing",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/f18-mutation-testing-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
@@ -717,6 +777,18 @@
       "current_phase": "complete",
       "case_study": "docs/case-studies/framework-w30-w31-w32-durable-fixes-case-study.md",
       "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "funnel-analysis-dashboards",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/funnel-analysis-dashboards-case-study.md",
+      "parent_feature": "analytics-observability",
       "state_owner": "ft2",
       "isolation_opt_out": false,
       "has_brainstorm": false,
@@ -1028,11 +1100,35 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "precommit-hook-latency-profiling",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "push-notifications",
       "status": "complete",
       "framework_version": "v7.8",
       "current_phase": "complete",
       "case_study": "docs/case-studies/push-notifications-v2-case-study.md",
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "r17-state-sync-health-endpoint",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
@@ -1196,6 +1292,30 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "t15-orphan-test-weekly-cron",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "t16-gate-test-tier-annotation",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "t3-signinservice-passkey-tests",
       "status": "complete",
       "framework_version": "v7.10",
@@ -1208,6 +1328,18 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "t4-ios-snapshot-testing",
+      "status": "in_progress",
+      "framework_version": "v7.10",
+      "current_phase": "implement",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "t5-mock-protocol-drift",
       "status": "complete",
       "framework_version": "v7.10",
@@ -1216,6 +1348,42 @@
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": true,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "t7-web-critical-route-smoke-tests",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "t8-web-webauthn-route-handler-tests",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "t9-backend-chaos-tests",
+      "status": "in_progress",
+      "framework_version": "v7.10",
+      "current_phase": "implement",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
       "has_brainstorm": false,
       "hadf_phase3a_hooks": null
     },
@@ -1385,6 +1553,18 @@
       "state_owner": "ft2",
       "isolation_opt_out": false,
       "has_brainstorm": true,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "weekly-digest-silent-gate-enrichment",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
       "hadf_phase3a_hooks": null
     }
   ]

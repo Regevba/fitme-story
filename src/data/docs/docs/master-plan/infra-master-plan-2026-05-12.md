@@ -1,5 +1,14 @@
 # FitMe Infra Master Plan & Roadmap — 2026-05-12
 
+> **Item-tracking convention (FIT-200, est. 2026-06-29):** items here are tracked under the
+> [cross-layer naming convention](../process/cross-layer-item-naming-convention.md) — **slug** (canonical) + **`FIT-NNN`**
+> (`state.json.linear_id`) + **scheme-prefixed code**: this plan uses `FW-` (framework infrastructure & gates).
+> Status vocabulary (all layers): **Backlog → Planned → In Progress → Blocked → Done → Won't-Do**.
+> Live per-item status: [`.claude/shared/item-registry.json`](../../.claude/shared/item-registry.json)
+> (`make crosswalk`) + the Linear "Fitme project" board. Repo (`state.json.current_phase`) is
+> the source of truth; this doc is a planning view. Bare thematic codes (`F4`/`T14`/`R14`) are
+> retired in favor of prefixed codes to prevent the cross-scheme collisions reconciled 2026-06-29.
+
 > **Status:** CURRENT · Opened 2026-05-12 (one day after v7.8.3 cross-repo state-sync shipped)
 > **Scope:** Framework infrastructure only — write-time gates, cycle-time checks, branch-isolation tooling, cross-repo sync, measurement infrastructure, and the HADF/ORCHID research substrate that depends on it. Product features tracked separately in [`master-plan-2026-04-15.md`](master-plan-2026-04-15.md) + [`master-backlog-roadmap.md`](master-backlog-roadmap.md).
 > **Purpose:** Single forward-looking source of truth for framework v7.9 promotion, v8.x candidate ranking, HADF Phase 2-bis pre-launch dependencies, and the measurement / promotion calendar through Q3 2026.
@@ -19,7 +28,7 @@
 
 **Canonical current state (reconciled 2026-06-15):** **v7.10 · 106 features · 26 instrumented gates (17 write-time + 7 cycle-time + 2 W9 hooks), 19 firing · 0 integrity findings, 0 real regressions.** Live ref: [`docs/FRAMEWORK-FACTS.md`](../FRAMEWORK-FACTS.md).
 
-**Calibration ladder still pending → v7.10.x / v8.0:** F16 advisory→enforced **2026-06-18** · W9 concurrency **2026-06-20** · PLATFORMS_TESTED (T14) **2026-06-21** · R9 30-day read → `GATE_TEST_MISSING` **2026-07-04** · Data Freshness Audit #1 **2026-08-12** · F14 Phase E → T1 build **2026-08-22**.
+**Calibration ladder still pending → v7.10.x / v8.0:** ~~F16 advisory→enforced 2026-06-18~~ ✅ **ENFORCED 2026-06-17** (1d early; `try-repo-harness` → main required checks; K2 0% FP / 60 runs) · ~~PLATFORMS_TESTED (T14) **2026-06-21**~~ ✅ **ENFORCED 2026-06-21** (PR #781, `6ac372b`; 0 false positives / 16 checks, ≥7d coverage) · W9 concurrency **2026-06-28** (reset from 06-20 by the 2026-06-14 session-id-keying fix; `w9.concurrency` key clock restarts at fix-merge +14d) · F4 `FRAMEWORK_VERSION_STALE` advisory→enforced **~2026-06-30** · R9 30-day read → `GATE_TEST_MISSING` **2026-07-04** · Data Freshness Audit #1 **2026-08-12** · F14 Phase E → T1 build **2026-08-22**.
 
 ---
 
@@ -35,9 +44,9 @@
 **Theme G (test discipline) status:** F14 ✅ + F15 ✅ (shipped 2026-05-22/23) · F16 try-repo harness ✅ (shipped v7.9.1; advisory→enforced flip 2026-06-18) · F17 `last_fired_at` index ✅ (shipped v7.9.1) · F2 Phase 0 reality-check ✅ · **GATE_COVERAGE_ZERO** ✅ (shipped #673 + v7.10 #689 — added cycle-time Mechanism A coverage for 3 previously-blind checks + a 0-candidate mis-wire detector) · **T10 AI golden-set evals** ✅ (shipped 2026-06-10 #691 — deterministic InsightService golden set; pulled forward from v8.1 once Phase 2-bis closed) · **F18 mutation testing** + **T1 `GATE_TEST_MISSING` meta-gate** remain open (F18 v8.0, gated on F14+F16 Phase E; T1 gated on F14 Phase E = 2026-08-22).
 
 **Calibration ladder → next promotion window (~v7.10):** three advisory gates converge:
-- **2026-06-18** — F16 try-repo advisory→enforced flip
-- **~2026-06-20** — W9 Phase 2 concurrency-isolation enforce review (feature `w9-drift-triggered-auto-isolation`)
-- **2026-06-21** — t14 `PLATFORMS_TESTED` advisory→enforced review (cadence B15)
+- ~~**2026-06-18** — F16 try-repo advisory→enforced flip~~ ✅ **DONE 2026-06-17** (enforced 1d early; `try-repo-harness` → main required status checks; all §2.2 + K1/K2/K3 met, 0% false-positive rate over 60 CI runs)
+- **~2026-06-28** — W9 Phase 2 concurrency-isolation enforce review (feature `w9-drift-triggered-auto-isolation`) — reset from ~06-20: the 2026-06-14 `fix/w9-session-id-keying` invalidated the original window (zero valid Phase-2 telemetry due to the shared-`default` session marker) and restarted the 14-day clock on the new `w9.concurrency` key. HOLD at advisory until then.
+- ~~**2026-06-21** — t14 `PLATFORMS_TESTED` advisory→enforced review (cadence B15)~~ ✅ **DONE 2026-06-21** — VERDICT PROMOTE (PR #781, `6ac372b`). All four §2.2 criteria GREEN; `PLATFORMS_TESTED_ADVISORY_MODE = False`. Reversible single-flag.
 
 **Recurring audit calendar (data-gated):** R9 Track B 30-day coverage read **2026-07-04** → feeds `GATE_TEST_MISSING` calibration · Quarterly Data Freshness Audit #1 **2026-08-12** (uses F17 index) · B4 cross-layer test audit **2026-08-13** · F14 Phase E **2026-08-22** → unblocks T1 build · External Audits #2/#3/#4 = **2026-06-12 / 2026-08-05 / 2026-10-08**.
 
@@ -170,7 +179,7 @@ If any criterion fails for a given gate, that gate stays advisory and re-evaluat
 
 ## 3. Build Docket (v8.x — 18 F-candidates + 7 V8-I icebox = 25 items)
 
-### 3.0 v8.x Docket — Reconciled Status (2026-06-15)
+### 3.0 v8.x Docket — Reconciled Status (2026-06-26)
 
 > **This is the live docket.** The dated Source A–E tables in §3.1 + the icebox in §3.2 retain their original framing for the audit trail; read statuses through this table. No separate `2026-05-21-v8-0-docket.md` spec was ever produced (the §3.3 T29 plan) — **this section IS the docket**, cross-referenced to merged PRs + memory.
 
@@ -194,26 +203,28 @@ If any criterion fails for a given gate, that gate stays advisory and re-evaluat
 | F-DEPLOYED-URL-PROBE | FT2 substrate (`scripts/probe-deployed-url.sh`) | v7.9.1 | fitme-story integration still open |
 | F-CONTRACT-FIXTURE-SAMPLING | FT2 substrate + producer sampling | 2026-06-07 | #664 · consumer adoption still open |
 | F-LAUNCHD-DRIFT-EXTENSION | all 3 sub-fixes | v7.9.1 | #621–#624 |
+| F12 | `actionlint` lint gate (warn-only; strict mode is a future calibration step) | 2026-06-15 | #719 |
+| F11 | `BRANCH_ISOLATION_HISTORICAL` reverse-sync allowlist | 2026-06-15 | #722 |
+| F10 | `experiment_outcome` enum on `tasks[]` | 2026-06-15 | #720 (`v8-f10-f5-schema-vocab`) |
+| F5 | `scope_change` Tier 2.2 vocabulary event | 2026-06-15 | #720 (`v8-f10-f5-schema-vocab`) |
+| F4 | Auto-update `framework_version` (`FRAMEWORK_VERSION_STALE`) | 2026-06-16 | #740 · **advisory→enforced review ~2026-06-30** |
+| F1 | `STATE_TASKS_FILESYSTEM_DRIFT` advisory (permanent) | 2026-06-17 | #752 |
+| F3 | Phase 2 dependency-graph cycle check (advisory-permanent) | 2026-06-17 | #753 |
+| F13 | `source_commit` `workflow_dispatch` input (reverse-sync workflow) | 2026-06-15 | fitme-story #221 (`reverse-sync-fitme-story-to-ft2.yml`) |
+| F-CONTRACT (consumer) | fitme-story consumer adoption + sampling | 2026-06-22 | #790 |
+| F22 | Funnel Analysis Dashboards (live GA4, 3/5 funnels wired) | 2026-06-24 | #799 |
+| F18 | Mutation testing on dispatcher files (warn-only weekly CI; mutmut, 1,857-mutant baseline) | 2026-06-26 | #809 (`f18-mutation-testing`) |
 
-**B. Open — carried into the v8.0 build (kickoff ~2026-06-18, after F16 enforce flip):**
+**B. Open — carried into the v8.0 build (kickoff target ~2026-06-18, after F16 enforce flip ✅ 2026-06-17):**
+
+> Reconciled 2026-06-26: 11 of the 16 prior rows (F1/F3/F4/F5/F10/F11/F12/F13/F18/F22/F-CONTRACT-consumer) **shipped** and moved to table A. The rows below are the genuinely-remaining items.
 
 | ID | Item | Class | RICE-est | Gating |
 |---|---|---|---|---|
-| F12 | `actionlint` in pre-commit stack | Write-time gate | **100.0 (highest)** | none — ready |
-| F11 | `BRANCH_ISOLATION_HISTORICAL` reverse-sync allowlist | Cycle-time gate | 40.0 | none |
-| F4 | Auto-update `framework_version` on protocol writes | Write-time/migration | 32.0 | partial — `FRAMEWORK_VERSION_FORMAT` + `tracking-drift-check` (#659) cover part |
-| F10 | `experiment_outcome` enum on `tasks[]` | Schema | 32.0 | none |
-| F13 | `source_commit` `workflow_dispatch` input | GH Actions | 32.0 | none |
-| F5 | `scope_change` Tier 2.2 vocabulary event | Vocabulary | 20.0 | none |
-| F1 | `STATE_TASKS_FILESYSTEM_DRIFT` advisory | Cycle-time gate | 19.2 | none |
-| F3 | Phase 2 dependency-graph cycle check | Workflow gate | 14.4 | none |
-| T1 | `GATE_TEST_MISSING` meta-gate | Test discipline | 53.3 | F14 Phase E **2026-08-22** |
-| F18 | Mutation testing on dispatcher files | Test infra | 13.7 | F16 Phase E (post 2026-06-18) + F14 |
-| F22 | Funnel Analysis Dashboards | Product observability | M | F19 + GA4 data |
-| F23 | `/ops digest` skill | Skill extension | M | F22 + Sentry resume |
-| F19/F20 | Analytics Phase 1.B GA4 conversions + gates (`CSV_TAXONOMY_DRIFT`, `GA4_MCP_DISCONNECTED`) | Telemetry/gates | M / L | D-2 operator (GA4) + post-launch signal |
-| T4 | Swift snapshot testing | iOS test infra | — | Phase A scaffold shipped (#700); build pending |
-| F-CONTRACT (consumer) | fitme-story consumer adoption + weekly re-sample → promote CI gate to blocking | Cross-repo | — | cross-repo session |
+| T1 | `GATE_TEST_MISSING` meta-gate | Test discipline | 53.3 | F14 Phase E **2026-08-22** (F18 mutation survivor data feeds calibration) |
+| F19/F20 | Analytics Phase 1.B GA4 conversions + gates (`CSV_TAXONOMY_DRIFT`, `GA4_MCP_DISCONNECTED`) | Telemetry/gates | M / L | D-2 operator (GA4 Key-event toggle, register A1) + post-launch signal |
+| F23 | `/ops digest` skill | Skill extension | M | F22 ✓ + Sentry resume (launch-gated, §C) |
+| T4 | Swift snapshot testing | iOS test infra | — | Phase A scaffold shipped (#700); build pending (in flight) |
 
 **C. Paused / launch-gated:** F21 Sentry (pre-launch trigger; PR #418) · F-AUTH-LATENCY-SERVER-METRIC shipped FT2-side (fitme-story #208).
 
@@ -221,7 +232,7 @@ If any criterion fails for a given gate, that gate stays advisory and re-evaluat
 
 **E. Operator decision open:** W-MISTRAL-VERCEL-FREE-TIER-BURST (API-tier choice for multi-provider HADF experiments).
 
-**Roll-up:** of the original 18 F-candidates, **8 shipped** (F2, F6, F9, F14, F15, F16, F17 + GATE_COVERAGE_ZERO) + 2 resolved-by-exemption (F7, F8) → **8 F-items remain open** (F1, F3, F4, F5, F10, F11, F12, F13) + F18 + F19–F23. Theme H (test-coverage T1–T16): T3/T5/T10/T13/T14 shipped, T4 in flight, T1 gated to 2026-08-22. **v8.0 build kickoff target unchanged: ~2026-06-18** (gated on F16 enforce flip); ship target 2026-07-31.
+**Roll-up (reconciled 2026-06-26, post-F18):** of the original 18 F-candidates, **17 shipped** (F1, F2, F3, F4, F5, F6, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F22 + the GATE_COVERAGE_ZERO meta-check) + 2 resolved-by-exemption (F7, F8) → **all ready-now F-items shipped; remaining open: F19/F20** (operator-gated on GA4 Key-event toggle, register item A1), **F23** (gated on Sentry resume, §C). **F21** Sentry is paused/launch-gated (§C). Theme H (test-coverage T1–T16): T3/T5/T10/T13/T14 shipped, T4 in flight, T1 gated to 2026-08-22 (now fed by F18 mutation-survivor data). **v8.0 build kickoff target ~2026-06-18 met** (F16 enforce flip ✅ 2026-06-17); ship target 2026-07-31.
 
 ---
 

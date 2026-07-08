@@ -1,0 +1,16 @@
+{
+  "total_mutants": 1857,
+  "source_files": 2,
+  "killed": 2,
+  "survived": 1,
+  "suspicious": 0,
+  "skipped": 0,
+  "untested": 1854,
+  "tested": 3,
+  "mutation_score": 0.6667,
+  "status_breakdown": {
+    "bad_survived": 1,
+    "ok_killed": 2,
+    "untested": 1854
+  }
+}

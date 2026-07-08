@@ -1,12 +1,18 @@
 {
   "feature": "ai-engine-architecture-adaptation",
+  "linear_id": "FIT-25",
   "case_study": "docs/case-studies/ai-engine-architecture-v5.1-case-study.md",
   "case_study_showcase": "fitme-story/content/04-case-studies/07-ai-engine-architecture.mdx",
   "created_at": "2026-04-12T21:30:00Z",
   "updated": "2026-04-20T00:00:00Z",
   "branch": null,
   "current_phase": "complete",
-  "platforms_tested": {"ios": true, "web": true, "backend": false, "ai": true},
+  "platforms_tested": {
+    "ios": true,
+    "web": true,
+    "backend": false,
+    "ai": true
+  },
   "platforms_tested_provenance": "backfill-heuristic-2026-06-07",
   "framework_version": "v5.0",
   "agent_manifest": {
@@ -263,5 +269,6 @@
   "_meta": {
     "deprecation_warnings": []
   },
-  "state_owner": "ft2"
+  "state_owner": "ft2",
+  "schema_version": 1
 }

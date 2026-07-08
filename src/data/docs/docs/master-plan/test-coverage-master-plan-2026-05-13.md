@@ -1,11 +1,22 @@
 # FitMe Cross-Layer Test Coverage Master Plan — 2026-05-13
 
+> **Item-tracking convention (FIT-200, est. 2026-06-29):** items here are tracked under the
+> [cross-layer naming convention](../process/cross-layer-item-naming-convention.md) — **slug** (canonical) + **`FIT-NNN`**
+> (`state.json.linear_id`) + **scheme-prefixed code**: this plan uses `TC-` (test coverage / Theme H).
+> Status vocabulary (all layers): **Backlog → Planned → In Progress → Blocked → Done → Won't-Do**.
+> Live per-item status: [`.claude/shared/item-registry.json`](../../.claude/shared/item-registry.json)
+> (`make crosswalk`) + the Linear "Fitme project" board. Repo (`state.json.current_phase`) is
+> the source of truth; this doc is a planning view. Bare thematic codes (`F4`/`T14`/`R14`) are
+> retired in favor of prefixed codes to prevent the cross-scheme collisions reconciled 2026-06-29.
+
+> **Progress (2026-07-03 → 07-04 bucket-A batch):** **T8** (FIT-156, WebAuthn route tests) · **T7** (FIT-155, Playwright smoke) · **T15** (FIT-163, orphan-test cron) · **R17** (FIT-183, cross-repo sync-health endpoint) → **Done**. **T4** (FIT-152, iOS snapshot) + **T9** (FIT-157, backend chaos) → **In Progress (foundation slice shipped)** — T4 baselines record-in-CI (local iOS 26 ≠ CI iOS 18); T9 key-rotation deferred (biometric-gated `rotateKeys` untestable on CI sim). Live status: [`.claude/shared/item-registry.json`](../../.claude/shared/item-registry.json).
+>
 > **Status:** CURRENT · Opened 2026-05-13 as a sub-doc of [`infra-master-plan-2026-05-12.md`](infra-master-plan-2026-05-12.md)
 > **Scope:** Test discipline across every system layer — iOS, web (fitme-story), framework (Python gates), backend (Supabase/CloudKit/auth), AI, analytics. Forward-looking calibration of where tests exist, where they've drifted, and where they're missing.
 > **Purpose:** Answer the question the infra master plan does NOT answer: "are all current tests in spec across all layers?" The infra plan covers Theme G — Test discipline for the framework layer only (F14–F18 + F19/F20 from analytics-observability). This sub-doc widens the scope to iOS + web + backend + AI + analytics and proposes a per-layer T-series candidate docket.
 > **Authority:** Same scoping conventions as the infra master plan. T-candidates here feed the 2026-05-21 prioritization pass (T29) and may promote into v8.0/v8.1 alongside F-candidates.
 >
-> **⏱️ Refreshed 2026-06-07:** **T6 web PR JS test gate SHIPPED** (fitme-story #137, RICE 200 — the plan's highest-leverage item). **F14 + F15 dispatch-test coverage SHIPPED** (2026-05-22/23; combined write-time 8/16 + cycle-time 2/3). **F16 try-repo harness SHIPPED** v7.9.1 (3rd test layer; advisory→enforced 2026-06-18). **R9 Track B coverage telemetry SHIPPED** v7.9.1 (#626) — 30-day data read **2026-07-04** feeds the **T1 `GATE_TEST_MISSING` meta-gate** (RICE 53.3, gated on F14 Phase E = **2026-08-22**). New platform-parity surface: **t14 `platforms_tested`** field + advisory gate (2026-06-07) records which platforms each feature's tests exercised (per-platform coverage % = T15+, gated on R9 30-day data). **C3 (Sentry reachability test) deferred to App Store launch.** Quarterly cross-layer audit B4 = **2026-08-13**.
+> **⏱️ Refreshed 2026-06-07:** **T6 web PR JS test gate SHIPPED** (fitme-story #137, RICE 200 — the plan's highest-leverage item). **F14 + F15 dispatch-test coverage SHIPPED** (2026-05-22/23; combined write-time 8/16 + cycle-time 2/3). **F16 try-repo harness SHIPPED** v7.9.1 (3rd test layer; advisory→**enforced 2026-06-17**). **R9 Track B coverage telemetry SHIPPED** v7.9.1 (#626) — 30-day data read **2026-07-04** feeds the **T1 `GATE_TEST_MISSING` meta-gate** (RICE 53.3, gated on F14 Phase E = **2026-08-22**). New platform-parity surface: **t14 `platforms_tested`** field + gate **enforced 2026-06-21** (shipped advisory 2026-06-07 #662 → enforced via PR #781 after the B15 calibration window) records which platforms each feature's tests exercised (per-platform coverage % = T15+, gated on R9 30-day data). **C3 (Sentry reachability test) deferred to App Store launch.** Quarterly cross-layer audit B4 = **2026-08-13**.
 
 ---
 

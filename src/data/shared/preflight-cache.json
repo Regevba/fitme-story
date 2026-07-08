@@ -1,7 +1,7 @@
 {
-  "work_type": "feature",
-  "feature": "garmin-health-connection",
-  "generated_at": "2026-06-12T03:56:05Z",
+  "work_type": "chore",
+  "feature": "t16-gate-test-tier-annotation",
+  "generated_at": "2026-07-02T16:32:24Z",
   "checks": [
     {
       "name": "W1_ssh_agent",
@@ -24,65 +24,53 @@
     {
       "name": "branch_isolation",
       "status": "ok",
-      "detail": "current branch: feature/garmin-health-connection",
-      "current_branch": "feature/garmin-health-connection",
+      "detail": "current branch: chore/w40-reconcile-2026-07-01",
+      "current_branch": "chore/w40-reconcile-2026-07-01",
       "blocking": false
     },
     {
       "name": "integrity_check",
-      "status": "ok",
-      "detail": "0 findings + 1 advisory",
-      "findings_count": 0,
-      "advisory_count": 1,
+      "status": "blocking",
+      "detail": "-1 findings + -1 advisory",
+      "findings_count": -1,
+      "advisory_count": -1,
       "blocking": false
     },
     {
       "name": "integrity_diff",
-      "status": "warning",
-      "detail": "3 regression(s) vs 2026-05-14 anchor",
-      "regressions": [
-        {
-          "key": "doc_debt_open",
-          "baseline": 1,
-          "current": 2,
-          "delta": 1
-        },
-        {
-          "key": "timing_wall_time_pct_post_v6",
-          "baseline": 47.2,
-          "current": 23.9,
-          "delta": -23.3
-        },
-        {
-          "key": "cache_hits_pct_post_v6",
-          "baseline": 52.8,
-          "current": 39.4,
-          "delta": -13.4
-        }
-      ],
+      "status": "ok",
+      "detail": "no regression vs 2026-05-14 anchor",
+      "regressions": [],
       "blocking": false
     },
     {
       "name": "documentation_debt",
       "status": "info",
-      "detail": "2 open documentation-debt item(s)",
-      "open_count": 2,
+      "detail": "1 open documentation-debt item(s)",
+      "open_count": 1,
       "blocking": false
     },
     {
       "name": "measurement_adoption",
       "status": "info",
-      "detail": "post-v6 adoption: 8.5% (6/71) \u2014 baseline for any new shipped feature",
-      "fully_adopted_post_v6": 6,
-      "features_post_v6": 71,
-      "adoption_pct_post_v6": 8.5,
+      "detail": "post-v6 adoption: 10.3% (9/87) \u2014 baseline for any new shipped feature",
+      "fully_adopted_post_v6": 9,
+      "features_post_v6": 87,
+      "adoption_pct_post_v6": 10.3,
       "blocking": false
     },
     {
-      "name": "feature_state_json",
-      "status": "ok",
-      "detail": "feature 'garmin-health-connection' current_phase=testing",
-      "current_phase": "testing",
+      "name": "chore_infra_paths",
+      "status": "warning",
+      "detail": "infra paths touched: .claude/shared/documentation-debt.json, .claude/shared/gate-last-fired.json, .claude/shared/integrity-checkpoint-ledger.jsonl, .claude/shared/integrity-checkpoint-ledger.md, .claude/shared/item-registry.json (+more) \u2014 use isolated worktree",
+      "infra_paths_touched": [
+        ".claude/shared/documentation-debt.json",
+        ".claude/shared/gate-last-fired.json",
+        ".claude/shared/integrity-checkpoint-ledger.jsonl",
+        ".claude/shared/integrity-checkpoint-ledger.md",
+        ".claude/shared/item-registry.json",
+        ".claude/shared/measurement-adoption.json"
+      ],
       "blocking": false
     }
   ],
@@ -90,7 +78,7 @@
     "total_checks": 9,
     "blocking": 0,
     "warnings": 1,
-    "ok": 6
+    "ok": 5
   },
   "blocking_issues": []
 }

@@ -1,0 +1,303 @@
+{
+  "feature": "funnel-analysis-dashboards",
+  "created_at": "2026-06-23T12:10:00Z",
+  "updated": "2026-06-24T06:45:00Z",
+  "branch": "chore/funnel-analysis-dashboards-cu-v2-backfill",
+  "current_phase": "complete",
+  "work_type": "enhancement",
+  "parent_feature": "analytics-observability",
+  "state_owner": "ft2",
+  "framework_version": "v7.10",
+  "cu_v2": {
+    "factors": {
+      "complexity": 0.3,
+      "blast_radius": 0.2,
+      "novelty": 0.3,
+      "verification_difficulty": 0.3
+    },
+    "total": 1.1,
+    "tier_class": "B_medium"
+  },
+  "has_ui": false,
+  "requires_analytics": false,
+  "scope_note": "Funnel definitions already shipped 2026-06-01 (docs/setup/ga4-funnels-and-conversions-runbook.md). This enhancement runs them against LIVE GA4 data (real drop-off %), extracts the prose defs into a machine-readable funnel-definitions.json, and maps each funnel to the kill-criteria it unblocks. Operator-only GA4-console/Looker wiring is explicitly out of scope (already documented in the runbook).",
+  "phases": {
+    "research": {
+      "status": "skipped",
+      "skip_reason": "work_type:enhancement",
+      "approved_at": null,
+      "sources": []
+    },
+    "prd": {
+      "status": "skipped",
+      "skip_reason": "work_type:enhancement",
+      "approved_at": null,
+      "analytics_spec_complete": false
+    },
+    "tasks": {
+      "status": "approved",
+      "approved_at": "2026-06-23T12:30:00Z",
+      "count": 5
+    },
+    "ux_or_integration": {
+      "status": "skipped",
+      "skip_reason": "work_type:enhancement (has_ui=false, no new UI surface)",
+      "type": null,
+      "preflight_passed": null
+    },
+    "implementation": {
+      "status": "approved",
+      "approved_at": "2026-06-23T12:38:00Z",
+      "commits": [
+        "34e43a4"
+      ]
+    },
+    "testing": {
+      "status": "complete",
+      "ci_passed": null,
+      "tests_added": 1,
+      "instrumentation_verified": true,
+      "ended_at": "2026-06-24T05:49:11Z",
+      "approved_by": "operator",
+      "approval_signal": "(implicit \u2014 operator merged PR #799)"
+    },
+    "review": {
+      "started_at": "2026-06-24T05:49:11Z",
+      "ended_at": "2026-06-24T05:49:11Z",
+      "approved_by": "operator",
+      "approval_signal": "merged"
+    },
+    "merge": {
+      "started_at": "2026-06-24T05:49:11Z",
+      "ended_at": "2026-06-24T05:49:11Z",
+      "pr_number": 799,
+      "merge_commit_sha": "cfb99606dc0803d3fbfa432c30799fb251cbaaa1",
+      "merged_at": "2026-06-24T05:49:11Z",
+      "approved_by": "operator",
+      "approval_signal": "merged"
+    },
+    "documentation": {
+      "status": "complete",
+      "approval_signal": "(normalized to complete at closure \u2014 PR #799)"
+    },
+    "metrics": {
+      "primary": {
+        "name": "Funnels with computed live drop-off (of 5 canonical funnels)",
+        "baseline": 0,
+        "target": 3,
+        "current": null
+      },
+      "secondary": [
+        {
+          "name": "Kill-criteria evaluations unblocked by funnel data",
+          "baseline": 0,
+          "target": 2,
+          "current": null
+        },
+        {
+          "name": "Funnel steps validated against live GA4 events",
+          "baseline": 0,
+          "target": null,
+          "current": null
+        }
+      ],
+      "guardrails": [
+        "No new analytics events introduced (analysis-only; taxonomy unchanged)"
+      ],
+      "instrumentation_ready": false,
+      "first_review_date": null,
+      "kill_criteria": "If <3 of 5 funnels have any computable live drop-off (i.e. the GA4 property has insufficient event coverage even for onboarding), defer the analysis report until after the TestFlight ship and reduce scope to the machine-readable defs only."
+    },
+    "docs": {
+      "started_at": "2026-06-24T05:49:11Z",
+      "ended_at": "2026-06-24T05:50:19Z",
+      "approved_by": "operator",
+      "approval_signal": "(post-merge closure batch \u2014 case study + backlog strike shipped in feature PR)"
+    },
+    "complete": {
+      "started_at": "2026-06-24T05:50:19Z",
+      "ended_at": "2026-06-24T05:50:19Z",
+      "approved_by": "operator",
+      "approval_signal": "merged"
+    }
+  },
+  "timing": {
+    "session_start": "2026-06-23T12:10:00Z",
+    "time_source": "measured",
+    "phases": {
+      "tasks": {
+        "started_at": "2026-06-23T12:10:00Z",
+        "ended_at": "2026-06-23T12:30:00Z",
+        "duration_minutes": 20
+      },
+      "implementation": {
+        "started_at": "2026-06-23T12:30:00Z",
+        "ended_at": "2026-06-23T12:38:00Z",
+        "duration_minutes": 8
+      },
+      "testing": {
+        "started_at": "2026-06-23T12:38:00Z",
+        "ended_at": "2026-06-23T12:48:00Z",
+        "duration_minutes": 10
+      },
+      "review": {
+        "started_at": "2026-06-24T05:49:11Z",
+        "ended_at": "2026-06-24T05:49:11Z"
+      },
+      "merge": {
+        "started_at": "2026-06-24T05:49:11Z",
+        "ended_at": "2026-06-24T05:49:11Z"
+      },
+      "docs": {
+        "started_at": "2026-06-24T05:49:11Z",
+        "ended_at": "2026-06-24T05:50:19Z"
+      },
+      "complete": {
+        "started_at": "2026-06-24T05:50:19Z",
+        "ended_at": "2026-06-24T05:50:19Z"
+      }
+    }
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Pull live GA4 event volumes (28d) + per-step counts for all 5 funnels",
+      "type": "analytics",
+      "skill": "analytics",
+      "status": "done",
+      "priority": "high",
+      "effort_days": 0.25,
+      "depends_on": [],
+      "completed_at": "2026-06-23T12:38:00Z"
+    },
+    {
+      "id": "T2",
+      "title": "Author docs/product/funnel-definitions.json (machine-readable, kill-criteria linkage)",
+      "type": "data",
+      "skill": "analytics",
+      "status": "done",
+      "priority": "high",
+      "effort_days": 0.25,
+      "depends_on": [
+        "T1"
+      ],
+      "completed_at": "2026-06-23T12:38:00Z"
+    },
+    {
+      "id": "T3",
+      "title": "Author docs/setup/ga4-funnel-analysis-2026-06-23.md \u2014 live drop-off %, evaluable-now verdicts",
+      "type": "docs",
+      "skill": "analytics",
+      "status": "done",
+      "priority": "high",
+      "effort_days": 0.5,
+      "depends_on": [
+        "T1",
+        "T2"
+      ],
+      "completed_at": "2026-06-23T12:38:00Z"
+    },
+    {
+      "id": "T4",
+      "title": "Add scripts/tests/test_funnel_definitions.py \u2014 schema + taxonomy cross-ref validation",
+      "type": "test",
+      "skill": "qa",
+      "status": "done",
+      "priority": "medium",
+      "effort_days": 0.25,
+      "depends_on": [
+        "T2"
+      ],
+      "completed_at": "2026-06-23T12:38:00Z"
+    },
+    {
+      "id": "T5",
+      "title": "Reconcile runbook (link new defs+analysis) + backlog row -> Done",
+      "type": "docs",
+      "skill": "dev",
+      "status": "done",
+      "priority": "medium",
+      "effort_days": 0.1,
+      "depends_on": [
+        "T3"
+      ],
+      "completed_at": "2026-06-23T12:38:00Z"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "tasks",
+      "to": "implementation",
+      "timestamp": "2026-06-23T12:30:00Z",
+      "approved_by": "user",
+      "note": "Enhancement; all 5 tasks executed in-session"
+    },
+    {
+      "from": "implementation",
+      "to": "testing",
+      "timestamp": "2026-06-23T12:38:00Z",
+      "approved_by": "user",
+      "note": "10/10 funnel-definitions tests pass"
+    },
+    {
+      "from": "testing",
+      "to": "review",
+      "at": "2026-06-24T05:49:11Z",
+      "reason": "PR #799 squashed onto main as cfb99606dc (operator-merged 2026-06-24T05:49:11Z). Closure landed via close-feature.py. CI checks green; operator review preceded merge."
+    },
+    {
+      "from": "review",
+      "to": "merge",
+      "at": "2026-06-24T05:49:11Z",
+      "reason": "PR #799 squashed onto main as cfb99606dc (operator-merged 2026-06-24T05:49:11Z). Closure landed via close-feature.py. Squash-merged."
+    },
+    {
+      "from": "merge",
+      "to": "docs",
+      "at": "2026-06-24T05:49:11Z",
+      "reason": "Case study + backlog strike shipped in same feature PR. No additional docs."
+    },
+    {
+      "from": "docs",
+      "to": "complete",
+      "at": "2026-06-24T05:50:19Z",
+      "reason": "Feature CLOSED via close-feature.py on chore/funnel-analysis-dashboards-post-merge-closure. Closes the testing\u2192complete drift-pattern documented across 5+ instances by automating the post-merge audit trail."
+    }
+  ],
+  "figma_node_ids": {},
+  "figma_build_status": null,
+  "pre_merge_review": {
+    "ux": null,
+    "design": null
+  },
+  "cache_hits": [
+    {
+      "ts": "2026-06-23T12:23:27Z",
+      "key": "ga4-funnels-runbook:funnel-defs",
+      "layer": "L3",
+      "type": "adapted",
+      "skill": "analytics"
+    },
+    {
+      "ts": "2026-06-23T12:23:27Z",
+      "key": "analytics-taxonomy:event-crossref",
+      "layer": "L3",
+      "type": "exact",
+      "skill": "analytics"
+    }
+  ],
+  "merge_pr_number": 799,
+  "merge_commit_sha": "cfb99606dc0803d3fbfa432c30799fb251cbaaa1",
+  "merged_at": "2026-06-24T05:49:11Z",
+  "case_study": "docs/case-studies/funnel-analysis-dashboards-case-study.md",
+  "feature_branch_merged": "feature/funnel-analysis-dashboards",
+  "platforms_tested": {
+    "ios": false,
+    "web": false,
+    "backend": true,
+    "ai": false
+  },
+  "platforms_tested_provenance": "authored",
+  "platforms_tested_note": "No app-platform product code. scripts/tests/test_funnel_definitions.py exercises the analytics data contract (funnel-definitions.json cross-referenced against the analytics-taxonomy.csv / GA4 event layer) \u2014 classified as backend (telemetry/data layer).",
+  "schema_version": 1
+}

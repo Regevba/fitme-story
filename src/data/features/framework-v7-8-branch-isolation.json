@@ -1,5 +1,6 @@
 {
   "feature_name": "framework-v7-8-branch-isolation",
+  "linear_id": "FIT-62",
   "current_phase": "complete",
   "platforms_tested": {},
   "platforms_tested_provenance": "exempt:framework_meta",
@@ -832,5 +833,6 @@
     }
   ],
   "state_owner": "ft2",
-  "updated_at": "2026-05-12T07:30:00Z"
+  "updated_at": "2026-05-12T07:30:00Z",
+  "schema_version": 1
 }
