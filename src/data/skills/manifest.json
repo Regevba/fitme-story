@@ -1,6 +1,6 @@
 {
-  "syncedAt": "2026-06-17T13:13:57.875Z",
-  "source": "/Volumes/DevSSD/FitTracker2/.claude/skills",
+  "syncedAt": "2026-07-08T03:01:29.882Z",
+  "source": "/Users/regevbarak/Developer/FitMe/FitTracker2/.claude/skills",
   "skills": [
     {
       "name": "analytics",
@@ -44,7 +44,7 @@
       "adaptersUsed": [
         "axe"
       ],
-      "loc": 384
+      "loc": 385
     },
     {
       "name": "dev",
@@ -55,7 +55,7 @@
       "adaptersUsed": [
         "security-audit"
       ],
-      "loc": 257
+      "loc": 259
     },
     {
       "name": "marketing",
@@ -79,7 +79,7 @@
         "security-audit",
         "sentry"
       ],
-      "loc": 271
+      "loc": 272
     },
     {
       "name": "pm-workflow",
@@ -90,7 +90,7 @@
       "adaptersUsed": [
         "ga4"
       ],
-      "loc": 1853
+      "loc": 1854
     },
     {
       "name": "qa",

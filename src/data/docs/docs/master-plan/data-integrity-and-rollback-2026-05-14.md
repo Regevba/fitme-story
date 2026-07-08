@@ -1,5 +1,14 @@
 # FitMe Continuous Data Integrity & Rollback Plan — 2026-05-14
 
+> **Item-tracking convention (FIT-200, est. 2026-06-29):** items here are tracked under the
+> [cross-layer naming convention](../process/cross-layer-item-naming-convention.md) — **slug** (canonical) + **`FIT-NNN`**
+> (`state.json.linear_id`) + **scheme-prefixed code**: this plan uses `FW-` (data-integrity is framework infra).
+> Status vocabulary (all layers): **Backlog → Planned → In Progress → Blocked → Done → Won't-Do**.
+> Live per-item status: [`.claude/shared/item-registry.json`](../../.claude/shared/item-registry.json)
+> (`make crosswalk`) + the Linear "Fitme project" board. Repo (`state.json.current_phase`) is
+> the source of truth; this doc is a planning view. Bare thematic codes (`F4`/`T14`/`R14`) are
+> retired in favor of prefixed codes to prevent the cross-scheme collisions reconciled 2026-06-29.
+
 > **Status:** CURRENT · Opened 2026-05-14 as a sub-doc of [`infra-master-plan-2026-05-12.md`](infra-master-plan-2026-05-12.md)
 > **Scope:** The continuous-observability layer that sits *between* the existing 4 enforcement checkpoints (write-time / cycle-time / per-PR / weekly cron), and the platform-baseline rollback mechanism that restores known-good state when integrity degrades.
 > **Purpose:** Answer two questions the infra master plan does NOT answer:
@@ -68,10 +77,12 @@ The infra master plan is *forward-looking* — it ranks v8.x candidates and cale
 
 ### 2.1 The 4-checkpoint enforcement model — what exists today
 
+> **Counts below are as-of-writing (2026-05-14).** For current canonical counts (framework v7.10: 30 indexed gates, 117 features, ~118 case studies as of 2026-06-26) always defer to [`../FRAMEWORK-FACTS.md`](../FRAMEWORK-FACTS.md). The "70 features" references elsewhere in this doc describe the **canonical 2026-05-14 platform baseline** (non-superseding per §2.6/§2.7) and are intentionally not bumped.
+
 | Checkpoint | Cadence | Coverage | Source |
 |---|---|---|---|
-| Write-time pre-commit hook | Every commit | 26 gates (see CLAUDE.md "Data Integrity Framework") | `.githooks/pre-commit` |
-| 72h cycle-time | Every 72h via `integrity-cycle.yml` | 16 cycle-time check codes against all 70 features + 79 case studies | `.github/workflows/integrity-cycle.yml` |
+| Write-time pre-commit hook | Every commit | 26 gates as of 2026-05-14 (current: 18 write-time emitting — see FRAMEWORK-FACTS + CLAUDE.md "Data Integrity Framework") | `.githooks/pre-commit` |
+| 72h cycle-time | Every 72h via `integrity-cycle.yml` | 16 cycle-time check codes against all features (70 at baseline; 117 as of 2026-06-26) | `.github/workflows/integrity-cycle.yml` |
 | Per-PR integrity bot | Every PR HEAD | schema-check + integrity-check + measurement-adoption vs `origin/main` baseline | `.github/workflows/pr-integrity-check.yml` |
 | Weekly framework status | Mondays 05:00 UTC | Appends measurement-adoption snapshot; opens issue on regression | `.github/workflows/framework-status-weekly.yml` |
 

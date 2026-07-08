@@ -1,391 +1,26 @@
 {
-  "generated_at": "2026-06-17T13:13:58+00:00",
+  "generated_at": "2026-07-08T03:01:30+00:00",
   "epoch": 0,
   "lease_count": 0,
-  "feature_count": 113,
-  "branch_count": 4,
+  "feature_count": 130,
+  "branch_count": 2,
   "features": [
-    {
-      "slug": "f1-state-tasks-filesystem-drift",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "chore/f1-state-tasks-filesystem-drift-post-merge-closure",
-      "last_touched_utc": "2026-06-17T12:51:21+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f3-dependency-graph-cycle-check",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "chore/f3-dependency-graph-cycle-check-post-merge-closure",
-      "last_touched_utc": "2026-06-17T12:51:21+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f4-framework-version-stale",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "chore/f4-framework-version-stale-post-merge-closure",
-      "last_touched_utc": "2026-06-17T12:51:21+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "foundation-models-tier3",
-      "current_phase": "implementation",
-      "framework_version": "v7.10",
-      "branch": "feature/foundation-models-tier3",
-      "last_touched_utc": "2026-06-15T19:58:10+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": [],
-      "branch_meta": {
-        "commit": "ccd17ae",
-        "committer_date": "2026-06-15T19:25:11+03:00",
-        "age_seconds": 161327
-      }
-    },
-    {
-      "slug": "garmin-health-connection",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "chore/garmin-health-connection-post-merge-closure",
-      "last_touched_utc": "2026-06-15T19:58:10+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "v8-f10-f5-schema-vocab",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "chore/v8-f10-f5-schema-vocab-post-merge-closure",
-      "last_touched_utc": "2026-06-15T19:58:10+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f11-reverse-sync-historical-exempt",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "chore/f11-reverse-sync-historical-exempt-post-merge-closure",
-      "last_touched_utc": "2026-06-15T19:58:09+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f12-actionlint-gate",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "chore/f12-actionlint-gate-post-merge-closure",
-      "last_touched_utc": "2026-06-15T19:58:09+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "fitme-story-dual-audience-redesign",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "feature/fitme-story-dual-audience-redesign",
-      "last_touched_utc": "2026-06-15T19:58:09+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "code-connect-automation",
-      "current_phase": "complete",
-      "framework_version": "v7.8.1",
-      "branch": "",
-      "last_touched_utc": "2026-06-15T17:25:05+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "3d-interactive-framework-flow-diagram",
-      "current_phase": "tasks_phase",
-      "framework_version": "v7.9.1",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "adaptive-intelligence-next-pass",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "chore/d1-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ai-golden-set-evals",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ai-user-feedback-loop",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "analytics-observability",
-      "current_phase": "complete",
-      "framework_version": "v7.8.5",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "audit-1-corrections",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "chore/audit-1-corrections",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "cross-repo-state-sync-impl",
-      "current_phase": "complete",
-      "framework_version": "v7.8.3",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "dev-env-r11-r13-r14-r17-r18-batch",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/dev-env-r11-r13-r14-r17-r18-batch-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "exercise-search-filter",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f-deployed-url-probe-ft2",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/f-deployed-url-probe-ft2-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f-launchd-drift-extension",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/f-launchd-drift-extension-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f-launchd-drift-extension-sub-a",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/f-launchd-drift-extension-sub-a-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f-phase-e-adoption-freeze-discipline",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/f-phase-e-adoption-freeze-discipline-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f16-try-repo-harness",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "feature/f16-closure-t6-t10",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f17-last-fired-at-index",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "feature/f17-last-fired-at-index",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f2-phase-0-reality-check",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "feature/f2-phase-0-reality-check",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "fitme-story-public-enhancements",
-      "current_phase": "complete",
-      "framework_version": "v7.8.1",
-      "branch": "feature/fitme-story-public-enhancements",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-f14-f15-dispatch-test-coverage",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "feature/framework-f14-f15-dispatch-test-coverage",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-honesty-fixes-2026-05-01",
-      "current_phase": "complete",
-      "framework_version": "v7.7",
-      "branch": "chore/framework-honesty-fixes-2026-05-01",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-story-site",
-      "current_phase": "complete",
-      "framework_version": "v6.0",
-      "branch": "main",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v7-8-branch-isolation",
-      "current_phase": "complete",
-      "framework_version": "v7.8",
-      "branch": "feature/framework-v7-8-branch-isolation",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v7-9-1-promotion",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/framework-v7-9-1-promotion-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v7-9-promotion",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "chore/v7-9-promotion-close-out",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-w30-w31-w32-durable-fixes",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/framework-w30-w31-w32-durable-fixes-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "hadf-phase2-cloud-fingerprinting",
-      "current_phase": "complete",
-      "framework_version": "v7.7",
-      "branch": "feature/hadf-phase2-fingerprint",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "hadf-phase2bis-replication",
-      "current_phase": "complete",
-      "framework_version": "v7.8.3",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "hadf-phase3a-sensing",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/hadf-phase3a-sensing-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "hadf-signature-expansion",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/hadf-signature-expansion-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ios-code-connect",
-      "current_phase": "complete",
-      "framework_version": "v7.8.1",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "meta-analysis-refresh-phase-1",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "chore/meta-analysis-refresh-phase-1",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "orchid-v1-5",
-      "current_phase": "implementation",
-      "framework_version": "v7.7",
-      "branch": "feature/orchid-v1-5",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
     {
       "slug": "push-notifications",
       "current_phase": "complete",
       "framework_version": "v7.8",
       "branch": "feature/push-notifications-v2",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "r17-state-sync-health-endpoint",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/fit183-state-sync-probe",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {
@@ -393,7 +28,7 @@
       "current_phase": "complete",
       "framework_version": "v7.9.1",
       "branch": "chore/r9-track-b-coverage-aggregator-post-merge-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -402,503 +37,8 @@
       "current_phase": "complete",
       "framework_version": "v7.9",
       "branch": "chore/state-drift-closure-c2-c3-c5-c6",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "smart-reminders-behavioral-learning",
-      "current_phase": "complete",
-      "framework_version": "v7.7",
-      "branch": "feature/smart-reminders-behavioral-learning",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "t13-last-failed-at-index",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "t14-platform-parity-state-field",
-      "current_phase": "implementation",
-      "framework_version": "v7.9.1",
-      "branch": "feature/t14-platform-parity-state-field",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "t3-signinservice-passkey-tests",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "t5-mock-protocol-drift",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "training-program-customization",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "trend-alerts-hrv",
-      "current_phase": "complete",
-      "framework_version": "v7.9",
-      "branch": "chore/trend-alerts-hrv-t14-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ucc-passkey-auth-audit-log-redis-fix",
-      "current_phase": "complete",
-      "framework_version": "v7.8.6",
-      "branch": "feature/ucc-passkey-auth-audit-log-redis-fix",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ucc-passkey-auth-security-hardening",
-      "current_phase": "complete",
-      "framework_version": "v7.8.6",
-      "branch": "chore/ucc-hardening-b12-promote-2026-05-27",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ucc-sign-in-figma-mapping",
-      "current_phase": "complete",
-      "framework_version": "v7.8.6",
-      "branch": "chore/ucc-sign-in-figma-mapping-reconcile-2026-05-20",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ui-audit-baseline-burndown",
-      "current_phase": "complete",
-      "framework_version": "v7.1",
-      "branch": "claude/review-ui-consistency-zSkvJ",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "unified-control-center",
-      "current_phase": "complete",
-      "framework_version": "v7.6",
-      "branch": "main",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "w9-drift-triggered-auto-isolation",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/w9-auto-isolation-closure",
-      "last_touched_utc": "2026-06-12T18:46:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "adaptive-intelligence",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "fix/design-system-token-compliance",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ai-cohort-intelligence",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ai-engine-architecture-adaptation",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ai-engine-v2",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "fix/design-system-token-compliance",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ai-recommendation-ui",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "fix/design-system-token-compliance",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "android-design-system",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": "feature/android-design-system",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "auth-polish-v2",
-      "current_phase": "complete",
-      "framework_version": "v7.6",
-      "branch": "feature/auth-polish-v2",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "authentication",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "case-study-comparison-table",
-      "current_phase": "complete",
-      "framework_version": "v7.8.1",
-      "branch": "feature/case-study-comparison-table",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "case-study-presentation",
-      "current_phase": "complete",
-      "framework_version": "v7.7",
-      "branch": "feature/case-study-presentation",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "data-integrity-framework-v7-6",
-      "current_phase": "complete",
-      "framework_version": "v7.6",
-      "branch": "main",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "data-sync",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "design-system-v2",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "development-dashboard",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": "feature/development-dashboard",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "dispatch-intelligence-v5.2",
-      "current_phase": "complete",
-      "framework_version": "v5.2",
-      "branch": "",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "fitme-story-design-system-p2-cleanup",
-      "current_phase": "complete",
-      "framework_version": "v7.8.2",
-      "branch": "feature/fitme-story-design-system-p2-cleanup",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "fitme-story-ds-p2-deferred",
-      "current_phase": "complete",
-      "framework_version": "v7.8.3",
-      "branch": "feature/fitme-story-ds-p2-deferred",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "fitme-story-ds-p2-final-sweep",
-      "current_phase": "complete",
-      "framework_version": "v7.8.3",
-      "branch": "feature/fitme-story-ds-p2-final-sweep",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "fitme-story-website-design-system",
-      "current_phase": "complete",
-      "framework_version": "v7.8.2",
-      "branch": "feature/fitme-story-website-design-system",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-measurement-v6",
-      "current_phase": "complete",
-      "framework_version": "v6.0",
-      "branch": "feature/framework-measurement-v6",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v5-0-soc",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "main",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v7-1-integrity-cycle",
-      "current_phase": "complete",
-      "framework_version": "v7.1",
-      "branch": "main",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v7-5-data-integrity",
-      "current_phase": "complete",
-      "framework_version": "v7.5",
-      "branch": "main",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v7-7-validity-closure",
-      "current_phase": "complete",
-      "framework_version": "v7.7",
-      "branch": "main",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "framework-v7-8-bridge",
-      "current_phase": "complete",
-      "framework_version": "v7.8",
-      "branch": "main",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "gdpr-compliance",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": "feature/gdpr-compliance",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "google-analytics",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": "feature/google-analytics",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "hadf-infrastructure",
-      "current_phase": "complete",
-      "framework_version": "v6.0",
-      "branch": "feature/hadf-infrastructure",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "home-status-goal-card",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "feature/home-status-goal-card",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "home-today-screen",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": "feature/home-today-screen-v2",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "import-training-plan",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "feature/import-training-plan-resume",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ios-ui-audit-p1-burndown",
-      "current_phase": "complete",
-      "framework_version": "v7.8.2",
-      "branch": "feature/ios-ui-audit-p1-burndown",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "ios-ui-audit-p1-drift-cleanup",
-      "current_phase": "complete",
-      "framework_version": "v7.8.3",
-      "branch": "feature/ios-ui-audit-p1-drift-cleanup",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "marketing-website",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "meta-analysis-audit",
-      "current_phase": "complete",
-      "framework_version": "v6.0",
-      "branch": "main",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "metric-tile-deep-linking",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "feature/metric-tile-deep-linking",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "nutrition-logging",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "nutrition-v2",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "feature/nutrition-v2",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "onboarding",
-      "current_phase": "complete",
-      "framework_version": "pre-v5.0",
-      "branch": "main",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "onboarding-v2-auth-flow",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "feature/onboarding-v2-auth-flow",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "onboarding-v2-retroactive",
-      "current_phase": "complete",
-      "framework_version": "v5.0",
-      "branch": "feature/onboarding-v2-retroactive",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "parallel-write-safety-v5.2",
-      "current_phase": "complete",
-      "framework_version": "v5.2",
-      "branch": "",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
-      "agent_manifest_present": true,
       "manifest_writes": []
     },
     {
@@ -906,7 +46,7 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "fix/design-system-token-compliance",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -915,7 +55,7 @@
       "current_phase": "complete",
       "framework_version": "pre-v5.0",
       "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -924,7 +64,7 @@
       "current_phase": "complete",
       "framework_version": "v7.8.1",
       "branch": "feature/roadmap-stress-test-2026-05-07",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -933,7 +73,7 @@
       "current_phase": "complete",
       "framework_version": "pre-v5.0",
       "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -942,7 +82,7 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "feature/settings-v2",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -951,8 +91,17 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "smart-reminders-behavioral-learning",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "feature/smart-reminders-behavioral-learning",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {
@@ -960,7 +109,7 @@
       "current_phase": "complete",
       "framework_version": "pre-v5.0",
       "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
       "manifest_writes": []
     },
@@ -969,8 +118,98 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "feature/stats-v2",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t13-last-failed-at-index",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t14-platform-parity-state-field",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/t14-platform-parity-state-field-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t15-orphan-test-weekly-cron",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/fit163-orphan-test-cron",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t16-gate-test-tier-annotation",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/batch-flip-fit164-181-185-closure",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t3-signinservice-passkey-tests",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t4-ios-snapshot-testing",
+      "current_phase": "implement",
+      "framework_version": "v7.10",
+      "branch": "chore/fit152-snapshot-testing",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t5-mock-protocol-drift",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t7-web-critical-route-smoke-tests",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/fit155-ft2-state-closure",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t8-web-webauthn-route-handler-tests",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/fit156-ft2-state-closure",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t9-backend-chaos-tests",
+      "current_phase": "implement",
+      "framework_version": "v7.10",
+      "branch": "chore/fit157-encryption-rotation-tests",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {
@@ -978,8 +217,17 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": "feature/training-plan-v2",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "training-program-customization",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {
@@ -987,8 +235,17 @@
       "current_phase": "complete",
       "framework_version": "pre-v5.0",
       "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "trend-alerts-hrv",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/trend-alerts-hrv-t14-closure",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {
@@ -996,8 +253,44 @@
       "current_phase": "complete",
       "framework_version": "v7.8.1",
       "branch": "feature/ucc-passkey-auth",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-passkey-auth-audit-log-redis-fix",
+      "current_phase": "complete",
+      "framework_version": "v7.8.6",
+      "branch": "feature/ucc-passkey-auth-audit-log-redis-fix",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-passkey-auth-security-hardening",
+      "current_phase": "complete",
+      "framework_version": "v7.8.6",
+      "branch": "chore/ucc-hardening-b12-promote-2026-05-27",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ucc-sign-in-figma-mapping",
+      "current_phase": "complete",
+      "framework_version": "v7.8.6",
+      "branch": "chore/ucc-sign-in-figma-mapping-reconcile-2026-05-20",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ui-audit-baseline-burndown",
+      "current_phase": "complete",
+      "framework_version": "v7.1",
+      "branch": "claude/review-ui-consistency-zSkvJ",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": true,
       "manifest_writes": []
     },
     {
@@ -1005,8 +298,17 @@
       "current_phase": "complete",
       "framework_version": "v7.8.3",
       "branch": "feature/ui-ux-final-sweep-2026-05-12",
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "unified-control-center",
+      "current_phase": "complete",
+      "framework_version": "v7.6",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": true,
       "manifest_writes": []
     },
     {
@@ -1014,8 +316,161 @@
       "current_phase": "complete",
       "framework_version": "v5.0",
       "branch": null,
-      "last_touched_utc": "2026-06-07T16:46:46+00:00",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "v8-f10-f5-schema-vocab",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/v8-f10-f5-schema-vocab-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "w9-drift-triggered-auto-isolation",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/w9-auto-isolation-closure",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "weekly-digest-silent-gate-enrichment",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/batch-flip-fit164-181-185-closure",
+      "last_touched_utc": "2026-07-07T16:24:16+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "3d-interactive-framework-flow-diagram",
+      "current_phase": "tasks_phase",
+      "framework_version": "v7.9.1",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "adaptive-intelligence",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "fix/design-system-token-compliance",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "adaptive-intelligence-next-pass",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/d1-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-cohort-intelligence",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-engine-architecture-adaptation",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-engine-v2",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "fix/design-system-token-compliance",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-golden-set-evals",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-recommendation-ui",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "fix/design-system-token-compliance",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ai-user-feedback-loop",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "an-1b1-csv-taxonomy-drift",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/an-1b-analytics-gates-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "an-1b2-ga4-mcp-disconnected",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/an-1b-analytics-gates-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "analytics-observability",
+      "current_phase": "complete",
+      "framework_version": "v7.8.5",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "android-design-system",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/android-design-system",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "android-token-pipeline",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "feature/android-token-pipeline",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {
@@ -1023,8 +478,701 @@
       "current_phase": "implementation",
       "framework_version": "v5.0",
       "branch": null,
-      "last_touched_utc": "2026-05-19T11:38:38+00:00",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
       "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "audit-1-corrections",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/audit-1-corrections",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "auth-polish-v2",
+      "current_phase": "complete",
+      "framework_version": "v7.6",
+      "branch": "feature/auth-polish-v2",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "authentication",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "case-study-comparison-table",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "feature/case-study-comparison-table",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "case-study-presentation",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "feature/case-study-presentation",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "code-connect-automation",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "contract-fixture-consumer-adoption",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/contract-fixture-consumer-adoption-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "cross-repo-state-sync-impl",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "data-integrity-framework-v7-6",
+      "current_phase": "complete",
+      "framework_version": "v7.6",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "data-sync",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "de-r14-integrity-parallel",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/an-1b-analytics-gates-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "design-system-v2",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "dev-env-r11-r13-r14-r17-r18-batch",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/dev-env-r11-r13-r14-r17-r18-batch-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "development-dashboard",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/development-dashboard",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "dispatch-intelligence-v5.2",
+      "current_phase": "complete",
+      "framework_version": "v5.2",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "exercise-search-filter",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/state-drift-closure-c2-c3-c5-c6",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-deployed-url-probe-ft2",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-deployed-url-probe-ft2-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-launchd-drift-extension",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-launchd-drift-extension-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-launchd-drift-extension-sub-a",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-launchd-drift-extension-sub-a-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-phase-e-adoption-freeze-discipline",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-phase-e-adoption-freeze-discipline-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f1-state-tasks-filesystem-drift",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/f1-state-tasks-filesystem-drift-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f11-reverse-sync-historical-exempt",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/f11-reverse-sync-historical-exempt-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f12-actionlint-gate",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/f12-actionlint-gate-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f16-try-repo-harness",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "feature/f16-closure-t6-t10",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f17-last-fired-at-index",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "feature/f17-last-fired-at-index",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f18-mutation-testing",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "feature/f18-mutation-testing",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f2-phase-0-reality-check",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "feature/f2-phase-0-reality-check",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f3-dependency-graph-cycle-check",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/f3-dependency-graph-cycle-check-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f4-framework-version-stale",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/f4-framework-version-stale-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "figma-design-architecture",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/figma-design-architecture-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-design-system-p2-cleanup",
+      "current_phase": "complete",
+      "framework_version": "v7.8.2",
+      "branch": "feature/fitme-story-design-system-p2-cleanup",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-ds-p2-deferred",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "feature/fitme-story-ds-p2-deferred",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-ds-p2-final-sweep",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "feature/fitme-story-ds-p2-final-sweep",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-dual-audience-redesign",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "feature/fitme-story-dual-audience-redesign",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-public-enhancements",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "feature/fitme-story-public-enhancements",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "fitme-story-website-design-system",
+      "current_phase": "complete",
+      "framework_version": "v7.8.2",
+      "branch": "feature/fitme-story-website-design-system",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "foundation-models-tier3",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/foundation-models-tier3-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-f14-f15-dispatch-test-coverage",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "feature/framework-f14-f15-dispatch-test-coverage",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-honesty-fixes-2026-05-01",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "chore/framework-honesty-fixes-2026-05-01",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-measurement-v6",
+      "current_phase": "complete",
+      "framework_version": "v6.0",
+      "branch": "feature/framework-measurement-v6",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-story-site",
+      "current_phase": "complete",
+      "framework_version": "v6.0",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v5-0-soc",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-1-integrity-cycle",
+      "current_phase": "complete",
+      "framework_version": "v7.1",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-5-data-integrity",
+      "current_phase": "complete",
+      "framework_version": "v7.5",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-7-validity-closure",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-8-branch-isolation",
+      "current_phase": "complete",
+      "framework_version": "v7.8",
+      "branch": "feature/framework-v7-8-branch-isolation",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-8-bridge",
+      "current_phase": "complete",
+      "framework_version": "v7.8",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-9-1-promotion",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/framework-v7-9-1-promotion-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-v7-9-promotion",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/v7-9-promotion-close-out",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-w30-w31-w32-durable-fixes",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/framework-w30-w31-w32-durable-fixes-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "funnel-analysis-dashboards",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/funnel-analysis-dashboards-cu-v2-backfill",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "garmin-health-connection",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/garmin-health-connection-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "gdpr-compliance",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/gdpr-compliance",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "google-analytics",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/google-analytics",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-infrastructure",
+      "current_phase": "complete",
+      "framework_version": "v6.0",
+      "branch": "feature/hadf-infrastructure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-phase2-cloud-fingerprinting",
+      "current_phase": "complete",
+      "framework_version": "v7.7",
+      "branch": "feature/hadf-phase2-fingerprint",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-phase2bis-replication",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-phase3a-sensing",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/hadf-phase3a-sensing-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-signature-expansion",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/hadf-signature-expansion-post-merge-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "home-status-goal-card",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/home-status-goal-card",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "home-today-screen",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "feature/home-today-screen-v2",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "import-training-plan",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/import-training-plan-resume",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ios-code-connect",
+      "current_phase": "complete",
+      "framework_version": "v7.8.1",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ios-ui-audit-p1-burndown",
+      "current_phase": "complete",
+      "framework_version": "v7.8.2",
+      "branch": "feature/ios-ui-audit-p1-burndown",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ios-ui-audit-p1-drift-cleanup",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "feature/ios-ui-audit-p1-drift-cleanup",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "marketing-website",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "meta-analysis-audit",
+      "current_phase": "complete",
+      "framework_version": "v6.0",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "meta-analysis-refresh-phase-1",
+      "current_phase": "complete",
+      "framework_version": "v7.9",
+      "branch": "chore/meta-analysis-refresh-phase-1",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "metric-tile-deep-linking",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/metric-tile-deep-linking",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "nutrition-logging",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": null,
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "nutrition-v2",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/nutrition-v2",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "onboarding",
+      "current_phase": "complete",
+      "framework_version": "pre-v5.0",
+      "branch": "main",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "onboarding-v2-auth-flow",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/onboarding-v2-auth-flow",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "onboarding-v2-retroactive",
+      "current_phase": "complete",
+      "framework_version": "v5.0",
+      "branch": "feature/onboarding-v2-retroactive",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "orchid-v1-5",
+      "current_phase": "implementation",
+      "framework_version": "v7.7",
+      "branch": "feature/orchid-v1-5",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "parallel-write-safety-v5.2",
+      "current_phase": "complete",
+      "framework_version": "v5.2",
+      "branch": "",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": true,
+      "manifest_writes": []
+    },
+    {
+      "slug": "precommit-hook-latency-profiling",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/batch-flip-fit164-181-185-closure",
+      "last_touched_utc": "2026-07-07T16:24:15+00:00",
+      "agent_manifest_present": false,
       "manifest_writes": []
     }
   ],

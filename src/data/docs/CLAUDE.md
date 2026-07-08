@@ -1,21 +1,43 @@
 # FitMe (FitTracker2) — Project Rules
 
-> **Canonical repo location:** `/Volumes/DevSSD/FitTracker2`
+> **Canonical repo location:** `/Users/regevbarak/Developer/FitMe/FitTracker2` (internal storage).
 >
-> The project lives on an external SSD at `/Volumes/DevSSD/FitTracker2`, not
-> on the Mac's internal storage. All build artifacts (Xcode DerivedData, SPM
-> cache, npm cache, Python venvs, clang module cache, simulator data) are
-> kept under `.build/` inside the repo, which is already on the SSD. Any
-> absolute paths in documentation, commit messages, handoffs, or scripts
-> should reference `/Volumes/DevSSD/FitTracker2` when pointing at the local
-> repo — never `/Users/{name}/` or `/tmp/`. Setup details live in
-> `docs/setup/ssd-setup-guide.md`.
+> **Consolidated 2026-07-07.** All project-connected folders were moved under a
+> single parent, `~/Developer/FitMe/`, so everything lives in one place:
+> `FitTracker2/` (this canonical monorepo), the satellite repos (`orchid/`,
+> `fittracker-ai/`, `fittracker-backend/`), and `backups/` (the former
+> `~/Documents/FitTracker2-backups`, `~/orchid-backup-*.git`, and
+> `~/SSD-backup-2026-05-03`). A compatibility symlink `~/FitTracker2 →
+> ~/Developer/FitMe/FitTracker2` is **kept intentionally** (decision 2026-07-07)
+> so legacy absolute paths still resolve — notably the Python venvs
+> (`.build/venv`, `ai-engine/.venv`) bake the old absolute path into their `bin/`
+> shebangs and are NOT relocatable, so removing the symlink later requires
+> recreating both venvs. Absolute paths in docs,
+> commit messages, handoffs, or scripts should reference
+> `/Users/regevbarak/Developer/FitMe/FitTracker2` for the source repo.
+>
+> **Changed 2026-07-05.** The canonical source-of-truth checkout moved to the
+> Mac's **internal storage** (was `/Users/regevbarak/FitTracker2`), re-cloned
+> from origin after the external SSD (`/Volumes/DevSSD`, Crucial X10) suffered
+> APFS `fsroot` corruption. The source tree (git repo, all layers) is small and
+> belongs on the reliable internal disk.
+>
+> **Build-artifact split (SSD = build drive).** Once the external SSD is
+> reformatted and healthy again, it becomes the **build/tooling drive** only —
+> not the source. Heavy, regenerable artifacts (Xcode DerivedData, SPM cache,
+> clang module cache, iOS Simulator data, and optionally npm/Python caches) are
+> pointed at the SSD (via `xcodebuild -derivedDataPath`, `DERIVED_DATA` env, or
+> symlinks) so internal storage stays lean. The source stays on internal; the
+> SSD holds only reproducible build output. Setup details:
+> `docs/setup/ssd-setup-guide.md` (update pending to reflect this split).
+>
+> **Historical:** before 2026-07-05 the repo lived entirely on the SSD with
+> `.build/` inside the repo. That layout is retired due to the SSD fault; see
+> the DevSSD corruption incident + migration record.
 >
 > Agents running in sandboxed environments may see a different working
 > directory path (e.g. `/home/user/FitTracker2`). That's the sandbox mount
-> of the repo, not the real location. Files written inside the sandbox are
-> the user's real files, but human-readable paths in docs should always
-> point at the SSD.
+> of the repo, not the real location.
 
 ## Product Management Lifecycle
 
@@ -555,11 +577,11 @@ These were **process regressions** — added features moved into the denominator
 
 **Mechanical complement (2026-06-10).** Denominator dilution is now *measured around*, not just disciplined against. `make integrity-multi-anchor` ([`scripts/integrity-multi-anchor.py`](scripts/integrity-multi-anchor.py)) classifies every adoption-% delta vs the **canonical 2026-05-14 anchor** as `REAL_REGRESSION` / `dilution` / `improved` using a cohort-intersection + absolute-numerator rule (`classify_delta`), so corpus growth no longer raises phantom regressions. `make integrity-diff` and `daily-integrity-checkpoint.py` regression verdicts consume the same rule (raw deltas still printed for transparency; only `REAL_REGRESSION` gates). `make measurement-adoption` reports an **instrumented-vs-derived** provenance split so a backfill-derived value never masquerades as contemporaneous T1 instrumentation. `make integrity-data-lake` ([`scripts/integrity-data-lake.py`](scripts/integrity-data-lake.py)) layers ALL telemetry (ledgers, crons, snapshots, anchors) into one read-only cross-source reconciliation + dilution-normalized digest (stdlib-first; optional local DuckDB, not cloud BigQuery). The 2026-05-14 anchor stays canonical (non-superseding) per [data-integrity sub-plan §2.6/§2.7](docs/master-plan/data-integrity-and-rollback-2026-05-14.md). Source: honesty ledger [FT2-FH-004](docs/case-studies/framework-honesty-ledger.md).
 
-## Platform-test parity — `platforms_tested` field (T14, advisory, shipped 2026-06-07)
+## Platform-test parity — `platforms_tested` field (T14, shipped advisory 2026-06-07, **enforced 2026-06-21**)
 
 `state.json` carries a `platforms_tested: {ios, web, backend, ai}` boolean object recording **which platforms a feature's tests actually exercised** — making platform-test parity a queryable, gate-able property of every completed feature (not just "tests passed somewhere"). Platform semantics: `ios`=SwiftUI app, `web`=fitme-story/website/dashboard, `backend`=sync/Supabase/Railway, `ai`=ai-engine cohort. A sibling `platforms_tested_provenance` string records origin (`authored` / `backfill-heuristic-<date>` / `backfill-heuristic-low-confidence` / `exempt:framework_meta`).
 
-**Gate (advisory):** the `PLATFORMS_TESTED` write-time sub-check (in [`scripts/check-state-schema.py`](scripts/check-state-schema.py)) fires on `current_phase=complete` transitions when no platform key is `true`, and validates field shape at any phase. It uses its own `PLATFORMS_TESTED_ADVISORY_MODE` flag + an isolated Mechanism A coverage key, so its **advisory→enforced flip (~v7.10, after a 14-day calibration window)** is independent of the enforced `FEATURE_CLOSURE_COMPLETENESS` gate it fires alongside.
+**Gate (enforced 2026-06-21):** the `PLATFORMS_TESTED` write-time sub-check (in [`scripts/check-state-schema.py`](scripts/check-state-schema.py)) fires on `current_phase=complete` transitions when no platform key is `true`, and validates field shape at any phase. It uses its own `PLATFORMS_TESTED_ADVISORY_MODE` flag (flipped `True → False` on 2026-06-21 via PR #781, squash `6ac372b`) + an isolated Mechanism A coverage key, so the promotion was a single independent line that does not affect the `FEATURE_CLOSURE_COMPLETENESS` gate it fires alongside. **Promotion (cadence B15):** all four §2.2 criteria held over the 14-day window (advisory ship 2026-06-07 PR #662 → enforced 2026-06-21) — ≥7d coverage (9 emission days / 12-day span), 0 false positives across 16 real complete-transition checks (1470 legit skips), reversible single-flag. Findings now route to `errors[]` and block the commit; existing complete features do not re-transition so none fail retroactively (integrity-check reports 0 findings post-flip). Q2-exempt features still skip. Reversibility: flip the flag back on `chore/t14-rollback` (<5 min).
 
 **Q2 exemption:** framework-meta features (`work_type=chore` / `work_subtype=framework_feature` / `provenance exempt:*`) are skipped — they ship no product-platform code.
 
@@ -580,7 +602,30 @@ v7.10 hardens the *observability of the gates themselves* — the meta-layer tha
 - **Self-test meta-analysis + verify-local ergonomics** (PR #690) — the second what-if meta-analysis ran the v7.10 framework against every layer (iOS BUILD SUCCEEDED + 672 tests, ai-engine 34/34, web 286/289, framework 0 findings). Headline fix: `tokens-check` / `verify-web` / `verify-ai` now **skip cleanly** with a loud `⚠ … SKIPPING locally — CI enforces this gate.` message when deps are absent (matching the `lint-*`/`coverage-*` convention) instead of crashing cryptically. CI still enforces. Artifact: [`docs/case-studies/meta-analysis/2026-06-10-second-what-if-self-test-all-layers.md`](docs/case-studies/meta-analysis/2026-06-10-second-what-if-self-test-all-layers.md).
 - **T10 — AI golden-set eval harness** (PR #691) — closes the test-coverage plan's "biggest layer gap". Scoping reframe: the FitMe AI is **deterministic** (`InsightService` rule engine), not generative (LLM path gated behind an unset `LLM_API_KEY`/DPA), so a deterministic golden set is *better* (zero flake, no key, hard PR gate). 24 golden cases + parametrized harness in `ai-engine/tests/golden/`; full ai-engine suite 60 pass / 1 skip; negative-control proven. Feature `ai-golden-set-evals`. Source case study: [`docs/case-studies/ai-golden-set-evals-case-study.md`](docs/case-studies/ai-golden-set-evals-case-study.md).
 
-**Calibration ladder still pending (date-gated, not in this release):** F16 advisory→enforced flip 2026-06-18 · W9 2026-06-20 · `PLATFORMS_TESTED` (T14) 2026-06-21 · R9 Track B 30-day coverage read 2026-07-04 (feeds `GATE_TEST_MISSING`) · `GATE_TEST_MISSING` (T1) gated on F14 Phase E 2026-08-22. **F18 mutation testing** remains v8.0 (depends on F14+F16 Phase E). **Un-ticketed test gaps:** Supabase Edge Functions (0 tests); the gated live-LLM eval body (lands with the LLM-escalation feature).
+**Calibration ladder (date-gated):** ~~F16 advisory→enforced flip 2026-06-18~~ ✅ **enforced 2026-06-17** (1d early, PR #764) · ~~`PLATFORMS_TESTED` (T14) 2026-06-21~~ ✅ **enforced 2026-06-21** (PR #781, `6ac372b`) · W9 2026-06-28 (reset from 06-20 by the 2026-06-14 session-id-keying fix; clock restarts on the `w9.concurrency` key) · F4 `FRAMEWORK_VERSION_STALE` advisory→enforced ~2026-06-30 · R9 Track B 30-day coverage read 2026-07-04 (feeds `GATE_TEST_MISSING`) · `GATE_TEST_MISSING` (T1) gated on F14 Phase E 2026-08-22. **F18 mutation testing** remains v8.0 (depends on F14+F16 Phase E). **Un-ticketed test gaps:** Supabase Edge Functions (0 tests); the gated live-LLM eval body (lands with the LLM-escalation feature).
+
+## Post-v7.10 framework additions (2026-06-29)
+
+Five framework items shipped 2026-06-29 (no version bump — v7.10 chores). Canonical counts: [`docs/FRAMEWORK-FACTS.md`](docs/FRAMEWORK-FACTS.md). Gate count **30 → 32**; feature count **118 → 121**.
+
+- **Cross-layer item naming convention (FIT-200)** — every trackable item carries a **slug** (canonical = the `.claude/features/<slug>/` dir), a **`state.json.linear_id`** (`FIT-NNN`, the cross-tool join key), and **scheme-prefixed thematic codes** (`FW-` framework / `TC-` test-coverage / `DE-` dev-env / `HADF-` / `AN-` analytics / `PROD-` product) that kill the bare-number collisions (two `R14`s, two `R9`s). `make crosswalk` → [`.claude/shared/item-registry.json`](.claude/shared/item-registry.json) builds the slug↔linear_id join + an advisory for features missing the join. Shared status vocabulary: Backlog → Planned → In Progress → Blocked → Done → Won't-Do. **Repo (`state.json.current_phase`) is the source of truth; Linear/Notion/backlog/plans are mirrors** (the W40 lesson). Spec: [`docs/process/cross-layer-item-naming-convention.md`](docs/process/cross-layer-item-naming-convention.md).
+- **`state.json.schema_version` (DE-R18)** — every state.json carries an integer `schema_version` (current = **1**, all 121 backfilled) + an ordered migration runner [`scripts/migrate-state-schema.py`](scripts/migrate-state-schema.py) (`make migrate-state-schema`) so the schema can evolve forward safely (closes the `created`/`created_at` field-rename incident class). To bump: append a `(n, n+1, transform)` step to `MIGRATIONS` + raise `CURRENT_SCHEMA_VERSION`.
+- **`CSV_TAXONOMY_DRIFT` (AN-1B.1, advisory)** — write-time gate: when `AnalyticsProvider.swift` is staged and an `AnalyticsEvent` constant's raw value has no row in `docs/product/analytics-taxonomy.csv` (and isn't `csv_taxonomy_exempt: [{constant, reason}]`), emits an advisory. Baseline drift 27→0 burned down 2026-06-29; advisory→enforced review **~2026-07-13** (cadence B16). Spec: analytics-master-plan §8.2.
+- **`GA4_MCP_DISCONNECTED` (AN-1B.2, advisory-ONLY by design)** — write-time gate: when analytics-affecting code is staged and GA4 MCP is unreachable via env (`GA4_PROPERTY_ID` + `GOOGLE_APPLICATION_CREDENTIALS` file), emits an advisory. **Never blocks, even when "promoted"** (per §8.3) — no calibration ladder. Pre-launch the env is typically unset, so the advisory is the expected signal. With AN-1B.1, **analytics Phase 1.B is complete.**
+- **integrity-check parallelization (DE-R14)** — `scripts/integrity-check.py --jobs <N>` (default `min(8,cpu)`; `--jobs 1` = serial) + memoized `first_commit_date`. **9.4s → 1.84s (5.1×)**, output identical.
+- **Observed pattern W40** — cross-layer tracker lag / stale-open (item open in Linear/Notion/backlog while already shipped in the repo). Verify-first against the repo before starting any tracked item; the crosswalk mechanizes the detection. See [`.claude/integrity/observed-patterns.md`](.claude/integrity/observed-patterns.md) W40.
+
+## Test-coverage batch (2026-07-03 → 07-04)
+
+Seven `test-coverage-master-plan-2026-05-13.md` §4 bucket-A items shipped across FT2 + fitme-story (no version bump — v7.10 test/observability work). **0 new enforcement gates**; feature count **121 → 130**; CI workflows **→ 25**. Canonical counts: [`docs/FRAMEWORK-FACTS.md`](docs/FRAMEWORK-FACTS.md). Per-item live status: [`.claude/shared/item-registry.json`](.claude/shared/item-registry.json).
+
+- **Batch-flip (FIT-164/181/185)** — 3 already-merged 2026-07-02 framework chores (`t16-gate-test-tier-annotation`, `precommit-hook-latency-profiling`, `weekly-digest-silent-gate-enrichment`) reconciled `implement → complete` (their code shipped in #835/#836/#837; state.json lagged on the pre-merge branch). PR #838.
+- **T8 — WebAuthn route-handler tests (FIT-156)** — 28 tests for all 6 fitme-story `/api/auth/*` handlers, exercising the real handlers against an in-memory Upstash mock injected via the existing `__setRedisForTests` seam + real `@simplewebauthn`; the 2 session-gated routes mock `next/headers` via node:test module mocking (`--experimental-test-module-mocks` added to the `test` script). fitme-story PR #256 + FT2 closure #839.
+- **T7 — Critical-route smoke tests (FIT-155)** — 5-route Playwright smoke (`/`, `/case-studies`, `/control-room/framework`, `/control-room/analytics`, `/api/auth/authenticate/options`). The Playwright `webServer` sets `DASHBOARD_PUBLIC=true` (the `src/proxy.ts` documented local/CI bypass) so the auth-gated dashboard routes render. fitme-story PR #257 + FT2 closure #841.
+- **T15 — Orphan-test weekly cron (FIT-163)** — [`scripts/scan-orphan-tests.py`](scripts/scan-orphan-tests.py) advisory scanner (orphan `*Tests.swift` referencing 0 production symbols + logic-bearing types with 0 test references; HISTORICAL-aware, counts top-level globals/free-functions) + [`.github/workflows/orphan-tests-weekly.yml`](.github/workflows/orphan-tests-weekly.yml) (Mon 07:00 UTC, issue only on orphan regression) + `make orphan-tests` + 11 unit tests. Baseline: 0 orphans, 19 untested. PR #842.
+- **R17 — Cross-repo state-sync health endpoint (FIT-183)** — fitme-story `GET /api/control-room/state-sync-health` (public; not proxy-matched) returns `{ last_sync_ts, ft2_state_count, gate_coverage_lines, age_minutes, healthy, reason }` (200 fresh / 503 stale >6h) via pure `computeSyncHealth`; FT2 `daily-integrity-checkpoint.py` gains an **N4 best-effort probe** (env-overridable `FT2_STATE_SYNC_HEALTH_URL`) that alerts on stale and no-ops gracefully on unreachable/404. fitme-story #258 + FT2 #844.
+- **T4 — iOS snapshot testing (FIT-152, FOUNDATION)** — `pointfreeco/swift-snapshot-testing` SPM dep wired into `FitTrackerTests` + a `SNAPSHOT_MODE` harness ([`SnapshotTestSupport.swift`](FitTrackerTests/SnapshotTests/SnapshotTestSupport.swift)) whose tests **skip by default** (so the required Build+Test never reddens pre-baseline) + [`.github/workflows/ios-snapshot-record.yml`](.github/workflows/ios-snapshot-record.yml) record-in-CI. **Why record-in-CI:** local sim (Xcode 26 / iPhone 17 Pro / iOS 26) and CI (iPhone 15/16 / iOS ~18) don't share a simulator, so baselines must be recorded in the CI environment. PR #843. Feature stays `implement`; T2 (record baselines → flip to `verify`) + T3 (6 v2 screens + 4 auth views) tracked.
+- **T9 — Backend chaos tests (FIT-157, FOUNDATION)** — 3 `EncryptionService` session-context chaos tests (32 concurrent round-trips / actor serialization, ~2 MB large-payload, 50-payload no-cross-contamination). **Scoping note:** the biometric-gated `rotateKeys` path calls `authenticatedContext()`, which needs an enrolled authenticator the CI simulator lacks (`LAError -7`) — untestable on CI without a biometry-enrolled runner or a prod test seam; deferred. PR #846. Feature stays `implement`; key-rotation + sync/GDPR/auth-churn tracked as T2/T3.
 
 ## Known Mechanical Limits
 
@@ -897,6 +942,8 @@ The rule applies prospectively from 2026-04-08. Existing events that pre-date th
 - UI audit scanner: `scripts/ui-audit.py` (run via `make ui-audit`)
 - UI audit baseline: `docs/design-system/ui-audit-baseline.md`
 - Figma↔code matrix + Verification Contract: `docs/design-system/figma-code-sync-status.md`
+- **Per-surface design-system architecture (source-of-truth + Figma-mirror layering):** iOS [`docs/design-system/ios-design-system-architecture.md`](docs/design-system/ios-design-system-architecture.md) · web [`docs/design-system/fitme-story-design-architecture.md`](docs/design-system/fitme-story-design-architecture.md). Both mirrors verified live 2026-06-18 (iOS file `0Ai7s3fCFqR5JXDW8JvgmD`, web file `fsjHfFLAHELACZHku8Rfcl`) — **code is canonical; Figma is a manually-maintained mirror** (Code Connect publish disabled on Pro plan).
+- **Figma-mirror governance:** maintenance protocol [`docs/design-system/figma-mirror-maintenance-protocol.md`](docs/design-system/figma-mirror-maintenance-protocol.md) + advisory drift check `make figma-mirror-staleness` (`scripts/figma-mirror-staleness.py`, snapshot `.claude/shared/figma-mirror-snapshot.json`). Closes FT2-FH-005 Gap D.
 
 ### Handoff prompts
 - UX/UI build prompts (auto-generated + hand-authored): `docs/prompts/`
