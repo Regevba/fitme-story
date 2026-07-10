@@ -1,9 +1,10 @@
 /**
  * AutomationMap — T23
  * Static lookup table of the framework's instrumented gates as of v7.10.
- * 18 write-time (pre-commit; incl. F4 FRAMEWORK_VERSION_STALE advisory) +
- * 9 cycle-time (72h CI) + 2 W9 real-time hooks = 28 instrumented gates.
- * Source of truth: FitTracker2 docs/FRAMEWORK-FACTS.md (reconciled 2026-06-21).
+ * 21 write-time (pre-commit; incl. F4 FRAMEWORK_VERSION_STALE enforced 2026-07-08,
+ * SCHEMA_DIFF + CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED) +
+ * 9 cycle-time (72h CI) + 2 W9 real-time hooks = 32 instrumented gates (34 live).
+ * Source of truth: FitTracker2 docs/FRAMEWORK-FACTS.md (reconciled 2026-07-10).
  */
 
 interface CheckCode {
@@ -100,8 +101,23 @@ const WRITE_TIME_CODES: CheckCode[] = [
   },
   {
     code: 'FRAMEWORK_VERSION_STALE',
-    shipped_in: 'F4 v8.x (advisory until ~2026-06-30)',
-    description: 'Advisory — detects stale framework_version on phase-advance. Not yet emitting coverage.',
+    shipped_in: 'F4 v8.x (enforced 2026-07-08, PR #858)',
+    description: 'Detects stale framework_version on phase-advance. Promoted advisory→enforced after 8 emission days / 40 fires / 0 false positives.',
+  },
+  {
+    code: 'CSV_TAXONOMY_DRIFT',
+    shipped_in: 'AN-1B.1 (advisory, PR #822)',
+    description: 'Fires when AnalyticsProvider.swift is staged + an AnalyticsEvent value has no analytics-taxonomy.csv row. Advisory→enforced review ~2026-07-13.',
+  },
+  {
+    code: 'GA4_MCP_DISCONNECTED',
+    shipped_in: 'AN-1B.2 (advisory-only, PR #825)',
+    description: 'Advisory-ONLY by design — fires when analytics-affecting code is staged + GA4 MCP unreachable via env. Never blocks.',
+  },
+  {
+    code: 'SCHEMA_DIFF',
+    shipped_in: 'T12/FIT-160 (advisory, PR #862)',
+    description: 'Supabase↔iOS synced-table column drift (sync_records, cardio_assets, cohort_stats). 34th live gate, shipped 2026-07-09.',
   },
 ];
 
@@ -272,10 +288,10 @@ export function AutomationMap() {
         />
       </div>
       <p className="text-xs text-[var(--color-neutral-500)] mt-4 font-sans">
-        {WRITE_TIME_CODES.length} write-time (incl. F4 advisory) + {CYCLE_GATING_CODES.length}{' '}
-        cycle-time + {W9_HOOK_CODES.length} W9 hooks = {totalInstrumented} instrumented gates as of
-        v7.10 ({CYCLE_ADVISORY_CODES.length} additional cycle-time advisories shown separately;
-        25 of 28 actively firing).
+        {WRITE_TIME_CODES.length} write-time (incl. F4 enforced) + {CYCLE_GATING_CODES.length}{' '}
+        cycle-time + {W9_HOOK_CODES.length} W9 hooks = {totalInstrumented} instrumented gates (34
+        live) as of v7.10 ({CYCLE_ADVISORY_CODES.length} additional cycle-time advisories shown
+        separately; 28 of 32 actively firing).
       </p>
     </div>
   );

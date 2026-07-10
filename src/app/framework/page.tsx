@@ -73,7 +73,7 @@ const FLOORS: Floor[] = [
     title: 'Integrity & enforcement (v7.x)',
     summary: (
       <>
-        <strong>28 instrumented gates (17 write-time emitting + 9 cycle-time + 2 W9 hooks), 25 firing</strong> across v7.5 → v7.10 (38 mechanical + 4 advisories; 3 advisories promoted to enforced via the v7.9 promotion 2026-05-21): the v7.5 Data Integrity Framework, write-time pre-commit hooks, the 72h integrity cycle, per-PR review bot, weekly framework-status cron, branch isolation, feature-closure completeness, cross-repo state sync, the Observed Patterns Catalog, and the v7.9.1 build window (F16 try-repo harness, F17 last-fired index, F2 reality-check). <strong>v7.10</strong> (2026-06-10) hardened the meta-layer with the <strong>GATE_COVERAGE_ZERO</strong> observability check, and the <strong>v8.x build window</strong> (opened 2026-06-17) promoted F16 try-repo harness advisory→enforced (2026-06-17) and T14 PLATFORMS_TESTED advisory→enforced (2026-06-21) and shipped the F4/F1/F3 roadmap-realism advisory gates. Includes the <strong>HADF</strong> dispatch program through its Phase&nbsp;3A sensing layer.
+        <strong>32 instrumented / 34 live gates (20 write-time + 9 cycle-time + 2 W9 hooks + 1 standalone), 28 firing</strong> across v7.5 → v7.10 (3 advisories promoted to enforced via the v7.9 promotion 2026-05-21): the v7.5 Data Integrity Framework, write-time pre-commit hooks, the 72h integrity cycle, per-PR review bot, weekly framework-status cron, branch isolation, feature-closure completeness, cross-repo state sync, the Observed Patterns Catalog, and the v7.9.1 build window (F16 try-repo harness, F17 last-fired index, F2 reality-check). <strong>v7.10</strong> (2026-06-10) hardened the meta-layer with the <strong>GATE_COVERAGE_ZERO</strong> observability check, and the <strong>v8.x build window</strong> (opened 2026-06-17) promoted F16 try-repo harness advisory→enforced (2026-06-17) and T14 PLATFORMS_TESTED advisory→enforced (2026-06-21) and shipped the F4/F1/F3 roadmap-realism advisory gates. Includes the <strong>HADF</strong> dispatch program through its Phase&nbsp;3A sensing layer.
       </>
     ),
     href: '/framework/dispatch',
@@ -163,7 +163,7 @@ const BRIDGE_TIMELINE: BridgeEntry[] = [
   {
     version: 'v8.x build window',
     date: '2026-06-17',
-    summary: <>Build window opened (kickoff gate cleared) — <strong>F16 try-repo harness promoted advisory→enforced</strong> 1 day early via main required status checks (the <code>try-repo-harness</code> CI job, not a code flag; K2 0% false-positive rate over 60 CI runs / 13 days). Three ready-now roadmap-realism advisory gates shipped: F4 <code>FRAMEWORK_VERSION_STALE</code> (write-time, PR #740), F1 <code>STATE_TASKS_FILESYSTEM_DRIFT</code> (cycle-time, PR #752), F3 <code>DEPENDENCY_GRAPH_CYCLE</code> (cycle-time, PR #753). 28 instrumented gates total.</>,
+    summary: <>Build window opened (kickoff gate cleared) — <strong>F16 try-repo harness promoted advisory→enforced</strong> 1 day early via main required status checks (the <code>try-repo-harness</code> CI job, not a code flag; K2 0% false-positive rate over 60 CI runs / 13 days). Three ready-now roadmap-realism advisory gates shipped: F4 <code>FRAMEWORK_VERSION_STALE</code> (write-time, PR #740), F1 <code>STATE_TASKS_FILESYSTEM_DRIFT</code> (cycle-time, PR #752), F3 <code>DEPENDENCY_GRAPH_CYCLE</code> (cycle-time, PR #753). F4 later promoted advisory→enforced 2026-07-08 (PR #858); SCHEMA_DIFF (T12) shipped 2026-07-09. 32 instrumented / 34 live gates total.</>,
   },
 ];
 
@@ -318,7 +318,7 @@ export default function FrameworkPage() {
                   Developer guide (v1.0 → v7.10) →
                 </h2>
                 <p className="mt-2 text-sm text-[var(--color-neutral-700)] dark:text-[var(--color-neutral-300)]">
-                  Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema (incl. v7.8.3 cross-repo <code>state_owner</code> enum), phase lifecycle, dispatch model, cache architecture, measurement protocol, 28 instrumented gates, v7.8 bridge mechanisms A–F, v7.8.3 cross-repo state-sync, v7.8.5 Observed Patterns Catalog + W9 branch-drift alert, v7.8.5+S skills-review execution (12 skills + <code>make skills-audit</code>), v7.8.6 cadence batch (unified preflight + integrity-diff + weekly trend scan + dependency audit), 3 operational walkthroughs, compressed v1.0 → v7.10 timeline.
+                  Technical reference for developers onboarding to the framework. 4 enforcement layers, <code>state.json</code> schema (incl. v7.8.3 cross-repo <code>state_owner</code> enum), phase lifecycle, dispatch model, cache architecture, measurement protocol, 32 instrumented gates, v7.8 bridge mechanisms A–F, v7.8.3 cross-repo state-sync, v7.8.5 Observed Patterns Catalog + W9 branch-drift alert, v7.8.5+S skills-review execution (12 skills + <code>make skills-audit</code>), v7.8.6 cadence batch (unified preflight + integrity-diff + weekly trend scan + dependency audit), 3 operational walkthroughs, compressed v1.0 → v7.10 timeline.
                 </p>
               </div>
               <ArrowRight size={24} className="text-[var(--color-brand-indigo)] shrink-0" />

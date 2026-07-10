@@ -1,0 +1,92 @@
+---
+title: >-
+  F18 — Mutation Testing on the Gate Dispatchers (v7.10)
+slug: f18-mutation-testing
+date: '2026-06-26'
+upstream_path: docs/case-studies/f18-mutation-testing-case-study.md
+tier: light
+tldr: >-
+  The framework's enforcement rests on two ~80 KB dispatcher files. F14/F15/F16
+  built a 3-layer test suite for them, but a green suite can still be a weak one —
+  a test that asserts the wrong thing or never reaches a branch passes anyway, and
+  line coverage cannot tell the difference. Mutation testing can: it injects faults
+  and checks the suite actually fails. F18 stands up a warn-only mutmut harness on
+  both dispatchers (1,857 mutants enumerated), a stdlib summary reader that survives
+  mutmut's own broken readers, and a weekly CI run — the substrate for a future
+  GATE_TEST_MISSING enforced threshold.
+timeline_position:
+  version: '7.10'
+  order: 73
+key_numbers:
+  - label: Mutants enumerated across both dispatchers
+    value: '1,857'
+    tier: T1
+    note: 'check-state-schema.py (write-time) + integrity-check.py (cycle-time) whole-file scope — the structural baseline.'
+  - label: scripts/tests suite under the harness
+    value: '574 pass / 3 skip'
+    tier: T1
+  - label: Reader + dispatcher regression tests
+    value: '5 + 27 green'
+    tier: T1
+    note: 'New stdlib sqlite summary-reader tests + dispatcher regression.'
+  - label: CI posture
+    value: 'warn-only'
+    tier: T1
+    note: 'Surviving mutants never block; weekly cron + workflow_dispatch. --fail-under exists for a future enforced calibration.'
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before F18 (line coverage only)'
+    before:
+      label: 'Can the suite detect a weak test?'
+      value: 'no'
+      subtitle: 'a test that asserts the wrong thing or never reaches a branch passes regardless; line coverage cannot distinguish it.'
+    afterLabel: 'After F18 (mutation harness)'
+    after:
+      label: 'Faults injected + suite-must-fail checked'
+      value: '1,857 mutants'
+      subtitle: 'mutmut runs end-to-end on both dispatchers; survivors are triaged and closed by adding tests.'
+    delta: 'coverage-blind → fault-injection baseline on the enforcement core'
+kill_criteria:
+  - 'n/a — warn-only test-infra chore; no kill trigger at v1. A future --fail-under score threshold is a separate calibration step.'
+kill_criterion_fired: false
+honest_disclosures:
+  - 'The full mutation-SCORE baseline is produced by the first weekly CI run (uploaded as an artifact), not committed — a partial local pass would be misleading, so it is reported T2 (declared) until the CI run lands.'
+  - 'Three real toolchain caveats were handled, not hidden: mutmut shelled to a bare `python` (fixed to python3); mutmut 2.5.1 + parso break on Python 3.14 (CI pins 3.13); and mutmut''s own results/junitxml readers crash on recent peewee, bypassed with a version-proof stdlib sqlite reader.'
+  - 'Warn-only at v1 by design — survivors never block. The enforced-threshold decision is deferred to the T1 GATE_TEST_MISSING calibration.'
+---
+
+# F18 — Mutation Testing on the Gate Dispatchers
+
+> **Status:** shipped 2026-06-26 (PR #809). The top open ready-now infra item (RICE 13.7), unblocked by F16 enforce (2026-06-17) + F14.
+
+## Why line coverage wasn't enough
+
+The framework's enforcement rests on two ~80 KB dispatcher files — `scripts/check-state-schema.py` (write-time gates) and `scripts/integrity-check.py` (cycle-time checks). F14/F15/F16 built a 3-layer test suite for them, but **a green suite can still be a weak one**: a test that asserts the wrong thing, or never reaches a branch, passes regardless. Line coverage cannot tell the difference.
+
+Mutation testing can — it injects faults into the code and checks that the suite *fails*. A surviving mutant is a fault no test caught: a hole in the suite, not the code.
+
+## What shipped
+
+| Piece | Detail |
+|---|---|
+| Config | `setup.cfg [mutmut]` — `mutmut==2.5.1`, both dispatchers whole, runner `python3 -m pytest` |
+| Local | `make mutation-test ARGS=--use-coverage` + `make mutation-summary`; skip-clean when mutmut absent |
+| CI | `.github/workflows/mutation-test.yml` — warn-only, weekly cron + `workflow_dispatch` |
+| Reader | `scripts/mutation-summary.py` — stdlib sqlite reader of `.mutmut-cache` (+ 5 unit tests) |
+| Doc | `docs/process/mutation-testing.md` |
+
+## Three caveats discovered (and handled)
+
+<Callout variant="info">
+  The value of a verification-first posture showed up in the toolchain itself: (1) mutmut's runner shelled to a bare `python` not on PATH — fixed to `python3`, caught by verification not CI; (2) mutmut 2.5.1 + parso break on Python 3.14 (AST deep-copy) — CI pins 3.13; (3) mutmut's own `results`/`junitxml` readers crash on recent peewee though the run + sqlite cache are fine — bypassed with a version-proof stdlib reader.
+</Callout>
+
+## Posture & next step
+
+Warn-only at v1 — surviving mutants never block. `scripts/mutation-summary.py --fail-under N` exists for a future enforced calibration step (per infra master plan §3.5) feeding the planned **T1 `GATE_TEST_MISSING`** meta-gate. Until then, survivors from the weekly run are triaged and closed by adding tests to `scripts/tests/`.
+
+## Cross-references
+
+- Source case study (FT2): [`docs/case-studies/f18-mutation-testing-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/f18-mutation-testing-case-study.md)
+- Spec: [`docs/master-plan/infra-master-plan-2026-05-12.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/master-plan/infra-master-plan-2026-05-12.md) §3.0 F18

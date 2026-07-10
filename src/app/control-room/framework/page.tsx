@@ -209,7 +209,7 @@ const PREDECESSOR_LINKS = [
     href: 'https://github.com/Regevba/FitTracker2/blob/main/docs/FRAMEWORK-FACTS.md',
     external: true,
     current: true,
-    description: 'SHIPPED 2026-06-10. Hardens observability of the gates themselves: GATE_COVERAGE_ZERO meta-check reads the F17 gate-last-fired index + adds a 0-candidate mis-wire detector; cycle-time coverage emission wired for BROKEN_PR_CITATION + CASE_STUDY_MISSING_TIER_TAGS + PATTERN_SKILL_UNMAPPED; two field-rename reader mismatches closed (measurement-adoption cu_v2; gate-last-fired ts key). Current canonical state (2026-06-29): 121 features, 32 instrumented gates (20 write-time + 9 cycle-time + 2 W9 hooks + 1 standalone), 28 firing, 0 integrity findings. PLATFORMS_TESTED enforced 2026-06-21; F16 try-repo harness enforced 2026-06-17. Extended 2026-06-29 (v7.10 chores): cross-layer naming convention, state.json schema_version, analytics advisories CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED, integrity-check parallelized (9.4s→1.84s).',
+    description: 'SHIPPED 2026-06-10. Hardens observability of the gates themselves: GATE_COVERAGE_ZERO meta-check reads the F17 gate-last-fired index + adds a 0-candidate mis-wire detector; cycle-time coverage emission wired for BROKEN_PR_CITATION + CASE_STUDY_MISSING_TIER_TAGS + PATTERN_SKILL_UNMAPPED; two field-rename reader mismatches closed (measurement-adoption cu_v2; gate-last-fired ts key). Current canonical state (2026-07-10): 130 features, 32 instrumented / 34 live gates (20 write-time + 9 cycle-time + 2 W9 hooks + 1 standalone), 28 firing, 0 integrity findings. PLATFORMS_TESTED enforced 2026-06-21; F16 try-repo harness enforced 2026-06-17; F4 FRAMEWORK_VERSION_STALE enforced 2026-07-08; SCHEMA_DIFF (T12) shipped 2026-07-09. Extended 2026-06-29 (v7.10 chores): cross-layer naming convention, state.json schema_version, analytics advisories CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED, integrity-check parallelized (9.4s→1.84s).',
   },
 ];
 
@@ -422,8 +422,8 @@ export default async function FrameworkHealthPage() {
       {/* ── T23 — Automation map ── */}
       <Section
         id="automation-map"
-        title="Automation map — all 28 instrumented gates"
-        subtitle="Every instrumented gate as of v7.10: 18 write-time (pre-commit, incl. F4 advisory) + 9 cycle-time (72h CI) + 2 W9 real-time hooks, plus 3 non-gating cycle-time advisories."
+        title="Automation map — all 32 instrumented gates"
+        subtitle="Every instrumented gate as of v7.10: 21 write-time (pre-commit, incl. F4 enforced + SCHEMA_DIFF + CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED) + 9 cycle-time (72h CI) + 2 W9 real-time hooks, plus 3 non-gating cycle-time advisories. 34 live gates total."
       >
         <AutomationMap />
       </Section>

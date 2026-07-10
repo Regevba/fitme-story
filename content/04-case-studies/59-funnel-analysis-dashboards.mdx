@@ -1,0 +1,101 @@
+---
+title: >-
+  Funnel Analysis Dashboards — running the canonical funnels against live GA4
+  (v7.10)
+slug: funnel-analysis-dashboards
+date: '2026-06-23'
+upstream_path: docs/case-studies/funnel-analysis-dashboards-case-study.md
+tier: light
+tldr: >-
+  The backlog framed this (RICE 6.0) as "just needs GA4 funnel definitions
+  wired" — but a Phase 0.1 reality-check found the 5 canonical funnel definitions
+  had already shipped, prose-only, and had never been run against live data. Scope
+  was reframed to the net-new work: run the 5 funnels against live GA4 (28d via the
+  ga4 MCP — the first real readout), extract the prose into a machine-readable data
+  contract, and map each funnel to the kill-criteria it unblocks. 3 of 5 funnels
+  turned out computable; the highest-leverage unblock is not code but a GA4
+  custom-dimension registration (operator action).
+timeline_position:
+  version: '7.10'
+  order: 72
+key_numbers:
+  - label: Funnels with computable live drop-off
+    value: '3 of 5'
+    tier: T1
+    note: 'F1 Activation (partial), F2 Onboarding (event-level 50.9%), F5 UCC (partial) — GA4 MCP 28d query 2026-06-23. Meets the ≥3 target.'
+  - label: Onboarding viewed → completed
+    value: '50.9%'
+    tier: T1
+    note: '379 viewed → 193 completed (F2, event-level aggregate). The one funnel with a live kill-criterion signal today.'
+  - label: Definitions test suite
+    value: '10 pass'
+    tier: T1
+    note: 'test_funnel_definitions.py — schema + taxonomy cross-ref; caught a real mislabel during development.'
+  - label: New analytics events
+    value: '0'
+    tier: T1
+    note: 'Analysis-only; taxonomy unchanged — the data-driven-development guardrail held.'
+  - label: integrity-check after ship
+    value: '0 findings'
+    tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before (prose-only definitions)'
+    before:
+      label: 'Funnels run against live data'
+      value: '0 of 5'
+      subtitle: 'definitions existed as prose in the runbook but had never touched GA4 — no drop-off was ever computed.'
+    afterLabel: 'After (live GA4 + machine-readable contract)'
+    after:
+      label: 'Funnels with computed live drop-off'
+      value: '3 of 5'
+      subtitle: 'F1/F2/F5 computed from the 28d GA4 window; extracted into funnel-definitions.json + guarded by a test.'
+    delta: '0 → 3 of 5 computable · 1 kill-criterion unblocked (onboarding)'
+kill_criteria:
+  - 'If <3 of 5 funnels have any computable live drop-off, defer the analysis report until after the TestFlight ship and reduce scope to the machine-readable defs only.'
+kill_criterion_fired: false
+honest_disclosures:
+  - 'Per-step (step_index) ratios are NOT yet measurable — the Data API returns INVALID_ARGUMENT until the operator registers those params as GA4 custom dimensions (operator action O1). Reported as narrative where estimated; event-level aggregates are T1.'
+  - 'F3 Smart Reminders and F1 conversion read 0 because those events only fire in a shipped TestFlight build (operator action O2) — not a regression, a not-yet-shipped surface.'
+  - 'A taxonomy drift surfaced as a side effect: home_readiness_alert_* / home_trend_alert_* exist in AnalyticsProvider.swift but not in analytics-taxonomy.csv (operator action O3, out of scope here).'
+---
+
+# Funnel Analysis Dashboards
+
+> **Status:** shipped 2026-06-23 (PR #799). An Enhancement of `analytics-observability`.
+
+## The reality-check that reframed the scope
+
+The backlog framed this (RICE 6.0) as "just needs GA4 funnel definitions wired." A **Phase 0.1 reality-check** found the 5 canonical funnel definitions had **already shipped** (2026-06-01, in the GA4 funnels runbook) — prose-only, and **never run against live data**.
+
+So the scope was reframed to the genuinely net-new, agent-ownable work:
+
+1. Run the 5 funnels against **live GA4** (28d via the `ga4` MCP) — the first real readout.
+2. Extract the prose defs into a **machine-readable data contract** (`docs/product/funnel-definitions.json`).
+3. Map each funnel to the **kill-criteria** it unblocks; guard the contract with a test.
+
+## What the live data showed
+
+<Callout variant="info">
+  **The highest-leverage unblock is not code — it's GA4 config.** Parameter-filtered funnel steps (`step_index`) can't be computed via the Data API until the operator registers those params as **custom dimensions** (`runReport` → `INVALID_ARGUMENT`). This converts F2 from an aggregate-only readout into a real per-step onboarding kill-criterion. Surfaced as operator action O1.
+</Callout>
+
+| Funnel | Live verdict |
+|---|---|
+| F1 Activation | **Partial** — strong top (open→view 91.5%); conversion `workout_complete`=0 (TestFlight) |
+| F2 Onboarding drop-off | **Event-level** — viewed 379 → completed 193 = **50.9%**; per-step blocked on custom dims |
+| F3 Smart Reminders | **Blocked** — all alert events 0 (TestFlight not shipped) |
+| F4 Web→App | **Deferred** — no install bridge |
+| F5 UCC observability | **Partial** — warning 5 → load 9; conversion event never fired |
+
+**3 of 5 computable; only onboarding-completion (F2) has a live kill-criterion signal today.** The validation test earned its keep on day one — it caught a real mislabel during development.
+
+## Outcome
+
+`test_funnel_definitions.py` 10/10, broader scripts suite 34/34, `integrity-check` 0 findings / 0 advisory, and no new analytics events. Three operator follow-ups (O1 custom dimensions, O2 next TestFlight, O3 taxonomy rows) were recorded in `operator-actions-pending.md` §E.
+
+## Cross-references
+
+- Source case study (FT2): [`docs/case-studies/funnel-analysis-dashboards-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/funnel-analysis-dashboards-case-study.md)
+- Parent feature: [`analytics-observability`](/case-studies/analytics-observability)
