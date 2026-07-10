@@ -1,0 +1,97 @@
+---
+title: >-
+  Contract-Fixture Consumer Adoption (E-15) — closing the W16 cross-repo
+  silent-pass (v7.10)
+slug: contract-fixture-consumer-adoption
+date: '2026-06-22'
+upstream_path: docs/case-studies/contract-fixture-consumer-adoption-case-study.md
+tier: light
+tldr: >-
+  The /control-room/framework page threw a TypeError in production for 13 days
+  with green CI the whole time: the FitTracker2 producer emitted `timestamp`, the
+  fitme-story consumer expected `event.ts`, and both repos' test suites agreed on
+  the wrong shape (W16). The fix is a contract-sampling discipline — validate what
+  a consumer reads against the producer's REAL sampled output, never a hand-authored
+  fixture. The FT2 substrate shipped 2026-06-07; E-15 closes the cross-repo consumer
+  half: a unified checker (shape = hard fail, freshness = asymmetric), a PII-safe
+  audit-log canonical sampler, and a weekly re-sample cron.
+timeline_position:
+  version: '7.10'
+  order: 71
+key_numbers:
+  - label: W16 silent-pass duration in production
+    value: '13 days'
+    tier: T1
+    note: 'Green CI throughout — both repos'' tests asserted the same wrong shape, so neither caught the drift.'
+  - label: New tests (checker + sampler)
+    value: '16'
+    tier: T1
+    note: '7 checker + 9 sampler, all temp-dir based; aggregator 9/9 stays green.'
+  - label: Live consumer files validated
+    value: '113'
+    tier: T1
+    note: 'src/data/features/*.json validated against the producer-sampled shape, not inline literals.'
+  - label: Fixture staleness
+    value: '15d → 0d'
+    tier: T2
+    note: 'Both repos'' fixtures were 15 days stale (>7d max) at session start; FT2 re-sampled fresh (#790), weekly cron maintains it.'
+  - label: integrity-check after ship
+    value: '0 findings'
+    tier: T1
+visual_aid:
+  component: BeforeAfter
+  data:
+    beforeLabel: 'Before E-15 (hand-authored fixtures)'
+    before:
+      label: 'Producer↔consumer shape drift'
+      value: '13 days'
+      subtitle: 'in production — both repos'' tests agreed on the wrong shape, so drift only surfaced as a prod TypeError.'
+    afterLabel: 'After E-15 (contract-sampling)'
+    after:
+      label: 'Drift caught at consumer CI'
+      value: '100%'
+      subtitle: 'required-key drift fails contract:check against the producer''s real sampled output before merge.'
+    delta: '13-day prod silent-pass → caught at CI · fixtures fresh (0.0d)'
+kill_criteria:
+  - 'Freshness check too strict — breaks fitme-story CI when an FT2-produced fixture goes stale between syncs (the consumer cannot self-re-sample those).'
+  - 'The audit-log sampler leaks PII into the committed, publicly-reachable fixture.'
+  - 'Consumer tests hand-author the producer shape (the W16 anti-pattern), so drift still passes silently.'
+kill_criterion_fired: false
+honest_disclosures:
+  - 'Freshness is ASYMMETRIC by design — WARN (not hard) for FT2-produced fixtures fitme-story vendors but cannot re-sample; HARD only for fitme-story-owned contracts (audit-log) where it controls re-sampling.'
+  - 'The warn-only → blocking flip was deliberately NOT done: FT2''s contract-fixtures cron is drift-only + warn-only per operator decision D2 (2026-06-18), and the fitme-story consumer gate is day-0 and must soak warn-only first. The flip date is an operator decision.'
+  - 'fixture_staleness_days is T2 (declared) — the 15-day figure is the observed sample age at session start, verified by the first scheduled cron fire rather than continuous instrumentation.'
+---
+
+# Contract-Fixture Consumer Adoption (E-15)
+
+> **Status:** shipped 2026-06-22 (fitme-story#252 + FT2 #790). Closes the W16 silent-pass class end-to-end across both repos.
+
+## The incident that named the discipline
+
+On **2026-05-24 (W16)**, the `/control-room/framework` page threw a `TypeError` in production for **13 days** with green CI the whole time. The FitTracker2 gate-coverage producer emitted a `timestamp` field; the fitme-story consumer expected `event.ts`; and **both repos' test suites agreed on the wrong shape**, so neither caught the drift.
+
+The lesson: a consumer test that hand-authors the producer's shape validates nothing — it just re-encodes the same assumption on both sides. The fix is to validate against the producer's **real sampled output**.
+
+## What shipped
+
+The FT2 **substrate** (`scripts/sample-contract-fixtures.py`, `make check-contract-fixtures`, warn-only in `pr-integrity-check.yml`) shipped 2026-06-07. E-15 closed the cross-repo **consumer** half:
+
+- **`scripts/check-contract-fixtures.ts`** — a unified checker. **Shape (required_keys) = HARD** fail (the incident class). **Freshness = asymmetric**: WARN for FT2-produced fixtures fitme-story vendors (it cannot self-re-sample them), HARD for fitme-story-owned contracts. Validates the vendored fixtures **and** the live `src/data/features/*.json` consumer (113 files).
+- **`scripts/sample-audit-log-contract.ts`** — the audit-log **canonical** sampler. fitme-story is that contract's canonical producer (the UCC auth stream lives in Upstash Redis here). It sanitizes each record via `sanitizeForPublicExport` before write (the fixture is committed and publicly reachable), and no-ops cleanly without Redis creds.
+- **`.github/workflows/contract-resample-weekly.yml`** — Mondays 07:00 UTC. Re-samples audit-log and re-vendors the FT2 fixtures via a fresh clone, each step guarded on its secret, and opens a PR on change.
+
+## A verification-first surprise
+
+<Callout variant="info">
+  Before writing the consumer checker, a read of `gate-coverage-aggregator.test.ts` showed the gate-coverage **shape** validation against the canonical fixture **already existed** (PR #209). The plan was adjusted to add only the genuinely-missing pieces — freshness, the live `state-json-schema` consumer, the audit-log canonical sample, the unified script, and the cadence — rather than duplicate work. The 15-day fixture staleness across *both* repos also surfaced during this check, confirming the missing re-sample cadence was real.
+</Callout>
+
+## Outcome
+
+`npm run contract:check` → PASS; 16/16 new tests + aggregator 9/9 green; FT2 post-merge `integrity-check` 0 findings and `check-contract-fixtures` all fresh (0.0d). Producer-shape drift now fails at consumer CI time instead of in production, and a weekly cadence keeps the fixtures honest.
+
+## Cross-references
+
+- Source case study (FT2): [`docs/case-studies/contract-fixture-consumer-adoption-case-study.md`](https://github.com/Regevba/FitTracker2/blob/main/docs/case-studies/contract-fixture-consumer-adoption-case-study.md)
+- Predecessor: [`f-launchd-drift-extension`](/case-studies/f-launchd-drift-extension) (the prior cross-repo cron-context silent-pass class)
