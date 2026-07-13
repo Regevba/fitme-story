@@ -1,16 +1,16 @@
 {
-  "syncedAt": "2026-07-10T04:55:52.210Z",
-  "durationMs": 426,
+  "syncedAt": "2026-07-11T05:20:27.672Z",
+  "durationMs": 529,
   "source": "/Users/regevbarak/Developer/FitMe/FitTracker2",
   "counts": {
     "sharedFiles": 62,
-    "featureFiles": 130,
-    "logFiles": 98,
+    "featureFiles": 131,
+    "logFiles": 99,
     "docFiles": 4,
     "kbFiles": 490,
     "integritySnapshotFiles": 22,
     "skillFiles": 12,
-    "bytesTotal": 21922943
+    "bytesTotal": 22257839
   },
   "checkedFiles": [
     "shared/agent-leases.json",
@@ -158,6 +158,7 @@
     "features/meta-analysis-audit.json",
     "features/meta-analysis-refresh-phase-1.json",
     "features/metric-tile-deep-linking.json",
+    "features/n6-data-freshness-audit.json",
     "features/nutrition-logging.json",
     "features/nutrition-v2.json",
     "features/onboarding.json",
@@ -763,6 +764,7 @@
     "logs/ios-ui-audit-p1-drift-cleanup.log.json",
     "logs/meta-analysis-audit.log.json",
     "logs/meta-analysis-refresh-phase-1.log.json",
+    "logs/n6-data-freshness-audit.log.json",
     "logs/onboarding-v2-retroactive.log.json",
     "logs/orchid-v1-5.log.json",
     "logs/precommit-hook-latency-profiling.log.json",
