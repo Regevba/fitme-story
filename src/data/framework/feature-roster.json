@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-10T04:55:52Z",
+  "generated_at": "2026-07-11T05:20:27Z",
   "entries": [
     {
       "slug": "3d-interactive-framework-flow-diagram",
@@ -1010,6 +1010,18 @@
       "current_phase": "complete",
       "case_study": null,
       "parent_feature": "home-today-screen",
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
+      "slug": "n6-data-freshness-audit",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
       "has_brainstorm": false,
