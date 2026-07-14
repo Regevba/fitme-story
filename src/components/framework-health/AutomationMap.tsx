@@ -3,7 +3,7 @@
  * Static lookup table of the framework's instrumented gates as of v7.10.
  * 21 write-time (pre-commit; incl. F4 FRAMEWORK_VERSION_STALE enforced 2026-07-08,
  * SCHEMA_DIFF + CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED) +
- * 9 cycle-time (72h CI) + 2 W9 real-time hooks = 32 instrumented gates (34 live).
+ * 9 cycle-time (72h CI) + 2 W9 real-time hooks = 33 instrumented gates (34 live).
  * Source of truth: FitTracker2 docs/FRAMEWORK-FACTS.md (reconciled 2026-07-10).
  */
 

@@ -7,7 +7,7 @@
  * Renders:
  *  - Tier 1.1 adoption trend (AdoptionTrendChart)
  *  - Documentation-debt coverage (DocDebtTrendChart)
- *  - Automation map of all 32 instrumented gates (AutomationMap)
+ *  - Automation map of all 33 instrumented gates (AutomationMap)
  *  - Mechanically-unclosable deferred items D1+D2 (HumanActionPanel)
  *  - Latest 72h integrity cycle snapshot (CycleSnapshotPanel)
  *  - v7.8 Mechanism F membrane status — advisory smartlog (MembraneStatusPanel)
@@ -59,7 +59,7 @@ async function loadGateCoverage() {
 export const metadata: Metadata = {
   title: 'Framework Health — control room',
   description:
-    'Live dashboard for the FitMe PM framework v7.10 (shipped 2026-06-10): Tier 1.1 adoption trends, documentation-debt coverage, automation map (32 instrumented gates: 20 write-time + 9 cycle-time + 2 W9 hooks + 1 standalone — incl. BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS enforced at v7.9, PLATFORMS_TESTED enforced 2026-06-21, F16 try-repo harness enforced 2026-06-17, and the 2026-06-29 analytics advisories CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.5 Observed Patterns Catalog (gate-firing patterns + W1–W40 workflow patterns incl. cross-layer tracker lag) with W9 branch-drift real-time alert hook, v7.8.6 cadence batch (make integrity-diff + make preflight + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit), v7.10 GATE_COVERAGE_ZERO observability + field-rename closure, and the 2026-06-29 cross-layer naming convention (slug + linear_id + scheme-prefixed codes, make crosswalk) + state.json schema_version.',
+    'Live dashboard for the FitMe PM framework v7.10 (shipped 2026-06-10): Tier 1.1 adoption trends, documentation-debt coverage, automation map (33 instrumented gates: 21 write-time + 9 cycle-time + 2 W9 hooks + 1 standalone — incl. BRANCH_ISOLATION_VIOLATION Mode B + Mode C + FEATURE_CLOSURE_COMPLETENESS enforced at v7.9, PLATFORMS_TESTED enforced 2026-06-21, F16 try-repo harness enforced 2026-06-17, and the 2026-06-29 analytics advisories CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED), 72h integrity cycle snapshot, v7.8 Mechanism F membrane status, v7.8.3 cross-repo gate-coverage aggregator (FT2 + fitme-story streams time-sorted), v7.8.5 Observed Patterns Catalog (gate-firing patterns + W1–W40 workflow patterns incl. cross-layer tracker lag) with W9 branch-drift real-time alert hook, v7.8.6 cadence batch (make integrity-diff + make preflight + weekly gate-coverage zero-drift scan + per-dimension trend nudge + W1 ssh-agent SessionStart preflight + weekly dependency audit), v7.10 GATE_COVERAGE_ZERO observability + field-rename closure, and the 2026-06-29 cross-layer naming convention (slug + linear_id + scheme-prefixed codes, make crosswalk) + state.json schema_version.',
 };
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
@@ -209,7 +209,7 @@ const PREDECESSOR_LINKS = [
     href: 'https://github.com/Regevba/FitTracker2/blob/main/docs/FRAMEWORK-FACTS.md',
     external: true,
     current: true,
-    description: 'SHIPPED 2026-06-10. Hardens observability of the gates themselves: GATE_COVERAGE_ZERO meta-check reads the F17 gate-last-fired index + adds a 0-candidate mis-wire detector; cycle-time coverage emission wired for BROKEN_PR_CITATION + CASE_STUDY_MISSING_TIER_TAGS + PATTERN_SKILL_UNMAPPED; two field-rename reader mismatches closed (measurement-adoption cu_v2; gate-last-fired ts key). Current canonical state (2026-07-13): 131 features, 32 instrumented / 34 live gates (20 write-time + 9 cycle-time + 2 W9 hooks + 1 standalone), 28 firing, 0 integrity findings. PLATFORMS_TESTED enforced 2026-06-21; F16 try-repo harness enforced 2026-06-17; F4 FRAMEWORK_VERSION_STALE enforced 2026-07-08; CSV_TAXONOMY_DRIFT enforced 2026-07-13 (B16); SCHEMA_DIFF (T12) shipped 2026-07-09. Extended 2026-06-29 (v7.10 chores): cross-layer naming convention, state.json schema_version, analytics advisories CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED, integrity-check parallelized (9.4s→1.84s).',
+    description: 'SHIPPED 2026-06-10. Hardens observability of the gates themselves: GATE_COVERAGE_ZERO meta-check reads the F17 gate-last-fired index + adds a 0-candidate mis-wire detector; cycle-time coverage emission wired for BROKEN_PR_CITATION + CASE_STUDY_MISSING_TIER_TAGS + PATTERN_SKILL_UNMAPPED; two field-rename reader mismatches closed (measurement-adoption cu_v2; gate-last-fired ts key). Current canonical state (2026-07-13): 131 features, 33 instrumented / 34 live gates (21 write-time + 9 cycle-time + 2 W9 hooks + 1 standalone), 28 firing, 0 integrity findings. PLATFORMS_TESTED enforced 2026-06-21; F16 try-repo harness enforced 2026-06-17; F4 FRAMEWORK_VERSION_STALE enforced 2026-07-08; CSV_TAXONOMY_DRIFT enforced 2026-07-13 (B16); SCHEMA_DIFF (T12) shipped 2026-07-09. Extended 2026-06-29 (v7.10 chores): cross-layer naming convention, state.json schema_version, analytics advisories CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED, integrity-check parallelized (9.4s→1.84s).',
   },
 ];
 
@@ -422,7 +422,7 @@ export default async function FrameworkHealthPage() {
       {/* ── T23 — Automation map ── */}
       <Section
         id="automation-map"
-        title="Automation map — all 32 instrumented gates"
+        title="Automation map — all 33 instrumented gates"
         subtitle="Every instrumented gate as of v7.10: 21 write-time (pre-commit, incl. F4 enforced + SCHEMA_DIFF + CSV_TAXONOMY_DRIFT + GA4_MCP_DISCONNECTED) + 9 cycle-time (72h CI) + 2 W9 real-time hooks, plus 3 non-gating cycle-time advisories. 34 live gates total."
       >
         <AutomationMap />
