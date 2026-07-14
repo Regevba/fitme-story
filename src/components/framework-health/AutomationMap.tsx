@@ -291,7 +291,7 @@ export function AutomationMap() {
         {WRITE_TIME_CODES.length} write-time (incl. F4 enforced) + {CYCLE_GATING_CODES.length}{' '}
         cycle-time + {W9_HOOK_CODES.length} W9 hooks = {totalInstrumented} instrumented gates (34
         live) as of v7.10 ({CYCLE_ADVISORY_CODES.length} additional cycle-time advisories shown
-        separately; 28 of 32 actively firing).
+        separately; 28 of 33 actively firing).
       </p>
     </div>
   );

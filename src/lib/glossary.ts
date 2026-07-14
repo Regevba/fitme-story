@@ -315,7 +315,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     aliases: ['control room', 'control-room', '/control-room/*'],
     category: 'framework',
     tooltip: "fitme-story's live operational dashboard at /control-room/*, mirroring the framework's data.",
-    full: 'The `/control-room/*` routes on fitme-story.vercel.app expose the framework live state to anyone with the URL: `/control-room/framework` (framework health, all 32 gates, trend charts), the dispatch replay, and per-feature status. Originally an Astro dashboard inside FitTracker2; ported to Next.js as part of the Unified Control Center work.',
+    full: 'The `/control-room/*` routes on fitme-story.vercel.app expose the framework live state to anyone with the URL: `/control-room/framework` (framework health, all 33 gates, trend charts), the dispatch replay, and per-feature status. Originally an Astro dashboard inside FitTracker2; ported to Next.js as part of the Unified Control Center work.',
   },
   {
     slug: 'dispatch-replay',
@@ -465,7 +465,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     aliases: ['observed patterns', 'pattern catalog', 'observed-patterns.md'],
     category: 'framework',
     tooltip: 'The canonical manifest of gate-firing patterns operators must recognize before debugging the framework.',
-    full: 'Shipped at framework v7.8.5 (2026-05-13, FT2 PR #328). A single file at .claude/integrity/observed-patterns.md catalogues 25 gate-firing patterns (#1–#25; write-time + cycle-time, e.g. BRANCH_ISOLATION_HISTORICAL, CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT, TIER_TAG_LIKELY_INCORRECT) and 39 workflow patterns (W1–W39; e.g. SSH signing, branch drift, no-auto-merge). Each entry documents trigger, why-expected, signal-vs-noise rule, silence path, and first-observed date. Auto-loaded as preflight by /pm-workflow; CLI access via `make observed-patterns`. The catalog grows append-only-by-default: any novel pattern surfaced during a session MUST be appended before the protocol closes the feature. Converts framework debugging from "every advisory triggers fresh investigation" to "look it up first, only escalate if novel."',
+    full: 'Shipped at framework v7.8.5 (2026-05-13, FT2 PR #328). A single file at .claude/integrity/observed-patterns.md catalogues 25 gate-firing patterns (#1–#25; write-time + cycle-time, e.g. BRANCH_ISOLATION_HISTORICAL, CACHE_HITS_AUTO_INSTRUMENTATION_DRIFT, TIER_TAG_LIKELY_INCORRECT) and 43 workflow patterns (W1–W43; e.g. SSH signing, branch drift, no-auto-merge). Each entry documents trigger, why-expected, signal-vs-noise rule, silence path, and first-observed date. Auto-loaded as preflight by /pm-workflow; CLI access via `make observed-patterns`. The catalog grows append-only-by-default: any novel pattern surfaced during a session MUST be appended before the protocol closes the feature. Converts framework debugging from "every advisory triggers fresh investigation" to "look it up first, only escalate if novel."',
   },
   {
     slug: 'w9-branch-drift',
