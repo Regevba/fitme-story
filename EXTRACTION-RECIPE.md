@@ -442,7 +442,7 @@ In `vercel.json`:
 
 ```bash
 vercel deploy --prod --yes --scope <team-scope>
-# Expect build logs to contain: ✓ synced FitTracker2 → fitme-story: 33 shared + 43 features
+# Expect build logs to contain: ✓ synced FitTracker2 → fitme-story: 33 shared + 131 features
 ./scripts/verify-blind-switch.sh https://<project>.vercel.app
 # Expect: 5 passed, 0 failed
 ```
