@@ -96,6 +96,15 @@ The v7.9.1 build window opened at **v7.9 Phase E exit (2026-06-04)** and closed 
 
 The numbering reflects two grouping layers — the 8 functional ships (F-LAUNCHD-DRIFT-EXTENSION is one feature with sub-fixes b/c then a; W29-W32 catalog is one item) plus the closure PRs they each needed.
 
+### Adjacent v7.9.1-era hardening ships (2026-06-05 → 06-06)
+
+Two further v7.9.1-tagged framework-hardening features shipped in the days immediately after this single-day build window; they are recorded here for completeness (each carries its own FT2 source case study):
+
+| Feature | What | PRs |
+|---|---|---|
+| `w9-drift-triggered-auto-isolation` | Auto-isolate into a git worktree when W9 branch-drift is detected mid-session | #646 / #648 / #649 |
+| `framework-w30-w31-w32-durable-fixes` | Durable fixes for the W30 YAML-parity parser bare-integer drop, the W31 workflow-delivery anomaly, and W32 `close-feature.py --force-incomplete` | durable-fix batch |
+
 ## Cross-cutting themes
 
 ### Silent-pass closures
