@@ -1,16 +1,34 @@
 {
-  "generated_at": "2026-07-11T05:20:27+00:00",
+  "generated_at": "2026-07-14T04:33:00+00:00",
   "epoch": 0,
   "lease_count": 0,
   "feature_count": 131,
-  "branch_count": 0,
+  "branch_count": 13,
   "features": [
+    {
+      "slug": "t4-ios-snapshot-testing",
+      "current_phase": "implement",
+      "framework_version": "v7.10",
+      "branch": "chore/fit152-snapshot-testing",
+      "last_touched_utc": "2026-07-14T04:21:08+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
     {
       "slug": "3d-interactive-framework-flow-diagram",
       "current_phase": "tasks_phase",
       "framework_version": "v7.9.1",
       "branch": "",
-      "last_touched_utc": "2026-07-10T09:54:48+00:00",
+      "last_touched_utc": "2026-07-12T16:23:20+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t9-backend-chaos-tests",
+      "current_phase": "implement",
+      "framework_version": "v7.10",
+      "branch": "chore/fit157-encryption-rotation-tests",
+      "last_touched_utc": "2026-07-12T16:23:20+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -213,15 +231,6 @@
       "manifest_writes": []
     },
     {
-      "slug": "t4-ios-snapshot-testing",
-      "current_phase": "implement",
-      "framework_version": "v7.10",
-      "branch": "chore/fit152-snapshot-testing",
-      "last_touched_utc": "2026-07-07T16:24:16+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
       "slug": "t5-mock-protocol-drift",
       "current_phase": "complete",
       "framework_version": "v7.10",
@@ -244,15 +253,6 @@
       "current_phase": "complete",
       "framework_version": "v7.10",
       "branch": "chore/fit156-ft2-state-closure",
-      "last_touched_utc": "2026-07-07T16:24:16+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "t9-backend-chaos-tests",
-      "current_phase": "implement",
-      "framework_version": "v7.10",
-      "branch": "chore/fit157-encryption-rotation-tests",
       "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
