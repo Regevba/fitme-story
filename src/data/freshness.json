@@ -1,6 +1,6 @@
 {
-  "syncedAt": "2026-07-14T04:33:01.008Z",
-  "durationMs": 538,
+  "syncedAt": "2026-07-14T05:42:21.757Z",
+  "durationMs": 586,
   "source": "/Users/regevbarak/Developer/FitMe/FitTracker2",
   "counts": {
     "sharedFiles": 63,
@@ -10,7 +10,7 @@
     "kbFiles": 493,
     "integritySnapshotFiles": 26,
     "skillFiles": 12,
-    "bytesTotal": 22278252
+    "bytesTotal": 22292575
   },
   "checkedFiles": [
     "shared/agent-leases.json",
