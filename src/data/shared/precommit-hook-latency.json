@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "budgets": {
+    "per_check_p95": 3.0,
+    "total_p95": 8.0
+  },
+  "checks": {
+    "check-state-schema": {
+      "samples": 5,
+      "p50": 0.0401,
+      "p95": 0.0402,
+      "max": 0.0402,
+      "mean": 0.0401
+    },
+    "check-case-study-preflight": {
+      "samples": 5,
+      "p50": 0.04,
+      "p95": 0.0401,
+      "max": 0.0401,
+      "mean": 0.04
+    },
+    "check-prereg-lock": {
+      "samples": 5,
+      "p50": 0.0202,
+      "p95": 0.0204,
+      "max": 0.0204,
+      "mean": 0.0202
+    }
+  },
+  "total_p95": 0.1007,
+  "over_budget": {
+    "per_check": [],
+    "total": false
+  },
+  "within_budget": true
+}
