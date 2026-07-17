@@ -11,8 +11,19 @@
 // stale without any surface. This endpoint makes staleness a queryable HTTP
 // signal the FT2 daily checkpoint probes.
 
-/** Freshness threshold — synced data older than this is unhealthy. */
-export const STALE_THRESHOLD_MINUTES = 6 * 60; // 6h
+/**
+ * Freshness threshold — synced data older than this is unhealthy.
+ *
+ * Calibrated to the actual FT2→fitme-story mirror cadence. The forward sync
+ * is a *manual* periodic `chore(sync)` PR to main (not an automated cron —
+ * the blob live-feed path is inert until BLOB_READ_WRITE_TOKEN is wired), and
+ * in practice runs roughly daily-to-every-few-days. The original 6h threshold
+ * was far tighter than that cadence, so the endpoint reported `stale` for most
+ * of the gap between normal manual syncs — a chronic false WARN in
+ * `make integrity-sweep`. 48h tolerates the normal cadence while still flagging
+ * a genuinely stalled sync (cron/SSD/auth drift → >2 days silent).
+ */
+export const STALE_THRESHOLD_MINUTES = 48 * 60; // 48h
 
 export interface SyncHealthInput {
   /** freshness.json::syncedAt (ISO-8601), or null if the file is missing. */

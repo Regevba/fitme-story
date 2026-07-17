@@ -24,16 +24,28 @@ describe('computeSyncHealth', () => {
     assert.equal(v.last_sync_ts, '2026-07-03T11:30:00Z');
   });
 
-  test('older than 6h → stale + unhealthy', () => {
+  test('within 48h manual-sync cadence → still healthy', () => {
     const v = computeSyncHealth({
-      syncedAt: '2026-07-03T05:00:00Z', // 7h ago
+      syncedAt: '2026-07-02T05:00:00Z', // 31h ago — normal manual-sync gap
+      ft2StateCount: 113,
+      gateCoverageLines: 4024,
+      now: NOW,
+    });
+    assert.equal(v.healthy, true);
+    assert.equal(v.reason, 'ok');
+    assert.equal(v.age_minutes, 1860);
+  });
+
+  test('older than 48h → stale + unhealthy', () => {
+    const v = computeSyncHealth({
+      syncedAt: '2026-07-01T10:00:00Z', // 50h ago
       ft2StateCount: 113,
       gateCoverageLines: 4024,
       now: NOW,
     });
     assert.equal(v.healthy, false);
     assert.equal(v.reason, 'stale');
-    assert.equal(v.age_minutes, 420);
+    assert.equal(v.age_minutes, 3000);
   });
 
   test('exactly at threshold is still healthy; one minute over is stale', () => {
