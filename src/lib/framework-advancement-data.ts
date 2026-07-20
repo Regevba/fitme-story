@@ -192,6 +192,26 @@ export const ADVANCEMENT_POINTS: AdvancementPoint[] = [
     tier: 'T1',
     note: 'Single-line BRANCH_ISOLATION_ADVISORY_MODE = True → False flip at scripts/check-state-schema.py:132. 3 advisory gates → enforced. All 4 §2.2 promotion criteria met against 14d Mechanism A telemetry. Total framework mechanisms post-promotion: 37 mechanical + 5 advisories. PR #417; Phase E soak 2026-05-21 → 2026-06-04.',
   },
+  {
+    name: 'Framework v7.9.1 — Build Window (8 ships, 14 PRs)',
+    shortLabel: 'v7.9.1 Build',
+    shipDate: '2026-06-04',
+    frameworkVersion: 'v7.9.1',
+    cu: 0.7,
+    wallMinutes: 480,
+    tier: 'T1',
+    note: 'Single-day build window at Phase E exit. F16 try-repo harness (the 3rd gate-test layer: unit → dispatch → try-repo) + F17 per-gate last_fired_at index + F2 Phase-0 reality-check + 6 CI workflows. 0 new enforcement gates — respected Phase E exit discipline.',
+  },
+  {
+    name: 'Framework v7.10 — Gate Self-Observability',
+    shortLabel: 'v7.10 Meta-layer',
+    shipDate: '2026-06-10',
+    frameworkVersion: 'v7.10',
+    cu: 0.6,
+    wallMinutes: 120,
+    tier: 'T1',
+    note: 'The meta-layer now watches whether each gate is actually running: GATE_COVERAGE_ZERO gained a 0-candidate mis-wire detector, three cycle-time checks emit Mechanism A coverage, and a field-rename silent-pass class was closed (pattern #24). T10 AI golden-set evals shipped. Post-v7.10 (2026-06-29 → 2026-07-20): SCHEMA_DIFF T12 shipped advisory then promoted enforced (cadence B17, 2026-07-20); iOS snapshot testing reached 11 CI baselines; the v8.x cumulative build is ~1 item from complete — GATE_TEST_MISSING is date-gated on F14 Phase-E exit 2026-08-22.',
+  },
 ];
 
 export const GEMINI_AUDIT_DATE = '2026-04-21';
