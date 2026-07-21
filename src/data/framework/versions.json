@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
   "generated_by": "manual seed 2026-05-28; future generator: fitme-story/scripts/sync-from-fittracker2.ts (Phase 4 of feature 3d-interactive-framework-flow-diagram)",
-  "last_reconciled": "2026-07-14",
-  "reconciled_by": "2026-07-14 doc-sync reconcile: instrumented gates 32\u219233 (SCHEMA_DIFF T12 entered the F17 index 2026-07-10); CI workflows 25\u219226 (ios-snapshot-verify.yml); v7.10 tooling/observability ships \u2014 Option B bot-PR CI-trigger fix (WORKFLOW_PR_TOKEN + signed createCommitOnBranch, #884/#886), codified make integrity-sweep (#888), iOS snapshot pipeline unblocked (FIT-152/T2 #891), launchd CRON_CONTEXT hardening (#892). Features 131 unchanged, v7.10 unchanged. Prior: 2026-07-13 morning-sweep (130\u2192131 via n6-data-freshness-audit #869; CSV_TAXONOMY_DRIFT advisory\u2192enforced B16). Canonical: FT2 docs/FRAMEWORK-FACTS.md",
+  "last_reconciled": "2026-07-21",
+  "reconciled_by": "2026-07-21 doc-sweep reconcile: features 131\u2192132 (127 complete); gates firing 28\u219229 of 33 (SCHEMA_DIFF fired its first genuine field firing 2026-07-16); FT2 PR #934 revived the dilution multi-anchor + data-lake tooling (silently stranded by the 2026-07-07 backup-path consolidation) and promoted the dilution check to a standing Dilution-normalization layer in make integrity-sweep (10\u219211 layers); 2026-05-14 stays the sole canonical gating anchor. Prior \u2014 2026-07-14 doc-sync reconcile: instrumented gates 32\u219233 (SCHEMA_DIFF T12 entered the F17 index 2026-07-10); CI workflows 25\u219226 (ios-snapshot-verify.yml); v7.10 tooling/observability ships \u2014 Option B bot-PR CI-trigger fix (WORKFLOW_PR_TOKEN + signed createCommitOnBranch, #884/#886), codified make integrity-sweep (#888), iOS snapshot pipeline unblocked (FIT-152/T2 #891), launchd CRON_CONTEXT hardening (#892). Features 131 unchanged, v7.10 unchanged. Prior: 2026-07-13 morning-sweep (130\u2192131 via n6-data-freshness-audit #869; CSV_TAXONOMY_DRIFT advisory\u2192enforced B16). Canonical: FT2 docs/FRAMEWORK-FACTS.md",
   "current": {
     "version": "v7.10",
     "shipped_at": "2026-06-10",
@@ -42,7 +42,7 @@
     ],
     "lifecycle_phases": 10,
     "data_quality_tiers": 3,
-    "features_tracked": 131,
+    "features_tracked": 132,
     "_note": "Counts as of 2026-07-14 reconcile; FT2 docs/FRAMEWORK-FACTS.md is the canonical machine-derived source. instrumented_gates_total = 21 write-time + 9 cycle-time + 2 W9 hooks + 1 standalone (FIGMA_MIRROR_STALENESS) per the F17 index; 34 live gates counting CASE_STUDY_MISSING_FIELDS (SCHEMA_DIFF T12 entered the F17 index 2026-07-10 \u2192 instrumented 32\u219233)."
   },
   "timeline": [
