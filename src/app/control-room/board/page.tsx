@@ -58,15 +58,18 @@ interface ColumnDef {
   color: string;
 }
 
+// Phase dots reference the semantic lifecycle tokens in globals.css (FIT-135)
+// rather than raw hex, so dark mode and any future palette change flow through
+// the design system instead of needing an edit here.
 const COLUMNS: ColumnDef[] = [
-  { id: 'backlog', label: 'Backlog', color: '#9CA3AF' },
-  { id: 'research', label: 'Research', color: '#9CA3AF' },
-  { id: 'prd', label: 'PRD', color: '#9CA3AF' },
-  { id: 'ux', label: 'UX / Design', color: '#3B82F6' },
-  { id: 'implement', label: 'Implement', color: '#3B82F6' },
-  { id: 'testing', label: 'Testing', color: '#A855F7' },
-  { id: 'review', label: 'Review', color: '#A855F7' },
-  { id: 'done', label: 'Done', color: '#10B981' },
+  { id: 'backlog', label: 'Backlog', color: 'var(--color-phase-pending)' },
+  { id: 'research', label: 'Research', color: 'var(--color-phase-pending)' },
+  { id: 'prd', label: 'PRD', color: 'var(--color-phase-pending)' },
+  { id: 'ux', label: 'UX / Design', color: 'var(--color-phase-building)' },
+  { id: 'implement', label: 'Implement', color: 'var(--color-phase-building)' },
+  { id: 'testing', label: 'Testing', color: 'var(--color-phase-verifying)' },
+  { id: 'review', label: 'Review', color: 'var(--color-phase-verifying)' },
+  { id: 'done', label: 'Done', color: 'var(--color-phase-done)' },
 ];
 
 function bucketByColumn(features: FeatureSeed[], columnId: string): FeatureSeed[] {
@@ -100,7 +103,7 @@ function FeatureCard({ feature }: { feature: FeatureSeed }) {
     critical: 'border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-300/30 dark:bg-rose-400/10 dark:text-rose-200',
     high: 'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-300/30 dark:bg-amber-400/10 dark:text-amber-100',
     medium: 'border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-300/30 dark:bg-sky-400/10 dark:text-sky-100',
-    low: 'border-slate-300 bg-slate-50 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-white/60',
+    low: 'border-[var(--color-neutral-300)] bg-[var(--color-neutral-50)] text-[var(--color-neutral-700)] dark:border-white/10 dark:bg-white/5 dark:text-white/60',
   };
 
   const href = featureHref(feature);
@@ -111,12 +114,12 @@ function FeatureCard({ feature }: { feature: FeatureSeed }) {
       href={href}
       linkType="github"
       targetId={`prd:${feature.slug}`}
-      className="block rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-sm shadow-slate-900/5 transition-colors hover:border-[var(--color-brand-indigo)] hover:shadow-md dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none dark:hover:border-[var(--color-brand-indigo)]"
+      className="block rounded-xl border border-[var(--color-neutral-200)] bg-[var(--color-neutral-0,#fff)] px-3 py-2.5 shadow-[var(--elevation-1)] transition-colors hover:border-[var(--color-brand-indigo)] hover:shadow-md dark:border-white/10 dark:bg-white/[0.04] dark:shadow-none dark:hover:border-[var(--color-brand-indigo)]"
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="text-sm font-semibold text-slate-950 dark:text-white">{feature.name}</div>
+        <div className="text-sm font-semibold text-[var(--color-neutral-900)] dark:text-white">{feature.name}</div>
         <span
-          className="shrink-0 font-mono text-[9px] uppercase tracking-wider text-slate-400 group-hover:text-[var(--color-brand-indigo)] dark:text-white/45"
+          className="shrink-0 font-mono text-[9px] uppercase tracking-wider text-[var(--color-neutral-500)] group-hover:text-[var(--color-brand-indigo)] dark:text-white/45"
           aria-label={targetLabel}
           title={targetLabel}
         >
@@ -134,12 +137,12 @@ function FeatureCard({ feature }: { feature: FeatureSeed }) {
           </span>
         )}
         {feature.category && (
-          <span className="rounded-full border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-white/55">
+          <span className="rounded-full border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] px-1.5 py-0.5 text-[var(--color-neutral-500)] dark:border-white/10 dark:bg-white/5 dark:text-white/55">
             {feature.category}
           </span>
         )}
         {feature.rice != null && (
-          <span className="rounded-full border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-white/55">
+          <span className="rounded-full border border-[var(--color-neutral-200)] bg-[var(--color-neutral-50)] px-1.5 py-0.5 text-[var(--color-neutral-500)] dark:border-white/10 dark:bg-white/5 dark:text-white/55">
             RICE {feature.rice}
           </span>
         )}
@@ -168,7 +171,7 @@ function Column({ column, features }: { column: ColumnDef; features: FeatureSeed
           {features.length}
         </span>
       </div>
-      <div className="min-h-[120px] space-y-2 rounded-xl bg-slate-50/60 p-1 dark:bg-white/[0.02]">
+      <div className="min-h-[120px] space-y-2 rounded-xl bg-[var(--color-neutral-50)]/60 p-1 dark:bg-white/[0.02]">
         {features.length === 0 ? (
           <div className="py-8 text-center font-sans text-xs text-[var(--color-neutral-300)] dark:text-[var(--color-neutral-600)]">
             No items
@@ -204,10 +207,10 @@ export default async function ControlRoomBoardPage() {
       <TrackPageView route="board" />
 
       <header className="mb-6">
-        <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
+        <h2 className="font-serif text-2xl font-semibold tracking-tight text-[var(--color-neutral-900)] dark:text-white">
           Board
         </h2>
-        <p className="mt-2 max-w-2xl font-sans text-sm leading-6 text-slate-600 dark:text-white/65">
+        <p className="mt-2 max-w-2xl font-sans text-sm leading-6 text-[var(--color-neutral-700)] dark:text-white/65">
           Every feature, bucketed by current phase. Sourced live from{' '}
           <code className="rounded bg-[var(--color-neutral-100)] px-1 dark:bg-white/[0.06]">
             src/data/features/*.json

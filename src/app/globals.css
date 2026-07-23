@@ -38,6 +38,16 @@
   --color-neutral-800: #292524;
   --color-neutral-900: #1C1917;
 
+  /* Lifecycle phase colors (FIT-135) — semantic tokens for the control-room
+     board + any surface that renders PM-workflow phase state. Grouped by
+     lifecycle stage rather than per-phase so the board reads as 4 bands:
+     pre-build (gray) -> building (blue) -> verifying (purple) -> shipped (green).
+     Dark-mode overrides in html.dark keep contrast on the dark canvas. */
+  --color-phase-pending: #9CA3AF;
+  --color-phase-building: #3B82F6;
+  --color-phase-verifying: #A855F7;
+  --color-phase-done: #10B981;
+
   /* Editorial measures */
   --measure-narrow: 58ch;
   --measure-body: 65ch;
@@ -88,6 +98,12 @@ html.dark {
   --color-neutral-700: #D6D3D1;
   --color-brand-indigo: #818CF8;
   --color-brand-coral: #FDA29B;
+  /* Phase dots sit on the dark canvas as small 8px marks; the light-mode
+     values read muddy at that size, so lift each one stop. */
+  --color-phase-pending: #C4CAD3;
+  --color-phase-building: #60A5FA;
+  --color-phase-verifying: #C084FC;
+  --color-phase-done: #34D399;
   /* Elevation overrides: dark backgrounds hide low-opacity shadows; bump
      opacity so the hierarchy is still readable. */
   --elevation-1: 0 1px 2px rgb(0 0 0 / 0.4);
