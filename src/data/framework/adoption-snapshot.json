@@ -1,54 +1,54 @@
 {
   "version": "1.0",
-  "updated": "2026-07-14T04:43:38Z",
+  "updated": "2026-07-28T04:05:28Z",
   "v6_ship_date": "2026-04-16",
   "description": "Gemini audit Tier 1.1 adoption inventory. Counts which features have v6.0 measurement fields (timing.total_wall_time_minutes, per-phase timing, cache_hits, CU v2) in their state.json.",
   "summary": {
-    "features_total": 131,
-    "features_post_v6": 97,
+    "features_total": 132,
+    "features_post_v6": 98,
     "features_pre_v6": 34,
     "fully_adopted": 9,
-    "partial_adopted": 84,
-    "zero_adopted": 38,
+    "partial_adopted": 86,
+    "zero_adopted": 37,
     "fully_adopted_post_v6": 9,
     "tier_1_1_status": "partial"
   },
   "dimension_coverage": {
     "timing_wall_time": {
       "overall_present": 37,
-      "overall_percent": 28.2,
+      "overall_percent": 28.0,
       "post_v6_present": 37,
-      "post_v6_percent": 38.1,
+      "post_v6_percent": 37.8,
       "overall_instrumented": 18,
       "overall_derived": 19,
       "post_v6_instrumented": 18,
       "post_v6_derived": 19
     },
     "per_phase_timing": {
-      "overall_present": 93,
-      "overall_percent": 71.0,
-      "post_v6_present": 90,
-      "post_v6_percent": 92.8,
-      "overall_instrumented": 93,
+      "overall_present": 95,
+      "overall_percent": 72.0,
+      "post_v6_present": 92,
+      "post_v6_percent": 93.9,
+      "overall_instrumented": 95,
       "overall_derived": 0,
-      "post_v6_instrumented": 90,
+      "post_v6_instrumented": 92,
       "post_v6_derived": 0
     },
     "cache_hits": {
-      "overall_present": 34,
-      "overall_percent": 26.0,
-      "post_v6_present": 33,
-      "post_v6_percent": 34.0,
-      "overall_instrumented": 34,
+      "overall_present": 36,
+      "overall_percent": 27.3,
+      "post_v6_present": 35,
+      "post_v6_percent": 35.7,
+      "overall_instrumented": 36,
       "overall_derived": 0,
-      "post_v6_instrumented": 33,
+      "post_v6_instrumented": 35,
       "post_v6_derived": 0
     },
     "cu_v2": {
       "overall_present": 27,
-      "overall_percent": 20.6,
+      "overall_percent": 20.5,
       "post_v6_present": 27,
-      "post_v6_percent": 27.8,
+      "post_v6_percent": 27.6,
       "overall_instrumented": 27,
       "overall_derived": 0,
       "post_v6_instrumented": 27,
@@ -581,6 +581,15 @@
       }
     },
     {
+      "feature": "ops-digest-skill",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": true,
+        "cu_v2": false
+      }
+    },
+    {
       "feature": "orchid-v1-5",
       "adoption": {
         "timing_wall_time": false,
@@ -675,7 +684,7 @@
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
-        "cache_hits": false,
+        "cache_hits": true,
         "cu_v2": false
       }
     },
@@ -708,6 +717,15 @@
     },
     {
       "feature": "t8-web-webauthn-route-handler-tests",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": false,
+        "cu_v2": false
+      }
+    },
+    {
+      "feature": "t9-backend-chaos-tests",
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
@@ -993,11 +1011,6 @@
     {
       "feature": "t4-ios-snapshot-testing",
       "created": "2026-07-03",
-      "post_v6": true
-    },
-    {
-      "feature": "t9-backend-chaos-tests",
-      "created": "2026-07-04",
       "post_v6": true
     },
     {
@@ -2818,6 +2831,26 @@
       "any_adopted": true
     },
     {
+      "feature": "ops-digest-skill",
+      "created": "2026-07-18",
+      "post_v6": true,
+      "current_phase": "complete",
+      "adoption": {
+        "timing_wall_time": false,
+        "per_phase_timing": true,
+        "cache_hits": true,
+        "cu_v2": false
+      },
+      "provenance": {
+        "timing_wall_time": null,
+        "per_phase_timing": "instrumented",
+        "cache_hits": "instrumented",
+        "cu_v2": null
+      },
+      "fully_adopted": false,
+      "any_adopted": true
+    },
+    {
       "feature": "orchid-v1-5",
       "created": "2026-05-03",
       "post_v6": true,
@@ -3205,13 +3238,13 @@
       "adoption": {
         "timing_wall_time": false,
         "per_phase_timing": true,
-        "cache_hits": false,
+        "cache_hits": true,
         "cu_v2": false
       },
       "provenance": {
         "timing_wall_time": null,
         "per_phase_timing": "instrumented",
-        "cache_hits": null,
+        "cache_hits": "instrumented",
         "cu_v2": null
       },
       "fully_adopted": false,
@@ -3321,21 +3354,21 @@
       "feature": "t9-backend-chaos-tests",
       "created": "2026-07-04",
       "post_v6": true,
-      "current_phase": "implement",
+      "current_phase": "complete",
       "adoption": {
         "timing_wall_time": false,
-        "per_phase_timing": false,
+        "per_phase_timing": true,
         "cache_hits": false,
         "cu_v2": false
       },
       "provenance": {
         "timing_wall_time": null,
-        "per_phase_timing": null,
+        "per_phase_timing": "instrumented",
         "cache_hits": null,
         "cu_v2": null
       },
       "fully_adopted": false,
-      "any_adopted": false
+      "any_adopted": true
     },
     {
       "feature": "training-plan-v2",

@@ -59,14 +59,30 @@ discipline the framework applies to every new gate.
 
 ## Coverage
 
-**Baselined now (T2):** the 4 shared design-system components
-(`AppProgressRing`, `AppPickerChip`, `AppSegmentedControl`, `AppMetricColumn`) —
-the highest-leverage, lowest-flake surfaces — plus the Home v2 screen
-(`MainScreenView`), whose construction recipe mirrors its `#Preview` env-object
-graph.
+**Baselined (as of 2026-07-24 — 13 canonical CI baselines):** the 4 shared
+design-system components (`AppProgressRing`, `AppPickerChip`,
+`AppSegmentedControl`, `AppMetricColumn`) + 5 v2 screens (Home / Stats /
+Nutrition / Training / Settings) + 4 auth views (Welcome / SignIn /
+BiometricUnlock / OnboardingWelcome). Every recorded PNG is **visually inspected
+before commit** — a blank or crashed render is still a PNG, so "the recorder
+wrote a file" is not proof the surface rendered (this caught the blank
+`WelcomeView` before its fix).
 
-**Follow-up (T3):** the remaining v2 screens (Stats / Settings / Nutrition /
-Training / Readiness) + the 4 auth views. Each lands a construction recipe
-alongside a re-record, then flows through the same record → commit → verify
-pipeline. When a screen changes intentionally, re-record (step 1) and commit the
-new baseline in the same PR.
+**Home + Welcome (added 2026-07-24, PR #961)** were the last two hard-skipped
+surfaces. Both were blocked by production-view properties, not test recipes, and
+both fixes are view seams (see observed-patterns **W46**):
+- `testHomeScreenV2` — Home was **wall-clock dependent** (`MainScreenView` read
+  `Date()` for the greeting hour + today's-date string, so a baseline would rot
+  the next calendar day). Fixed with an injectable `now: () -> Date = { Date() }`
+  seam (production default unchanged); the recipe pins a fixed instant. (The
+  earlier `AIOrchestrator` env-graph crash was already resolved via
+  `.snapshotEnvironment()`.)
+- `testWelcomeAuthView` — recorded **BLANK** because `WelcomeView` reveals content
+  from `.onAppear` opacity animations that never complete under the off-screen
+  snapshot host (NOT a missing `NavigationStack`; `.wait` +
+  `drawHierarchyInKeyWindow` both ruled out empirically). Fixed with
+  `WelcomeView(snapshotSettled: Bool = false)`, which seeds the reveal `@State`
+  at final values and skips the animation.
+
+When a screen changes intentionally, re-record (step 1) and commit the new
+baseline in the same PR.

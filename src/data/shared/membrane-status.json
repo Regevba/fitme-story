@@ -1,16 +1,124 @@
 {
-  "generated_at": "2026-07-14T05:42:21+00:00",
+  "generated_at": "2026-07-28T09:14:43+00:00",
   "epoch": 0,
-  "lease_count": 0,
-  "feature_count": 131,
-  "branch_count": 14,
+  "lease_count": 1,
+  "feature_count": 132,
+  "branch_count": 1,
   "features": [
     {
       "slug": "t4-ios-snapshot-testing",
       "current_phase": "implement",
       "framework_version": "v7.10",
       "branch": "chore/fit152-snapshot-testing",
-      "last_touched_utc": "2026-07-14T05:19:42+00:00",
+      "last_touched_utc": "2026-07-24T06:05:28+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t9-backend-chaos-tests",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/advanceable-batch-2026-07-23",
+      "last_touched_utc": "2026-07-23T17:06:43+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "ops-digest-skill",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "feature/ops-digest-skill",
+      "last_touched_utc": "2026-07-20T15:29:28+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "t16-gate-test-tier-annotation",
+      "current_phase": "complete",
+      "framework_version": "v7.10",
+      "branch": "chore/batch-flip-fit164-181-185-closure",
+      "last_touched_utc": "2026-07-17T20:18:04+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "hadf-phase2bis-replication",
+      "current_phase": "complete",
+      "framework_version": "v7.8.3",
+      "branch": "",
+      "last_touched_utc": "2026-07-14T14:40:18+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "dev-env-r11-r13-r14-r17-r18-batch",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/dev-env-r11-r13-r14-r17-r18-batch-post-merge-closure",
+      "last_touched_utc": "2026-07-14T14:29:35+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-deployed-url-probe-ft2",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-deployed-url-probe-ft2-post-merge-closure",
+      "last_touched_utc": "2026-07-14T14:29:35+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-launchd-drift-extension",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-launchd-drift-extension-post-merge-closure",
+      "last_touched_utc": "2026-07-14T14:29:35+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-launchd-drift-extension-sub-a",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-launchd-drift-extension-sub-a-post-merge-closure",
+      "last_touched_utc": "2026-07-14T14:29:35+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "f-phase-e-adoption-freeze-discipline",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/f-phase-e-adoption-freeze-discipline-post-merge-closure",
+      "last_touched_utc": "2026-07-14T14:29:35+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "framework-w30-w31-w32-durable-fixes",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/framework-w30-w31-w32-durable-fixes-post-merge-closure",
+      "last_touched_utc": "2026-07-14T14:29:35+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "r9-track-b-coverage-aggregator",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/r9-track-b-coverage-aggregator-post-merge-closure",
+      "last_touched_utc": "2026-07-14T14:29:35+00:00",
+      "agent_manifest_present": false,
+      "manifest_writes": []
+    },
+    {
+      "slug": "w9-drift-triggered-auto-isolation",
+      "current_phase": "complete",
+      "framework_version": "v7.9.1",
+      "branch": "chore/w9-auto-isolation-closure",
+      "last_touched_utc": "2026-07-14T14:29:35+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
     },
@@ -19,15 +127,6 @@
       "current_phase": "tasks_phase",
       "framework_version": "v7.9.1",
       "branch": "",
-      "last_touched_utc": "2026-07-12T16:23:20+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "t9-backend-chaos-tests",
-      "current_phase": "implement",
-      "framework_version": "v7.10",
-      "branch": "chore/fit157-encryption-rotation-tests",
       "last_touched_utc": "2026-07-12T16:23:20+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
@@ -82,15 +181,6 @@
       "current_phase": "complete",
       "framework_version": "v7.10",
       "branch": "chore/fit183-state-sync-probe",
-      "last_touched_utc": "2026-07-07T16:24:16+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "r9-track-b-coverage-aggregator",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/r9-track-b-coverage-aggregator-post-merge-closure",
       "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
@@ -208,15 +298,6 @@
       "current_phase": "complete",
       "framework_version": "v7.10",
       "branch": "chore/fit163-orphan-test-cron",
-      "last_touched_utc": "2026-07-07T16:24:16+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "t16-gate-test-tier-annotation",
-      "current_phase": "complete",
-      "framework_version": "v7.10",
-      "branch": "chore/batch-flip-fit164-181-185-closure",
       "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
@@ -370,15 +451,6 @@
       "current_phase": "complete",
       "framework_version": "v7.10",
       "branch": "chore/v8-f10-f5-schema-vocab-post-merge-closure",
-      "last_touched_utc": "2026-07-07T16:24:16+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "w9-drift-triggered-auto-isolation",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/w9-auto-isolation-closure",
       "last_touched_utc": "2026-07-07T16:24:16+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
@@ -618,15 +690,6 @@
       "manifest_writes": []
     },
     {
-      "slug": "dev-env-r11-r13-r14-r17-r18-batch",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/dev-env-r11-r13-r14-r17-r18-batch-post-merge-closure",
-      "last_touched_utc": "2026-07-07T16:24:15+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
       "slug": "development-dashboard",
       "current_phase": "complete",
       "framework_version": "pre-v5.0",
@@ -649,42 +712,6 @@
       "current_phase": "complete",
       "framework_version": "v7.9",
       "branch": "chore/state-drift-closure-c2-c3-c5-c6",
-      "last_touched_utc": "2026-07-07T16:24:15+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f-deployed-url-probe-ft2",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/f-deployed-url-probe-ft2-post-merge-closure",
-      "last_touched_utc": "2026-07-07T16:24:15+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f-launchd-drift-extension",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/f-launchd-drift-extension-post-merge-closure",
-      "last_touched_utc": "2026-07-07T16:24:15+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f-launchd-drift-extension-sub-a",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/f-launchd-drift-extension-sub-a-post-merge-closure",
-      "last_touched_utc": "2026-07-07T16:24:15+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
-      "slug": "f-phase-e-adoption-freeze-discipline",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/f-phase-e-adoption-freeze-discipline-post-merge-closure",
       "last_touched_utc": "2026-07-07T16:24:15+00:00",
       "agent_manifest_present": false,
       "manifest_writes": []
@@ -942,15 +969,6 @@
       "manifest_writes": []
     },
     {
-      "slug": "framework-w30-w31-w32-durable-fixes",
-      "current_phase": "complete",
-      "framework_version": "v7.9.1",
-      "branch": "chore/framework-w30-w31-w32-durable-fixes-post-merge-closure",
-      "last_touched_utc": "2026-07-07T16:24:15+00:00",
-      "agent_manifest_present": false,
-      "manifest_writes": []
-    },
-    {
       "slug": "garmin-health-connection",
       "current_phase": "complete",
       "framework_version": "v7.10",
@@ -993,15 +1011,6 @@
       "branch": "feature/hadf-phase2-fingerprint",
       "last_touched_utc": "2026-07-07T16:24:15+00:00",
       "agent_manifest_present": true,
-      "manifest_writes": []
-    },
-    {
-      "slug": "hadf-phase2bis-replication",
-      "current_phase": "complete",
-      "framework_version": "v7.8.3",
-      "branch": "",
-      "last_touched_utc": "2026-07-07T16:24:15+00:00",
-      "agent_manifest_present": false,
       "manifest_writes": []
     },
     {

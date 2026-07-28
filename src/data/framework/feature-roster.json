@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-14T05:42:21Z",
+  "generated_at": "2026-07-28T09:14:43Z",
   "entries": [
     {
       "slug": "3d-interactive-framework-flow-diagram",
@@ -1088,6 +1088,18 @@
       "hadf_phase3a_hooks": null
     },
     {
+      "slug": "ops-digest-skill",
+      "status": "complete",
+      "framework_version": "v7.10",
+      "current_phase": "complete",
+      "case_study": null,
+      "parent_feature": null,
+      "state_owner": "ft2",
+      "isolation_opt_out": false,
+      "has_brainstorm": false,
+      "hadf_phase3a_hooks": null
+    },
+    {
       "slug": "orchid-v1-5",
       "status": "in_progress",
       "framework_version": "v7.7",
@@ -1389,10 +1401,10 @@
     },
     {
       "slug": "t9-backend-chaos-tests",
-      "status": "in_progress",
+      "status": "complete",
       "framework_version": "v7.10",
-      "current_phase": "implement",
-      "case_study": null,
+      "current_phase": "complete",
+      "case_study": "docs/case-studies/t9-backend-chaos-tests-case-study.md",
       "parent_feature": null,
       "state_owner": "ft2",
       "isolation_opt_out": false,
