@@ -9,7 +9,7 @@
 > the source of truth; this doc is a planning view. Bare thematic codes (`F4`/`T14`/`R14`) are
 > retired in favor of prefixed codes to prevent the cross-scheme collisions reconciled 2026-06-29.
 
-**Status (reconciled 2026-06-26):** Feature `analytics-observability` is **COMPLETE** — Phase 1.A (hygiene), Phase 2 (live debugger), Phase 3 (dashboards) + most D-tasks all shipped (state.json `current_phase=complete`). **Phase 1.B gates NOT shipped** — `CSV_TAXONOMY_DRIFT` + `GA4_MCP_DISCONNECTED` (= infra docket F19/F20) are not yet implemented and remain **blocked on the operator GA4 action** (register item A1: mark `workout_complete` + `nutrition_meal_logged` as GA4 Key events; task D-2 `deferred`) + post-launch signal. Downstream **F22 Funnel Analysis Dashboards shipped separately** 2026-06-24 (PR #799, feature `funnel-analysis-dashboards`, live GA4 3/5 funnels).
+**Status (reconciled 2026-06-26):** Feature `analytics-observability` is **COMPLETE** — Phase 1.A (hygiene), Phase 2 (live debugger), Phase 3 (dashboards) + most D-tasks all shipped (state.json `current_phase=complete`). **Phase 1.B gates SHIPPED 2026-06-29** — `CSV_TAXONOMY_DRIFT` (enforced **2026-07-13**, cadence B16) + `GA4_MCP_DISCONNECTED` (advisory-by-design) are both `complete` (PRs #822/#825). The residual **operator GA4 action** (register item A1: mark `workout_complete` + `nutrition_meal_logged` as GA4 Key events; task D-2 `deferred`) remains open — that D-2 operator step, NOT the gates. Downstream **F22 Funnel Analysis Dashboards shipped separately** 2026-06-24 (PR #799, feature `funnel-analysis-dashboards`, live GA4 3/5 funnels).
 **Created:** 2026-05-13
 **Parent:** [`infra-master-plan-2026-05-12.md`](infra-master-plan-2026-05-12.md) §3.6.X
 **Decisions log:** [`analytics-observability-decisions-log-2026-05-13.md`](analytics-observability-decisions-log-2026-05-13.md) (read first if resuming)
@@ -28,7 +28,7 @@ A 3-phase, 4-window analytics framework upgrade that closes 56-row CSV drift + 4
 | 1.A Hygiene | 2026-05-15 → 22 | 6h | No | Backfill + wire + test |
 | 2 Live debugger | 2026-05-15 → 22 (parallel 1.A) | 8h | No | Local mirror + `/analytics watch` + GA4 Realtime poll |
 | 3 Dashboards | 2026-05-21 → 06-04 (parallel v7.9 Phase E) | 10h | No | `/control-room/analytics` + Looker template — ✅ SHIPPED |
-| 1.B Gates | ~~2026-06-04 → 06-26~~ **DEFERRED** | 6h | **Yes** (2 new) | `CSV_TAXONOMY_DRIFT` + `GA4_MCP_DISCONNECTED` — **NOT shipped; blocked on operator GA4 action (A1)** |
+| 1.B Gates | **SHIPPED 2026-06-29** | 6h | **Yes** (2 new) | `CSV_TAXONOMY_DRIFT` (enforced 2026-07-13) + `GA4_MCP_DISCONNECTED` (advisory) — shipped; residual is the operator GA4 action (A1/D-2) |
 
 **Total effort:** ~30 hours over 6 weeks. **Phases 1.A/2/3 shipped; Phase 1.B deferred (operator-gated).** Reconciled 2026-06-26.
 
@@ -431,12 +431,48 @@ Phase 3 close trigger: green scaffold merged + (after 2026-06-04) yellow live-wi
 
 For both gates, before merging Phase 1.B PR:
 
-- [ ] Gate spec section in this doc (§8.2 + §8.3) — ✅ written
-- [ ] 1 positive fixture per gate (`tests/fixtures/gate-fixtures/CSV_TAXONOMY_DRIFT/positive/`)
-- [ ] 1 negative fixture per gate (`tests/fixtures/gate-fixtures/CSV_TAXONOMY_DRIFT/negative/`)
-- [ ] Dispatch regression test: asserts `coverage.candidate(GATE)` fires under expected input partition
+- [x] Gate spec section in this doc (§8.2 + §8.3) — ✅ written
+- [ ] **1 positive fixture per gate** (`tests/fixtures/CSV_TAXONOMY_DRIFT/positive/`) — ❌ **NOT MET**
+- [ ] **1 negative fixture per gate** (`tests/fixtures/CSV_TAXONOMY_DRIFT/negative/`) — ❌ **NOT MET**
+- [x] Dispatch regression test — ✅ `scripts/tests/test_csv_taxonomy_drift.py`
 
-These ride on F16 try-repo harness when it ships v7.9.1 (~2026-06-11). Phase 1.B fixture authoring CAN start before F16 ships; harness integration finalizes after.
+> ⚠️ **Requirement not met — recorded 2026-07-23 (W40 system reconcile).**
+>
+> These were **pre-merge** requirements per §3.5.1. Both gates merged anyway,
+> and `CSV_TAXONOMY_DRIFT` was subsequently promoted advisory→**enforced** on
+> 2026-07-13 (cadence B16) — so a gate that now **blocks commits** never got
+> the try-repo fixture pair this section made a condition of merging.
+>
+> This is not a documentation slip; it is **discipline drift on the
+> enforcement layer itself**. CLAUDE.md (v7.9.1 F16) states the rule
+> unambiguously: *"every gate added going forward MUST ship with a try-repo
+> fixture pair under `tests/fixtures/<GATE_ID>/{positive,negative}/` PLUS a
+> per-gate test."* Since F16 shipped, **5 write-time gates** have accumulated
+> without that fixture pair — machine-confirmed, not estimated, by
+> `.claude/shared/gate-catalog.json::summary.write_time_without_try_repo`:
+>
+> | Gate | Enforced? | Has a test? |
+> |---|---|---|
+> | `CSV_TAXONOMY_DRIFT` | **yes** (2026-07-13) | unit/dispatch only |
+> | `PLATFORMS_TESTED` | **yes** (2026-06-21) | unit only |
+> | `SCHEMA_DIFF` | **yes** (2026-07-20) | has `test_try_repo_schema_diff.py` but **no fixture dir**, so the catalog cannot derive try-repo tier |
+> | `GA4_MCP_DISCONNECTED` | no (advisory by design) | unit only |
+> | `PR_NUMBER_UNRESOLVED` | yes (pre-dates F16) | unit only |
+>
+> Note the path drift too: this section wrote `tests/fixtures/gate-fixtures/…`;
+> the actual F16 convention is `tests/fixtures/<GATE_ID>/…`.
+>
+> **Why it matters:** try-repo is the only tier that exercises the *real*
+> `.githooks/pre-commit` end-to-end. F16 exists because that tier caught two
+> architectural bugs the monkey-patched dispatch tier structurally could not
+> see. Three enforced gates currently rest on tiers that cannot see that class.
+>
+> **Disposition:** not fixed in this reconcile (authoring 3–5 fixture pairs is
+> its own task, not a doc sweep). Filed in
+> [`backlog.md`](../product/backlog.md) under *High Priority (Architecture &
+> Framework)*. The planned **T1 `GATE_TEST_MISSING`** meta-gate (FIT-149,
+> date-gated 2026-08-22) consumes exactly this machine signal — it would fire
+> on all 5 today, which is the strongest argument for building it on schedule.
 
 ---
 

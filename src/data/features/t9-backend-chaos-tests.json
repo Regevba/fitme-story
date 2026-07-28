@@ -3,9 +3,9 @@
   "linear_id": "FIT-157",
   "thematic_code": "TC-T9",
   "created_at": "2026-07-04T05:45:00Z",
-  "updated": "2026-07-04T06:05:00Z",
-  "branch": "chore/fit157-encryption-rotation-tests",
-  "current_phase": "implement",
+  "updated": "2026-07-23T00:00:00Z",
+  "branch": "chore/advanceable-batch-2026-07-23",
+  "current_phase": "complete",
   "work_type": "chore",
   "schema_version": 1,
   "state_owner": "ft2",
@@ -18,26 +18,66 @@
   "platforms_tested": {
     "ios": true,
     "web": false,
-    "backend": false,
+    "backend": true,
     "ai": false
   },
   "platforms_tested_provenance": "authored",
-  "summary": "T9 (test-coverage plan §4) FOUNDATION — adversarial backend chaos/edge tests. First slice: 3 EncryptionService chaos tests on the session-context path (concurrent round-trips / actor serialization, ~2MB large-payload round-trip, 50-payload no-cross-contamination). NOTE: the biometric-gated rotateKeys path is untestable on the CI simulator (LAError -7 no enrolled authenticator) — deferred to T2 pending biometry-enrolled CI or a prod test seam. Remaining bullet areas (sync reconciliation, GDPR cascade, network-churn auth) are T3 follow-ups. Test-only, no prod change.",
+  "summary": "T9 (test-coverage plan \u00a74) FOUNDATION \u2014 adversarial backend chaos/edge tests. First slice: 3 EncryptionService chaos tests on the session-context path (concurrent round-trips / actor serialization, ~2MB large-payload round-trip, 50-payload no-cross-contamination). NOTE: the biometric-gated rotateKeys path is untestable on the CI simulator (LAError -7 no enrolled authenticator) \u2014 deferred to T2 pending biometry-enrolled CI or a prod test seam. Remaining bullet areas (sync reconciliation, GDPR cascade, network-churn auth) are T3 follow-ups. Test-only, no prod change.",
   "phases": {
-    "research": { "status": "skipped", "skip_reason": "work_type:chore" },
-    "prd": { "status": "skipped", "skip_reason": "work_type:chore" },
-    "tasks": { "status": "skipped", "skip_reason": "work_type:chore" },
-    "ux_or_integration": { "status": "skipped", "skip_reason": "work_type:chore" },
-    "implementation": { "status": "in_progress", "commits": [] },
-    "testing": { "status": "pending" },
-    "review": { "status": "pending" },
-    "merge": { "status": "pending", "pr_number": null },
-    "documentation": { "status": "pending" }
+    "research": {
+      "status": "skipped",
+      "skip_reason": "work_type:chore"
+    },
+    "prd": {
+      "status": "skipped",
+      "skip_reason": "work_type:chore"
+    },
+    "tasks": {
+      "status": "skipped",
+      "skip_reason": "work_type:chore"
+    },
+    "ux_or_integration": {
+      "status": "skipped",
+      "skip_reason": "work_type:chore"
+    },
+    "implementation": {
+      "status": "approved",
+      "commits": [],
+      "notes": "T1/T3/T4 shipped via #846/#873/#908. T2 deferred (biometry-gated CI sim)."
+    },
+    "testing": {
+      "status": "approved",
+      "notes": "The deliverable IS the tests: 10 chaos tests across EncryptionService (3) + AccountDeletionService (7); full FitTrackerTests suite green on each of the 3 merges."
+    },
+    "review": {
+      "status": "approved",
+      "notes": "Reviewed per-PR on #846, #873, #908."
+    },
+    "merge": {
+      "status": "approved",
+      "pr_number": 908,
+      "related_prs": [
+        846,
+        873,
+        908
+      ]
+    },
+    "documentation": {
+      "status": "approved",
+      "notes": "Case study docs/case-studies/t9-backend-chaos-tests-case-study.md (2026-07-23)."
+    }
   },
   "timing": {
     "phases": {
-      "implement": { "started_at": "2026-07-04T05:45:00Z" }
-    }
+      "implement": {
+        "started_at": "2026-07-04T05:45:00Z",
+        "ended_at": "2026-07-16T08:08:41Z"
+      },
+      "complete": {
+        "started_at": "2026-07-23T00:00:00Z"
+      }
+    },
+    "wall_time_seconds": 1649321
   },
   "tasks": [
     {
@@ -49,18 +89,21 @@
       "priority": "high",
       "effort_days": 0.3,
       "depends_on": [],
-      "completed_at": "2026-07-04T06:00:00Z"
+      "completed_at": "2026-07-04T06:00:00Z",
+      "pr_number": 846
     },
     {
       "id": "T2",
-      "title": "Key-rotation chaos tests (rotateKeys) — needs biometry-enrolled CI simulator or a prod test seam for authenticatedContext()",
+      "title": "Key-rotation chaos tests (rotateKeys) \u2014 needs biometry-enrolled CI simulator or a prod test seam for authenticatedContext()",
       "type": "test",
       "skill": "qa",
-      "status": "pending",
+      "status": "deferred",
       "priority": "medium",
       "effort_days": 0.5,
       "depends_on": [],
-      "completed_at": null
+      "completed_at": null,
+      "deferred_reason": "Blocked: rotateKeys() calls authenticatedContext(), which needs an enrolled biometric authenticator; CI simulator returns LAError -7. Options are a biometry-enrolled runner (infra absent) or a production LAContext seam (widens the auth surface for a test) \u2014 both out of proportion. Recorded as a named-blocker deferral, not silent coverage.",
+      "experiment_outcome": "deferred_blocked"
     },
     {
       "id": "T3",
@@ -72,22 +115,28 @@
       "effort_days": 0.7,
       "depends_on": [],
       "completed_at": "2026-07-11T09:15:00Z",
-      "notes": "Shipped 6 seam-free, isolation-safe chaos tests in AccountDeletionServiceTests.swift: network-churn resilience (request/cancel survive best-effort remote-sync failure — local is source of truth per Audit BE-023), rapid request/cancel alternation state-machine consistency, checkGracePeriod relaunch idempotency, and a 30-day grace-boundary sweep (daysRemaining clamp + monotonicity + whole-day-truncation expiry semantics). 12/12 AccountDeletionServiceTests pass on iPhone 17 sim (Xcode 26.6). The destructive full executeDeletion() partial-failure cascade is split to T4 (needs a sync-service seam)."
+      "notes": "Shipped 6 seam-free, isolation-safe chaos tests in AccountDeletionServiceTests.swift: network-churn resilience (request/cancel survive best-effort remote-sync failure \u2014 local is source of truth per Audit BE-023), rapid request/cancel alternation state-machine consistency, checkGracePeriod relaunch idempotency, and a 30-day grace-boundary sweep (daysRemaining clamp + monotonicity + whole-day-truncation expiry semantics). 12/12 AccountDeletionServiceTests pass on iPhone 17 sim (Xcode 26.6). The destructive full executeDeletion() partial-failure cascade is split to T4 (needs a sync-service seam).",
+      "pr_number": 873
     },
     {
       "id": "T4",
-      "title": "Destructive full executeDeletion() partial-failure cascade test — requires an injectable protocol seam over SupabaseSyncService/CloudKitSyncService (both `final` + high-risk-area)",
+      "title": "Destructive full executeDeletion() partial-failure cascade test \u2014 requires an injectable protocol seam over SupabaseSyncService/CloudKitSyncService (both `final` + high-risk-area)",
       "type": "test",
       "skill": "qa",
-      "status": "pending",
+      "status": "complete",
       "priority": "low",
       "effort_days": 0.5,
       "depends_on": [],
-      "completed_at": null,
-      "notes": "Same blocker class as T2 (needs a prod test seam). The final sync services can't be fault-injected without a protocol abstraction, and that change lands in high-risk files (SupabaseSyncService.swift / CloudKitSyncService.swift) requiring the extra-review policy — deferred to a reviewed seam PR rather than forced with fragile, non-isolated real-network tests."
+      "completed_at": "2026-07-16",
+      "notes": "SHIPPED 2026-07-16. Introduced a narrow protocol seam (AccountDeletionSupabaseSyncing / AccountDeletionCloudSyncing) capturing only the surface AccountDeletionService drives; the final high-risk services conform via zero-behavior extensions (extension SupabaseSyncService/CloudKitSyncService {} in their own files) \u2014 no behavior change, backward-compatible (existing tests pass real services unchanged). 4 partial-failure cascade tests added to AccountDeletionServiceTests: all-succeed, supabase-fail-cascade-continues, cloudkit-fail-cascade-continues, both-fail. Assertions key on deletionError \"Still pending:\" segment so they stay deterministic vs the real local device/keychain steps. Verified: all 4 executed + passed on iPhone 17 Pro sim (TEST SUCCEEDED). High-risk-area extra-review policy applies at PR (touches SupabaseSyncService.swift + CloudKitSyncService.swift \u2014 conformance-only).",
+      "pr_number": 908
     }
   ],
   "transitions": [],
   "figma_node_ids": {},
-  "pre_merge_review": { "ux": null, "design": null }
+  "pre_merge_review": {
+    "ux": null,
+    "design": null
+  },
+  "case_study": "docs/case-studies/t9-backend-chaos-tests-case-study.md"
 }

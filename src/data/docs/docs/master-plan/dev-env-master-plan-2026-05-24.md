@@ -11,6 +11,13 @@
 
 > **Status:** CURRENT · Opened 2026-05-24 as a sub-doc of [`infra-master-plan-2026-05-12.md`](infra-master-plan-2026-05-12.md)
 > **Source audit:** [`docs/research/2026-05-19-dev-env-audit-stability-and-scale.md`](../research/2026-05-19-dev-env-audit-stability-and-scale.md) (655 lines, 24 ranked recommendations, 4 tiers)
+> **⚠ R-numbering (clarified 2026-07-23):** the R1–R24 in THIS plan are the
+> **`DEV-AUDIT-R##`** series (faithful to the 2026-05-19 audit). They are a
+> *different* set from Linear epic FIT-166's R1–R24, which is the live
+> **`DE-R##`** scheme — the two diverge from R3 onward (this plan's `R15` is
+> Playwright; `DE-R15` is pre-commit latency profiling). Cite this plan's rows as
+> `DEV-AUDIT-R##`. Full crosswalk:
+> [`cross-layer-item-naming-convention.md` §2.1](../process/cross-layer-item-naming-convention.md).
 > **Scope:** The development environment for both repos (FT2 iOS + ai-engine + dashboard + website; fitme-story Next.js + control room), plus the v7.8.6 framework substrate, multi-agent harness, and supporting CI/observability infra. Drives lint/test/coverage/security/backup hardening across 24 R-items grouped in 4 tiers.
 > **Purpose:** Codify the 2026-05-19 dev-env audit as a tracked, in-spec master plan so that (a) every R-item is mirrored as a backlog row, (b) status is visible on disk via this sub-plan (not memory-only), (c) the calibration calendar respects v7.9 Phase E + branch-isolation infra-globs, and (d) shipped vs open status is greppable.
 > **Why a sub-plan, not a section in the infra plan:** Same pattern as [`test-coverage-master-plan-2026-05-13.md`](test-coverage-master-plan-2026-05-13.md) + [`analytics-master-plan-2026-05-13.md`](analytics-master-plan-2026-05-13.md) — dev-env work has its own R-series candidates, its own shipping calendar, and its own per-item calibration. Folding 24 items into infra plan §3 would crowd out v7.9.1 → v8.x F-series planning.
@@ -22,7 +29,7 @@
 
 ## 0. TL;DR
 
-**6 of 24 shipped, 18 open.** Memory's "16/24" tally was an optimistic count; ground-truth fs sweep on 2026-05-24 confirms R1+R2+R3+R4+R5+R6 (all fully shipped — R6 re-verified 2026-05-24 PR-2A audit). The other 18 R-items remain open work — primarily lint/coverage/security tooling that's been calendar-blocked by the v7.9 calibration window (2026-05-15 → 2026-05-21) and is now eligible to ship starting **2026-05-22** with most items unblocking after Phase E exit (~2026-06-04).
+**Most R-items shipped** (was "6 of 24 shipped, 18 open" at the 2026-05-24 baseline). Per the 2026-06-07 refresh header above, R1–R6 + R7/R8/R9/R11/R12/R13/R14/R17/R18 + R10 (launchd→GHA, 2026-07-01) have shipped; the lint/coverage/security tooling that was calendar-blocked by the v7.9 window has since landed. Residual open items are tracked per-row below.
 
 **Tier breakdown (post-audit ground truth):**
 
@@ -131,7 +138,7 @@ Source-of-truth fs sweep on 2026-05-24. `[x]` = file/config/policy exists on dis
 |---|---|---|---|
 | R13 | Add `pip-audit` to ai-engine CI | **[x]** SHIPPED 2026-06-04 (warn-only baseline) | `.github/workflows/pip-audit.yml` — PR (paths-filtered to `ai-engine/**`) + Monday 07:00 UTC cron. continue-on-error: true; columns + JSON output; JSON uploaded as 14-day artifact. Companion to External Audit #2 (2026-06-12). |
 | R14 | Add SBOM generation (`syft`) on release tags | **[x]** SHIPPED 2026-06-04 (will fire on first v* tag) | `.github/workflows/sbom.yml` — `on: push.tags: v*`. Generates both SPDX-JSON and CycloneDX-JSON via `anchore/sbom-action@v0`. continue-on-error: true. Dormant until first release tag. |
-| R15 | Add Playwright smoke specs for fitme-story | **[ ]** OPEN | No `playwright.config.ts`; precondition for C2 (T6 RICE 200, now CLOSED via fitme-story #137) — Playwright still needed for `/control-room/*` E2E coverage |
+| R15 | Add Playwright smoke specs for fitme-story | **[x]** SHIPPED 2026-07-04 via TC-T7 (FIT-155) | `fitme-story/playwright.config.ts` + `e2e/{routes,framework}/` specs + `.github/workflows/e2e-playwright.yml`. 5-route smoke (`/`, `/case-studies`, `/control-room/framework`, `/control-room/analytics`, `/api/auth/authenticate/options`); the `webServer` sets `DASHBOARD_PUBLIC=true` so the auth-gated `/control-room/*` routes render. fitme-story #257 + FT2 closure #841. **Row was stale-open until the 2026-07-23 W40 sweep** — R15 was satisfied by the test-coverage plan's T7, not by dev-env work. |
 | R16 | Add `@sentry/nextjs` to fitme-story | **[ ]** OPEN | Not in fitme-story package.json; gated on Sentry-integration paused → pre-launch trigger |
 | R17 | Add commitlint for conventional-commits | **[x]** SHIPPED 2026-06-04 (warn-only baseline) | `commitlint.config.js` at FT2 root (`@commitlint/config-conventional` + relaxed header/body length limits + project-specific type-enum) + `.github/workflows/commitlint.yml` (PR-only). continue-on-error: true; lints every commit in the PR range. |
 | R18 | Add `shellcheck` to pre-commit | **[~]** GH Action SHIPPED 2026-06-04 (warn-only baseline) | `.github/workflows/shellcheck.yml` — PR + push + workflow_dispatch via `ludeeus/action-shellcheck@master` against `scripts/` + `.githooks/pre-commit`. continue-on-error: true; severity=warning. Pre-commit-hook integration deferred to a later PR for the same reason as R11. |

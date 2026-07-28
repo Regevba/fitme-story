@@ -92,17 +92,13 @@
     "CSV_TAXONOMY_DRIFT": {
       "stage": "write-time",
       "source": "scripts/check-state-schema.py",
-      "enforcement": "advisory",
-      "description": "AN-1B.1 — staged AnalyticsEvent value has no analytics-taxonomy.csv row.",
+      "enforcement": "enforced",
+      "description": "AN-1B.1 — staged AnalyticsEvent value has no analytics-taxonomy.csv row. Enforced 2026-07-13 (cadence B16).",
       "tier": "unit",
       "fixture_path": null,
       "test_files": [
         {
           "file": "scripts/tests/test_csv_taxonomy_drift.py",
-          "layer": "unit"
-        },
-        {
-          "file": "scripts/tests/test_try_repo_schema_diff.py",
           "layer": "unit"
         }
       ]
@@ -184,8 +180,8 @@
     "FRAMEWORK_VERSION_STALE": {
       "stage": "write-time",
       "source": "scripts/check-state-schema.py",
-      "enforcement": "advisory",
-      "description": "F4 — framework_version behind the current framework version (advisory→enforced review ~2026-06-30).",
+      "enforcement": "enforced",
+      "description": "F4 — framework_version behind the current framework version. Enforced 2026-07-08 (cadence F4, PR #858).",
       "tier": "try-repo",
       "fixture_path": "tests/fixtures/FRAMEWORK_VERSION_STALE/",
       "test_files": [
@@ -230,8 +226,8 @@
     "SCHEMA_DIFF": {
       "stage": "write-time",
       "source": "scripts/check-state-schema.py",
-      "enforcement": "advisory",
-      "description": "T12/FIT-160 — SupabaseSyncService column literal (CodingKeys/.select/onConflict) references a column absent from the synced Supabase tables (migration rename/drop drift).",
+      "enforcement": "enforced",
+      "description": "T12/FIT-160 — SupabaseSyncService column literal (CodingKeys/.select/onConflict) references a column absent from the synced Supabase tables (migration rename/drop drift). Enforced 2026-07-20 (cadence B17).",
       "tier": "unit",
       "fixture_path": null,
       "test_files": [
@@ -307,6 +303,10 @@
       "tier": "unit",
       "fixture_path": null,
       "test_files": [
+        {
+          "file": "scripts/tests/test_daily_cron_plist_template.py",
+          "layer": "unit"
+        },
         {
           "file": "scripts/tests/test_pre_commit_self_test.py",
           "layer": "unit"
@@ -451,6 +451,10 @@
       "tier": "unit",
       "fixture_path": null,
       "test_files": [
+        {
+          "file": "scripts/tests/test_daily_cron_plist_template.py",
+          "layer": "unit"
+        },
         {
           "file": "scripts/tests/test_integrity_cycle_coverage.py",
           "layer": "unit"
@@ -615,6 +619,10 @@
       "tier": "unit",
       "fixture_path": null,
       "test_files": [
+        {
+          "file": "scripts/tests/test_gate_coverage_canonical_ledger.py",
+          "layer": "unit"
+        },
         {
           "file": "scripts/tests/test_w9_auto_isolate.py",
           "layer": "unit"

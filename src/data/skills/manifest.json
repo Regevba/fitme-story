@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-14T05:42:21.569Z",
+  "syncedAt": "2026-07-28T09:14:43.676Z",
   "source": "/Users/regevbarak/Developer/FitMe/FitTracker2/.claude/skills",
   "skills": [
     {
@@ -44,7 +44,7 @@
       "adaptersUsed": [
         "axe"
       ],
-      "loc": 385
+      "loc": 386
     },
     {
       "name": "dev",
@@ -55,7 +55,7 @@
       "adaptersUsed": [
         "security-audit"
       ],
-      "loc": 259
+      "loc": 263
     },
     {
       "name": "marketing",
@@ -71,15 +71,15 @@
     },
     {
       "name": "ops",
-      "description": "Use when running an infrastructure health check, responding to a production incident, auditing cloud cost, configuring alert thresholds, or feeding the UCC Source Health panel. Monitors Railway (FastAPI), Supabase (PostgreSQL), CloudKit, Firebase/GA4, Vercel, GitHub Actions. Sub-commands: /ops health, /ops incident {description}, /ops cost, /ops alerts.",
+      "description": "Use when running an infrastructure health check, responding to a production incident, auditing cloud cost, configuring alert thresholds, or feeding the UCC Source Health panel. Monitors Railway (FastAPI), Supabase (PostgreSQL), CloudKit, Firebase/GA4, Vercel, GitHub Actions. Sub-commands: /ops health, /ops incident {description}, /ops cost, /ops alerts, /ops digest.",
       "status": "stable",
-      "lastUpdated": "2026-05-15",
-      "frameworkVersion": "v7.8.6",
+      "lastUpdated": "2026-07-18",
+      "frameworkVersion": "v7.10",
       "adaptersUsed": [
         "security-audit",
         "sentry"
       ],
-      "loc": 272
+      "loc": 307
     },
     {
       "name": "pm-workflow",
@@ -90,7 +90,7 @@
       "adaptersUsed": [
         "ga4"
       ],
-      "loc": 1854
+      "loc": 1856
     },
     {
       "name": "qa",
@@ -103,7 +103,7 @@
         "security-audit",
         "sentry"
       ],
-      "loc": 206
+      "loc": 208
     },
     {
       "name": "release",
@@ -114,7 +114,7 @@
       "adaptersUsed": [
         "app-store-connect"
       ],
-      "loc": 222
+      "loc": 223
     },
     {
       "name": "research",
@@ -136,7 +136,7 @@
       "adaptersUsed": [
         "axe"
       ],
-      "loc": 560
+      "loc": 561
     }
   ]
 }
