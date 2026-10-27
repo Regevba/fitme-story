@@ -2,12 +2,21 @@
   "version": "1.0",
   "leases": [
     {
-      "session_id": "24893f28-a78b-47fb-bad2-c3d1e28cae2a",
+      "session_id": "d2a486f0-9c29-4d75-9288-13995d8da4c9",
       "feature": "ops-digest-skill",
       "worktree_path": "/Users/regevbarak/Developer/FitMe/FitTracker2",
       "leased_paths": [],
-      "started_at": "2026-07-28T04:05:08Z",
-      "last_heartbeat": "2026-07-28T09:13:36Z",
+      "started_at": "2026-10-26T06:13:58Z",
+      "last_heartbeat": "2026-10-27T04:45:38Z",
+      "status": "active"
+    },
+    {
+      "session_id": "218a7295-a8b7-4ab7-9bf5-f830ec7b3c1a",
+      "feature": "ops-digest-skill",
+      "worktree_path": "/Users/regevbarak/Developer/FitMe/FitTracker2",
+      "leased_paths": [],
+      "started_at": "2026-10-27T04:45:42Z",
+      "last_heartbeat": "2026-10-27T04:51:22Z",
       "status": "active"
     }
   ]
